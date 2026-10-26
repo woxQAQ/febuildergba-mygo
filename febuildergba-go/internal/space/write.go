@@ -1,4 +1,4 @@
-// Package space plans resource moves using declared free ranges and verified references.
+// Package space plans resource writes and moves using declared free ranges and verified references.
 package space
 
 import (
@@ -55,6 +55,18 @@ type Move struct {
 type Plan struct {
 	Destination Range
 	Edit        rom.Edit
+}
+
+// PlanAppend allocates aligned space at the ROM end without reusing existing bytes.
+func PlanAppend(size int, content []byte) (Plan, error) {
+	if size < 1 || size > rom.MaxSize || len(content) == 0 {
+		return Plan{}, ErrRange
+	}
+	destination, err := allocate(size, len(content), nil, nil)
+	if err != nil {
+		return Plan{}, err
+	}
+	return Plan{Destination: destination, Edit: rom.Edit{Size: destination.End, Changes: []rom.Change{{Offset: destination.Start, Data: bytes.Clone(content)}}}}, nil
 }
 
 // PlanMove preserves the source and updates only explicitly selected references.

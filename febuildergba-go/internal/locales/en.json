@@ -41,7 +41,7 @@
     }
   },
   "space_invalid_range": "The declared free space is invalid or overlaps protected data. No changes were applied.",
-  "space_no_capacity": "Moving this table would exceed the 32 MiB ROM limit.",
+  "space_no_capacity": "This operation would exceed the 32 MiB ROM limit.",
   "space_invalid_reference": "A confirmed reference no longer points to the source, or no reference could be confirmed. No changes were applied.",
   "invalid_address": "Enter a hexadecimal ROM offset or a GBA ROM address starting with 08 or 09.",
   "batch_edit": "Batch edit",
@@ -89,6 +89,20 @@
   "items": "Items",
   "search": "Search names or IDs",
   "name": "Name",
+  "edit_name": "New name",
+  "preview_name": "Preview name",
+  "apply_name": "Apply name",
+  "name_edit_scope": "English ROMs accept printable ASCII; Japanese ROMs accept Shift-JIS text. Characters must be supported by this ROM. Preview and apply the name, then save.",
+  "name_needs_id": "Choose an existing nonzero name text ID before editing its text.",
+  "name_edit_summary": "Text ID {textID}: all uses of this ID will change. Known character, class and item records: {count}.",
+  "@name_edit_summary": {
+    "placeholders": {
+      "textID": { "type": "String" },
+      "count": { "type": "int" }
+    }
+  },
+  "game_invalid_name_encoding": "This name cannot be encoded with the ROM's character encoding and Huffman tree. Use supported characters without leading or trailing spaces; game text must fit 4096 bytes.",
+  "game_invalid_text": "The text entry or Huffman tree is invalid. Writing requires a valid primary text-table pointer.",
   "id": "ID",
   "address": "Address",
   "records": "records",

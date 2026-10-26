@@ -356,11 +356,11 @@ func (msgs Messages) SpaceInvalidRange() string {
 	return Catalog.Format(msgs.locale, "space_invalid_range", nil)
 }
 
-// SpaceNoCapacity says "Moving this table would exceed the 32 MiB ROM limit."
+// SpaceNoCapacity says "This operation would exceed the 32 MiB ROM limit."
 // in the language the app shows.
 func SpaceNoCapacity() string { return In(i18n.Locale()).SpaceNoCapacity() }
 
-// SpaceNoCapacity says "Moving this table would exceed the 32 MiB ROM limit."
+// SpaceNoCapacity says "This operation would exceed the 32 MiB ROM limit."
 // in the language of msgs.
 func (msgs Messages) SpaceNoCapacity() string {
 	return Catalog.Format(msgs.locale, "space_no_capacity", nil)
@@ -834,6 +834,88 @@ func Name() string { return In(i18n.Locale()).Name() }
 // in the language of msgs.
 func (msgs Messages) Name() string {
 	return Catalog.Format(msgs.locale, "name", nil)
+}
+
+// EditName says "New name"
+// in the language the app shows.
+func EditName() string { return In(i18n.Locale()).EditName() }
+
+// EditName says "New name"
+// in the language of msgs.
+func (msgs Messages) EditName() string {
+	return Catalog.Format(msgs.locale, "edit_name", nil)
+}
+
+// PreviewName says "Preview name"
+// in the language the app shows.
+func PreviewName() string { return In(i18n.Locale()).PreviewName() }
+
+// PreviewName says "Preview name"
+// in the language of msgs.
+func (msgs Messages) PreviewName() string {
+	return Catalog.Format(msgs.locale, "preview_name", nil)
+}
+
+// ApplyName says "Apply name"
+// in the language the app shows.
+func ApplyName() string { return In(i18n.Locale()).ApplyName() }
+
+// ApplyName says "Apply name"
+// in the language of msgs.
+func (msgs Messages) ApplyName() string {
+	return Catalog.Format(msgs.locale, "apply_name", nil)
+}
+
+// NameEditScope says "English ROMs accept printable ASCII; Japanese ROMs accept Shift-JIS text. Characters must be supported by this ROM. P…"
+// in the language the app shows.
+func NameEditScope() string { return In(i18n.Locale()).NameEditScope() }
+
+// NameEditScope says "English ROMs accept printable ASCII; Japanese ROMs accept Shift-JIS text. Characters must be supported by this ROM. P…"
+// in the language of msgs.
+func (msgs Messages) NameEditScope() string {
+	return Catalog.Format(msgs.locale, "name_edit_scope", nil)
+}
+
+// NameNeedsId says "Choose an existing nonzero name text ID before editing its text."
+// in the language the app shows.
+func NameNeedsId() string { return In(i18n.Locale()).NameNeedsId() }
+
+// NameNeedsId says "Choose an existing nonzero name text ID before editing its text."
+// in the language of msgs.
+func (msgs Messages) NameNeedsId() string {
+	return Catalog.Format(msgs.locale, "name_needs_id", nil)
+}
+
+// NameEditSummary says "Text ID {textID}: all uses of this ID will change. Known character, class and item records: {count}."
+// in the language the app shows.
+func NameEditSummary(textID string, count int) string {
+	return In(i18n.Locale()).NameEditSummary(textID, count)
+}
+
+// NameEditSummary says "Text ID {textID}: all uses of this ID will change. Known character, class and item records: {count}."
+// in the language of msgs.
+func (msgs Messages) NameEditSummary(textID string, count int) string {
+	return Catalog.Format(msgs.locale, "name_edit_summary", map[string]any{"textID": textID, "count": count})
+}
+
+// GameInvalidNameEncoding says "This name cannot be encoded with the ROM's character encoding and Huffman tree. Use supported characters without lead…"
+// in the language the app shows.
+func GameInvalidNameEncoding() string { return In(i18n.Locale()).GameInvalidNameEncoding() }
+
+// GameInvalidNameEncoding says "This name cannot be encoded with the ROM's character encoding and Huffman tree. Use supported characters without lead…"
+// in the language of msgs.
+func (msgs Messages) GameInvalidNameEncoding() string {
+	return Catalog.Format(msgs.locale, "game_invalid_name_encoding", nil)
+}
+
+// GameInvalidText says "The text entry or Huffman tree is invalid. Writing requires a valid primary text-table pointer."
+// in the language the app shows.
+func GameInvalidText() string { return In(i18n.Locale()).GameInvalidText() }
+
+// GameInvalidText says "The text entry or Huffman tree is invalid. Writing requires a valid primary text-table pointer."
+// in the language of msgs.
+func (msgs Messages) GameInvalidText() string {
+	return Catalog.Format(msgs.locale, "game_invalid_text", nil)
 }
 
 // Id says "ID"

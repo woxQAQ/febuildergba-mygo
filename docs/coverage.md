@@ -24,7 +24,7 @@
 | native.launch        | macOS 原生应用             | Go、SDK、MyGo                                   | 已接入应用入口及打包配置                                                      |
 | rom.open             | 识别并打开 ROM             | ROM.LoadLow                                     | 已接入 FE8U／FE8J／FE7U／FE7J／FE6                                            |
 | rom.noop             | 无修改保存                 | ROM.Save                                        | 已实现；保留原有字节                                                          |
-| rom.history          | 修改、撤销、重做及保存点   | Undo、InputFormRef                              | 已实现；单字段、批量和原始字节共用历史                                        |
+| rom.history          | 修改、撤销、重做及保存点   | Undo、InputFormRef                              | 已实现；单字段、批量、名称写入和原始字节共用历史                                        |
 | rom.save             | 保存、另存、备份及失败处理 | MainFormUtil                                    | 已实现快照写入、备份和替换                                                    |
 | rom.save-snapshot    | 保存期间保持文档可读       | 后台保存边界                                    | 已实现；I/O 不持有状态锁，新修改保持未保存                                    |
 | rom.external         | 检测外部修改               | ROMUpdateWatcher                                | 部分实现；保存与聚焦时检查摘要，持续监视未实现                                |
@@ -53,12 +53,12 @@
 | fe8j.units              | 人物基础字段         | ROMFE8JP、UnitForm                      | 已接入；补丁扩展字段待实现                               |
 | fe8j.classes            | 职业基础字段         | ROMFE8JP、ClassForm                     | 已接入；其他职业资源待实现                               |
 | fe8j.items              | 道具基础字段         | ROMFE8JP、ItemForm                      | 已接入；补丁扩展待实现                                   |
-| fe8j.names              | 名称读取与搜索       | FETextDecode、FETextEncode              | 已接入；文本写入与自定义字库待实现                       |
+| fe8j.names              | 名称读取与搜索       | FETextDecode、FETextEncode              | 已接入名称读写；通用文本与自定义字库待实现                       |
 | fe8j.assets             | 头像、职业卡及图标   | ImagePortraitForm、ImageItemIconForm    | 已接入读取；导入和扩展格式待实现                         |
 | fe6.units               | 人物基础字段         | ROMFE6JP、UnitFE6Form                   | 已接入；跳过 ID 0 占位，扩展字段待实现                   |
 | fe6.classes             | 职业基础字段         | ROMFE6JP、ClassFE6Form                  | 已接入 72 字节布局；无转职加成字段，其他职业资源待实现   |
 | fe6.items               | 道具基础字段         | ROMFE6JP、ItemFE6Form                   | 已接入 32 字节布局；无武器经验字段，扩展行为待实现       |
-| fe6.names               | 名称读取与搜索       | FETextDecode、FETextEncode              | 已接入日文原版；翻译版自定义字库会误读，映射与写入待实现 |
+| fe6.names               | 名称读取与搜索       | FETextDecode、FETextEncode              | 已接入日文原版名称读写；翻译版自定义字库与通用文本待实现 |
 | fe6.assets              | 头像、职业卡及图标   | ImagePortraitFE6Form、ImageItemIconForm | 已接入读取及 16 字节头像布局；导入与动态图像待实现       |
 | adapters.shared-history | 多版本共用编辑与历史 | 文档、布局、原始区域                    | 已接入批量、撤销、手动定位及原始字节操作                 |
 
@@ -71,8 +71,8 @@
 | fe7.units        | 人物基础字段                     | FE7U／FE7J；52 字节                     | 已接入；固定 253 条可见记录，ID 1–253；补丁扩展待实现                    |
 | fe7.classes      | 职业基础字段                     | FE7U／FE7J；84 字节                     | 已接入；含转职加成与武器熟练度；其他职业资源待实现                       |
 | fe7.items        | 道具基础字段                     | FE7U／FE7J；36 字节                     | 已接入；含武器经验，按两个已知指针字段判断表末尾；扩展行为待实现         |
-| fe7u.names       | 名称读取与搜索                   | FE7U；Huffman 根／树指针在 0x6B8／0x6BC | 已接入压缩／anti-Huffman 与恢复地址；更多字库、文本写入待实现            |
-| fe7j.names       | 名称读取与搜索                   | FE7J；Shift-JIS 与 FE7 专属名字形       | 已接入压缩／anti-Huffman、恢复地址及紧凑职业名称；自定义字库和写入待实现 |
+| fe7u.names       | 名称读取与搜索                   | FE7U；Huffman 根／树指针在 0x6B8／0x6BC | 已接入名称读写、压缩／anti-Huffman 读取与恢复地址；更多字库与通用文本待实现            |
+| fe7j.names       | 名称读取与搜索                   | FE7J；Shift-JIS 与 FE7 专属名字形       | 已接入名称读写、压缩／anti-Huffman 读取、恢复地址及紧凑职业名双向映射；自定义字库和通用文本待实现 |
 | fe7u.assets      | 头像、职业卡及图标               | FE7U；28 字节头像记录                   | 已接入读取，验证 LZ77 头像；素材导入及扩展格式待实现                     |
 | fe7j.assets      | 头像、职业卡及图标               | FE7J；28 字节头像记录                   | 已接入读取，验证未压缩头像；素材导入及扩展格式待实现                     |
 | fe7.shared-edits | 批量、手动布局、原始数据及表搬迁 | 共用会话与文档操作                      | 已接入；保存重开和撤销重做由领域测试验证                                 |
@@ -95,6 +95,27 @@ FE7 搬迁当前确认旧版声明的表入口及资源内已知指针；完整�
 
 未知补丁新增的引用可能不在现有规则中；保留源数据可保留旧引用的目标，但不保证这些使用方读取搬迁后的修改。
 
+## 五版名称写入
+
+依据 `FETextEncode.Encode`、`make_huffman_map`、`FETextDecode.huffman_decode` 和 `TextForm.WriteText` 的文本入口及编码规则；名称写入为独立叶项，通用文本编辑仍未完成。
+
+| ID | 能力 | 版本／前提 | 实现范围 |
+| --- | --- | --- | --- |
+| text.name-input | 名称草稿与共享用途预览 | FE8U／FE8J／FE7U／FE7J／FE6；已有非零文本 ID | 已接入人物、职业、道具详情；预览列出已知名称记录，同一 ID 的其他用途也会变更 |
+| text.name-encode | 按当前树压缩名称 | 英文 ASCII／日文 Shift-JIS；有效 Huffman 树 | 已实现字符边界上的完整分词、低位优先编码及原生 0x1F 填充码；解码数据最多 4096 字节、32 位码长及 65536 位流，英文／日文保留七／八位结束码空间和三字节读取余量 |
+| text.name-symbols | 紧凑职业名双向映射 | FE8J／FE7J／FE6 原版字形 | 已实现；读写共用一份映射，拒绝有损字符转换，不替换为问号或近似字符 |
+| text.name-write | 追加文本并原子更新入口 | 有效主文本表指针；最多 32 MiB | 已实现四字节对齐追加、旧文本保留、修订与布局绑定、撤销重做及保存重开；独立文本 ID 的旧别名保持不变 |
+| text.name-versions | 版本与字库边界 | 五版原版字符集 | 五版基础名称写入已接入；自定义字库、更多补丁、anti-Huffman 写入、新建文本 ID 和通用文本控制码仍待实现 |
+
+```mermaid
+flowchart LR
+    Draft[名称草稿] --> Preview[编码与共享文本 ID 预览]
+    Preview --> Check[检查文档修订及表布局]
+    Check --> Write[原子追加文本并更新入口]
+    Write --> Refresh[刷新名称与搜索]
+    Write -->|撤销| Undo[恢复指针与文件长度]
+```
+
 ## 后续功能组
 
 下表保持完整路线的入口可追踪；每个功能组进入实现前，必须把索引中的相关表单、菜单动作、数据规则和格式拆成具体功能叶项，不能直接将整组标记完成。
@@ -104,7 +125,7 @@ FE7 搬迁当前确认旧版声明的表入口及资源内已知指针；完整�
 | metadata.definitions | [游戏格式与规则定义库](metadata-design.md)                              | 具体版本、事件或补丁功能的需求 | 设计已确认／暂缓实施：当前不创建包或迁移定义，按实际需要接入                                                           |
 | adapters.games       | `ROMFE8JP`、`ROMFE6JP`、`ROMFE7U`、`ROMFE7JP`                           | 文档、布局、编码               | 部分实现：FE8J／FE7J／FE6 日文原版和 FE7U 的基础表、名称、预览及共用编辑已接入；更多字库、补丁字段和改版布局待实现     |
 | storage.allocation   | `InputFormRef.WriteBinaryData`、表扩展与指针更新                        | 原子编辑、引用记录             | 部分实现：末尾／声明区间分配、已确认引用更新、五版本表搬迁及扩容回滚已接入；表记录数扩展、旧区回收和完整引用管理待实现 |
-| text.edit            | `TextForm`、`FETextEncode`、`SystemTextEncoder`、`ToolTranslateROMForm` | 编码、空间                     | 待实现：控制码、字库、翻译及外部文本格式                                                                               |
+| text.edit            | `TextForm`、`FETextEncode`、`SystemTextEncoder`、`ToolTranslateROMForm` | 编码、空间                     | 部分实现：五版基础名称写入已接入，英文 ASCII／日文 Shift-JIS 及紧凑职业名已覆盖；通用控制码、更多编码／字库、翻译及外部文本格式待实现                                                                               |
 | images.static        | `ImagePortraitForm`、各图标／背景编辑器                                 | 调色板、压缩、空间             | 头像、职业卡及道具图标读取已实现；导入导出、调色板编辑器、其他图像类型和引用更新待实现                                 |
 | chapters.maps        | `MapEditorForm`、章节配置、事件单位                                     | 图像、章节布局、空间           | 待实现：地图绘制、地形、地图变化、部署和 AI                                                                            |
 | chapters.events      | `EventScriptForm`、模板与世界地图事件                                   | 事件指令定义、引用             | 待实现：脚本编解码与交互编辑                                                                                           |

@@ -11,12 +11,13 @@ import (
 )
 
 var (
-	ErrVersion = errors.New("game.unsupported_version")
-	ErrLayout  = errors.New("game.invalid_layout")
-	ErrField   = errors.New("game.invalid_field")
-	ErrValue   = errors.New("game.invalid_value")
-	ErrText    = errors.New("game.invalid_text")
-	ErrImage   = errors.New("game.invalid_image")
+	ErrVersion      = errors.New("game.unsupported_version")
+	ErrLayout       = errors.New("game.invalid_layout")
+	ErrField        = errors.New("game.invalid_field")
+	ErrValue        = errors.New("game.invalid_value")
+	ErrText         = errors.New("game.invalid_text")
+	ErrImage        = errors.New("game.invalid_image")
+	ErrNameEncoding = errors.New("game.invalid_name_encoding")
 )
 
 type Kind string
@@ -88,6 +89,7 @@ type Adapter interface {
 	Inspect([]byte, map[Kind]Layout) Inspection
 	TableMove([]byte, Table) (space.Move, error)
 	Preview([]byte, AssetRef) (Preview, error)
+	PlanNameEdit([]byte, uint16, string) (space.Plan, error)
 }
 
 // Session combines a document with a game adapter. The UI sees schema and records, not ROM offsets.

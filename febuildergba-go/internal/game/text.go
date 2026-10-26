@@ -12,7 +12,7 @@ type textFormat struct {
 	pointer, recovery        int
 	treePointer, rootPointer int
 	shiftJIS                 bool
-	names                    *strings.Replacer
+	names                    *nameSymbols
 }
 
 // readName preserves the ROM encoding; aliases affect display and search only.
@@ -134,7 +134,7 @@ func (f textFormat) displayText(data []byte, aliases map[byte]string) string {
 	}
 	name := out.String()
 	if f.names != nil {
-		name = f.names.Replace(name)
+		name = f.names.display.Replace(name)
 	}
 	return strings.TrimSpace(name)
 }
@@ -144,9 +144,22 @@ func shiftJISPair(data []byte) bool {
 		data[1] >= 0x40 && data[1] <= 0xFC && data[1] != 0x7F
 }
 
+// nameSymbols keeps display names and their game glyph sequences in one table.
+type nameSymbols struct {
+	display, storage *strings.Replacer
+}
+
+func newNameSymbols(pairs ...string) *nameSymbols {
+	reverse := make([]string, 0, len(pairs))
+	for i := 0; i < len(pairs); i += 2 {
+		reverse = append(reverse, pairs[i+1], pairs[i])
+	}
+	return &nameSymbols{display: strings.NewReplacer(pairs...), storage: strings.NewReplacer(reverse...)}
+}
+
 // These sequences denote compact class-name glyphs, not their Unicode symbols.
 // Their names follow FETextEncode's multi-byte game mappings.
-var fe8JNameSymbols = strings.NewReplacer(
+var fe8JNameSymbols = newNameSymbols(
 	"нопр", "(ｻﾝﾀﾞｰｽﾄｰﾑ)",
 	"⊂⊃┌┐", "(ﾌｫﾚｽﾄﾅｲﾄ)",
 	"абвг", "(ﾄﾞﾗｺﾞﾝﾏｽﾀｰ)",
@@ -158,13 +171,13 @@ var fe8JNameSymbols = strings.NewReplacer(
 	"∪∫∬∴", "(ｺﾞｰｺﾞﾝの卵)",
 )
 
-var fe7JNameSymbols = strings.NewReplacer(
+var fe7JNameSymbols = newNameSymbols(
 	"⑮⑯⑰⑱⑲⑳α", "(ｻﾝﾀﾞｰｽﾄｰﾑ)",
 	"⑧⑨⑩⑪⑫⑬⑭", "(ﾌｧﾙｺﾝﾅｲﾄ)",
 	"①②③④⑤⑥⑦", "(ﾄﾞﾗｺﾞﾝﾏｽﾀｰ)",
 )
 
-var fe6NameSymbols = strings.NewReplacer(
+var fe6NameSymbols = newNameSymbols(
 	"①②③④⑤⑥⑦", "(ｻﾝﾀﾞｰｽﾄｰﾑ)",
 	"ⅠⅡⅢⅣⅤⅥⅦ", "(ﾌｧﾙｺﾝﾅｲﾄ)",
 	"⑪⑫⑬⑭⑮⑯⑰", "(ﾄﾞﾗｺﾞﾝﾏｽﾀｰ)",

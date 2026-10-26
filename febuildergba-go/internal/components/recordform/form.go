@@ -15,6 +15,7 @@ import (
 type Form struct {
 	state                 *editor.State
 	drafts                map[fieldKey]*fieldDraft
+	names                 map[fieldKey]*nameDraft
 	activeField           fieldKey
 	preview               assetPreview
 	largePreview, showRaw bool
@@ -34,6 +35,7 @@ func (a *Form) Reset() {
 
 func (a *Form) ClearDrafts() {
 	a.drafts = nil
+	a.names = nil
 	a.activeField = fieldKey{}
 }
 
@@ -74,6 +76,7 @@ func (a *Form) View(c *ui.Context, kind game.Kind, row game.Row, table *game.Tab
 			if len(a.state.Session.Patches) > 0 {
 				ui.Text(c, locales.Patches()+": "+strings.Join(a.state.Session.Patches, ", ")).TextColor(c.Theme().TextMuted)
 			}
+			a.nameEditor(c, kind, row)
 			a.recordFields(c, kind, row, table)
 			if a.showRaw {
 				data, err := a.state.Session.Raw(row.Address, min(table.Stride, 256))
