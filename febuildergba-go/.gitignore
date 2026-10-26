@@ -1,0 +1,7 @@
+/build/
+/.mygo/
+/.rom/
+/febuildergba-go
+/febuildergba-mygo
+*.gba
+*.gba.backups/
