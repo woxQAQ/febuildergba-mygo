@@ -20,6 +20,8 @@ func gameFixtures() []struct {
 	}{
 		{"FE8U", testutil.NewMinimalFE8U},
 		{"FE8J", testutil.NewMinimalFE8J},
+		{"FE7U", testutil.NewMinimalFE7U},
+		{"FE7J", testutil.NewMinimalFE7J},
 		{"FE6", testutil.NewMinimalFE6},
 	}
 }

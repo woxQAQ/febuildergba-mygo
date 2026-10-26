@@ -106,7 +106,7 @@ func Open(path string) (*Session, error) {
 		return nil, err
 	}
 	image := doc.Snapshot()
-	for _, adapter := range []Adapter{fe8uFormat(), fe8jFormat(), fe6Format()} {
+	for _, adapter := range []Adapter{fe8uFormat(), fe8jFormat(), fe7uFormat(), fe7jFormat(), fe6Format()} {
 		if adapter.Match(image.Data) {
 			s := &Session{Document: doc, Adapter: adapter}
 			s.refresh(image)

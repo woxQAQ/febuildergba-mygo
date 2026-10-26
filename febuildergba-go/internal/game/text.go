@@ -9,9 +9,10 @@ import (
 )
 
 type textFormat struct {
-	pointer, recovery int
-	shiftJIS          bool
-	names             *strings.Replacer
+	pointer, recovery        int
+	treePointer, rootPointer int
+	shiftJIS                 bool
+	names                    *strings.Replacer
 }
 
 // readName preserves the ROM encoding; aliases affect display and search only.
@@ -50,11 +51,11 @@ func (f textFormat) readName(data []byte, id uint16, aliases map[byte]string) (s
 	if !ok {
 		return "", ErrText
 	}
-	tree, ok := pointer(data, 0x6E0)
+	tree, ok := pointer(data, f.treePointer)
 	if !ok {
 		return "", ErrText
 	}
-	rootPointer, ok := pointer(data, 0x6DC)
+	rootPointer, ok := pointer(data, f.rootPointer)
 	if !ok {
 		return "", ErrText
 	}
@@ -155,6 +156,12 @@ var fe8JNameSymbols = strings.NewReplacer(
 	"∇∈∋├", "(ﾃﾞｽｶﾞｰｺﾞｲﾙ)",
 	"≠≡≦≧", "(ﾄﾞﾗｺﾞﾝｿﾞﾝﾋﾞ)",
 	"∪∫∬∴", "(ｺﾞｰｺﾞﾝの卵)",
+)
+
+var fe7JNameSymbols = strings.NewReplacer(
+	"⑮⑯⑰⑱⑲⑳α", "(ｻﾝﾀﾞｰｽﾄｰﾑ)",
+	"⑧⑨⑩⑪⑫⑬⑭", "(ﾌｧﾙｺﾝﾅｲﾄ)",
+	"①②③④⑤⑥⑦", "(ﾄﾞﾗｺﾞﾝﾏｽﾀｰ)",
 )
 
 var fe6NameSymbols = strings.NewReplacer(

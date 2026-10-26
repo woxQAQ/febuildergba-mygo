@@ -90,7 +90,7 @@ func itemBaseFields() []Field {
 	return f
 }
 
-func fe8ItemFields() []Field {
+func itemFields() []Field {
 	return append(itemBaseFields(), field("weapon_experience", GroupCombat, 32, 1), flags(8))
 }
 

@@ -9,9 +9,9 @@ func fe8uFormat() gameFormat {
 		tables: []tableRule{
 			{kind: Units, pointers: []int{0x10108, 0x104EC, 0x10538, 0xA0B40, 0xA0BB8, 0xBE954}, stride: 52, firstID: 1, count: 255, probe: 0x2C, fields: unitFields()},
 			{kind: Classes, pointers: []int{0x17AB8, 0x17DBC, 0x18DAC, 0x19458}, stride: 84, count: 256, probe: 0x88, fields: classFields()},
-			{kind: Items, pointers: []int{0x177C0, 0x16570, 0x166D0, 0x1671C, 0x167E0, 0x16A10, 0x16B18, 0x16BB4}, stride: 36, count: 256, probe: -1, pointerFields: []int{12}, fields: fe8ItemFields()},
+			{kind: Items, pointers: []int{0x177C0, 0x16570, 0x166D0, 0x1671C, 0x167E0, 0x16A10, 0x16B18, 0x16BB4}, stride: 36, count: 256, probe: -1, pointerFields: []int{12}, fields: itemFields()},
 		},
-		text:      textFormat{pointer: 0xA2A0, recovery: 0x15D48C},
+		text:      textFormat{pointer: 0xA2A0, recovery: 0x15D48C, treePointer: 0x6E0, rootPointer: 0x6DC},
 		portraits: portraitFormat{pointer: 0x5524, stride: 28, cardMarker: 0, cardPointer: 16, stateOffset: 24, mouthOffset: 22, mode: fe8uPortraitMode},
 		icons:     iconFormat{pointer: 0x36B4, palette: 0x35D0, original: 0x5926F4, maximum: 0xDF},
 		features:  fe8uFeatures,

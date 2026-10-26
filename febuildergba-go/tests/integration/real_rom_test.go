@@ -21,6 +21,8 @@ func TestRealROMs(t *testing.T) {
 	}{
 		{"FE8U", "Fire Emblem - The Sacred Stones (USA, Australia).gba"},
 		{"FE8J", "Fire Emblem - Seima no Kouseki (Japan).gba"},
+		{"FE7U", "Fire Emblem (USA, Australia).gba"},
+		{"FE7J", "Fire Emblem - Rekka no Ken (Japan).gba"},
 		{"FE6", "Fire Emblem - Fuuin no Tsurugi (Japan).gba"},
 	} {
 		t.Run(fixture.id, func(t *testing.T) {

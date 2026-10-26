@@ -776,11 +776,11 @@ func (msgs Messages) EmptyTitle() string {
 	return Catalog.Format(msgs.locale, "empty_title", nil)
 }
 
-// EmptyDetail says "Open an FE6, FE8J, or FE8U ROM from the File menu. Each file opens in its own window."
+// EmptyDetail says "Open an FE6, FE7J, FE7U, FE8J, or FE8U ROM from the File menu. Each file opens in its own window."
 // in the language the app shows.
 func EmptyDetail() string { return In(i18n.Locale()).EmptyDetail() }
 
-// EmptyDetail says "Open an FE6, FE8J, or FE8U ROM from the File menu. Each file opens in its own window."
+// EmptyDetail says "Open an FE6, FE7J, FE7U, FE8J, or FE8U ROM from the File menu. Each file opens in its own window."
 // in the language of msgs.
 func (msgs Messages) EmptyDetail() string {
 	return Catalog.Format(msgs.locale, "empty_detail", nil)
@@ -1496,11 +1496,11 @@ func (msgs Messages) Error() string {
 	return Catalog.Format(msgs.locale, "error", nil)
 }
 
-// GameUnsupportedVersion says "This version supports FE6, FE8J, and FE8U. Choose a valid ROM for one of these games."
+// GameUnsupportedVersion says "This version supports FE6, FE7J, FE7U, FE8J, and FE8U. Choose a valid ROM for one of these games."
 // in the language the app shows.
 func GameUnsupportedVersion() string { return In(i18n.Locale()).GameUnsupportedVersion() }
 
-// GameUnsupportedVersion says "This version supports FE6, FE8J, and FE8U. Choose a valid ROM for one of these games."
+// GameUnsupportedVersion says "This version supports FE6, FE7J, FE7U, FE8J, and FE8U. Choose a valid ROM for one of these games."
 // in the language of msgs.
 func (msgs Messages) GameUnsupportedVersion() string {
 	return Catalog.Format(msgs.locale, "game_unsupported_version", nil)

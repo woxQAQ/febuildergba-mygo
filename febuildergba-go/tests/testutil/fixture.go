@@ -73,6 +73,18 @@ func NewMinimalFE8J() *FixtureBuilder {
 	})
 }
 
+func NewMinimalFE7U() *FixtureBuilder {
+	return gameFixture("AE7E01", 16<<20, 52, 84, 36, 0, [][]int{
+		{0x9A274}, {0x178F0}, {0x174D4},
+	})
+}
+
+func NewMinimalFE7J() *FixtureBuilder {
+	return gameFixture("AE7J01", 16<<20, 52, 84, 36, 0, [][]int{
+		{0x9AC50}, {0x17CE0}, {0x164DC},
+	})
+}
+
 func NewMinimalFE6() *FixtureBuilder {
 	return gameFixture("AFEJ01", 8<<20, 48, 72, 32, 48, [][]int{
 		{0x17680}, {0x176E0}, {0x16410},
