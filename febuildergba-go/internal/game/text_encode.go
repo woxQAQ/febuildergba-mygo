@@ -25,10 +25,10 @@ func nameSymbol(word uint32) (uint16, bool) {
 	return lo | hi<<8, lo != 0
 }
 
-// nameCodes validates the reachable tree and records low-bit-first paths. The
+// textCodes validates the reachable tree and records low-bit-first paths. The
 // pinned encoder uses 32-bit codes; deeper trees are outside this writer's scope.
 // A text entry may not overwrite any node used by its own decoder.
-func (f textFormat) nameCodes(data []byte, entry int) (map[uint16][]byte, error) {
+func (f textFormat) textCodes(data []byte, entry int, names bool) (map[uint16][]byte, error) {
 	tree, treeOK := pointer(data, f.treePointer)
 	indirect, indirectOK := pointer(data, f.rootPointer)
 	root, rootOK := pointer(data, indirect)
@@ -61,7 +61,12 @@ func (f textFormat) nameCodes(data []byte, entry int) (map[uint16][]byte, error)
 		if len(path) == 0 {
 			return ErrText
 		}
-		symbol, visible := nameSymbol(word)
+		symbol, visible := uint16(word&0xFFFF), true
+		if names {
+			symbol, visible = nameSymbol(word)
+		} else if symbol&0xFF == 0 {
+			symbol = 0
+		}
 		if visible {
 			if previous, exists := codes[symbol]; !exists || len(path) < len(previous) {
 				codes[symbol] = slices.Clone(path)
@@ -123,14 +128,26 @@ func (f textFormat) encodeName(data []byte, entry int, name string) ([]byte, err
 	if err != nil {
 		return nil, err
 	}
-	codes, err := f.nameCodes(data, entry)
+	units := make([]textUnit, len(characters))
+	for i, character := range characters {
+		units[i] = textUnit{symbol: character, pair: true}
+	}
+	encoded, err := f.encodeTextUnits(data, entry, units, true)
+	if err == ErrTextEncoding {
+		return nil, ErrNameEncoding
+	}
+	return encoded, err
+}
+
+func (f textFormat) encodeTextUnits(data []byte, entry int, units []textUnit, names bool) ([]byte, error) {
+	codes, err := f.textCodes(data, entry, names)
 	if err != nil {
 		return nil, err
 	}
 	// A pair chosen greedily can leave an unencodable suffix. Work backwards
 	// over game characters; only two single-byte characters may be combined.
-	cost := make([]int, len(characters)+1)
-	width := make([]int, len(characters))
+	cost := make([]int, len(units)+1)
+	width := make([]int, len(units))
 	for i := range cost {
 		cost[i] = 65537
 	}
@@ -138,15 +155,15 @@ func (f textFormat) encodeName(data []byte, entry int, name string) ([]byte, err
 	if f.shiftJIS {
 		endBits = 8
 	}
-	cost[len(characters)] = max(endBits, len(codes[0]))
-	for i := len(characters) - 1; i >= 0; i-- {
-		for size := 1; size <= 2 && i+size <= len(characters); size++ {
-			symbol := characters[i]
+	cost[len(units)] = max(endBits, len(codes[0]))
+	for i := len(units) - 1; i >= 0; i-- {
+		for size := 1; size <= 2 && i+size <= len(units); size++ {
+			symbol := units[i].symbol
 			if size == 2 {
-				if symbol > 0xFF || characters[i+1] > 0xFF {
+				if !units[i].pair || !units[i+1].pair || symbol > 0xFF || units[i+1].symbol > 0xFF {
 					continue
 				}
-				symbol |= characters[i+1] << 8
+				symbol |= units[i+1].symbol << 8
 			}
 			if code, exists := codes[symbol]; exists && len(code)+cost[i+size] <= cost[i] {
 				cost[i], width[i] = len(code)+cost[i+size], size
@@ -154,7 +171,7 @@ func (f textFormat) encodeName(data []byte, entry int, name string) ([]byte, err
 		}
 	}
 	if cost[0] > 65536 {
-		return nil, ErrNameEncoding
+		return nil, ErrTextEncoding
 	}
 	// The pinned decoder reads a 32-bit window at each byte. Keep three
 	// trailing bytes so the final symbol remains readable at the ROM end.
@@ -166,10 +183,10 @@ func (f textFormat) encodeName(data []byte, entry int, name string) ([]byte, err
 			bit++
 		}
 	}
-	for i := 0; i < len(characters); {
-		symbol := characters[i]
+	for i := 0; i < len(units); {
+		symbol := units[i].symbol
 		if width[i] == 2 {
-			symbol |= characters[i+1] << 8
+			symbol |= units[i+1].symbol << 8
 		}
 		write(codes[symbol])
 		i += width[i]

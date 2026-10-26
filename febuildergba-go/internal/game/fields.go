@@ -55,7 +55,11 @@ func stats(group string, offset int, names []string, signed bool) []Field {
 func flags(offset int) Field { f := field("flags", GroupAdvanced, offset, 4); f.Hex = true; return f }
 
 func common() []Field {
-	return []Field{field("name_id", GroupGeneral, 0, 2), field("description_id", GroupGeneral, 2, 2)}
+	name := field("name_id", GroupGeneral, 0, 2)
+	name.Text = NameText
+	description := field("description_id", GroupGeneral, 2, 2)
+	description.Text = DescriptionText
+	return []Field{name, description}
 }
 
 var weaponNames = []string{"sword", "lance", "axe", "bow", "staff", "anima", "light", "dark"}
@@ -84,7 +88,9 @@ func classFields() []Field {
 }
 
 func itemBaseFields() []Field {
-	f := append(common(), field("use_description_id", GroupGeneral, 4, 2), field("id", GroupGeneral, 6, 1), field("weapon_type", GroupGeneral, 7, 1))
+	use := field("use_description_id", GroupGeneral, 4, 2)
+	use.Text = DescriptionText
+	f := append(common(), use, field("id", GroupGeneral, 6, 1), field("weapon_type", GroupGeneral, 7, 1))
 	f = append(f, stats(GroupCombat, 20, []string{"uses", "might", "hit", "weight", "critical", "range"}, false)...)
 	f = append(f, field("price", GroupCombat, 26, 2), field("weapon_rank", GroupCombat, 28, 1), assetField("icon_id", 29, 1, ItemIconAsset), field("use_effect", GroupCombat, 30, 1), field("weapon_effect", GroupCombat, 31, 1))
 	return f

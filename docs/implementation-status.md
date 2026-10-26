@@ -1,6 +1,6 @@
 # 实现记录
 
-当前支持 FE8U、FE8J、FE7U、FE7J 和 FE6 的人物、职业、道具基础编辑；日文适配面向原版。支持名称与素材预览，以及批量修改、手动表定位、固定长度十六进制编辑和已有表搬迁。表搬迁可原子更新已确认引用并扩容，五个版本均已接入名称写入；表记录数扩展、通用文本／图像写入、章节编辑和跳章尚未实现，完整功能状态见[覆盖矩阵](coverage.md)。
+当前支持 FE8U、FE8J、FE7U、FE7J 和 FE6 的人物、职业、道具基础编辑；日文适配面向原版。支持名称与素材预览，以及批量修改、手动表定位、固定长度十六进制编辑和已有表搬迁。表搬迁可原子更新已确认引用并扩容，五个版本均已接入名称写入，FE8U 另支持人物／职业／道具描述及使用描述的正文编辑；表记录数扩展、通用文本／图像写入、章节编辑和跳章尚未实现，完整功能状态见[覆盖矩阵](coverage.md)。
 
 范围与开发规则见[重建计划](rebuild-plan.md)，运行、操作和构建命令见[编辑器 README](../febuildergba-go/README.md)。
 
@@ -13,7 +13,7 @@
 | 游戏会话     | [session.go](../febuildergba-go/internal/game/session.go)                                                                                                                                                                                                                                                                      | 游戏适配、表与字段定义、单记录及批量字段操作                                                       |
 | 高级操作     | [advanced.go](../febuildergba-go/internal/game/advanced.go)                                                                                                                                                                                                                                                                    | 窗口内显式表布局；原始字节写入检查文档归属、长度及修订                                             |
 | 游戏规则     | [format.go](../febuildergba-go/internal/game/format.go)、[fe8u.go](../febuildergba-go/internal/game/fe8u.go)、[fe8j.go](../febuildergba-go/internal/game/fe8j.go)、[fe7u.go](../febuildergba-go/internal/game/fe7u.go)、[fe7j.go](../febuildergba-go/internal/game/fe7j.go)、[fe6.go](../febuildergba-go/internal/game/fe6.go) | 版本标头、表及文本位置、字段差异和素材布局；共用解析与编辑流程                                     |
-| 名称读写     | [text.go](../febuildergba-go/internal/game/text.go)、[text_encode.go](../febuildergba-go/internal/game/text_encode.go)、[name_edit.go](../febuildergba-go/internal/game/name_edit.go)、[narrow_font.go](../febuildergba-go/internal/game/narrow_font.go)                                                                                                                                                                                                         | 有界 Huffman／anti-Huffman、Shift-JIS 和紧凑职业名称；验证 NarrowFont 字形后映射；五版名称编码、紧凑字形双向映射、共享用途预览及原子写入 |
+| 文本读写     | [text.go](../febuildergba-go/internal/game/text.go)、[text_encode.go](../febuildergba-go/internal/game/text_encode.go)、[text_edit.go](../febuildergba-go/internal/game/text_edit.go)、[text_value.go](../febuildergba-go/internal/game/text_value.go)、[narrow_font.go](../febuildergba-go/internal/game/narrow_font.go)                                                                                                                                                                                                         | 有界 Huffman／anti-Huffman、Shift-JIS 和紧凑职业名称；验证 NarrowFont 字形后映射；五版名称编码、FE8U 描述正文与控制码保留、紧凑字形双向映射、共享字段预览及原子写入 |
 | 图像读取     | [graphics.go](../febuildergba-go/internal/gba/graphics.go)、[portrait.go](../febuildergba-go/internal/game/portrait.go)、[assets.go](../febuildergba-go/internal/game/assets.go)                                                                                                                                               | 有界 LZ77、4bpp 图块、调色板、头像、职业卡、道具图标和已知头像扩展                                 |
 | 页面与组件   | [pages](../febuildergba-go/internal/pages)、[components](../febuildergba-go/internal/components)                                                                                                                                                                                                                               | 记录导航、搜索、多选、字段矩阵、批量预览、素材预览、表定位和十六进制编辑                           |
 | 共享编辑状态 | [state.go](../febuildergba-go/internal/editor/state.go)                                                                                                                                                                                                                                                                        | 每窗口独立会话、忙碌与错误状态、撤销重做及草稿修订                                                 |
@@ -28,16 +28,18 @@
 
 FE7U／FE7J 使用 253 条人物记录、52／84／36 字节的基础表布局。FE7U 的 Huffman 根／树指针位置为 `0x6B8`／`0x6BC`，其余当前版本为 `0x6DC`／`0x6E0`；这些位置由各适配器提供。FE7J 使用 Shift-JIS 及独立的紧凑职业名字形映射。头像共用现有读取器，分别验证 FE7U 的 LZ77 数据和 FE7J 的未压缩数据。补丁专属字段、自定义字库和完整游戏代码引用仍待覆盖。
 
-五个版本的名称写入共用当前 ROM 的 Huffman 树：FE8U／FE7U 接受可打印 ASCII，FE8J／FE7J／FE6 接受 Shift-JIS，紧凑职业名通过同一份双向映射还原为原版字形。编码保留完整 Shift-JIS 字符边界，并可使用包含 `0x1F` 名称填充符的原生叶子；填充符不作为结束码。拒绝无法编码或无法原样读回的输入。名称不带首尾空格，解码后的游戏数据最多 4096 字节（包含填充符，不按 UTF-8 长度计）；码长最多 32 位，总位流最多 65536 位。压缩流为英文／日文分别保留最少七／八位结束码空间及三字节读取余量。写入要求有效的主文本表指针，恢复地址只用于读取。预览绑定文档修订和窗口表布局，列出共享该文本 ID 的已知名称记录；其他描述或事件中使用该 ID 的位置也会变化。写入保留旧文本，在末尾四字节对齐追加资源并更新选定入口，一次撤销恢复指针与长度；未应用的名称输入保持草稿。不会生成 anti-Huffman 数据。
+五个版本的名称写入共用当前 ROM 的 Huffman 树：FE8U／FE7U 接受可打印 ASCII，FE8J／FE7J／FE6 接受 Shift-JIS，紧凑职业名通过同一份双向映射还原为原版字形。编码保留完整 Shift-JIS 字符边界，并可使用包含 `0x1F` 名称填充符的原生叶子；填充符不作为结束码。拒绝无法编码或无法原样读回的输入。名称不带首尾空格，解码后的游戏数据最多 4096 字节（包含填充符，不按 UTF-8 长度计）；码长最多 32 位，总位流最多 65536 位。压缩流为英文／日文分别保留最少七／八位结束码空间及三字节读取余量。写入要求有效的主文本表指针，恢复地址只用于读取。预览绑定文档修订和窗口表布局，列出共享该文本 ID 的已知名称、描述及使用描述字段；其他描述或事件中使用该 ID 的位置也会变化。写入保留旧文本，在末尾四字节对齐追加资源并更新选定入口，一次撤销恢复指针与长度；未应用的名称输入保持草稿。不会生成 anti-Huffman 数据。
 
-核心测试使用修正后的合成标头、表指针与布局，调用实际文档、会话和 LZ77 实现。覆盖五个版本共十五种表搬迁、扩容历史、过期预览、引用及区间冲突、容量上限和保存重开；名称写入另以固定字节样本验证编码、共享 ID 与独立别名、非法树、过期预览和失败原子性。不运行 UI 或模拟器。测试范围及限制见[测试说明](../febuildergba-go/tests/README.md)。
+FE8U 描述编辑使用同一套 `TextEdit` 预览与原子提交。字段元数据以 `TextRole` 区分名称和描述；`TextValue` 保留正文、换行、控制码及完整 16 位参数。换行显示为实际换行，其他控制以 `[0xNNNN]` 表示，字面 `[`／反斜杠使用 `\[`／`\\` 转义。允许修改 ASCII 正文及换行，其他原始标记必须保留内容和顺序；未识别扩展、未支持的组合和不完整参数只读。未修改的文本不重编码；不会生成 anti-Huffman 数据。其他版本的描述编辑尚未接入。
 
-真实 ROM 检查已从 `febuildergba-go/.rom/` 读取 FE8U、FE8J、FE7U、FE7J 和 FE6 原版，五版均通过三类表解析、人物与道具表搬迁及历史、人物 HP 修改、改名、名称撤销重做、保存重开及继续改名。英文样本为 `Eirika A`／`Eliwood A`，日文样本为 `エイリークエイリーク`／`リンリン`／`ロイロイ`；三个日文版本还通过紧凑职业名 `(ﾄﾞﾗｺﾞﾝﾏｽﾀｰ)` 的写入与保存重开。检查只修改临时副本，不运行游戏或模拟器。本地另有改版 ROM，本批未纳入真实 ROM 检查。
+核心测试使用修正后的合成标头、表指针与布局，调用实际文档、会话和 LZ77 实现。覆盖五个版本共十五种表搬迁、扩容历史、过期预览、引用及区间冲突、容量上限和保存重开；名称与描述写入另以固定字节样本验证编码、16 位控制参数、跨字段共享 ID 与独立别名、非法树、过期预览和失败原子性。不运行 UI 或模拟器。测试范围及限制见[测试说明](../febuildergba-go/tests/README.md)。
+
+真实 ROM 检查已从 `febuildergba-go/.rom/` 读取 FE8U、FE8J、FE7U、FE7J 和 FE6 原版，五版均通过三类表解析、人物与道具表搬迁及历史、人物 HP 修改、改名、名称撤销重做、保存重开及继续改名。英文样本为 `Eirika A`／`Eliwood A`，日文样本为 `エイリークエイリーク`／`リンリン`／`ロイロイ`；三个日文版本还通过紧凑职业名 `(ﾄﾞﾗｺﾞﾝﾏｽﾀｰ)` 的写入与保存重开。FE8U 描述另验证固定样本：人物 `01/026E`、职业 `01/0309`、道具描述 `01/0404`、使用描述 `4B/04AF`（记录 ID／文本 ID，均为十六进制）；四类均经过表搬迁、正文及换行修改、控制码保留、撤销重做、保存重开和继续编辑。检查只修改临时副本，不运行游戏或模拟器。本地另有改版 ROM，本批未纳入真实 ROM 检查。
 
 ## 当前缺口
 
 - 来源索引已生成，完整行为叶项、动态入口及外部格式仍需盘点。阶段 0 尚未全部完成。
-- 更多字库与补丁字段、全局引用查询、表记录数扩展、旧区回收、更多字符编码与通用文本／图像写入、章节与事件编辑等按[覆盖矩阵](coverage.md)继续实现。元数据层设计已确认，按具体功能需求接入。
+- 更多字库与补丁字段、全局引用查询、表记录数扩展、旧区回收、其他版本描述、控制码参数编辑、更多字符编码与通用对话／图像写入、章节与事件编辑等按[覆盖矩阵](coverage.md)继续实现。元数据层设计已确认，按具体功能需求接入。
 - 外部文件只在保存及聚焦时检查；备份和历史不自动清理，除语言外的编辑偏好未持久化。
 - 模拟器集成只有启动能力，跳章及内存调试尚未实现。
 

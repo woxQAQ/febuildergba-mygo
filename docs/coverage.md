@@ -101,11 +101,11 @@ FE7 搬迁当前确认旧版声明的表入口及资源内已知指针；完整�
 
 | ID | 能力 | 版本／前提 | 实现范围 |
 | --- | --- | --- | --- |
-| text.name-input | 名称草稿与共享用途预览 | FE8U／FE8J／FE7U／FE7J／FE6；已有非零文本 ID | 已接入人物、职业、道具详情；预览列出已知名称记录，同一 ID 的其他用途也会变更 |
+| text.name-input | 名称草稿与共享用途预览 | FE8U／FE8J／FE7U／FE7J／FE6；已有非零文本 ID | 已接入人物、职业、道具详情；预览列出已知名称、描述及使用描述字段，同一 ID 的其他用途也会变更 |
 | text.name-encode | 按当前树压缩名称 | 英文 ASCII／日文 Shift-JIS；有效 Huffman 树 | 已实现字符边界上的完整分词、低位优先编码及原生 0x1F 填充码；解码数据最多 4096 字节、32 位码长及 65536 位流，英文／日文保留七／八位结束码空间和三字节读取余量 |
 | text.name-symbols | 紧凑职业名双向映射 | FE8J／FE7J／FE6 原版字形 | 已实现；读写共用一份映射，拒绝有损字符转换，不替换为问号或近似字符 |
 | text.name-write | 追加文本并原子更新入口 | 有效主文本表指针；最多 32 MiB | 已实现四字节对齐追加、旧文本保留、修订与布局绑定、撤销重做及保存重开；独立文本 ID 的旧别名保持不变 |
-| text.name-versions | 版本与字库边界 | 五版原版字符集 | 五版基础名称写入已接入；自定义字库、更多补丁、anti-Huffman 写入、新建文本 ID 和通用文本控制码仍待实现 |
+| text.name-versions | 版本与字库边界 | 五版原版字符集 | 五版基础名称写入已接入；自定义字库、更多补丁、anti-Huffman 写入、新建文本 ID、控制码参数编辑和通用对话文本仍待实现 |
 
 ```mermaid
 flowchart LR
@@ -116,6 +116,17 @@ flowchart LR
     Write -->|撤销| Undo[恢复指针与文件长度]
 ```
 
+## FE8U 描述正文编辑
+
+与名称共用文本表、Huffman 树、末尾追加、共享字段预览和历史；控制参数依据 `FETextDecode.append_string`、`TextForm.ParseTextList` 与 `text_escape_ALL.en.txt` 保留。
+
+| ID | 能力 | 版本／前提 | 实现范围 |
+| --- | --- | --- | --- |
+| text.description-input | 人物／职业／道具描述及使用描述 | FE8U 原版；已有非零文本 ID | 已接入多行正文草稿、预览、取消、应用；名称／描述／使用描述共享 ID 的字段一起列出 |
+| text.description-controls | 正文与控制单元无损往返 | ASCII、换行及原有控制码 | 保留完整 16 位参数和原始控制标记；正文与换行可改，其他标记内容及顺序保持不变；未知扩展和不完整参数只读 |
+| text.description-write | 追加描述并原子更新入口 | 有效主文本表指针与 Huffman 树 | 复用已有写入机制；不改动未编辑文本，保留旧资源和独立 ID 别名；验证撤销重做、保存重开及继续编辑 |
+| text.description-versions | 其他版本与通用文本 | FE7U／FE8J／FE7J／FE6、字库与补丁 | 待实现；控制码参数编辑、对话脚本及新建文本 ID 尚未接入 |
+
 ## 后续功能组
 
 下表保持完整路线的入口可追踪；每个功能组进入实现前，必须把索引中的相关表单、菜单动作、数据规则和格式拆成具体功能叶项，不能直接将整组标记完成。
@@ -125,7 +136,7 @@ flowchart LR
 | metadata.definitions | [游戏格式与规则定义库](metadata-design.md)                              | 具体版本、事件或补丁功能的需求 | 设计已确认／暂缓实施：当前不创建包或迁移定义，按实际需要接入                                                           |
 | adapters.games       | `ROMFE8JP`、`ROMFE6JP`、`ROMFE7U`、`ROMFE7JP`                           | 文档、布局、编码               | 部分实现：FE8J／FE7J／FE6 日文原版和 FE7U 的基础表、名称、预览及共用编辑已接入；更多字库、补丁字段和改版布局待实现     |
 | storage.allocation   | `InputFormRef.WriteBinaryData`、表扩展与指针更新                        | 原子编辑、引用记录             | 部分实现：末尾／声明区间分配、已确认引用更新、五版本表搬迁及扩容回滚已接入；表记录数扩展、旧区回收和完整引用管理待实现 |
-| text.edit            | `TextForm`、`FETextEncode`、`SystemTextEncoder`、`ToolTranslateROMForm` | 编码、空间                     | 部分实现：五版基础名称写入已接入，英文 ASCII／日文 Shift-JIS 及紧凑职业名已覆盖；通用控制码、更多编码／字库、翻译及外部文本格式待实现                                                                               |
+| text.edit            | `TextForm`、`FETextEncode`、`SystemTextEncoder`、`ToolTranslateROMForm` | 编码、空间                     | 部分实现：五版基础名称写入、FE8U 描述正文与控制码保留已接入；其他版本描述、控制码参数编辑、更多编码／字库、翻译及外部文本格式待实现                                                                               |
 | images.static        | `ImagePortraitForm`、各图标／背景编辑器                                 | 调色板、压缩、空间             | 头像、职业卡及道具图标读取已实现；导入导出、调色板编辑器、其他图像类型和引用更新待实现                                 |
 | chapters.maps        | `MapEditorForm`、章节配置、事件单位                                     | 图像、章节布局、空间           | 待实现：地图绘制、地形、地图变化、部署和 AI                                                                            |
 | chapters.events      | `EventScriptForm`、模板与世界地图事件                                   | 事件指令定义、引用             | 待实现：脚本编解码与交互编辑                                                                                           |

@@ -15,13 +15,34 @@ type textFormat struct {
 	names                    *nameSymbols
 }
 
+// textStream retains Huffman leaf boundaries, including 16-bit control arguments.
+type textStream struct {
+	words []uint16
+	plain bool
+}
+
 // readName preserves the ROM encoding; aliases affect display and search only.
 func (f textFormat) readName(data []byte, id uint16, aliases map[byte]string) (string, error) {
+	stream, err := f.readStream(data, id)
+	if err != nil {
+		return "", err
+	}
+	var raw []byte
+	for _, word := range stream.words {
+		raw = append(raw, byte(word&0xFF))
+		if word>>8 != 0 {
+			raw = append(raw, byte(word>>8))
+		}
+	}
+	return f.displayText(raw, aliases), nil
+}
+
+func (f textFormat) readStream(data []byte, id uint16) (textStream, error) {
 	if id == 0 {
-		return "", nil
+		return textStream{}, nil
 	}
 	if id >= 0x7fff {
-		return "", ErrText
+		return textStream{}, ErrText
 	}
 	table, ok := pointer(data, f.pointer)
 	if !ok {
@@ -29,54 +50,55 @@ func (f textFormat) readName(data []byte, id uint16, aliases map[byte]string) (s
 	}
 	entry := table + int(id)*4
 	if !within(data, entry, 4) {
-		return "", ErrText
+		return textStream{}, ErrText
 	}
 	p := u32(data, entry)
 	if p == 0 {
-		return "", nil
+		return textStream{}, nil
 	}
 	if p >= 0x88000000 && p < 0x8A000000 {
 		at := int(p - 0x88000000)
-		var out []byte
+		var out []uint16
 		for i := 0; i < 4096 && within(data, at+i, 1); i++ {
 			b := data[at+i]
 			if b == 0 {
-				return f.displayText(out, aliases), nil
+				return textStream{words: out, plain: true}, nil
 			}
-			out = append(out, b)
+			out = append(out, uint16(b))
 		}
-		return "", ErrText
+		return textStream{}, ErrText
 	}
 	at, ok := pointer(data, entry)
 	if !ok {
-		return "", ErrText
+		return textStream{}, ErrText
 	}
 	tree, ok := pointer(data, f.treePointer)
 	if !ok {
-		return "", ErrText
+		return textStream{}, ErrText
 	}
 	rootPointer, ok := pointer(data, f.rootPointer)
 	if !ok {
-		return "", ErrText
+		return textStream{}, ErrText
 	}
 	root, ok := pointer(data, rootPointer)
 	if !ok {
-		return "", ErrText
+		return textStream{}, ErrText
 	}
 	node := root
-	var out []byte
+	size := 0
+	var out []uint16
 	// A bound also terminates cyclic trees and streams without an end symbol.
 	for bit := range 65536 {
 		if !within(data, at+bit/8, 1) {
-			return "", ErrText
+			return textStream{}, ErrText
 		}
 		branch := int((data[at+bit/8] >> (bit % 8)) & 1)
 		if !within(data, node+branch*2, 2) {
-			return "", ErrText
+			return textStream{}, ErrText
 		}
 		node = tree + int(u16(data, node+branch*2))*4
 		if !within(data, node, 4) {
-			return "", ErrText
+			return textStream{}, ErrText
 		}
 		word := u32(data, node)
 		if word&0x80000000 == 0 {
@@ -84,18 +106,19 @@ func (f textFormat) readName(data []byte, id uint16, aliases map[byte]string) (s
 		}
 		lo, hi := byte(word&0xFF), byte((word>>8)&0xFF)
 		if lo == 0 {
-			return f.displayText(out, aliases), nil
+			return textStream{words: out}, nil
 		}
-		out = append(out, lo)
+		out = append(out, uint16(word&0xFFFF))
+		size++
 		if hi != 0 {
-			out = append(out, hi)
+			size++
 		}
-		if len(out) > 4096 {
-			return "", ErrText
+		if size > 4096 {
+			return textStream{}, ErrText
 		}
 		node = root
 	}
-	return "", ErrText
+	return textStream{}, ErrText
 }
 
 func (f textFormat) displayText(data []byte, aliases map[byte]string) string {

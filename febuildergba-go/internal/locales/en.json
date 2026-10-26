@@ -94,14 +94,20 @@
   "apply_name": "Apply name",
   "name_edit_scope": "English ROMs accept printable ASCII; Japanese ROMs accept Shift-JIS text. Characters must be supported by this ROM. Preview and apply the name, then save.",
   "name_needs_id": "Choose an existing nonzero name text ID before editing its text.",
-  "name_edit_summary": "Text ID {textID}: all uses of this ID will change. Known character, class and item records: {count}.",
-  "@name_edit_summary": {
+  "text_edit_summary": "Text ID {textID}: all uses of this ID will change. Known name, description and use-description fields: {count}.",
+  "@text_edit_summary": {
     "placeholders": {
       "textID": { "type": "String" },
       "count": { "type": "int" }
     }
   },
   "game_invalid_name_encoding": "This name cannot be encoded with the ROM's character encoding and Huffman tree. Use supported characters without leading or trailing spaces; game text must fit 4096 bytes.",
+  "description_edit_scope": "Use ASCII text and newlines. Keep [0xNNNN] markers unchanged and in order. Escape literal [ and backslash as \\[ and \\\\.",
+  "preview_text": "Preview text",
+  "apply_text": "Apply text",
+  "text_needs_id": "Choose an existing nonzero description text ID before editing its content.",
+  "text_read_only": "This text contains unsupported controls or incomplete arguments and is read-only.",
+  "game_invalid_text_encoding": "This text cannot be encoded losslessly. Keep the original control markers and their order; use ASCII and newlines supported by the ROM. Game text must fit 4096 bytes.",
   "game_invalid_text": "The text entry or Huffman tree is invalid. Writing requires a valid primary text-table pointer.",
   "id": "ID",
   "address": "Address",
@@ -117,6 +123,8 @@
   "advanced": "Raw data",
   "flags": "Attribute flags",
   "name_id": "Name text ID",
+  "description": "Description",
+  "use_description": "Use description",
   "description_id": "Description text ID",
   "use_description_id": "Use description text ID",
   "class_id": "Class ID",

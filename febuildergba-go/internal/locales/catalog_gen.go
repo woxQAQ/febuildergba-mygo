@@ -886,16 +886,16 @@ func (msgs Messages) NameNeedsId() string {
 	return Catalog.Format(msgs.locale, "name_needs_id", nil)
 }
 
-// NameEditSummary says "Text ID {textID}: all uses of this ID will change. Known character, class and item records: {count}."
+// TextEditSummary says "Text ID {textID}: all uses of this ID will change. Known name, description and use-description fields: {count}."
 // in the language the app shows.
-func NameEditSummary(textID string, count int) string {
-	return In(i18n.Locale()).NameEditSummary(textID, count)
+func TextEditSummary(textID string, count int) string {
+	return In(i18n.Locale()).TextEditSummary(textID, count)
 }
 
-// NameEditSummary says "Text ID {textID}: all uses of this ID will change. Known character, class and item records: {count}."
+// TextEditSummary says "Text ID {textID}: all uses of this ID will change. Known name, description and use-description fields: {count}."
 // in the language of msgs.
-func (msgs Messages) NameEditSummary(textID string, count int) string {
-	return Catalog.Format(msgs.locale, "name_edit_summary", map[string]any{"textID": textID, "count": count})
+func (msgs Messages) TextEditSummary(textID string, count int) string {
+	return Catalog.Format(msgs.locale, "text_edit_summary", map[string]any{"textID": textID, "count": count})
 }
 
 // GameInvalidNameEncoding says "This name cannot be encoded with the ROM's character encoding and Huffman tree. Use supported characters without lead…"
@@ -906,6 +906,66 @@ func GameInvalidNameEncoding() string { return In(i18n.Locale()).GameInvalidName
 // in the language of msgs.
 func (msgs Messages) GameInvalidNameEncoding() string {
 	return Catalog.Format(msgs.locale, "game_invalid_name_encoding", nil)
+}
+
+// DescriptionEditScope says "Use ASCII text and newlines. Keep [0xNNNN] markers unchanged and in order. Escape literal [ and backslash as \\[ and \\\\."
+// in the language the app shows.
+func DescriptionEditScope() string { return In(i18n.Locale()).DescriptionEditScope() }
+
+// DescriptionEditScope says "Use ASCII text and newlines. Keep [0xNNNN] markers unchanged and in order. Escape literal [ and backslash as \\[ and \\\\."
+// in the language of msgs.
+func (msgs Messages) DescriptionEditScope() string {
+	return Catalog.Format(msgs.locale, "description_edit_scope", nil)
+}
+
+// PreviewText says "Preview text"
+// in the language the app shows.
+func PreviewText() string { return In(i18n.Locale()).PreviewText() }
+
+// PreviewText says "Preview text"
+// in the language of msgs.
+func (msgs Messages) PreviewText() string {
+	return Catalog.Format(msgs.locale, "preview_text", nil)
+}
+
+// ApplyText says "Apply text"
+// in the language the app shows.
+func ApplyText() string { return In(i18n.Locale()).ApplyText() }
+
+// ApplyText says "Apply text"
+// in the language of msgs.
+func (msgs Messages) ApplyText() string {
+	return Catalog.Format(msgs.locale, "apply_text", nil)
+}
+
+// TextNeedsId says "Choose an existing nonzero description text ID before editing its content."
+// in the language the app shows.
+func TextNeedsId() string { return In(i18n.Locale()).TextNeedsId() }
+
+// TextNeedsId says "Choose an existing nonzero description text ID before editing its content."
+// in the language of msgs.
+func (msgs Messages) TextNeedsId() string {
+	return Catalog.Format(msgs.locale, "text_needs_id", nil)
+}
+
+// TextReadOnly says "This text contains unsupported controls or incomplete arguments and is read-only."
+// in the language the app shows.
+func TextReadOnly() string { return In(i18n.Locale()).TextReadOnly() }
+
+// TextReadOnly says "This text contains unsupported controls or incomplete arguments and is read-only."
+// in the language of msgs.
+func (msgs Messages) TextReadOnly() string {
+	return Catalog.Format(msgs.locale, "text_read_only", nil)
+}
+
+// GameInvalidTextEncoding says "This text cannot be encoded losslessly. Keep the original control markers and their order; use ASCII and newlines sup…"
+// in the language the app shows.
+func GameInvalidTextEncoding() string { return In(i18n.Locale()).GameInvalidTextEncoding() }
+
+// GameInvalidTextEncoding says "This text cannot be encoded losslessly. Keep the original control markers and their order; use ASCII and newlines sup…"
+// in the language of msgs.
+func (msgs Messages) GameInvalidTextEncoding() string {
+	return Catalog.Format(msgs.locale, "game_invalid_text_encoding", nil)
 }
 
 // GameInvalidText says "The text entry or Huffman tree is invalid. Writing requires a valid primary text-table pointer."
@@ -1056,6 +1116,26 @@ func NameId() string { return In(i18n.Locale()).NameId() }
 // in the language of msgs.
 func (msgs Messages) NameId() string {
 	return Catalog.Format(msgs.locale, "name_id", nil)
+}
+
+// Description says "Description"
+// in the language the app shows.
+func Description() string { return In(i18n.Locale()).Description() }
+
+// Description says "Description"
+// in the language of msgs.
+func (msgs Messages) Description() string {
+	return Catalog.Format(msgs.locale, "description", nil)
+}
+
+// UseDescription says "Use description"
+// in the language the app shows.
+func UseDescription() string { return In(i18n.Locale()).UseDescription() }
+
+// UseDescription says "Use description"
+// in the language of msgs.
+func (msgs Messages) UseDescription() string {
+	return Catalog.Format(msgs.locale, "use_description", nil)
 }
 
 // DescriptionId says "Description text ID"

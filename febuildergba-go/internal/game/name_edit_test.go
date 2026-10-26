@@ -63,7 +63,7 @@ func TestSharedNameEdits(t *testing.T) {
 			s := openFixture(t, nameFixture())
 			before := s.Document.Snapshot()
 			id := s.Table(kind).FirstID
-			edit, err := s.PlanNameEdit(kind, id, "ABC")
+			edit, err := s.PlanTextEdit(kind, id, "name_id", "ABC")
 			if err != nil {
 				t.Fatal(err)
 			}
@@ -75,7 +75,7 @@ func TestSharedNameEdits(t *testing.T) {
 			if edit.Uses()[0].ID == 999 || s.Document.State().Dirty || s.Document.State().Revision != before.Revision {
 				t.Fatal("preview was mutable or changed the document")
 			}
-			if err := s.ApplyNameEdit(edit); err != nil {
+			if err := s.ApplyTextEdit(edit); err != nil {
 				t.Fatal(err)
 			}
 			after := s.Document.Snapshot()
@@ -119,11 +119,11 @@ func TestSharedNameEdits(t *testing.T) {
 			if reopened.Table(kind).Rows[0].Name != "ABC" {
 				t.Fatal("saved name did not reopen")
 			}
-			next, err := reopened.PlanNameEdit(kind, id, "B")
+			next, err := reopened.PlanTextEdit(kind, id, "name_id", "B")
 			if err != nil {
 				t.Fatal(err)
 			}
-			if err := reopened.ApplyNameEdit(next); err != nil {
+			if err := reopened.ApplyTextEdit(next); err != nil {
 				t.Fatal(err)
 			}
 			continued := reopened.Document.Snapshot().Data
@@ -149,11 +149,11 @@ func TestNameEncodingSamples(t *testing.T) {
 		{"", []byte{0x0F, 0, 0, 0}},
 	} {
 		t.Run(sample.name, func(t *testing.T) {
-			edit, err := s.PlanNameEdit(Units, 1, sample.name)
+			edit, err := s.PlanTextEdit(Units, 1, "name_id", sample.name)
 			if err != nil {
 				t.Fatal(err)
 			}
-			if err := s.ApplyNameEdit(edit); err != nil {
+			if err := s.ApplyTextEdit(edit); err != nil {
 				t.Fatal(err)
 			}
 			if got := s.Document.Snapshot().Data[edit.Destination():]; !bytes.Equal(got, sample.want) {
@@ -206,7 +206,7 @@ func TestNameEditRejectsInvalidInput(t *testing.T) {
 			}
 			s := openFixture(t, f)
 			before := s.Document.Snapshot()
-			if _, err := s.PlanNameEdit(Units, 1, sample.input); !errors.Is(err, sample.want) {
+			if _, err := s.PlanTextEdit(Units, 1, "name_id", sample.input); !errors.Is(err, sample.want) {
 				t.Fatalf("preview error %v, want %v", err, sample.want)
 			}
 			if s.Document.State().Revision != before.Revision || s.Document.State().Dirty || !bytes.Equal(before.Data, s.Document.Snapshot().Data) {
@@ -218,29 +218,29 @@ func TestNameEditRejectsInvalidInput(t *testing.T) {
 
 func TestNameEditBindsDocumentRevisionAndLayouts(t *testing.T) {
 	s := openFixture(t, nameFixture())
-	edit, err := s.PlanNameEdit(Units, 1, "ABC")
+	edit, err := s.PlanTextEdit(Units, 1, "name_id", "ABC")
 	if err != nil {
 		t.Fatal(err)
 	}
 	other := openFixture(t, nameFixture())
-	if err := other.ApplyNameEdit(edit); !errors.Is(err, rom.ErrStale) || other.Document.State().Dirty {
+	if err := other.ApplyTextEdit(edit); !errors.Is(err, rom.ErrStale) || other.Document.State().Dirty {
 		t.Fatalf("foreign preview: %v", err)
 	}
 	if err := s.Set(Units, []int{1}, "base.hp", 17); err != nil {
 		t.Fatal(err)
 	}
 	before := s.Document.Snapshot()
-	if err := s.ApplyNameEdit(edit); !errors.Is(err, rom.ErrStale) || !bytes.Equal(before.Data, s.Document.Snapshot().Data) {
+	if err := s.ApplyTextEdit(edit); !errors.Is(err, rom.ErrStale) || !bytes.Equal(before.Data, s.Document.Snapshot().Data) {
 		t.Fatalf("stale preview: %v", err)
 	}
-	edit, err = s.PlanNameEdit(Units, 1, "ABC")
+	edit, err = s.PlanTextEdit(Units, 1, "name_id", "ABC")
 	if err != nil {
 		t.Fatal(err)
 	}
 	if err := s.UseLayout(Classes, s.Table(Classes).Layout); err != nil {
 		t.Fatal(err)
 	}
-	if err := s.ApplyNameEdit(edit); !errors.Is(err, rom.ErrStale) || !bytes.Equal(before.Data, s.Document.Snapshot().Data) {
+	if err := s.ApplyTextEdit(edit); !errors.Is(err, rom.ErrStale) || !bytes.Equal(before.Data, s.Document.Snapshot().Data) {
 		t.Fatalf("changed interpretation accepted old preview: %v", err)
 	}
 }
@@ -252,7 +252,7 @@ func TestNameEditCapacity(t *testing.T) {
 			t.Fatal(err)
 		}
 		before := s.Document.Snapshot()
-		edit, err := s.PlanNameEdit(Units, 1, "A")
+		edit, err := s.PlanTextEdit(Units, 1, "name_id", "A")
 		if size == rom.MaxSize {
 			if !errors.Is(err, space.ErrCapacity) || s.Document.State().Revision != before.Revision || !bytes.Equal(before.Data, s.Document.Snapshot().Data) {
 				t.Fatalf("capacity failure changed the ROM: %v", err)
@@ -262,7 +262,7 @@ func TestNameEditCapacity(t *testing.T) {
 		if err != nil {
 			t.Fatal(err)
 		}
-		if err := s.ApplyNameEdit(edit); err != nil {
+		if err := s.ApplyTextEdit(edit); err != nil {
 			t.Fatal(err)
 		}
 		if s.Document.State().Size != rom.MaxSize || s.Table(Units).Rows[0].Name != "A" {
@@ -281,11 +281,11 @@ func TestNameEditAfterTableRelocation(t *testing.T) {
 		t.Fatal(err)
 	}
 	moved := s.Document.Snapshot()
-	edit, err := s.PlanNameEdit(Units, 1, "ABC")
+	edit, err := s.PlanTextEdit(Units, 1, "name_id", "ABC")
 	if err != nil {
 		t.Fatal(err)
 	}
-	if err := s.ApplyNameEdit(edit); err != nil {
+	if err := s.ApplyTextEdit(edit); err != nil {
 		t.Fatal(err)
 	}
 	if s.Table(Units).Address != move.Destination() || s.Table(Units).Rows[0].Name != "ABC" {
@@ -302,14 +302,14 @@ func TestNameEditAfterTableRelocation(t *testing.T) {
 
 func TestNameEditReplacesAntiHuffmanEntryWithCompressedText(t *testing.T) {
 	s := openFixture(t, nameFixture())
-	edit, err := s.PlanNameEdit(Items, 1, "ABC")
+	edit, err := s.PlanTextEdit(Items, 1, "name_id", "ABC")
 	if err != nil {
 		t.Fatal(err)
 	}
 	if edit.TextID() != 3 || len(edit.Uses()) != 1 {
 		t.Fatal("selected the wrong shared text ID")
 	}
-	if err := s.ApplyNameEdit(edit); err != nil {
+	if err := s.ApplyTextEdit(edit); err != nil {
 		t.Fatal(err)
 	}
 	data := s.Document.Snapshot().Data
@@ -324,18 +324,18 @@ func TestNativeNamePadding(t *testing.T) {
 		f := nameFixture()
 		f.WriteU32(nameTree+4, word)
 		s := openFixture(t, f)
-		edit, err := s.PlanNameEdit(Units, 1, "A")
+		edit, err := s.PlanTextEdit(Units, 1, "name_id", "A")
 		if err != nil {
 			t.Fatal(err)
 		}
-		if err := s.ApplyNameEdit(edit); err != nil {
+		if err := s.ApplyTextEdit(edit); err != nil {
 			t.Fatal(err)
 		}
 		if s.Table(Units).Rows[0].Name != "A" || !bytes.Equal(s.Document.Snapshot().Data[edit.Destination():], []byte{0x1E, 0, 0, 0}) {
 			t.Fatal("native padding code did not preserve the visible name")
 		}
 		before := s.Document.Snapshot()
-		if _, err := s.PlanNameEdit(Units, 1, strings.Repeat("A", 2049)); !errors.Is(err, ErrNameEncoding) || s.Document.State().Revision != before.Revision {
+		if _, err := s.PlanTextEdit(Units, 1, "name_id", strings.Repeat("A", 2049)); !errors.Is(err, ErrNameEncoding) || s.Document.State().Revision != before.Revision {
 			t.Fatalf("decoded padding exceeded the reader bound: %v", err)
 		}
 	}
@@ -343,7 +343,7 @@ func TestNativeNamePadding(t *testing.T) {
 	f.WriteU32(nameTable+4, 0x88000000|nameRaw)
 	f.WriteU32(nameTree+32, 0x80001F1F)
 	s := openFixture(t, f)
-	if _, err := s.PlanNameEdit(Units, 1, "A"); !errors.Is(err, ErrText) || s.Document.State().Dirty {
+	if _, err := s.PlanTextEdit(Units, 1, "name_id", "A"); !errors.Is(err, ErrText) || s.Document.State().Dirty {
 		t.Fatalf("padding-only leaf was mistaken for an end symbol: %v", err)
 	}
 }
@@ -376,11 +376,11 @@ func TestCompactNameWrites(t *testing.T) {
 			f.WriteAt(nameStream, []byte{7, 0}) // An end leaf keeps existing names readable.
 			s := openFixture(t, f)
 			const name = "(ﾄﾞﾗｺﾞﾝﾏｽﾀｰ)"
-			edit, err := s.PlanNameEdit(Classes, 0, name)
+			edit, err := s.PlanTextEdit(Classes, 0, "name_id", name)
 			if err != nil {
 				t.Fatal(err)
 			}
-			if err := s.ApplyNameEdit(edit); err != nil {
+			if err := s.ApplyTextEdit(edit); err != nil {
 				t.Fatal(err)
 			}
 			if !bytes.Equal(s.Document.Snapshot().Data[edit.Destination():], sample.want) || s.Table(Classes).Rows[0].Name != name {
@@ -401,11 +401,11 @@ func TestJapaneseNameCharacters(t *testing.T) {
 			f.WriteU32(nameTree+12, 0x80000041) // A.
 			f.WriteU32(nameTree+20, 0x800000B1) // Half-width ｱ.
 			s := openFixture(t, f)
-			edit, err := s.PlanNameEdit(Units, 1, "リAｱ")
+			edit, err := s.PlanTextEdit(Units, 1, "name_id", "リAｱ")
 			if err != nil {
 				t.Fatal(err)
 			}
-			if err := s.ApplyNameEdit(edit); err != nil {
+			if err := s.ApplyTextEdit(edit); err != nil {
 				t.Fatal(err)
 			}
 			if s.Table(Units).Rows[0].Name != "リAｱ" || !bytes.Equal(s.Document.Snapshot().Data[edit.Destination():], []byte{0xDA, 3, 0, 0, 0}) {
@@ -413,21 +413,21 @@ func TestJapaneseNameCharacters(t *testing.T) {
 			}
 			before := s.Document.Snapshot()
 			for _, name := range []string{"🙂", "¥", "リ\x00A", " リ", string([]byte{0xFF}), strings.Repeat("リ", 2049)} {
-				if _, err := s.PlanNameEdit(Units, 1, name); !errors.Is(err, ErrNameEncoding) {
+				if _, err := s.PlanTextEdit(Units, 1, "name_id", name); !errors.Is(err, ErrNameEncoding) {
 					t.Fatalf("accepted unsupported or lossy name %q: %v", name, err)
 				}
 			}
 			if s.Document.State().Revision != before.Revision || !bytes.Equal(before.Data, s.Document.Snapshot().Data) {
 				t.Fatal("rejected Japanese input changed the document")
 			}
-			if _, err := s.PlanNameEdit(Units, 1, strings.Repeat("リ", 1400)); err != nil {
+			if _, err := s.PlanTextEdit(Units, 1, "name_id", strings.Repeat("リ", 1400)); err != nil {
 				t.Fatalf("applied the byte bound to UTF-8 rather than game encoding: %v", err)
 			}
 			f = nameFixtureFor(version)
 			f.WriteU32(nameTree+4, 0x80000083)
 			f.WriteU32(nameTree+12, 0x8000008A)
 			split := openFixture(t, f)
-			if _, err := split.PlanNameEdit(Units, 1, "リ"); !errors.Is(err, ErrNameEncoding) || split.Document.State().Dirty {
+			if _, err := split.PlanTextEdit(Units, 1, "name_id", "リ"); !errors.Is(err, ErrNameEncoding) || split.Document.State().Dirty {
 				t.Fatalf("split a Shift-JIS character across single-byte codes: %v", err)
 			}
 		})
@@ -450,11 +450,11 @@ func TestVersionNameEdits(t *testing.T) {
 			}
 			s := openFixture(t, f)
 			before := s.Document.Snapshot()
-			edit, err := s.PlanNameEdit(Units, 1, name)
+			edit, err := s.PlanTextEdit(Units, 1, "name_id", name)
 			if err != nil {
 				t.Fatal(err)
 			}
-			if err := s.ApplyNameEdit(edit); err != nil {
+			if err := s.ApplyTextEdit(edit); err != nil {
 				t.Fatal(err)
 			}
 			if !bytes.Equal(s.Document.Snapshot().Data[edit.Destination():], want) || s.Table(Units).Rows[0].Name != name ||
@@ -471,11 +471,11 @@ func TestVersionNameEdits(t *testing.T) {
 			if err != nil || reopened.Table(Units).Rows[0].Name != name {
 				t.Fatalf("name did not reopen: %v", err)
 			}
-			next, err := reopened.PlanNameEdit(Units, 1, nextName)
+			next, err := reopened.PlanTextEdit(Units, 1, "name_id", nextName)
 			if err != nil {
 				t.Fatal(err)
 			}
-			if err := reopened.ApplyNameEdit(next); err != nil {
+			if err := reopened.ApplyTextEdit(next); err != nil {
 				t.Fatal(err)
 			}
 			if !bytes.Equal(reopened.Document.Snapshot().Data[next.Destination():], nextWant) || reopened.Table(Units).Rows[0].Name != nextName {

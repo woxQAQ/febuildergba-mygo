@@ -18,6 +18,7 @@ var (
 	ErrText         = errors.New("game.invalid_text")
 	ErrImage        = errors.New("game.invalid_image")
 	ErrNameEncoding = errors.New("game.invalid_name_encoding")
+	ErrTextEncoding = errors.New("game.invalid_text_encoding")
 )
 
 type Kind string
@@ -30,12 +31,21 @@ const (
 
 var Kinds = []Kind{Units, Classes, Items}
 
+type TextRole uint8
+
+const (
+	NoText TextRole = iota
+	NameText
+	DescriptionText
+)
+
 type Field struct {
 	ID, Group     string
 	Offset, Width int
 	Signed, Hex   bool
 	Reference     Kind
 	Asset         AssetKind
+	Text          TextRole
 }
 
 func (f Field) Bounds() (int64, int64) {
@@ -89,7 +99,9 @@ type Adapter interface {
 	Inspect([]byte, map[Kind]Layout) Inspection
 	TableMove([]byte, Table) (space.Move, error)
 	Preview([]byte, AssetRef) (Preview, error)
-	PlanNameEdit([]byte, uint16, string) (space.Plan, error)
+	CanEditDescriptions() bool
+	ReadText([]byte, uint16) (TextValue, error)
+	PlanTextEdit([]byte, uint16, string, TextRole) (space.Plan, error)
 }
 
 // Session combines a document with a game adapter. The UI sees schema and records, not ROM offsets.

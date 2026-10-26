@@ -7,12 +7,106 @@ import (
 	"errors"
 	"os"
 	"path/filepath"
+	"slices"
 	"testing"
 
 	"github.com/woxQAQ/febuildergba-mygo/internal/game"
 )
 
 const romDir = "../../.rom"
+
+func openRealROM(t *testing.T, filename string) *game.Session {
+	t.Helper()
+	sourcePath, err := filepath.Abs(filepath.Join(romDir, filename))
+	if err != nil {
+		t.Fatal(err)
+	}
+	data, err := os.ReadFile(sourcePath)
+	if errors.Is(err, os.ErrNotExist) {
+		t.Skipf("local ROM unavailable: %s", sourcePath)
+	}
+	if err != nil {
+		t.Fatal(err)
+	}
+	path := filepath.Join(t.TempDir(), "copy.gba")
+	if err := os.WriteFile(path, data, 0o600); err != nil {
+		t.Fatal(err)
+	}
+	session, err := game.Open(path)
+	if err != nil {
+		t.Fatal(err)
+	}
+	return session
+}
+
+func TestRealDescriptions(t *testing.T) {
+	for _, sample := range []struct {
+		kind   game.Kind
+		field  string
+		id     int
+		textID uint16
+	}{
+		{game.Units, "description_id", 1, 0x026E},
+		{game.Classes, "description_id", 1, 0x0309},
+		{game.Items, "description_id", 1, 0x0404},
+		{game.Items, "use_description_id", 0x4B, 0x04AF},
+	} {
+		t.Run(string(sample.kind)+"/"+sample.field, func(t *testing.T) {
+			s := openRealROM(t, "Fire Emblem - The Sacred Stones (USA, Australia).gba")
+			id := sample.id
+			original, err := s.Text(sample.kind, id, sample.field)
+			if err != nil || !original.Editable || original.ID != sample.textID || original.Content == "" {
+				t.Fatalf("cannot read the expected native description (record 0x%02X, text ID 0x%04X): %v", id, sample.textID, err)
+			}
+			move, err := s.PlanTableMove(sample.kind, nil)
+			if err != nil {
+				t.Fatal(err)
+			}
+			if err := s.ApplyTableMove(move); err != nil {
+				t.Fatal(err)
+			}
+			before := s.Document.Snapshot()
+			content := original.Content + "\nDescription."
+			edit, err := s.PlanTextEdit(sample.kind, id, sample.field, content)
+			if err != nil {
+				t.Fatal(err)
+			}
+			if err := s.ApplyTextEdit(edit); err != nil {
+				t.Fatal(err)
+			}
+			value, err := s.Text(sample.kind, id, sample.field)
+			if err != nil || value.Content != content || !slices.Equal(value.ControlCodes(), original.ControlCodes()) {
+				t.Fatalf("description or control arguments changed unexpectedly: %v", err)
+			}
+			if !s.Document.Undo() || !bytes.Equal(before.Data, s.Document.Snapshot().Data) || !s.Document.Redo() {
+				t.Fatal("description history lost bytes or file length")
+			}
+			if err := s.Document.Save(); err != nil {
+				t.Fatal(err)
+			}
+			reopened, err := game.Open(s.Document.State().Path)
+			if err != nil {
+				t.Fatal(err)
+			}
+			saved, err := reopened.Text(sample.kind, id, sample.field)
+			if err != nil || saved.Content != content || !slices.Equal(saved.ControlCodes(), original.ControlCodes()) {
+				t.Fatalf("saved description did not reopen losslessly: %v", err)
+			}
+			continued, err := reopened.PlanTextEdit(sample.kind, id, sample.field, content+"\n")
+			if err != nil {
+				t.Fatal(err)
+			}
+			if err := reopened.ApplyTextEdit(continued); err != nil {
+				t.Fatal(err)
+			}
+			value, err = reopened.Text(sample.kind, id, sample.field)
+			if err != nil || value.Content != content+"\n" {
+				t.Fatalf("continued description editing failed: %v", err)
+			}
+			t.Logf("record 0x%02X, text ID 0x%04X, preserved control words: %d", id, original.ID, len(original.ControlCodes()))
+		})
+	}
+}
 
 // Missing local ROMs are the only skipped cases in this optional suite.
 func TestRealROMs(t *testing.T) {
@@ -26,25 +120,8 @@ func TestRealROMs(t *testing.T) {
 		{"FE6", "Fire Emblem - Fuuin no Tsurugi (Japan).gba", "ロイロイ", "(ﾄﾞﾗｺﾞﾝﾏｽﾀｰ)"},
 	} {
 		t.Run(fixture.id, func(t *testing.T) {
-			sourcePath, err := filepath.Abs(filepath.Join(romDir, fixture.filename))
-			if err != nil {
-				t.Fatal(err)
-			}
-			data, err := os.ReadFile(sourcePath)
-			if errors.Is(err, os.ErrNotExist) {
-				t.Skipf("local ROM unavailable: %s", sourcePath)
-			}
-			if err != nil {
-				t.Fatal(err)
-			}
-			path := filepath.Join(t.TempDir(), "copy.gba")
-			if err := os.WriteFile(path, data, 0o600); err != nil {
-				t.Fatal(err)
-			}
-			s, err := game.Open(path)
-			if err != nil {
-				t.Fatal(err)
-			}
+			s := openRealROM(t, fixture.filename)
+			path := s.Document.State().Path
 			if s.Adapter.ID() != fixture.id {
 				t.Fatalf("identified as %q", s.Adapter.ID())
 			}
@@ -72,11 +149,11 @@ func TestRealROMs(t *testing.T) {
 				t.Fatal(err)
 			}
 			beforeName := s.Document.Snapshot()
-			edit, err := s.PlanNameEdit(game.Units, 1, fixture.name)
+			edit, err := s.PlanTextEdit(game.Units, 1, "name_id", fixture.name)
 			if err != nil {
 				t.Fatal(err)
 			}
-			if err := s.ApplyNameEdit(edit); err != nil {
+			if err := s.ApplyTextEdit(edit); err != nil {
 				t.Fatal(err)
 			}
 			if !s.Document.Undo() || !bytes.Equal(beforeName.Data, s.Document.Snapshot().Data) || !s.Document.Redo() {
@@ -91,11 +168,11 @@ func TestRealROMs(t *testing.T) {
 						break
 					}
 				}
-				compactEdit, err := s.PlanNameEdit(game.Classes, compactID, fixture.compact)
+				compactEdit, err := s.PlanTextEdit(game.Classes, compactID, "name_id", fixture.compact)
 				if err != nil {
 					t.Fatal(err)
 				}
-				if err := s.ApplyNameEdit(compactEdit); err != nil {
+				if err := s.ApplyTextEdit(compactEdit); err != nil {
 					t.Fatal(err)
 				}
 			}
@@ -129,11 +206,11 @@ func TestRealROMs(t *testing.T) {
 				}
 			}
 			continuedName := fixture.name + fixture.name
-			continued, err := reopened.PlanNameEdit(game.Units, 1, continuedName)
+			continued, err := reopened.PlanTextEdit(game.Units, 1, "name_id", continuedName)
 			if err != nil {
 				t.Fatal(err)
 			}
-			if err := reopened.ApplyNameEdit(continued); err != nil {
+			if err := reopened.ApplyTextEdit(continued); err != nil {
 				t.Fatal(err)
 			}
 			if reopened.Table(game.Units).Rows[0].Name != continuedName {
