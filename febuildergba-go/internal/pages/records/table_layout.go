@@ -17,6 +17,7 @@ type layoutDraft struct {
 	show, initialized      bool
 	address, stride, count string
 	err                    error
+	move                   *game.TableMove
 }
 
 func (a *Page) tableLayout(c *ui.Context) {
@@ -68,6 +69,7 @@ func (a *Page) tableLayout(c *ui.Context) {
 			}
 			p.layout.err = a.state.Session.UseLayout(kind, game.Layout{Address: address, Stride: int(stride), Count: int(count)})
 			if p.layout.err == nil {
+				p.layout.move = nil
 				p.chosen.Clear()
 				p.selected = 0
 				a.form.ClearDrafts()
@@ -77,6 +79,7 @@ func (a *Page) tableLayout(c *ui.Context) {
 		ui.Button(c, locales.ResetLayout()).Disabled(a.state.Busy || !table.Manual).OnClick(func() {
 			a.state.Session.UseAutomaticLayout(kind)
 			p.layout.initialized = false
+			p.layout.move = nil
 			p.layout.err = nil
 			p.selected = 0
 			p.chosen.Clear()
@@ -87,4 +90,36 @@ func (a *Page) tableLayout(c *ui.Context) {
 	if p.layout.err != nil {
 		ui.Text(c, locales.ErrorText(p.layout.err)).FontSize(12)
 	}
+	a.tableMove(c, table, p)
+}
+
+func (a *Page) tableMove(c *ui.Context, table *game.Table, p *pane) {
+	ui.Text(c, locales.MoveTable()).FontSize(13)
+	ui.Text(c, locales.MoveTableScope()).FontSize(12).TextColor(c.Theme().TextMuted)
+	ui.Button(c, locales.PreviewMove()).Disabled(a.state.Busy || table.Manual || table.Err != nil).OnClick(func() {
+		p.layout.move, p.layout.err = a.state.Session.PlanTableMove(table.Kind, nil)
+	})
+	move := p.layout.move
+	if move == nil {
+		return
+	}
+	ui.Text(c, locales.MoveSummary(
+		fmt.Sprintf("0x%08X", move.Source()), fmt.Sprintf("0x%08X", move.Destination()),
+		move.Length(), move.ReferenceCount(), move.Size(),
+	)).FontSize(12)
+	stale := move.Revision() != a.state.Session.Document.State().Revision
+	if stale {
+		ui.Text(c, locales.ErrorText(rom.ErrStale)).FontSize(12)
+	}
+	ui.Button(c, locales.ApplyMove()).Disabled(a.state.Busy || table.Manual || stale).OnClick(func() {
+		p.layout.err = a.state.Session.ApplyTableMove(move)
+		if p.layout.err == nil {
+			p.layout.move = nil
+			p.layout.initialized = false
+			p.chosen.Clear()
+			p.selected = 0
+			a.form.ClearDrafts()
+			a.state.HistoryEpoch++
+		}
+	})
 }

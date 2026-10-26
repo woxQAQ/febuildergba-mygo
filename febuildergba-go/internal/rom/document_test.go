@@ -108,7 +108,7 @@ func TestDocument_StateTransition(t *testing.T) {
 func TestDocument_SavedState(t *testing.T) {
 	tmpDir := t.TempDir()
 	path := filepath.Join(tmpDir, "test.gba")
-	if err := os.WriteFile(path, bytes.Repeat([]byte{0x00}, 0x100), 0644); err != nil {
+	if err := os.WriteFile(path, bytes.Repeat([]byte{0x00}, 0x100), 0o644); err != nil {
 		t.Fatal(err)
 	}
 
@@ -289,11 +289,8 @@ func TestDocument_StaleRevision(t *testing.T) {
 	}
 }
 
-// ROM-INV-7: 保存不持有状态锁
-//
-// 保存操作不应该阻塞 Snapshot() 或新的 Apply()。
-// 这确保 UI 在后台保存时仍然可以读取状态和接受新修改。
-func TestDocument_SaveConcurrency(t *testing.T) {
+// Concurrent snapshots must remain consistent while edits are applied.
+func TestDocument_ConcurrentSnapshots(t *testing.T) {
 	d := newTestDocument(t, 0x10000)
 
 	// 启动多个 goroutine 并发读取快照
@@ -301,22 +298,20 @@ func TestDocument_SaveConcurrency(t *testing.T) {
 	const readers = 10
 	errors := make(chan error, readers)
 
-	for i := 0; i < readers; i++ {
-		wg.Add(1)
-		go func() {
-			defer wg.Done()
-			for j := 0; j < 100; j++ {
+	for range readers {
+		wg.Go(func() {
+			for range 100 {
 				snap := d.Snapshot()
 				if len(snap.Data) != 0x10000 {
 					errors <- ErrSize
 					return
 				}
 			}
-		}()
+		})
 	}
 
 	// 同时执行一些写操作
-	for i := 0; i < 50; i++ {
+	for i := range 50 {
 		rev := d.State().Revision
 		offset := i * 0x100
 		_ = d.Apply(rev, "write", []Change{{Offset: offset, Data: []byte{byte(i)}}})
@@ -431,7 +426,7 @@ func newTestDocument(t *testing.T, size int) *Document {
 	t.Helper()
 	tmpDir := t.TempDir()
 	path := filepath.Join(tmpDir, "test.gba")
-	if err := os.WriteFile(path, bytes.Repeat([]byte{0x00}, size), 0644); err != nil {
+	if err := os.WriteFile(path, bytes.Repeat([]byte{0x00}, size), 0o644); err != nil {
 		t.Fatal(err)
 	}
 	d, err := Open(path)

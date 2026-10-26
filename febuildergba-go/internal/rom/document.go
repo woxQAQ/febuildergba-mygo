@@ -25,10 +25,17 @@ var (
 	ErrSize           = errors.New("rom.invalid_size")
 )
 
-// Change replaces a range without relocating data. Expansion is a separate operation.
+// Change replaces a range in a document edit.
 type Change struct {
 	Offset int
 	Data   []byte
+}
+
+// Edit commits writes and optional expansion together. New bytes are filled with FF.
+// Size must be at least the current size; shrinking is reserved for undo.
+type Edit struct {
+	Size    int
+	Changes []Change
 }
 
 type delta struct {
@@ -36,9 +43,10 @@ type delta struct {
 	before, after []byte
 }
 type operation struct {
-	label             string
-	beforeID, afterID uint64
-	changes           []delta
+	label                 string
+	beforeID, afterID     uint64
+	beforeSize, afterSize int
+	changes               []delta
 }
 
 type Snapshot struct {
@@ -128,32 +136,47 @@ func (d *Document) Snapshot() Snapshot {
 	return Snapshot{Revision: d.revision, Data: bytes.Clone(d.data)}
 }
 
-// Apply validates every range before changing any bytes. Overlapping writes are ambiguous.
+// Apply replaces existing bytes without changing the document size.
 func (d *Document) Apply(revision uint64, label string, changes []Change) error {
 	d.mu.Lock()
 	defer d.mu.Unlock()
+	return d.apply(revision, label, Edit{Size: len(d.data), Changes: changes})
+}
+
+// ApplyEdit validates the complete edit before changing bytes, size or history.
+func (d *Document) ApplyEdit(revision uint64, label string, edit Edit) error {
+	d.mu.Lock()
+	defer d.mu.Unlock()
+	return d.apply(revision, label, edit)
+}
+
+func (d *Document) apply(revision uint64, label string, edit Edit) error {
 	if revision != d.revision {
 		return ErrStale
 	}
-	ordered := append([]Change(nil), changes...)
+	if edit.Size < len(d.data) || edit.Size > MaxSize || edit.Size < 1 {
+		return ErrSize
+	}
+	ordered := append([]Change(nil), edit.Changes...)
 	sort.Slice(ordered, func(i, j int) bool { return ordered[i].Offset < ordered[j].Offset })
-	op := operation{label: label, beforeID: d.stateID}
+	op := operation{label: label, beforeID: d.stateID, beforeSize: len(d.data), afterSize: edit.Size}
 	end := 0
 	for _, c := range ordered {
-		if c.Offset < end || c.Offset < 0 || c.Offset > len(d.data) || len(c.Data) > len(d.data)-c.Offset {
+		if c.Offset < end || c.Offset < 0 || c.Offset > edit.Size || len(c.Data) > edit.Size-c.Offset {
 			return fmt.Errorf("%w: 0x%X + %d", ErrRange, c.Offset, len(c.Data))
 		}
 		end = c.Offset + len(c.Data)
-		before := d.data[c.Offset:end]
+		before := d.data[min(c.Offset, len(d.data)):min(end, len(d.data))]
 		if !bytes.Equal(before, c.Data) {
 			op.changes = append(op.changes, delta{c.Offset, bytes.Clone(before), bytes.Clone(c.Data)})
 		}
 	}
-	if len(op.changes) == 0 {
+	if len(op.changes) == 0 && op.beforeSize == op.afterSize {
 		return nil
 	}
 	d.nextID++
 	op.afterID = d.nextID
+	d.expand(op.afterSize)
 	for _, c := range op.changes {
 		copy(d.data[c.offset:], c.after)
 	}
@@ -162,6 +185,10 @@ func (d *Document) Apply(revision uint64, label string, changes []Change) error 
 	d.stateID = op.afterID
 	d.revision++
 	return nil
+}
+
+func (d *Document) expand(size int) {
+	d.data = append(d.data, bytes.Repeat([]byte{0xFF}, size-len(d.data))...)
 }
 
 func (d *Document) Undo() bool {
@@ -175,6 +202,7 @@ func (d *Document) Undo() bool {
 	for _, c := range op.changes {
 		copy(d.data[c.offset:], c.before)
 	}
+	d.data = d.data[:op.beforeSize]
 	d.stateID = op.beforeID
 	d.revision++
 	return true
@@ -187,6 +215,7 @@ func (d *Document) Redo() bool {
 		return false
 	}
 	op := d.history[d.cursor]
+	d.expand(op.afterSize)
 	for _, c := range op.changes {
 		copy(d.data[c.offset:], c.after)
 	}

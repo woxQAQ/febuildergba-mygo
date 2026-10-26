@@ -62,6 +62,22 @@
 | fe6.assets | 头像、职业卡及图标 | ImagePortraitFE6Form、ImageItemIconForm | 已接入读取及 16 字节头像布局；导入与动态图像待实现 |
 | adapters.shared-history | 多版本共用编辑与历史 | 文档、布局、原始区域 | 已接入批量、撤销、手动定位及原始字节操作 |
 
+## 空间分配与表搬迁
+
+本批依据 `InputFormRef.WriteBinaryData`／`MoveBinaryData`、`MoveToFreeSapceForm` 和各版本的表初始化规则拆分。界面从“表定位 → 预览搬迁 → 应用搬迁”进入；仅处理自动定位且范围可确定的现有表，记录数保持不变。
+
+| ID | 能力 | 版本／前提 | 实现范围 |
+| --- | --- | --- | --- |
+| storage.append | 末尾分配、对齐和容量检查 | FE8U／FE8J／FE6；最大 32 MiB | 已实现；4 字节对齐，新字节填 FF；不根据零或 FF 自动复用空间 |
+| storage.free-ranges | 有来源的可用区间 | 显式声明及边界检查 | 核心已实现；检查已知表、源区、引用和其他保护区冲突；界面声明与区间持久化待实现 |
+| storage.references | 搬迁时更新已确认引用 | 游戏规则或显式引用；核对当前指针值 | 部分实现；支持外部、内部及资源内偏移引用；未选定共享引用和源数据保留，全局反向查询待实现 |
+| storage.table-move | 已有人物／职业／道具表搬迁 | 自动布局、完整范围及已确认的表引用 | 已实现 FE8U／FE8J／FE6；包含 FE6 隐藏 ID 0 和职业／道具表结束记录；手动解析布局暂不提供自动搬迁 |
+| storage.expansion-history | 扩容与字节／指针共用历史 | ROM 文档 | 已实现；先验证再提交，一次撤销恢复原长度，重做恢复扩容；过期或其他文档的预览被拒绝 |
+| storage.table-grow | 增加表记录、修改容量规则 | 表布局与游戏寻址规则 | 待实现 |
+| storage.reclaim | 旧区回收及完整共享引用分析 | 已确认全部使用方 | 待实现；当前保留旧区，不自动清空或回收 |
+
+未知补丁新增的引用可能不在现有规则中；保留源数据可保留旧引用的目标，但不保证这些使用方读取搬迁后的修改。
+
 ## 后续功能组
 
 下表保持完整路线的入口可追踪；每个功能组进入实现前，必须把索引中的相关表单、菜单动作、数据规则和格式拆成具体功能叶项，不能直接将整组标记完成。
@@ -70,7 +86,7 @@
 | --- | --- | --- | --- |
 | metadata.definitions | [游戏格式与规则定义库](metadata-design.md) | 具体版本、事件或补丁功能的需求 | 设计已确认／暂缓实施：当前不创建包或迁移定义，按实际需要接入 |
 | adapters.games | `ROMFE8JP`、`ROMFE6JP`、`ROMFE7U`、`ROMFE7JP` | 文档、布局、编码 | 部分实现：FE8J／FE6 日文原版基础表、名称和预览已接入；FE7J/U、更多字库和改版布局待实现 |
-| storage.allocation | `InputFormRef.WriteBinaryData`、表扩展与指针更新 | 原子编辑、引用记录 | 待实现：可用空间来源、共享引用和扩容回滚 |
+| storage.allocation | `InputFormRef.WriteBinaryData`、表扩展与指针更新 | 原子编辑、引用记录 | 部分实现：末尾／声明区间分配、已确认引用更新、三版本表搬迁及扩容回滚已接入；表记录数扩展、旧区回收和完整引用管理待实现 |
 | text.edit | `TextForm`、`FETextEncode`、`SystemTextEncoder`、`ToolTranslateROMForm` | 编码、空间 | 待实现：控制码、字库、翻译及外部文本格式 |
 | images.static | `ImagePortraitForm`、各图标／背景编辑器 | 调色板、压缩、空间 | 头像、职业卡及道具图标读取已实现；导入导出、调色板编辑器、其他图像类型和引用更新待实现 |
 | chapters.maps | `MapEditorForm`、章节配置、事件单位 | 图像、章节布局、空间 | 待实现：地图绘制、地形、地图变化、部署和 AI |

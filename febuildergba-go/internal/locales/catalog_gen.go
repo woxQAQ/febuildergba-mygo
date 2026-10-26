@@ -294,6 +294,88 @@ func (msgs Messages) ResetLayout() string {
 	return Catalog.Format(msgs.locale, "reset_layout", nil)
 }
 
+// MoveTable says "Move table to ROM end"
+// in the language the app shows.
+func MoveTable() string { return In(i18n.Locale()).MoveTable() }
+
+// MoveTable says "Move table to ROM end"
+// in the language of msgs.
+func (msgs Messages) MoveTable() string {
+	return Catalog.Format(msgs.locale, "move_table", nil)
+}
+
+// MoveTableScope says "Copy the automatically located table and update confirmed references. The original data stays in place. Apply creates…"
+// in the language the app shows.
+func MoveTableScope() string { return In(i18n.Locale()).MoveTableScope() }
+
+// MoveTableScope says "Copy the automatically located table and update confirmed references. The original data stays in place. Apply creates…"
+// in the language of msgs.
+func (msgs Messages) MoveTableScope() string {
+	return Catalog.Format(msgs.locale, "move_table_scope", nil)
+}
+
+// PreviewMove says "Preview move"
+// in the language the app shows.
+func PreviewMove() string { return In(i18n.Locale()).PreviewMove() }
+
+// PreviewMove says "Preview move"
+// in the language of msgs.
+func (msgs Messages) PreviewMove() string {
+	return Catalog.Format(msgs.locale, "preview_move", nil)
+}
+
+// ApplyMove says "Apply move"
+// in the language the app shows.
+func ApplyMove() string { return In(i18n.Locale()).ApplyMove() }
+
+// ApplyMove says "Apply move"
+// in the language of msgs.
+func (msgs Messages) ApplyMove() string {
+	return Catalog.Format(msgs.locale, "apply_move", nil)
+}
+
+// MoveSummary says "{source} → {target}\n{bytes} bytes · {references} confirmed references\nROM size after move: {size} bytes"
+// in the language the app shows.
+func MoveSummary(source string, target string, bytes int, references int, size int) string {
+	return In(i18n.Locale()).MoveSummary(source, target, bytes, references, size)
+}
+
+// MoveSummary says "{source} → {target}\n{bytes} bytes · {references} confirmed references\nROM size after move: {size} bytes"
+// in the language of msgs.
+func (msgs Messages) MoveSummary(source string, target string, bytes int, references int, size int) string {
+	return Catalog.Format(msgs.locale, "move_summary", map[string]any{"source": source, "target": target, "bytes": bytes, "references": references, "size": size})
+}
+
+// SpaceInvalidRange says "The declared free space is invalid or overlaps protected data. No changes were applied."
+// in the language the app shows.
+func SpaceInvalidRange() string { return In(i18n.Locale()).SpaceInvalidRange() }
+
+// SpaceInvalidRange says "The declared free space is invalid or overlaps protected data. No changes were applied."
+// in the language of msgs.
+func (msgs Messages) SpaceInvalidRange() string {
+	return Catalog.Format(msgs.locale, "space_invalid_range", nil)
+}
+
+// SpaceNoCapacity says "Moving this table would exceed the 32 MiB ROM limit."
+// in the language the app shows.
+func SpaceNoCapacity() string { return In(i18n.Locale()).SpaceNoCapacity() }
+
+// SpaceNoCapacity says "Moving this table would exceed the 32 MiB ROM limit."
+// in the language of msgs.
+func (msgs Messages) SpaceNoCapacity() string {
+	return Catalog.Format(msgs.locale, "space_no_capacity", nil)
+}
+
+// SpaceInvalidReference says "A confirmed reference no longer points to the source, or no reference could be confirmed. No changes were applied."
+// in the language the app shows.
+func SpaceInvalidReference() string { return In(i18n.Locale()).SpaceInvalidReference() }
+
+// SpaceInvalidReference says "A confirmed reference no longer points to the source, or no reference could be confirmed. No changes were applied."
+// in the language of msgs.
+func (msgs Messages) SpaceInvalidReference() string {
+	return Catalog.Format(msgs.locale, "space_invalid_reference", nil)
+}
+
 // InvalidAddress says "Enter a hexadecimal ROM offset or a GBA ROM address starting with 08 or 09."
 // in the language the app shows.
 func InvalidAddress() string { return In(i18n.Locale()).InvalidAddress() }

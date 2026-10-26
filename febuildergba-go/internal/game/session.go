@@ -7,6 +7,7 @@ import (
 	"fmt"
 
 	"github.com/woxQAQ/febuildergba-mygo/internal/rom"
+	"github.com/woxQAQ/febuildergba-mygo/internal/space"
 )
 
 var (
@@ -85,6 +86,7 @@ type Adapter interface {
 	ID() string
 	Match([]byte) bool
 	Inspect([]byte, map[Kind]Layout) Inspection
+	TableMove([]byte, Table) (space.Move, error)
 	Preview([]byte, AssetRef) (Preview, error)
 }
 

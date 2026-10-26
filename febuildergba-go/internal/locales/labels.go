@@ -9,6 +9,7 @@ import (
 
 	"github.com/woxQAQ/febuildergba-mygo/internal/game"
 	"github.com/woxQAQ/febuildergba-mygo/internal/rom"
+	"github.com/woxQAQ/febuildergba-mygo/internal/space"
 )
 
 // Label resolves schema keys; stat IDs such as growth.hp share their hp label.
@@ -28,7 +29,7 @@ func ErrorText(err error) string {
 	if _, _, ok := Catalog.Message(i18n.Locale(), key); ok {
 		return Catalog.Format(i18n.Locale(), key, nil)
 	}
-	for _, target := range []error{game.ErrVersion, game.ErrLayout, game.ErrValue, game.ErrField, game.ErrImage, rom.ErrRange, rom.ErrStale, rom.ErrExternalChange, rom.ErrExists, rom.ErrReadOnly, rom.ErrSize} {
+	for _, target := range []error{game.ErrVersion, game.ErrLayout, game.ErrValue, game.ErrField, game.ErrImage, space.ErrRange, space.ErrCapacity, space.ErrReference, rom.ErrRange, rom.ErrStale, rom.ErrExternalChange, rom.ErrExists, rom.ErrReadOnly, rom.ErrSize} {
 		if errors.Is(err, target) {
 			return Catalog.Format(i18n.Locale(), strings.ReplaceAll(target.Error(), ".", "_"), nil)
 		}

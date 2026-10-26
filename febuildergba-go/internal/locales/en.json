@@ -26,6 +26,23 @@
   "record_count": "Record count",
   "use_layout": "Use layout",
   "reset_layout": "Use automatic layout",
+  "move_table": "Move table to ROM end",
+  "move_table_scope": "Copy the automatically located table and update confirmed references. The original data stays in place. Apply creates one undoable edit; save writes the file.",
+  "preview_move": "Preview move",
+  "apply_move": "Apply move",
+  "move_summary": "{source} → {target}\n{bytes} bytes · {references} confirmed references\nROM size after move: {size} bytes",
+  "@move_summary": {
+    "placeholders": {
+      "source": { "type": "String" },
+      "target": { "type": "String" },
+      "bytes": { "type": "int" },
+      "references": { "type": "int" },
+      "size": { "type": "int" }
+    }
+  },
+  "space_invalid_range": "The declared free space is invalid or overlaps protected data. No changes were applied.",
+  "space_no_capacity": "Moving this table would exceed the 32 MiB ROM limit.",
+  "space_invalid_reference": "A confirmed reference no longer points to the source, or no reference could be confirmed. No changes were applied.",
   "invalid_address": "Enter a hexadecimal ROM offset or a GBA ROM address starting with 08 or 09.",
   "batch_edit": "Batch edit",
   "batch_scope": "Choose a field and preview the changes before applying them to the records below. Changing the search clears selection.",
