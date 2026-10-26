@@ -84,19 +84,18 @@ func (f textFormat) textCodes(data []byte, entry int, names bool) (map[uint16][]
 	return codes, nil
 }
 
-// nameCharacters returns game characters without splitting Shift-JIS pairs.
-// Display aliases are reversed before encoding, and lossy Unicode mappings are
-// rejected rather than silently changing the name visible after reopening.
-func (f textFormat) nameCharacters(name string) ([]uint16, error) {
-	if !utf8.ValidString(name) || strings.TrimSpace(name) != name {
-		return nil, ErrNameEncoding
+// characterUnits encodes a plain span without splitting Shift-JIS characters.
+// Display aliases are reversed before encoding; lossy mappings are rejected.
+func (f textFormat) characterUnits(content string) ([]textUnit, error) {
+	if !utf8.ValidString(content) {
+		return nil, ErrTextEncoding
 	}
-	for _, character := range name {
+	for _, character := range content {
 		if unicode.IsControl(character) || (!f.shiftJIS && (character < 0x20 || character > 0x7E)) {
-			return nil, ErrNameEncoding
+			return nil, ErrTextEncoding
 		}
 	}
-	storage := name
+	storage := content
 	if f.names != nil {
 		storage = f.names.storage.Replace(storage)
 	}
@@ -104,33 +103,33 @@ func (f textFormat) nameCharacters(name string) ([]uint16, error) {
 		var err error
 		storage, err = japanese.ShiftJIS.NewEncoder().String(storage)
 		if err != nil {
-			return nil, ErrNameEncoding
+			return nil, ErrTextEncoding
 		}
 	}
 	data := []byte(storage)
-	if len(data) > 4096 || f.displayText(data, nil) != name {
-		return nil, ErrNameEncoding
+	decoded, valid := f.decodeCharacters(data)
+	if len(data) > 4096 || !valid || decoded != content {
+		return nil, ErrTextEncoding
 	}
-	var characters []uint16
+	var units []textUnit
 	for i := 0; i < len(data); i++ {
 		character := uint16(data[i])
 		if f.shiftJIS && shiftJISPair(data[i:]) {
 			character |= uint16(data[i+1]) << 8
 			i++
 		}
-		characters = append(characters, character)
+		units = append(units, textUnit{symbol: character, pair: true})
 	}
-	return characters, nil
+	return units, nil
 }
 
 func (f textFormat) encodeName(data []byte, entry int, name string) ([]byte, error) {
-	characters, err := f.nameCharacters(name)
-	if err != nil {
-		return nil, err
+	if strings.TrimSpace(name) != name {
+		return nil, ErrNameEncoding
 	}
-	units := make([]textUnit, len(characters))
-	for i, character := range characters {
-		units[i] = textUnit{symbol: character, pair: true}
+	units, err := f.characterUnits(name)
+	if err != nil {
+		return nil, ErrNameEncoding
 	}
 	encoded, err := f.encodeTextUnits(data, entry, units, true)
 	if err == ErrTextEncoding {

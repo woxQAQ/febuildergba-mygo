@@ -118,7 +118,7 @@ func (a *Page) records(c *ui.Context) {
 				ui.Text(c, rows[row].Name).SingleLine()
 			}
 		}).Grow(1).Label(locales.Label(string(game.Kinds[a.tab])))
-		ui.Text(c, locales.RecordSummary(len(rows), len(pane.selectedIDs(rows)))).TextColor(c.Theme().TextMuted)
+		ui.Text(c, locales.RecordSummary(len(rows))).TextColor(c.Theme().TextMuted)
 	})
 }
 

@@ -99,7 +99,6 @@ type Adapter interface {
 	Inspect([]byte, map[Kind]Layout) Inspection
 	TableMove([]byte, Table) (space.Move, error)
 	Preview([]byte, AssetRef) (Preview, error)
-	CanEditDescriptions() bool
 	ReadText([]byte, uint16) (TextValue, error)
 	PlanTextEdit([]byte, uint16, string, TextRole) (space.Plan, error)
 }

@@ -59,9 +59,9 @@ func ErrorBanner(c *ui.Context, state *editor.State) {
 		return
 	}
 	t := c.Theme()
-	ui.Row(c).Padding(10, 16).Gap(8).AlignItems(ui.Center).Background(ui.Hex("#FFEEED")).BorderWidth(0, 0, 1, 0).BorderColor(t.Danger).Children(func() {
-		ui.Text(c, "⚠").TextColor(t.Danger).FontSize(16)
-		ui.Text(c, locales.ErrorText(state.Err)).Grow(1).Selectable().TextColor(t.Danger)
+	ui.Row(c).Padding(10, 16).Gap(8).AlignItems(ui.Center).Background(t.Background).BorderWidth(0, 0, 1, 0).BorderColor(t.Border).Children(func() {
+		ui.Text(c, locales.ErrorTitle()).Bold().TextColor(t.Danger)
+		ui.Text(c, locales.ErrorText(state.Err)).Grow(1).Selectable()
 		ui.Button(c, locales.Dismiss()).OnClick(func() { state.Err = nil })
 	})
 }
@@ -71,9 +71,8 @@ func ExternalChangeBanner(c *ui.Context, state *editor.State, reload func()) {
 		return
 	}
 	t := c.Theme()
-	ui.Row(c).Padding(10, 16).Gap(12).AlignItems(ui.Center).Background(ui.Hex("#FFF8E1")).BorderWidth(0, 0, 1, 0).BorderColor(t.Warning).Children(func() {
-		ui.Text(c, "⟳").TextColor(t.Warning).FontSize(16)
-		ui.Text(c, locales.External()).Grow(1).TextColor(t.Warning)
+	ui.Row(c).Padding(10, 16).Gap(12).AlignItems(ui.Center).Background(t.Background).BorderWidth(0, 0, 1, 0).BorderColor(t.Border).Children(func() {
+		ui.Text(c, locales.External()).Grow(1)
 		ui.Button(c, locales.Reload()).Disabled(state.Busy || reload == nil).OnClick(func() {
 			if reload != nil {
 				reload()
@@ -85,7 +84,6 @@ func ExternalChangeBanner(c *ui.Context, state *editor.State, reload func()) {
 func StatusBar(c *ui.Context, state *editor.State, run func()) {
 	document := state.Session.Document.State()
 	ui.Row(c).Padding(8, 16).Gap(12).AlignItems(ui.Center).BorderWidth(1, 0, 0, 0).BorderColor(c.Theme().Border).Children(func() {
-		ui.Text(c, filepath.Base(document.Path)).SingleLine()
 		ui.Textf(c, "%s  %.2f MiB", state.Session.Adapter.ID(), float64(document.Size)/(1<<20)).TextColor(c.Theme().TextMuted)
 		ui.Box(c).Grow(1)
 		status := locales.Ready()

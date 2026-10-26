@@ -116,16 +116,16 @@ flowchart LR
     Write -->|撤销| Undo[恢复指针与文件长度]
 ```
 
-## FE8U 描述正文编辑
+## 五版描述正文编辑
 
 与名称共用文本表、Huffman 树、末尾追加、共享字段预览和历史；控制参数依据 `FETextDecode.append_string`、`TextForm.ParseTextList` 与 `text_escape_ALL.en.txt` 保留。
 
 | ID | 能力 | 版本／前提 | 实现范围 |
 | --- | --- | --- | --- |
-| text.description-input | 人物／职业／道具描述及使用描述 | FE8U 原版；已有非零文本 ID | 已接入多行正文草稿、预览、取消、应用；名称／描述／使用描述共享 ID 的字段一起列出 |
-| text.description-controls | 正文与控制单元无损往返 | ASCII、换行及原有控制码 | 保留完整 16 位参数和原始控制标记；正文与换行可改，其他标记内容及顺序保持不变；未知扩展和不完整参数只读 |
+| text.description-input | 人物／职业／道具描述及使用描述 | FE8U／FE7U／FE8J／FE7J／FE6 原版；已有非零文本 ID | 已接入多行正文草稿、预览、取消、应用；名称／描述／使用描述共享 ID 的字段一起列出 |
+| text.description-controls | 正文与控制单元无损往返 | 英文 ASCII／日文 Shift-JIS、换行及原有控制码 | 保留完整字符边界、紧凑字形与 16 位参数；正文与换行可改，其他标记内容及顺序保持不变；非法编码、未知扩展和不完整参数只读 |
 | text.description-write | 追加描述并原子更新入口 | 有效主文本表指针与 Huffman 树 | 复用已有写入机制；不改动未编辑文本，保留旧资源和独立 ID 别名；验证撤销重做、保存重开及继续编辑 |
-| text.description-versions | 其他版本与通用文本 | FE7U／FE8J／FE7J／FE6、字库与补丁 | 待实现；控制码参数编辑、对话脚本及新建文本 ID 尚未接入 |
+| text.description-versions | 版本与字库边界 | 五版原版字符集 | 五版描述及对应 UI 已接入；自定义字库、控制码参数编辑、对话脚本及新建文本 ID 尚未接入 |
 
 ## 后续功能组
 
@@ -136,7 +136,7 @@ flowchart LR
 | metadata.definitions | [游戏格式与规则定义库](metadata-design.md)                              | 具体版本、事件或补丁功能的需求 | 设计已确认／暂缓实施：当前不创建包或迁移定义，按实际需要接入                                                           |
 | adapters.games       | `ROMFE8JP`、`ROMFE6JP`、`ROMFE7U`、`ROMFE7JP`                           | 文档、布局、编码               | 部分实现：FE8J／FE7J／FE6 日文原版和 FE7U 的基础表、名称、预览及共用编辑已接入；更多字库、补丁字段和改版布局待实现     |
 | storage.allocation   | `InputFormRef.WriteBinaryData`、表扩展与指针更新                        | 原子编辑、引用记录             | 部分实现：末尾／声明区间分配、已确认引用更新、五版本表搬迁及扩容回滚已接入；表记录数扩展、旧区回收和完整引用管理待实现 |
-| text.edit            | `TextForm`、`FETextEncode`、`SystemTextEncoder`、`ToolTranslateROMForm` | 编码、空间                     | 部分实现：五版基础名称写入、FE8U 描述正文与控制码保留已接入；其他版本描述、控制码参数编辑、更多编码／字库、翻译及外部文本格式待实现                                                                               |
+| text.edit            | `TextForm`、`FETextEncode`、`SystemTextEncoder`、`ToolTranslateROMForm` | 编码、空间                     | 部分实现：五版基础名称与描述正文写入、控制码保留及对应 UI 已接入；控制码参数编辑、更多编码／字库、翻译及外部文本格式待实现                                                                               |
 | images.static        | `ImagePortraitForm`、各图标／背景编辑器                                 | 调色板、压缩、空间             | 头像、职业卡及道具图标读取已实现；导入导出、调色板编辑器、其他图像类型和引用更新待实现                                 |
 | chapters.maps        | `MapEditorForm`、章节配置、事件单位                                     | 图像、章节布局、空间           | 待实现：地图绘制、地形、地图变化、部署和 AI                                                                            |
 | chapters.events      | `EventScriptForm`、模板与世界地图事件                                   | 事件指令定义、引用             | 待实现：脚本编解码与交互编辑                                                                                           |

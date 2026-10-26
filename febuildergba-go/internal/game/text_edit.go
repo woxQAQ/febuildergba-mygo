@@ -96,17 +96,15 @@ func (s *Session) ApplyTextEdit(edit *TextEdit) error {
 	return nil
 }
 
-func (g gameFormat) CanEditDescriptions() bool { return g.id == "FE8U" }
-
 func (g gameFormat) ReadText(data []byte, id uint16) (TextValue, error) {
-	if !g.Match(data) || !g.CanEditDescriptions() {
+	if !g.Match(data) {
 		return TextValue{}, ErrVersion
 	}
 	stream, err := g.text.readStream(data, id)
 	if err != nil {
 		return TextValue{}, err
 	}
-	value := descriptionValue(stream)
+	value := g.text.descriptionValue(stream)
 	value.ID = id
 	value.Editable = value.Editable && id != 0
 	return value, nil
@@ -125,7 +123,7 @@ func (g gameFormat) encodeText(data []byte, entry int, id uint16, content string
 		if err != nil {
 			return nil, "", err
 		}
-		value, err := parseDescription(content)
+		value, err := g.text.parseDescription(content)
 		if err != nil || !original.Editable || !slices.Equal(original.ControlCodes(), value.ControlCodes()) {
 			return nil, "", ErrTextEncoding
 		}

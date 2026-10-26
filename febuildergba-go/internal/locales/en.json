@@ -92,7 +92,7 @@
   "edit_name": "New name",
   "preview_name": "Preview name",
   "apply_name": "Apply name",
-  "name_edit_scope": "English ROMs accept printable ASCII; Japanese ROMs accept Shift-JIS text. Characters must be supported by this ROM. Preview and apply the name, then save.",
+  "name_edit_scope": "English ROMs use ASCII; Japanese ROMs use Shift-JIS. Characters must be supported by this ROM.",
   "name_needs_id": "Choose an existing nonzero name text ID before editing its text.",
   "text_edit_summary": "Text ID {textID}: all uses of this ID will change. Known name, description and use-description fields: {count}.",
   "@text_edit_summary": {
@@ -102,12 +102,15 @@
     }
   },
   "game_invalid_name_encoding": "This name cannot be encoded with the ROM's character encoding and Huffman tree. Use supported characters without leading or trailing spaces; game text must fit 4096 bytes.",
-  "description_edit_scope": "Use ASCII text and newlines. Keep [0xNNNN] markers unchanged and in order. Escape literal [ and backslash as \\[ and \\\\.",
+  "choose_text_id": "Set text ID",
+  "keep_text_controls": "Keep the original control markers",
+  "error_title": "Error",
+  "description_edit_scope": "English ROMs use ASCII; Japanese ROMs use Shift-JIS. A standalone [0x001F] pads English text; it is not visible text. Keep control markers and arguments unchanged and in order. Escape literal [ and backslash as \\[ and \\\\.",
   "preview_text": "Preview text",
   "apply_text": "Apply text",
-  "text_needs_id": "Choose an existing nonzero description text ID before editing its content.",
-  "text_read_only": "This text contains unsupported controls or incomplete arguments and is read-only.",
-  "game_invalid_text_encoding": "This text cannot be encoded losslessly. Keep the original control markers and their order; use ASCII and newlines supported by the ROM. Game text must fit 4096 bytes.",
+  "text_needs_id": "No text ID assigned",
+  "text_read_only": "This text contains characters that cannot be decoded losslessly, unsupported controls or incomplete arguments and is read-only.",
+  "game_invalid_text_encoding": "This text cannot be encoded losslessly. Keep the original control markers and their order; use characters and newlines supported by the ROM. Game text must fit 4096 bytes.",
   "game_invalid_text": "The text entry or Huffman tree is invalid. Writing requires a valid primary text-table pointer.",
   "id": "ID",
   "address": "Address",
@@ -188,13 +191,10 @@
   "rom_read_only": "The file is read-only. Save it to a writable location.",
   "rom_invalid_size": "Invalid file size. A ROM must be a regular file of at most 32 MiB.",
   "app_title": "FEBuilderGBA",
-  "record_summary": "{count, plural, one {# record} other {# records}}   {selected} selected",
+  "record_summary": "{count, plural, one {# record} other {# records}}",
   "@record_summary": {
     "placeholders": {
       "count": {
-        "type": "int"
-      },
-      "selected": {
         "type": "int"
       }
     }

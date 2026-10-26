@@ -16,8 +16,10 @@ const (
 	editedDescription   = "AB\n[0x0080][0x0021][0x0010][0x0141]A[0x001F]"
 )
 
-func descriptionFixture() *testutil.FixtureBuilder {
-	f := nameFixture()
+func descriptionFixture() *testutil.FixtureBuilder { return descriptionFixtureFor(nameVersions[0]) }
+
+func descriptionFixtureFor(version nameVersion) *testutil.FixtureBuilder {
+	f := nameFixtureFor(version)
 	// Complete four-level tree. The fixed stream uses leaf indices
 	// 1,4,6,7,8,9,2,5,0. In particular 0x0141 is one portrait argument,
 	// not the visible character A followed by a newline.
@@ -37,13 +39,13 @@ func descriptionFixture() *testutil.FixtureBuilder {
 	f.WriteU32(nameTable+4, 0x88000000|uint32(nameRaw+32))
 	f.WriteU32(nameTable+8, 0x88000000|uint32(nameRaw+32))
 	f.WriteU16(f.GetPosition("units")+2, 4)
-	f.WriteU16(f.GetPosition("units")+52, 4) // A name also shares the description's ID.
-	f.WriteU16(f.GetPosition("units")+54, 4)
+	f.WriteU16(f.GetPosition("units")+version.unitStride, 4) // A name also shares the description's ID.
+	f.WriteU16(f.GetPosition("units")+version.unitStride+2, 4)
 	f.WriteU16(f.GetPosition("classes")+2, 4)
-	f.WriteU16(f.GetPosition("classes")+86, 5)
+	f.WriteU16(f.GetPosition("classes")+version.classStride+2, 5)
 	f.WriteU16(f.GetPosition("items")+2, 4)
 	f.WriteU16(f.GetPosition("items")+4, 4)
-	f.WriteU16(f.GetPosition("items")+40, 6)
+	f.WriteU16(f.GetPosition("items")+version.itemStride+4, 6)
 	return f
 }
 
@@ -227,19 +229,59 @@ func TestRawDescriptionAndLiteralEscapes(t *testing.T) {
 	}
 }
 
-func TestDescriptionVersionScope(t *testing.T) {
-	for _, version := range nameVersions[1:] {
-		f := nameFixtureFor(version)
-		f.WriteU16(f.GetPosition("units")+2, 4)
-		s := openFixture(t, f)
-		if s.Adapter.CanEditDescriptions() {
-			t.Fatalf("unverified description codec enabled for %s", version.id)
-		}
-		if _, err := s.Text(Units, 1, "description_id"); !errors.Is(err, ErrVersion) {
-			t.Fatalf("unverified description reader %s: %v", version.id, err)
-		}
-		if _, err := s.PlanTextEdit(Units, 1, "description_id", "AB"); !errors.Is(err, ErrVersion) || s.Document.State().Dirty {
-			t.Fatalf("unverified description writer %s: %v", version.id, err)
-		}
+func TestDescriptionVersions(t *testing.T) {
+	for _, version := range nameVersions {
+		t.Run(version.id, func(t *testing.T) {
+			f := descriptionFixtureFor(version)
+			originalContent, content := originalDescription, editedDescription
+			want := []byte{0x2C, 0xE6, 0x91, 0xA8, 0, 0, 0, 0}
+			if version.japanese {
+				f.WriteU32(nameTree+16*4, 0x80008A83) // リ.
+				f.WriteU32(nameTree+17*4, 0x80008083) // ム; the trail byte must not start an extended command.
+				f.WriteU32(nameTree+24*4, 0x80004183) // A portrait argument that also forms the glyph ア.
+				originalContent = "リ\n[0x0080][0x0021][0x0010][0x4183]ム[0x001F]"
+				content = "リリム\n[0x0080][0x0021][0x0010][0x4183]リ[0x001F]"
+				want = []byte{0x88, 0x24, 0xE6, 0x91, 0xA8, 0, 0, 0, 0}
+			}
+			s := openFixture(t, f)
+			original, err := s.Text(Units, 1, "description_id")
+			if err != nil || !original.Editable || original.Content != originalContent {
+				t.Fatalf("version-specific text or parameters did not decode: %v", err)
+			}
+			before := s.Document.Snapshot()
+			edit, err := s.PlanTextEdit(Units, 1, "description_id", content)
+			if err != nil {
+				t.Fatal(err)
+			}
+			if err := s.ApplyTextEdit(edit); err != nil {
+				t.Fatal(err)
+			}
+			value, err := s.Text(Units, 1, "description_id")
+			if err != nil || value.Content != content || !slices.Equal(value.ControlCodes(), original.ControlCodes()) ||
+				!bytes.Equal(s.Document.Snapshot().Data[edit.Destination():], want) {
+				t.Fatalf("character boundary, parameter or fixed stream changed: %v", err)
+			}
+			if !s.Document.Undo() || !bytes.Equal(before.Data, s.Document.Snapshot().Data) || !s.Document.Redo() {
+				t.Fatal("version-specific history lost bytes")
+			}
+			if err := s.Document.Save(); err != nil {
+				t.Fatal(err)
+			}
+			reopened, err := Open(s.Document.State().Path)
+			if err != nil {
+				t.Fatal(err)
+			}
+			value, err = reopened.Text(Items, 0, "use_description_id")
+			if err != nil || value.Content != content || !slices.Equal(value.ControlCodes(), original.ControlCodes()) {
+				t.Fatalf("shared description did not survive saving: %v", err)
+			}
+			next, err := reopened.PlanTextEdit(Items, 0, "use_description_id", content+"\n")
+			if err != nil {
+				t.Fatal(err)
+			}
+			if err := reopened.ApplyTextEdit(next); err != nil {
+				t.Fatal(err)
+			}
+		})
 	}
 }

@@ -83,7 +83,7 @@
   "edit_name": "新名称",
   "preview_name": "预览名称",
   "apply_name": "应用名称",
-  "name_edit_scope": "英文版接受可打印 ASCII，日文版接受 Shift-JIS 文本；字符需由此 ROM 支持。预览并应用名称后，保存 ROM。",
+  "name_edit_scope": "英文版使用 ASCII，日文版使用 Shift-JIS；字符须由此 ROM 支持。",
   "name_needs_id": "请先选择一个已有的非零名称文本 ID，再编辑对应文本。",
   "text_edit_summary": "文本 ID {textID}：所有使用此 ID 的位置都会变化。已知名称、描述及使用描述字段共 {count} 处。",
   "@text_edit_summary": {
@@ -93,12 +93,15 @@
     }
   },
   "game_invalid_name_encoding": "名称无法使用此 ROM 的字符编码和 Huffman 树保存。请使用支持的字符，不带首尾空格；游戏文本最多 4096 字节。",
-  "description_edit_scope": "正文支持 ASCII 和换行。[0xNNNN] 标记需原样保留并保持顺序；字面 [ 和反斜杠需写作 \\[ 和 \\\\。",
+  "choose_text_id": "设置文本 ID",
+  "keep_text_controls": "控制标记请原样保留",
+  "error_title": "错误",
+  "description_edit_scope": "英文版使用 ASCII，日文版使用 Shift-JIS。英文文本中独立的 [0x001F] 是填充符，不是正文。控制标记及参数需保持内容与顺序；字面 [ 和反斜杠写作 \\[ 和 \\\\。",
   "preview_text": "预览文本",
   "apply_text": "应用文本",
-  "text_needs_id": "请先选择一个已有的非零描述文本 ID，再编辑对应正文。",
-  "text_read_only": "此文本包含未支持的控制码或不完整参数，目前只读。",
-  "game_invalid_text_encoding": "无法无损编码此文本。请保留原始控制标记及其顺序，正文使用 ROM 支持的 ASCII 和换行；游戏文本最多 4096 字节。",
+  "text_needs_id": "未设置文本 ID",
+  "text_read_only": "此文本包含无法无损解码的字符、未支持的控制码或不完整参数，目前只读。",
+  "game_invalid_text_encoding": "无法无损编码此文本。请保留原始控制标记及其顺序，正文使用 ROM 支持的字符和换行；游戏文本最多 4096 字节。",
   "game_invalid_text": "文本入口或 Huffman 树无效。写入需要有效的主文本表指针。",
   "id": "ID",
   "address": "地址",
@@ -179,13 +182,10 @@
   "rom_read_only": "文件为只读，请另存到可写位置。",
   "rom_invalid_size": "文件大小无效；ROM 必须是最大 32 MiB 的普通文件。",
   "app_title": "FEBuilderGBA",
-  "record_summary": "{count} 条记录   {selected} 已选",
+  "record_summary": "{count} 条记录",
   "@record_summary": {
     "placeholders": {
       "count": {
-        "type": "int"
-      },
-      "selected": {
         "type": "int"
       }
     }

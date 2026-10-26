@@ -62,9 +62,6 @@ func (a *Form) textPreview(c *ui.Context, key fieldKey, draft *textDraft, label 
 }
 
 func (a *Form) descriptionEditors(c *ui.Context, kind game.Kind, row game.Row, table *game.Table) {
-	if !a.state.Session.Adapter.CanEditDescriptions() {
-		return
-	}
 	for _, field := range table.Fields {
 		if field.Text != game.DescriptionText {
 			continue
@@ -74,13 +71,23 @@ func (a *Form) descriptionEditors(c *ui.Context, kind game.Kind, row game.Row, t
 		draft := a.textDraftFor(key, value.ID, value.Content)
 		label := locales.Label(strings.TrimSuffix(field.ID, "_id"))
 		ui.Column(c.Key(field.ID + "-editor")).Gap(6).Children(func() {
-			ui.Textf(c, "%s · 0x%04X", label, value.ID).Bold()
-			ui.Text(c, locales.DescriptionEditScope()).FontSize(12).TextColor(c.Theme().TextMuted)
+			if err == nil && value.ID == 0 {
+				ui.Row(c).Gap(8).AlignItems(ui.Center).Children(func() {
+					ui.Text(c, label).Bold()
+					ui.Text(c, locales.TextNeedsId()).TextColor(c.Theme().TextMuted).Grow(1)
+					ui.Button(c, locales.ChooseTextId()).Disabled(a.state.Busy).OnClick(func() { a.focusField(key) })
+				})
+				return
+			}
+			ui.Text(c, label).Bold()
 			unavailable := err != nil || !value.Editable
-			components.TextDraft(a.state, ui.TextArea(c, &draft.text).Height(112).Label(label).
+			components.TextDraft(a.state, ui.TextArea(c, &draft.text).Height(112).Label(label).Tooltip(locales.DescriptionEditScope()).
 				ReadOnly(unavailable).Disabled(a.state.Busy).OnChange(func() {
 				draft.preview, draft.err = nil, nil
 			}))
+			if len(value.ControlCodes()) > 0 {
+				ui.Text(c, locales.KeepTextControls()).FontSize(12).TextColor(c.Theme().TextMuted).Tooltip(locales.DescriptionEditScope())
+			}
 			ui.Row(c).Gap(8).Children(func() {
 				ui.Button(c, locales.PreviewText()).Disabled(a.state.Busy || unavailable || draft.text == value.Content).OnClick(func() {
 					draft.preview, draft.err = a.state.Session.PlanTextEdit(kind, row.ID, field.ID, draft.text)
@@ -92,8 +99,6 @@ func (a *Form) descriptionEditors(c *ui.Context, kind game.Kind, row game.Row, t
 			switch {
 			case err != nil:
 				ui.Text(c, locales.ErrorText(err)).FontSize(12).TextColor(c.Theme().Danger)
-			case value.ID == 0:
-				ui.Text(c, locales.TextNeedsId()).FontSize(12).TextColor(c.Theme().TextMuted)
 			case !value.Editable:
 				ui.Text(c, locales.TextReadOnly()).FontSize(12).TextColor(c.Theme().TextMuted)
 			}

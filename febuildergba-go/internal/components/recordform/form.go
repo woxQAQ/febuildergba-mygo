@@ -54,7 +54,7 @@ func (a *Form) View(c *ui.Context, kind game.Kind, row game.Row, table *game.Tab
 					ui.Image(c, preview.bitmap).Size(float32(bounds.Dx())*scale, float32(bounds.Dy())*scale).Label(row.Name + " " + locales.ImagePreview())
 				}
 				ui.Textf(c, "%02X", row.ID).FontSize(20).TextColor(c.Theme().TextMuted)
-				ui.Text(c, row.Name).FontSize(20).Bold().Grow(1)
+				a.nameEditor(c, kind, row).Grow(1).MinWidth(0)
 				if preview != nil && preview.bitmap != nil {
 					ui.Checkbox(c, &a.largePreview, "2×").Label(locales.PreviewZoom())
 				}
@@ -76,7 +76,6 @@ func (a *Form) View(c *ui.Context, kind game.Kind, row game.Row, table *game.Tab
 			if len(a.state.Session.Patches) > 0 {
 				ui.Text(c, locales.Patches()+": "+strings.Join(a.state.Session.Patches, ", ")).TextColor(c.Theme().TextMuted)
 			}
-			a.nameEditor(c, kind, row)
 			a.descriptionEditors(c, kind, row, table)
 			a.recordFields(c, kind, row, table)
 			if a.showRaw {

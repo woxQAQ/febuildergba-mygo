@@ -866,11 +866,11 @@ func (msgs Messages) ApplyName() string {
 	return Catalog.Format(msgs.locale, "apply_name", nil)
 }
 
-// NameEditScope says "English ROMs accept printable ASCII; Japanese ROMs accept Shift-JIS text. Characters must be supported by this ROM. P…"
+// NameEditScope says "English ROMs use ASCII; Japanese ROMs use Shift-JIS. Characters must be supported by this ROM."
 // in the language the app shows.
 func NameEditScope() string { return In(i18n.Locale()).NameEditScope() }
 
-// NameEditScope says "English ROMs accept printable ASCII; Japanese ROMs accept Shift-JIS text. Characters must be supported by this ROM. P…"
+// NameEditScope says "English ROMs use ASCII; Japanese ROMs use Shift-JIS. Characters must be supported by this ROM."
 // in the language of msgs.
 func (msgs Messages) NameEditScope() string {
 	return Catalog.Format(msgs.locale, "name_edit_scope", nil)
@@ -908,11 +908,41 @@ func (msgs Messages) GameInvalidNameEncoding() string {
 	return Catalog.Format(msgs.locale, "game_invalid_name_encoding", nil)
 }
 
-// DescriptionEditScope says "Use ASCII text and newlines. Keep [0xNNNN] markers unchanged and in order. Escape literal [ and backslash as \\[ and \\\\."
+// ChooseTextId says "Set text ID"
+// in the language the app shows.
+func ChooseTextId() string { return In(i18n.Locale()).ChooseTextId() }
+
+// ChooseTextId says "Set text ID"
+// in the language of msgs.
+func (msgs Messages) ChooseTextId() string {
+	return Catalog.Format(msgs.locale, "choose_text_id", nil)
+}
+
+// KeepTextControls says "Keep the original control markers"
+// in the language the app shows.
+func KeepTextControls() string { return In(i18n.Locale()).KeepTextControls() }
+
+// KeepTextControls says "Keep the original control markers"
+// in the language of msgs.
+func (msgs Messages) KeepTextControls() string {
+	return Catalog.Format(msgs.locale, "keep_text_controls", nil)
+}
+
+// ErrorTitle says "Error"
+// in the language the app shows.
+func ErrorTitle() string { return In(i18n.Locale()).ErrorTitle() }
+
+// ErrorTitle says "Error"
+// in the language of msgs.
+func (msgs Messages) ErrorTitle() string {
+	return Catalog.Format(msgs.locale, "error_title", nil)
+}
+
+// DescriptionEditScope says "English ROMs use ASCII; Japanese ROMs use Shift-JIS. A standalone [0x001F] pads English text; it is not visible text.…"
 // in the language the app shows.
 func DescriptionEditScope() string { return In(i18n.Locale()).DescriptionEditScope() }
 
-// DescriptionEditScope says "Use ASCII text and newlines. Keep [0xNNNN] markers unchanged and in order. Escape literal [ and backslash as \\[ and \\\\."
+// DescriptionEditScope says "English ROMs use ASCII; Japanese ROMs use Shift-JIS. A standalone [0x001F] pads English text; it is not visible text.…"
 // in the language of msgs.
 func (msgs Messages) DescriptionEditScope() string {
 	return Catalog.Format(msgs.locale, "description_edit_scope", nil)
@@ -938,31 +968,31 @@ func (msgs Messages) ApplyText() string {
 	return Catalog.Format(msgs.locale, "apply_text", nil)
 }
 
-// TextNeedsId says "Choose an existing nonzero description text ID before editing its content."
+// TextNeedsId says "No text ID assigned"
 // in the language the app shows.
 func TextNeedsId() string { return In(i18n.Locale()).TextNeedsId() }
 
-// TextNeedsId says "Choose an existing nonzero description text ID before editing its content."
+// TextNeedsId says "No text ID assigned"
 // in the language of msgs.
 func (msgs Messages) TextNeedsId() string {
 	return Catalog.Format(msgs.locale, "text_needs_id", nil)
 }
 
-// TextReadOnly says "This text contains unsupported controls or incomplete arguments and is read-only."
+// TextReadOnly says "This text contains characters that cannot be decoded losslessly, unsupported controls or incomplete arguments and is …"
 // in the language the app shows.
 func TextReadOnly() string { return In(i18n.Locale()).TextReadOnly() }
 
-// TextReadOnly says "This text contains unsupported controls or incomplete arguments and is read-only."
+// TextReadOnly says "This text contains characters that cannot be decoded losslessly, unsupported controls or incomplete arguments and is …"
 // in the language of msgs.
 func (msgs Messages) TextReadOnly() string {
 	return Catalog.Format(msgs.locale, "text_read_only", nil)
 }
 
-// GameInvalidTextEncoding says "This text cannot be encoded losslessly. Keep the original control markers and their order; use ASCII and newlines sup…"
+// GameInvalidTextEncoding says "This text cannot be encoded losslessly. Keep the original control markers and their order; use characters and newline…"
 // in the language the app shows.
 func GameInvalidTextEncoding() string { return In(i18n.Locale()).GameInvalidTextEncoding() }
 
-// GameInvalidTextEncoding says "This text cannot be encoded losslessly. Keep the original control markers and their order; use ASCII and newlines sup…"
+// GameInvalidTextEncoding says "This text cannot be encoded losslessly. Keep the original control markers and their order; use characters and newline…"
 // in the language of msgs.
 func (msgs Messages) GameInvalidTextEncoding() string {
 	return Catalog.Format(msgs.locale, "game_invalid_text_encoding", nil)
@@ -1768,16 +1798,14 @@ func (msgs Messages) AppTitle() string {
 	return Catalog.Format(msgs.locale, "app_title", nil)
 }
 
-// RecordSummary says "{count, plural, one {# record} other {# records}}   {selected} selected"
+// RecordSummary says "{count, plural, one {# record} other {# records}}"
 // in the language the app shows.
-func RecordSummary(count int, selected int) string {
-	return In(i18n.Locale()).RecordSummary(count, selected)
-}
+func RecordSummary(count int) string { return In(i18n.Locale()).RecordSummary(count) }
 
-// RecordSummary says "{count, plural, one {# record} other {# records}}   {selected} selected"
+// RecordSummary says "{count, plural, one {# record} other {# records}}"
 // in the language of msgs.
-func (msgs Messages) RecordSummary(count int, selected int) string {
-	return Catalog.Format(msgs.locale, "record_summary", map[string]any{"count": count, "selected": selected})
+func (msgs Messages) RecordSummary(count int) string {
+	return Catalog.Format(msgs.locale, "record_summary", map[string]any{"count": count})
 }
 
 // BatchTitle says "Batch edit — {count, plural, one {# record} other {# records}}"
