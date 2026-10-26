@@ -1,8 +1,8 @@
 # FEBuilderGBA 原生编辑器
 
-Go + MyGo 原生 UI，Go module 为 `github.com/woxQAQ/febuildergba-mygo`。当前实现 FE8U、FE8J 和 FE6 的人物、职业、道具基础字段编辑；FE8J／FE6 已完成日文原版的文件与 UI 验收，游戏效果单独待验收。尚未达到旧版完整功能覆盖。
+Go + MyGo 原生 UI，Go module 为 `github.com/woxQAQ/febuildergba-mygo`。当前实现 FE8U、FE8J 和 FE6 的人物、职业、道具基础字段编辑；FE8J／FE6 适配面向日文原版。尚未达到旧版完整功能覆盖。
 
-完整范围和依赖顺序见 [重建计划](../docs/rebuild-plan.md)，实际状态见 [实现与验证记录](../docs/implementation-status.md)，按功能跟踪的验收见 [覆盖矩阵](../docs/coverage.md)。
+完整范围和开发规则见[重建计划](../docs/rebuild-plan.md)，当前能力见[实现记录](../docs/implementation-status.md)，逐项实现状态见[覆盖矩阵](../docs/coverage.md)，布局与主题见[界面设计](DESIGN.md)。
 
 ## 运行
 
@@ -21,7 +21,7 @@ go run . /path/to/FE8U.gba
 - 职业能力按基础、成长率、上限、转职加成并列显示；人物使用个人加值与成长率。没有对应字段的单元格显示 `—`。宽窗口将武器熟练度放在能力矩阵旁，窄窗口自动换行；其他属性采用标签与数值同行的布局。
 - 有效字段输入立即进入内存文档；不完整或超范围的输入保留为草稿，并显示允许范围。Tab 切换字段，上下键微调；选中字段的加减按钮集中在编辑区底部。
 - Cmd+Z / Cmd+Shift+Z 及原生“编辑”菜单按焦点选择撤销、重做：数值字段和记录视图操作 ROM 历史；搜索、批量值、表定位和未应用的十六进制草稿使用自己的文本历史。
-- Cmd+S 保存，Cmd+Shift+S 另存为；Windows/Linux 对应 Ctrl，但这两个平台尚未验收。
+- Cmd+S 保存，Cmd+Shift+S 另存为；首阶段面向 macOS。
 - 人物和职业显示 ROM 内的头像／职业卡，道具显示实际图标；可用 `2×` 放大预览。修改素材 ID 或原始数据后，预览跟随文档修订刷新。
 - “前往”定位关联职业；打开“原始数据”后，底部显示当前字段的地址、十六进制值及字节编辑入口，页面另显示高级字段与记录字节。素材的头像记录、图标字节和调色板也提供直接入口。
 - “表定位”允许指定地址、记录大小和记录数，沿用当前游戏的字段定义。地址和记录大小需 4 字节对齐，范围必须完整容纳现有字段；这是当前窗口的解析设置，不改写 ROM 指针，也不随文件保存。可恢复自动定位。
@@ -39,11 +39,9 @@ go tool mygo build
 open build/darwin-arm64/FEBuilderGBA.app
 ```
 
-当前生成本地签名的开发产物；发行公证和分发验收尚未完成。
+当前生成本地签名的开发产物，尚未发行公证。
 
-## 构建检查与真实 ROM 验收
-
-按项目要求，不保留单元测试、测试框架入口或合成 ROM 生成器。开发检查使用构建和静态分析：
+## 构建与静态分析
 
 ```sh
 golangci-lint run ./...
@@ -53,20 +51,6 @@ go tool mygo i18n check
 go build ./...
 CGO_ENABLED=0 go build ./...
 ```
-
-本地真实 ROM 位于 `.rom/`，整个目录被 Git 忽略。当前验收语料为 FE8U 原版《The Sacred Stones》、`Vision_Quest_v3.gba`、`dream-of-five.gba`，以及 FE8J、FE6 日文原版；目录中的 FE7 和 FE6 翻译版尚未完成适配验收。使用临时副本进行编辑验收，保留原件；具体字节、表位置和已执行结果见 [实现记录](../docs/implementation-status.md) 和 [版本适配验收](../docs/version-adapters-acceptance.md)。
-
-验收路径为：打开副本 → 单字段／批量修改 → 撤销重做 → 保存 → 重新打开 → 在 mGBA 中确认。手动表定位和十六进制操作复用同一文档历史。两份改版已完成文件与 UI 工作流检查；FE8U 原版及两份改版另已完成新游戏进入首章后的 HP、力量、武器威力与实际战斗对照，详见 [章节验收](../docs/rom-chapter-acceptance.md)。人物表等级的修改未改变这三个开场角色的部署等级，后者来自章节单位定义。其他字段的游戏场景及部分原生交互仍待验收。原生文件面板取消、关闭确认、组合输入与菜单焦点的实际结果及剩余条件见 [桌面验收](../docs/desktop-acceptance.md)。
-
-两份 ROM 的 NarrowFont 窄字库已按实际字形匹配，Dream of Five 的道具名称现可正常显示与搜索；未知字形仍保留标记。人物头像、职业卡和道具图标的当前引用均已完成只读解码检查，图像导入、动画和其他自定义格式尚未完成。
-
-阶段 0 的原生能力验证窗口：
-
-```sh
-go run ./cmd/ui-probe
-```
-
-窗口包含合成像素图块、缩放与坐标拾取、中文输入框和 10,000 行代码编辑器。它不读写 ROM，不是已实现的地图或事件编辑器。
 
 ## 覆盖索引
 
@@ -99,7 +83,7 @@ internal/
   rom/                    字节文档、修改历史、保存与备份
   gba/                    GBA 图形编解码
 cmd/
-  ui-probe/               原生能力验证窗口
+  ui-probe/               原生控件原型
   legacy-inventory/       旧版来源索引工具
 ```
 
