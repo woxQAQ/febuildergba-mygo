@@ -34,7 +34,7 @@ type entry struct {
 
 func main() {
 	root := flag.String("root", "../FEBuilderGBA/FEBuilderGBA", "legacy C# project directory")
-	out := flag.String("out", "../docs/legacy-inventory.csv", "generated source inventory")
+	out := flag.String("out", "../.cache/legacy-inventory.csv", "generated source inventory")
 	flag.Parse()
 	if err := run(*root, *out); err != nil {
 		fmt.Fprintln(os.Stderr, err)

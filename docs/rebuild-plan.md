@@ -33,7 +33,7 @@
 - [重建导出](../FEBuilderGBA/FEBuilderGBA/ToolROMRebuildMake.cs)、[重建应用](../FEBuilderGBA/FEBuilderGBA/ToolROMRebuildApply.cs)：结构化重排涉及未知二进制数据、指针和空间分配，不能仅靠重新编码已知字段实现。
 - [外部修改监视](../FEBuilderGBA/FEBuilderGBA/ROMUpdateWatcher.cs)、[RAM](../FEBuilderGBA/FEBuilderGBA/RAM.cs)：文件外部变更和模拟器内存访问需要重新设计平台边界。旧版 GDB 实现的平台依赖需要重新适配。
 
-[旧版来源索引](legacy-inventory.csv) 记录来源条目，功能拆分与实现状态维护在[覆盖矩阵](coverage.md)。
+[旧版来源索引](../febuildergba-go/README.md#覆盖索引) 按需在本地生成，记录来源条目，功能拆分与实现状态维护在[覆盖矩阵](coverage.md)。
 
 ## 架构方向
 

@@ -58,7 +58,7 @@ CGO_ENABLED=0 go build ./...
 go run ./cmd/legacy-inventory
 ```
 
-从旧版 `.csproj`、源码中的静态窗口调用和配置目录生成 [legacy-inventory.csv](../docs/legacy-inventory.csv)。索引仅记录来源，不能当作功能完成率；行为状态维护在覆盖矩阵中。生成器应从本目录执行，或显式设置 `-root`、`-out`。
+从旧版 `.csproj`、源码中的静态窗口调用和配置目录按需生成旧版来源索引，默认输出到仓库根目录的 `.cache/legacy-inventory.csv`。`.cache/` 已由 Git 忽略，生成结果不纳入版本管理。索引仅记录来源，不能当作功能完成率；行为状态维护在覆盖矩阵中。生成器应从本目录执行，或显式设置 `-root`、`-out`。
 
 ## 工程组织
 
