@@ -13,6 +13,8 @@ type assetPreview struct {
 	resource game.Preview
 	bitmap   *ui.Bitmap
 	err      error
+	edit     *game.AssetEdit
+	imported *ui.Bitmap
 }
 
 func (a *Form) previewFor(kind game.Kind, id int) *assetPreview {

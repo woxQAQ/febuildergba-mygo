@@ -1,6 +1,6 @@
 # 实现记录
 
-当前支持 FE8U、FE8J、FE7U、FE7J 和 FE6 的人物、职业、道具基础编辑；日文适配面向原版。支持名称与素材预览，以及批量修改、手动表定位、固定长度十六进制编辑和已有表搬迁。表搬迁可原子更新已确认引用并扩容，五个版本均已接入名称写入及人物／职业／道具描述和使用描述的正文编辑；表记录数扩展、通用文本／图像写入、章节编辑和跳章尚未实现，完整功能状态见[覆盖矩阵](coverage.md)。
+当前支持 FE8U、FE8J、FE7U、FE7J 和 FE6 的人物、职业、道具基础编辑；日文适配面向原版。支持名称与素材预览、头像／职业卡／道具图标的 PNG 导出和替换，以及批量修改、手动表定位、固定长度十六进制编辑和已有表搬迁。表搬迁可原子更新已确认引用并扩容，五个版本均已接入名称、描述及已有文本 ID 的正文与控制指令编辑；表记录数扩展、新建文本 ID、其他图像写入、章节编辑和跳章尚未实现，完整功能状态见[覆盖矩阵](coverage.md)。
 
 范围与开发规则见[重建计划](rebuild-plan.md)，运行、操作和构建命令见[编辑器 README](../febuildergba-go/README.md)。
 
@@ -13,8 +13,8 @@
 | 游戏会话     | [session.go](../febuildergba-go/internal/game/session.go)                                                                                                                                                                                                                                                                      | 游戏适配、表与字段定义、单记录及批量字段操作                                                       |
 | 高级操作     | [advanced.go](../febuildergba-go/internal/game/advanced.go)                                                                                                                                                                                                                                                                    | 窗口内显式表布局；原始字节写入检查文档归属、长度及修订                                             |
 | 游戏规则     | [format.go](../febuildergba-go/internal/game/format.go)、[fe8u.go](../febuildergba-go/internal/game/fe8u.go)、[fe8j.go](../febuildergba-go/internal/game/fe8j.go)、[fe7u.go](../febuildergba-go/internal/game/fe7u.go)、[fe7j.go](../febuildergba-go/internal/game/fe7j.go)、[fe6.go](../febuildergba-go/internal/game/fe6.go) | 版本标头、表及文本位置、字段差异和素材布局；共用解析与编辑流程                                     |
-| 文本读写     | [text.go](../febuildergba-go/internal/game/text.go)、[text_encode.go](../febuildergba-go/internal/game/text_encode.go)、[text_edit.go](../febuildergba-go/internal/game/text_edit.go)、[text_value.go](../febuildergba-go/internal/game/text_value.go)、[narrow_font.go](../febuildergba-go/internal/game/narrow_font.go)                                                                                                                                                                                                         | 有界 Huffman／anti-Huffman、Shift-JIS 和紧凑职业名称；验证 NarrowFont 字形后映射；五版名称与描述正文编码、控制码保留、紧凑字形双向映射、共享字段预览及原子写入 |
-| 图像读取     | [graphics.go](../febuildergba-go/internal/gba/graphics.go)、[portrait.go](../febuildergba-go/internal/game/portrait.go)、[assets.go](../febuildergba-go/internal/game/assets.go)                                                                                                                                               | 有界 LZ77、4bpp 图块、调色板、头像、职业卡、道具图标和已知头像扩展                                 |
+| 文本读写     | [text.go](../febuildergba-go/internal/game/text.go)、[text_encode.go](../febuildergba-go/internal/game/text_encode.go)、[text_edit.go](../febuildergba-go/internal/game/text_edit.go)、[text_value.go](../febuildergba-go/internal/game/text_value.go)、[text_controls.go](../febuildergba-go/internal/game/text_controls.go)、[text_index.go](../febuildergba-go/internal/game/text_index.go)、[narrow_font.go](../febuildergba-go/internal/game/narrow_font.go)                                                                                                                                                                                                         | 有界 Huffman／anti-Huffman、Shift-JIS 和紧凑职业名称；验证 NarrowFont 字形后映射；五版名称、描述及通用文本编码、可读指令与参数编辑、文本索引、紧凑字形双向映射、共享字段预览及原子写入 |
+| 图像读写     | [graphics.go](../febuildergba-go/internal/gba/graphics.go)、[portrait.go](../febuildergba-go/internal/game/portrait.go)、[assets.go](../febuildergba-go/internal/game/assets.go)、[asset_edit.go](../febuildergba-go/internal/game/asset_edit.go)、[asset_sheet.go](../febuildergba-go/internal/game/asset_sheet.go)、[graphics_encode.go](../febuildergba-go/internal/gba/graphics_encode.go)                                                                                                                                               | 有界 LZ77、4bpp、BGR555、五版标准素材 PNG 读写及原子替换；已知头像扩展仅预览                                 |
 | 页面与组件   | [pages](../febuildergba-go/internal/pages)、[components](../febuildergba-go/internal/components)                                                                                                                                                                                                                               | 记录导航、搜索、多选、字段矩阵、批量预览、素材预览、表定位和十六进制编辑                           |
 | 共享编辑状态 | [state.go](../febuildergba-go/internal/editor/state.go)                                                                                                                                                                                                                                                                        | 每窗口独立会话、忙碌与错误状态、撤销重做及草稿修订                                                 |
 | 系统边界     | [app](../febuildergba-go/internal/app)                                                                                                                                                                                                                                                                                         | 独立窗口、异步文件对话框、关闭确认、外部修改检测、菜单和模拟器启动                                 |
@@ -30,16 +30,20 @@ FE7U／FE7J 使用 253 条人物记录、52／84／36 字节的基础表布局�
 
 五个版本的名称写入共用当前 ROM 的 Huffman 树：FE8U／FE7U 接受可打印 ASCII，FE8J／FE7J／FE6 接受 Shift-JIS，紧凑职业名通过同一份双向映射还原为原版字形。编码保留完整 Shift-JIS 字符边界，并可使用包含 `0x1F` 名称填充符的原生叶子；填充符不作为结束码。拒绝无法编码或无法原样读回的输入。名称不带首尾空格，解码后的游戏数据最多 4096 字节（包含填充符，不按 UTF-8 长度计）；码长最多 32 位，总位流最多 65536 位。压缩流为英文／日文分别保留最少七／八位结束码空间及三字节读取余量。写入要求有效的主文本表指针，恢复地址只用于读取。预览绑定文档修订和窗口表布局，列出共享该文本 ID 的已知名称、描述及使用描述字段；其他描述或事件中使用该 ID 的位置也会变化。写入保留旧文本，在末尾四字节对齐追加资源并更新选定入口，一次撤销恢复指针与长度；未应用的名称输入保持草稿。不会生成 anti-Huffman 数据。
 
-五版描述编辑使用同一套 `TextEdit` 预览与原子提交；记录详情统一提供多行编辑、共享字段预览、应用、取消和只读原因。字段元数据以 `TextRole` 区分名称和描述；`TextValue` 保留正文、换行、控制码及完整 16 位参数。换行显示为实际换行，其他控制以 `[0xNNNN]` 表示，字面 `[`／反斜杠使用 `\[`／`\\` 转义。英文描述接受 ASCII，日文描述接受 Shift-JIS，保留首尾空白及半角字符；紧凑字形在连续正文中双向转换。先识别完整 Shift-JIS 字符，再解释控制码；参数始终作为完整单元保留。正文及换行可修改，其他原始标记必须保留内容和顺序；非法编码、未识别扩展、未支持的组合和不完整参数只读。未修改的文本不重编码；不会生成 anti-Huffman 数据。
+五版描述编辑使用同一套 `TextEdit` 预览与原子提交；记录详情统一提供多行编辑、共享字段预览、应用、取消和只读原因。字段元数据以 `TextRole` 区分名称和描述；`TextValue` 保留正文、换行、控制码及完整 16 位参数。换行显示为实际换行，其他控制使用 `[A]`、`[Wink]`、`[LoadFace][0x0141]` 等可读指令，也接受原始 `[0xNNNN]` 标记，字面 `[`／反斜杠使用 `\[`／`\\` 转义。英文描述接受 ASCII，日文描述接受 Shift-JIS，保留首尾空白及半角字符；紧凑字形在连续正文中双向转换。先识别完整 Shift-JIS 字符，再解释控制码；参数始终作为完整单元保留。正文、已支持的控制指令及参数均可修改；指令需适用于当前版本，字符与参数必须能由当前 Huffman 树无损编码。非法编码、未识别扩展、未支持的组合和不完整参数保留原始表示并只读。等价标记不会触发重编码；不会生成 anti-Huffman 数据。
+
+“文本”标签页按原版规则读取连续有效的文本入口，支持正文或十六进制 ID 搜索、指令参考及 ROM 控制单元查看。RAM 入口参与表范围判定但不可从 ROM 解码或替换，单条损坏不隐藏后续入口；恢复地址仅供浏览。索引随文档修订失效。每个 ID 保留自己的草稿，原文冲突时保留草稿并要求重新读取；预览列出已知字段并可跳回对应记录。新建 ID、扩展文本表、自定义文本引擎、字库、事件引用查询及游戏画面预览仍待接入。
+
+五版静态素材共用 `AssetEdit` 与完整 PNG 素材表。图标要求当前共享调色板；头像允许最多 15 种不透明颜色加透明色，转换为 BGR555 后读回预览。FE6 保留主图内嘴部与未压缩小头像布局；其他版本保留独立嘴部、压缩小头像及主图原有压缩方式。头像坐标不改动，素材表未映射区域必须透明。应用在末尾追加各资源，更新已确认的头像记录或图标表入口；图标复制 255 槽可寻址区以保留其他 ID，代价是每次约 32 KiB 的增长。旧资源及独立素材 ID 的旧别名保持不变，预览绑定文档修订与布局，所有修改形成一次历史操作。MUG_EXCEED／HALFBODY 完整素材表写入尚未支持。
 
 核心测试使用修正后的合成标头、表指针与布局，调用实际文档、会话和 LZ77 实现。覆盖五个版本共十五种表搬迁、扩容历史、过期预览、引用及区间冲突、容量上限和保存重开；名称与描述写入另以固定字节样本验证编码、16 位控制参数、跨字段共享 ID 与独立别名、非法树、过期预览和失败原子性。不运行 UI 或模拟器。测试范围及限制见[测试说明](../febuildergba-go/tests/README.md)。
 
-真实 ROM 检查从 `febuildergba-go/.rom/` 读取五个原版，验证基础表、表搬迁、字段修改、名称及四类描述写入、历史、保存重开和继续编辑。固定记录、文本 ID 和原版空文本的预期由集成用例维护，解析失败不会改选其他记录。检查只修改临时副本，不运行 UI、游戏或模拟器；本地改版 ROM 不在原版验证范围内。
+真实 ROM 检查从 `febuildergba-go/.rom/` 读取五个原版，验证基础表、表搬迁、字段修改、名称及四类描述写入、五版固定对话的指令增删与头像参数修改、图标／完整头像／职业卡 PNG 替换、历史、保存重开和继续编辑。固定记录、文本 ID 和原版空文本的预期由集成用例维护，解析失败不会改选其他记录。检查只修改临时副本，不运行 UI、游戏或模拟器；本地改版 ROM 不在原版验证范围内。
 
 ## 当前缺口
 
 - 来源索引已生成，完整行为叶项、动态入口及外部格式仍需盘点。阶段 0 尚未全部完成。
-- 更多字库与补丁字段、全局引用查询、表记录数扩展、旧区回收、控制码参数编辑、更多字符编码与通用对话／图像写入、章节与事件编辑等按[覆盖矩阵](coverage.md)继续实现。元数据层设计已确认，按具体功能需求接入。
+- 更多字库与补丁字段、全局引用查询、表记录数扩展、旧区回收、新建文本 ID、更多字符编码与自定义文本引擎、其他图像写入、章节与事件编辑等按[覆盖矩阵](coverage.md)继续实现。元数据层设计已确认，按具体功能需求接入。
 - 外部文件只在保存及聚焦时检查；备份和历史不自动清理，除语言外的编辑偏好未持久化。
 - 模拟器集成只有启动能力，跳章及内存调试尚未实现。
 

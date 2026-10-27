@@ -12,8 +12,8 @@ import (
 
 const (
 	descriptionStream   = nameStream + 0x100
-	originalDescription = "A\n[0x0080][0x0021][0x0010][0x0141]B[0x001F]"
-	editedDescription   = "AB\n[0x0080][0x0021][0x0010][0x0141]A[0x001F]"
+	originalDescription = "A\n[ToggleRed][LoadFace][0x0141]B[.]"
+	editedDescription   = "AB\n[ToggleRed][LoadFace][0x0141]A[.]"
 )
 
 func descriptionFixture() *testutil.FixtureBuilder { return descriptionFixtureFor(nameVersions[0]) }
@@ -131,13 +131,12 @@ func TestDescriptionRejectsLossyEdits(t *testing.T) {
 	s := openFixture(t, descriptionFixture())
 	before := s.Document.Snapshot()
 	for _, content := range []string{
-		"AB",
-		strings.Replace(editedDescription, "[0x0141]", "[0x0041]", 1),
-		strings.Replace(editedDescription, "[0x0021]", "!", 1),
-		strings.Replace(editedDescription, "[0x0010][0x0141]", "[0x0141][0x0010]", 1),
+		editedDescription + "[Unknown]",
+		strings.Replace(editedDescription, "[ToggleRed]", "[Item]", 1),
+		strings.Replace(editedDescription, "[LoadFace][0x0141]", "[0x0141][LoadFace]", 1),
+		editedDescription + "[LoadFace]",
 		editedDescription + "[0x0000]",
 		editedDescription + "[0x0100]",
-		editedDescription + "[0x001F]",
 		editedDescription + "[0x01]",
 		editedDescription + "\\n",
 		editedDescription + "é",
@@ -146,7 +145,7 @@ func TestDescriptionRejectsLossyEdits(t *testing.T) {
 		editedDescription + strings.Repeat("A", 4097),
 	} {
 		if _, err := s.PlanTextEdit(Units, 1, "description_id", content); !errors.Is(err, ErrTextEncoding) {
-			t.Fatalf("accepted a lossy or invalid edit: %v", err)
+			t.Fatalf("accepted invalid or unencodable text %q: %v", content, err)
 		}
 	}
 	for _, content := range []string{originalDescription, strings.ReplaceAll(originalDescription, "\n", "\r\n")} {
@@ -194,10 +193,10 @@ func TestUnsupportedDescriptionControls(t *testing.T) {
 func TestRawDescriptionAndLiteralEscapes(t *testing.T) {
 	s := openFixture(t, descriptionFixture())
 	value, err := s.Text(Items, 1, "use_description_id")
-	if err != nil || value.Content != "B\n[0x001F]" || !value.Editable {
+	if err != nil || value.Content != "B\n[.]" || !value.Editable {
 		t.Fatalf("anti-Huffman text did not preserve controls: %v", err)
 	}
-	const content = "\\[AB]\\\\\nB[0x001F]"
+	const content = "\\[AB]\\\\\nB[.]"
 	edit, err := s.PlanTextEdit(Items, 1, "use_description_id", content)
 	if err != nil {
 		t.Fatal(err)
@@ -213,7 +212,7 @@ func TestRawDescriptionAndLiteralEscapes(t *testing.T) {
 	f.WriteU32(nameTree+16*4, 0x80002180)
 	s = openFixture(t, f)
 	value, err = s.Text(Units, 1, "description_id")
-	if err != nil || !value.Editable || !strings.HasPrefix(value.Content, "[0x2180]") {
+	if err != nil || !value.Editable || !strings.HasPrefix(value.Content, "[ToggleRed]") {
 		t.Fatalf("packed extended command was not retained: %v", err)
 	}
 	edit, err = s.PlanTextEdit(Units, 1, "description_id", value.Content+"\n")
@@ -239,8 +238,8 @@ func TestDescriptionVersions(t *testing.T) {
 				f.WriteU32(nameTree+16*4, 0x80008A83) // リ.
 				f.WriteU32(nameTree+17*4, 0x80008083) // ム; the trail byte must not start an extended command.
 				f.WriteU32(nameTree+24*4, 0x80004183) // A portrait argument that also forms the glyph ア.
-				originalContent = "リ\n[0x0080][0x0021][0x0010][0x4183]ム[0x001F]"
-				content = "リリム\n[0x0080][0x0021][0x0010][0x4183]リ[0x001F]"
+				originalContent = "リ\n[ToggleRed][LoadFace][0x4183]ム[.]"
+				content = "リリム\n[ToggleRed][LoadFace][0x4183]リ[.]"
 				want = []byte{0x88, 0x24, 0xE6, 0x91, 0xA8, 0, 0, 0, 0}
 			}
 			s := openFixture(t, f)

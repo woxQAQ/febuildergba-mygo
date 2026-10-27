@@ -34,6 +34,8 @@ func (m *application) newWindow(session *game.Session) *mygo.Window {
 	a.Actions.Open = func() { m.openDialog(win, a) }
 	a.Actions.Save = func(as bool) { saveDocument(win, a, as) }
 	a.Actions.Reload = func() { reloadDocument(win, a) }
+	a.Actions.ImportPNG = func(done func([]byte, error)) { importPNG(win, a, done) }
+	a.Actions.ExportPNG = func(ref game.AssetRef) { m.exportPNG(win, a, ref) }
 	a.Actions.Run = func() {
 		if a.Editor.Session == nil {
 			return

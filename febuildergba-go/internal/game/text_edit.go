@@ -3,6 +3,7 @@ package game
 import (
 	"bytes"
 	"encoding/binary"
+	"fmt"
 	"maps"
 	"slices"
 
@@ -59,8 +60,11 @@ func (s *Session) PlanTextEdit(kind Kind, id int, fieldID, content string) (*Tex
 	if field.Text == NoText || field.Width != 2 {
 		return nil, ErrField
 	}
-	textID := u16(s.image.Data, row.Address+field.Offset)
-	plan, err := s.Adapter.PlanTextEdit(s.image.Data, textID, content, field.Text)
+	return s.planTextEdit(u16(s.image.Data, row.Address+field.Offset), fieldID, content, field.Text)
+}
+
+func (s *Session) planTextEdit(textID uint16, fieldID, content string, role TextRole) (*TextEdit, error) {
+	plan, err := s.Adapter.PlanTextEdit(s.image.Data, textID, content, role)
 	if err != nil {
 		return nil, err
 	}
@@ -74,14 +78,8 @@ func (s *Session) PlanTextEdit(kind Kind, id int, fieldID, content string) (*Tex
 				return nil, ErrLayout
 			}
 		}
-		for _, candidate := range table.Rows {
-			for _, other := range table.Fields {
-				if other.Text != NoText && other.Width == 2 && u16(s.image.Data, candidate.Address+other.Offset) == textID {
-					edit.uses = append(edit.uses, TextUse{Kind: table.Kind, ID: candidate.ID, Field: other.ID})
-				}
-			}
-		}
 	}
+	edit.uses = s.TextUses(textID)
 	return edit, nil
 }
 
@@ -106,7 +104,9 @@ func (g gameFormat) ReadText(data []byte, id uint16) (TextValue, error) {
 	}
 	value := g.text.descriptionValue(stream)
 	value.ID = id
-	value.Editable = value.Editable && id != 0
+	if id == 0 {
+		value.Editable, value.ReadOnlyReason = false, ErrText
+	}
 	return value, nil
 }
 
@@ -123,9 +123,12 @@ func (g gameFormat) encodeText(data []byte, entry int, id uint16, content string
 		if err != nil {
 			return nil, "", err
 		}
+		if !original.Editable {
+			return nil, "", fmt.Errorf("%w: %w", ErrTextEncoding, original.ReadOnlyReason)
+		}
 		value, err := g.text.parseDescription(content)
-		if err != nil || !original.Editable || !slices.Equal(original.ControlCodes(), value.ControlCodes()) {
-			return nil, "", ErrTextEncoding
+		if err != nil {
+			return nil, "", fmt.Errorf("%w: %w", ErrTextEncoding, err)
 		}
 		if original.Content == value.Content {
 			return nil, "", ErrValue

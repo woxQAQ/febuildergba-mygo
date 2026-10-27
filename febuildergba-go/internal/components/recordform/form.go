@@ -22,10 +22,11 @@ type Form struct {
 	sidebar               float32
 	openHex               func(int, int)
 	jump                  func(game.Kind, int)
+	assets                AssetActions
 }
 
-func New(state *editor.State, openHex func(int, int), jump func(game.Kind, int)) *Form {
-	return &Form{state: state, openHex: openHex, jump: jump}
+func New(state *editor.State, openHex func(int, int), jump func(game.Kind, int), assets AssetActions) *Form {
+	return &Form{state: state, openHex: openHex, jump: jump, assets: assets}
 }
 
 func (a *Form) Reset() {
@@ -60,6 +61,7 @@ func (a *Form) View(c *ui.Context, kind game.Kind, row game.Row, table *game.Tab
 				}
 				ui.Checkbox(c, &a.showRaw, locales.Advanced())
 			})
+			a.assetEditor(c, preview)
 			if preview != nil && preview.err != nil {
 				ui.Text(c, locales.ErrorText(preview.err)).TextColor(c.Theme().TextMuted)
 			}

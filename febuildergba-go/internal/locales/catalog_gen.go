@@ -34,6 +34,126 @@ type Messages struct{ locale string }
 // source language.
 func In(locale string) Messages { return Messages{locale} }
 
+// ExportPng says "Export PNG"
+// in the language the app shows.
+func ExportPng() string { return In(i18n.Locale()).ExportPng() }
+
+// ExportPng says "Export PNG"
+// in the language of msgs.
+func (msgs Messages) ExportPng() string {
+	return Catalog.Format(msgs.locale, "export_png", nil)
+}
+
+// ReplacePng says "Replace PNG"
+// in the language the app shows.
+func ReplacePng() string { return In(i18n.Locale()).ReplacePng() }
+
+// ReplacePng says "Replace PNG"
+// in the language of msgs.
+func (msgs Messages) ReplacePng() string {
+	return Catalog.Format(msgs.locale, "replace_png", nil)
+}
+
+// ImportedImage says "Replacement preview"
+// in the language the app shows.
+func ImportedImage() string { return In(i18n.Locale()).ImportedImage() }
+
+// ImportedImage says "Replacement preview"
+// in the language of msgs.
+func (msgs Messages) ImportedImage() string {
+	return Catalog.Format(msgs.locale, "imported_image", nil)
+}
+
+// ApplyImage says "Apply image"
+// in the language the app shows.
+func ApplyImage() string { return In(i18n.Locale()).ApplyImage() }
+
+// ApplyImage says "Apply image"
+// in the language of msgs.
+func (msgs Messages) ApplyImage() string {
+	return Catalog.Format(msgs.locale, "apply_image", nil)
+}
+
+// PortraitColors says "Up to 15 opaque colours plus transparency. The preview shows the resulting GBA colours."
+// in the language the app shows.
+func PortraitColors() string { return In(i18n.Locale()).PortraitColors() }
+
+// PortraitColors says "Up to 15 opaque colours plus transparency. The preview shows the resulting GBA colours."
+// in the language of msgs.
+func (msgs Messages) PortraitColors() string {
+	return Catalog.Format(msgs.locale, "portrait_colors", nil)
+}
+
+// AssetEditSummary says "{count} known fields reference this asset ID. Other uses of the same ID also change."
+// in the language the app shows.
+func AssetEditSummary(count int) string { return In(i18n.Locale()).AssetEditSummary(count) }
+
+// AssetEditSummary says "{count} known fields reference this asset ID. Other uses of the same ID also change."
+// in the language of msgs.
+func (msgs Messages) AssetEditSummary(count int) string {
+	return Catalog.Format(msgs.locale, "asset_edit_summary", map[string]any{"count": count})
+}
+
+// GameUnsupportedAssetFormat says "This portrait uses an extension whose full sheet cannot yet be imported or exported. Its existing preview remains ava…"
+// in the language the app shows.
+func GameUnsupportedAssetFormat() string { return In(i18n.Locale()).GameUnsupportedAssetFormat() }
+
+// GameUnsupportedAssetFormat says "This portrait uses an extension whose full sheet cannot yet be imported or exported. Its existing preview remains ava…"
+// in the language of msgs.
+func (msgs Messages) GameUnsupportedAssetFormat() string {
+	return Catalog.Format(msgs.locale, "game_unsupported_asset_format", nil)
+}
+
+// GameInvalidAssetSize says "Choose a PNG of at most 1 MiB matching the exported asset: 16×16 for icons, 128×112 for standard portrait sheets, o…"
+// in the language the app shows.
+func GameInvalidAssetSize() string { return In(i18n.Locale()).GameInvalidAssetSize() }
+
+// GameInvalidAssetSize says "Choose a PNG of at most 1 MiB matching the exported asset: 16×16 for icons, 128×112 for standard portrait sheets, o…"
+// in the language of msgs.
+func (msgs Messages) GameInvalidAssetSize() string {
+	return Catalog.Format(msgs.locale, "game_invalid_asset_size", nil)
+}
+
+// GameInvalidAssetColors says "Icons must use the current shared palette. Portraits allow up to 15 opaque colours plus transparency. Partial transpa…"
+// in the language the app shows.
+func GameInvalidAssetColors() string { return In(i18n.Locale()).GameInvalidAssetColors() }
+
+// GameInvalidAssetColors says "Icons must use the current shared palette. Portraits allow up to 15 opaque colours plus transparency. Partial transpa…"
+// in the language of msgs.
+func (msgs Messages) GameInvalidAssetColors() string {
+	return Catalog.Format(msgs.locale, "game_invalid_asset_colors", nil)
+}
+
+// GameUnmappedAssetPixels says "Unused portrait-sheet areas have no storage location. Keep them transparent and follow the exported sheet layout."
+// in the language the app shows.
+func GameUnmappedAssetPixels() string { return In(i18n.Locale()).GameUnmappedAssetPixels() }
+
+// GameUnmappedAssetPixels says "Unused portrait-sheet areas have no storage location. Keep them transparent and follow the exported sheet layout."
+// in the language of msgs.
+func (msgs Messages) GameUnmappedAssetPixels() string {
+	return Catalog.Format(msgs.locale, "game_unmapped_asset_pixels", nil)
+}
+
+// PngExportPath says "PNG exports require a .png extension."
+// in the language the app shows.
+func PngExportPath() string { return In(i18n.Locale()).PngExportPath() }
+
+// PngExportPath says "PNG exports require a .png extension."
+// in the language of msgs.
+func (msgs Messages) PngExportPath() string {
+	return Catalog.Format(msgs.locale, "png_export_path", nil)
+}
+
+// PngExportRom says "A PNG export cannot overwrite an open ROM."
+// in the language the app shows.
+func PngExportRom() string { return In(i18n.Locale()).PngExportRom() }
+
+// PngExportRom says "A PNG export cannot overwrite an open ROM."
+// in the language of msgs.
+func (msgs Messages) PngExportRom() string {
+	return Catalog.Format(msgs.locale, "png_export_rom", nil)
+}
+
 // Abilities says "Abilities"
 // in the language the app shows.
 func Abilities() string { return In(i18n.Locale()).Abilities() }
@@ -464,6 +584,106 @@ func After() string { return In(i18n.Locale()).After() }
 // in the language of msgs.
 func (msgs Messages) After() string {
 	return Catalog.Format(msgs.locale, "after", nil)
+}
+
+// TextEditor says "Text"
+// in the language the app shows.
+func TextEditor() string { return In(i18n.Locale()).TextEditor() }
+
+// TextEditor says "Text"
+// in the language of msgs.
+func (msgs Messages) TextEditor() string {
+	return Catalog.Format(msgs.locale, "text_editor", nil)
+}
+
+// TextContent says "Text content"
+// in the language the app shows.
+func TextContent() string { return In(i18n.Locale()).TextContent() }
+
+// TextContent says "Text content"
+// in the language of msgs.
+func (msgs Messages) TextContent() string {
+	return Catalog.Format(msgs.locale, "text_content", nil)
+}
+
+// SearchText says "Search text or hexadecimal ID"
+// in the language the app shows.
+func SearchText() string { return In(i18n.Locale()).SearchText() }
+
+// SearchText says "Search text or hexadecimal ID"
+// in the language of msgs.
+func (msgs Messages) SearchText() string {
+	return Catalog.Format(msgs.locale, "search_text", nil)
+}
+
+// RawText says "ROM control units"
+// in the language the app shows.
+func RawText() string { return In(i18n.Locale()).RawText() }
+
+// RawText says "ROM control units"
+// in the language of msgs.
+func (msgs Messages) RawText() string {
+	return Catalog.Format(msgs.locale, "raw_text", nil)
+}
+
+// TextControlReference says "Command reference"
+// in the language the app shows.
+func TextControlReference() string { return In(i18n.Locale()).TextControlReference() }
+
+// TextControlReference says "Command reference"
+// in the language of msgs.
+func (msgs Messages) TextControlReference() string {
+	return Catalog.Format(msgs.locale, "text_control_reference", nil)
+}
+
+// TextControlHelp says "Use the commands below or their raw [0xNNNN] forms. LoadFace takes one 16-bit parameter, for example [LoadFace][0x010…"
+// in the language the app shows.
+func TextControlHelp() string { return In(i18n.Locale()).TextControlHelp() }
+
+// TextControlHelp says "Use the commands below or their raw [0xNNNN] forms. LoadFace takes one 16-bit parameter, for example [LoadFace][0x010…"
+// in the language of msgs.
+func (msgs Messages) TextControlHelp() string {
+	return Catalog.Format(msgs.locale, "text_control_help", nil)
+}
+
+// ReloadText says "Discard draft and reload"
+// in the language the app shows.
+func ReloadText() string { return In(i18n.Locale()).ReloadText() }
+
+// ReloadText says "Discard draft and reload"
+// in the language of msgs.
+func (msgs Messages) ReloadText() string {
+	return Catalog.Format(msgs.locale, "reload_text", nil)
+}
+
+// TextDraftStale says "This text changed in the ROM. Your draft is preserved. Copy any changes you need, then discard the draft and reload b…"
+// in the language the app shows.
+func TextDraftStale() string { return In(i18n.Locale()).TextDraftStale() }
+
+// TextDraftStale says "This text changed in the ROM. Your draft is preserved. Copy any changes you need, then discard the draft and reload b…"
+// in the language of msgs.
+func (msgs Messages) TextDraftStale() string {
+	return Catalog.Format(msgs.locale, "text_draft_stale", nil)
+}
+
+// GameUnsupportedTextControl says "This command is unknown or unavailable for this version. Unknown ROM controls are retained for inspection and remain …"
+// in the language the app shows.
+func GameUnsupportedTextControl() string { return In(i18n.Locale()).GameUnsupportedTextControl() }
+
+// GameUnsupportedTextControl says "This command is unknown or unavailable for this version. Unknown ROM controls are retained for inspection and remain …"
+// in the language of msgs.
+func (msgs Messages) GameUnsupportedTextControl() string {
+	return Catalog.Format(msgs.locale, "game_unsupported_text_control", nil)
+}
+
+// GameInvalidTextArgument says "A control parameter is incomplete or unsupported. LoadFace requires one [0xNNNN] parameter with a nonzero low byte; t…"
+// in the language the app shows.
+func GameInvalidTextArgument() string { return In(i18n.Locale()).GameInvalidTextArgument() }
+
+// GameInvalidTextArgument says "A control parameter is incomplete or unsupported. LoadFace requires one [0xNNNN] parameter with a nonzero low byte; t…"
+// in the language of msgs.
+func (msgs Messages) GameInvalidTextArgument() string {
+	return Catalog.Format(msgs.locale, "game_invalid_text_argument", nil)
 }
 
 // HexEditor says "Hex editor"
@@ -918,14 +1138,14 @@ func (msgs Messages) ChooseTextId() string {
 	return Catalog.Format(msgs.locale, "choose_text_id", nil)
 }
 
-// KeepTextControls says "Keep the original control markers"
+// TextControlsHint says "Supported control commands and parameters can be edited"
 // in the language the app shows.
-func KeepTextControls() string { return In(i18n.Locale()).KeepTextControls() }
+func TextControlsHint() string { return In(i18n.Locale()).TextControlsHint() }
 
-// KeepTextControls says "Keep the original control markers"
+// TextControlsHint says "Supported control commands and parameters can be edited"
 // in the language of msgs.
-func (msgs Messages) KeepTextControls() string {
-	return Catalog.Format(msgs.locale, "keep_text_controls", nil)
+func (msgs Messages) TextControlsHint() string {
+	return Catalog.Format(msgs.locale, "text_controls_hint", nil)
 }
 
 // ErrorTitle says "Error"
@@ -938,11 +1158,11 @@ func (msgs Messages) ErrorTitle() string {
 	return Catalog.Format(msgs.locale, "error_title", nil)
 }
 
-// DescriptionEditScope says "English ROMs use ASCII; Japanese ROMs use Shift-JIS. A standalone [0x001F] pads English text; it is not visible text.…"
+// DescriptionEditScope says "English ROMs use ASCII; Japanese ROMs use Shift-JIS. Use readable commands such as [A], [Wink] and [LoadFace][0x0101]…"
 // in the language the app shows.
 func DescriptionEditScope() string { return In(i18n.Locale()).DescriptionEditScope() }
 
-// DescriptionEditScope says "English ROMs use ASCII; Japanese ROMs use Shift-JIS. A standalone [0x001F] pads English text; it is not visible text.…"
+// DescriptionEditScope says "English ROMs use ASCII; Japanese ROMs use Shift-JIS. Use readable commands such as [A], [Wink] and [LoadFace][0x0101]…"
 // in the language of msgs.
 func (msgs Messages) DescriptionEditScope() string {
 	return Catalog.Format(msgs.locale, "description_edit_scope", nil)
@@ -978,21 +1198,11 @@ func (msgs Messages) TextNeedsId() string {
 	return Catalog.Format(msgs.locale, "text_needs_id", nil)
 }
 
-// TextReadOnly says "This text contains characters that cannot be decoded losslessly, unsupported controls or incomplete arguments and is …"
-// in the language the app shows.
-func TextReadOnly() string { return In(i18n.Locale()).TextReadOnly() }
-
-// TextReadOnly says "This text contains characters that cannot be decoded losslessly, unsupported controls or incomplete arguments and is …"
-// in the language of msgs.
-func (msgs Messages) TextReadOnly() string {
-	return Catalog.Format(msgs.locale, "text_read_only", nil)
-}
-
-// GameInvalidTextEncoding says "This text cannot be encoded losslessly. Keep the original control markers and their order; use characters and newline…"
+// GameInvalidTextEncoding says "This text cannot be encoded losslessly. Use characters, commands and parameters supported by the ROM’s encoding and…"
 // in the language the app shows.
 func GameInvalidTextEncoding() string { return In(i18n.Locale()).GameInvalidTextEncoding() }
 
-// GameInvalidTextEncoding says "This text cannot be encoded losslessly. Keep the original control markers and their order; use characters and newline…"
+// GameInvalidTextEncoding says "This text cannot be encoded losslessly. Use characters, commands and parameters supported by the ROM’s encoding and…"
 // in the language of msgs.
 func (msgs Messages) GameInvalidTextEncoding() string {
 	return Catalog.Format(msgs.locale, "game_invalid_text_encoding", nil)

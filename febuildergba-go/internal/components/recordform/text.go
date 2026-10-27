@@ -86,7 +86,7 @@ func (a *Form) descriptionEditors(c *ui.Context, kind game.Kind, row game.Row, t
 				draft.preview, draft.err = nil, nil
 			}))
 			if len(value.ControlCodes()) > 0 {
-				ui.Text(c, locales.KeepTextControls()).FontSize(12).TextColor(c.Theme().TextMuted).Tooltip(locales.DescriptionEditScope())
+				ui.Text(c, locales.TextControlsHint()).FontSize(12).TextColor(c.Theme().TextMuted).Tooltip(locales.DescriptionEditScope())
 			}
 			ui.Row(c).Gap(8).Children(func() {
 				ui.Button(c, locales.PreviewText()).Disabled(a.state.Busy || unavailable || draft.text == value.Content).OnClick(func() {
@@ -100,7 +100,7 @@ func (a *Form) descriptionEditors(c *ui.Context, kind game.Kind, row game.Row, t
 			case err != nil:
 				ui.Text(c, locales.ErrorText(err)).FontSize(12).TextColor(c.Theme().Danger)
 			case !value.Editable:
-				ui.Text(c, locales.TextReadOnly()).FontSize(12).TextColor(c.Theme().TextMuted)
+				ui.Text(c, locales.ErrorText(value.ReadOnlyReason)).FontSize(12).TextColor(c.Theme().TextMuted)
 			}
 			if draft.err != nil {
 				ui.Text(c, locales.ErrorText(draft.err)).TextColor(c.Theme().Danger)

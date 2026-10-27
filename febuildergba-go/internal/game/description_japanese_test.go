@@ -21,10 +21,10 @@ func TestJapaneseDescriptionCharacters(t *testing.T) {
 			f.WriteAt(nameRaw+16, []byte{0x83, 0x8A, 0x80, 0x21, 0x83, 0x80, 0x1F, 0})
 			s := openFixture(t, f)
 			original, err := s.Text(Items, 1, "use_description_id")
-			if err != nil || !original.Editable || original.Content != "リ[0x0080][0x0021]ム[0x001F]" {
+			if err != nil || !original.Editable || original.Content != "リ[ToggleRed]ム[.]" {
 				t.Fatalf("raw Shift-JIS glyphs and commands did not retain their boundaries: %v", err)
 			}
-			const content = " リABｱ[0x0080][0x0021]ム[0x001F] \n"
+			const content = " リABｱ[ToggleRed]ム[.] \n"
 			edit, err := s.PlanTextEdit(Items, 1, "use_description_id", content)
 			if err != nil {
 				t.Fatal(err)
@@ -41,7 +41,7 @@ func TestJapaneseDescriptionCharacters(t *testing.T) {
 			for _, invalid := range []string{
 				strings.Replace(content, "リ", "🙂", 1),
 				strings.Replace(content, "リ", "¥", 1),
-				strings.Replace(content, "[0x0021]", "[0x0022]", 1),
+				strings.Replace(content, "[ToggleRed]", "[Item]", 1),
 				content + string([]byte{0xFF}),
 				content + "\t",
 				content + strings.Repeat("リ", 2049),
@@ -50,7 +50,7 @@ func TestJapaneseDescriptionCharacters(t *testing.T) {
 					t.Fatalf("accepted a lossy or invalid Japanese edit: %v", err)
 				}
 			}
-			large := strings.Repeat("リ", 1400) + "[0x0080][0x0021]ム[0x001F]"
+			large := strings.Repeat("リ", 1400) + "[ToggleRed]ム[.]"
 			if _, err := s.PlanTextEdit(Items, 1, "use_description_id", large); err != nil {
 				t.Fatalf("applied the byte bound to UTF-8 instead of game data: %v", err)
 			}

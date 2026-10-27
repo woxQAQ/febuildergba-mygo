@@ -32,9 +32,9 @@ type Page struct {
 	selectKind func(game.Kind)
 }
 
-func New(state *editor.State, openHex func(int, int), selectKind func(game.Kind)) *Page {
+func New(state *editor.State, openHex func(int, int), selectKind func(game.Kind), assets recordform.AssetActions) *Page {
 	a := &Page{state: state, sidebar: 330, selectKind: selectKind}
-	a.form = recordform.New(state, openHex, a.jump)
+	a.form = recordform.New(state, openHex, a.Open, assets)
 	return a
 }
 
@@ -122,7 +122,7 @@ func (a *Page) records(c *ui.Context) {
 	})
 }
 
-func (a *Page) jump(kind game.Kind, id int) {
+func (a *Page) Open(kind game.Kind, id int) {
 	for i, k := range game.Kinds {
 		if k != kind {
 			continue

@@ -100,14 +100,7 @@ func (f portraitFormat) read(data []byte, id int) (Preview, error) {
 	}
 	face := image.NewRGBA(image.Rect(0, 0, 96, 80))
 	// ImagePortraitForm's standard portrait sheet placement, in pixels.
-	for _, piece := range [][6]int{
-		{16, 0, 64, 32, 0, 0},
-		{16, 32, 64, 32, 64, 0},
-		{16, 64, 32, 16, 128, 0},
-		{0, 48, 16, 32, 160, 0},
-		{48, 64, 32, 16, 128, 16},
-		{80, 48, 16, 32, 176, 0},
-	} {
+	for _, piece := range portraitFacePieces {
 		blitPortrait(face, sheet, piece, draw.Src)
 	}
 	if mode == portraitExceed && data[at+26] == 1 {

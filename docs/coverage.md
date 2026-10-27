@@ -24,7 +24,7 @@
 | native.launch        | macOS 原生应用             | Go、SDK、MyGo                                   | 已接入应用入口及打包配置                                                      |
 | rom.open             | 识别并打开 ROM             | ROM.LoadLow                                     | 已接入 FE8U／FE8J／FE7U／FE7J／FE6                                            |
 | rom.noop             | 无修改保存                 | ROM.Save                                        | 已实现；保留原有字节                                                          |
-| rom.history          | 修改、撤销、重做及保存点   | Undo、InputFormRef                              | 已实现；单字段、批量、名称写入和原始字节共用历史                                        |
+| rom.history          | 修改、撤销、重做及保存点   | Undo、InputFormRef                              | 已实现；字段、批量、名称／描述、素材替换和原始字节共用历史                                        |
 | rom.save             | 保存、另存、备份及失败处理 | MainFormUtil                                    | 已实现快照写入、备份和替换                                                    |
 | rom.save-snapshot    | 保存期间保持文档可读       | 后台保存边界                                    | 已实现；I/O 不持有状态锁，新修改保持未保存                                    |
 | rom.external         | 检测外部修改               | ROMUpdateWatcher                                | 部分实现；保存与聚焦时检查摘要，持续监视未实现                                |
@@ -37,7 +37,7 @@
 | fe8u.references      | 关联职业跳转               | 字段引用                                        | 部分实现；正向跳转已接入，全局反向引用待实现                                  |
 | fe8u.names           | 名称读取                   | FETextDecode、TextForm.Direct、NarrowFont       | 部分实现；已有窄字库映射，其他编码与字库待接入                                |
 | fe8u.patches         | 布局相关补丁识别           | PatchUtil、MagicSplitUtil                       | 部分实现；NarrowFont、SkillSystem、魔力拆分及头像扩展特征识别，补丁管理未实现 |
-| fe8u.asset-preview   | 头像、职业卡及图标预览     | ImagePortraitForm、ImageItemIconForm、ImageUtil | 已实现读取、像素缩放及原始数据跳转；导入待实现                                |
+| fe8u.asset-preview   | 头像、职业卡及图标预览     | ImagePortraitForm、ImageItemIconForm、ImageUtil | 已实现读取、像素缩放、原始数据跳转及标准素材 PNG 导出／替换；扩展头像格式暂只读                                |
 | fe8u.layout          | 手动表定位                 | InputFormRef 高级操作                           | 已实现；沿用已知字段，只影响当前窗口，不改写指针                              |
 | fe8u.raw             | 固定长度字节编辑           | 原始数据操作                                    | 已实现；每次 1–4096 字节，写入检查文档归属及修订                              |
 | ui.language          | 中英文界面与诊断           | MyGo i18n                                       | 已实现；切换同步所有窗口与菜单，保存语言偏好                                  |
@@ -53,13 +53,13 @@
 | fe8j.units              | 人物基础字段         | ROMFE8JP、UnitForm                      | 已接入；补丁扩展字段待实现                               |
 | fe8j.classes            | 职业基础字段         | ROMFE8JP、ClassForm                     | 已接入；其他职业资源待实现                               |
 | fe8j.items              | 道具基础字段         | ROMFE8JP、ItemForm                      | 已接入；补丁扩展待实现                                   |
-| fe8j.names              | 名称读取与搜索       | FETextDecode、FETextEncode              | 已接入名称读写；通用文本与自定义字库待实现                       |
-| fe8j.assets             | 头像、职业卡及图标   | ImagePortraitForm、ImageItemIconForm    | 已接入读取；导入和扩展格式待实现                         |
+| fe8j.names              | 名称读取与搜索       | FETextDecode、FETextEncode              | 已接入名称与已有文本 ID 读写；自定义字库待实现                       |
+| fe8j.assets             | 头像、职业卡及图标   | ImagePortraitForm、ImageItemIconForm    | 已接入读取及标准素材 PNG 导出／替换；扩展格式待实现                         |
 | fe6.units               | 人物基础字段         | ROMFE6JP、UnitFE6Form                   | 已接入；跳过 ID 0 占位，扩展字段待实现                   |
 | fe6.classes             | 职业基础字段         | ROMFE6JP、ClassFE6Form                  | 已接入 72 字节布局；无转职加成字段，其他职业资源待实现   |
 | fe6.items               | 道具基础字段         | ROMFE6JP、ItemFE6Form                   | 已接入 32 字节布局；无武器经验字段，扩展行为待实现       |
-| fe6.names               | 名称读取与搜索       | FETextDecode、FETextEncode              | 已接入日文原版名称读写；翻译版自定义字库与通用文本待实现 |
-| fe6.assets              | 头像、职业卡及图标   | ImagePortraitFE6Form、ImageItemIconForm | 已接入读取及 16 字节头像布局；导入与动态图像待实现       |
+| fe6.names               | 名称读取与搜索       | FETextDecode、FETextEncode              | 已接入日文原版名称及已有文本 ID 读写；翻译版自定义字库待实现 |
+| fe6.assets              | 头像、职业卡及图标   | ImagePortraitFE6Form、ImageItemIconForm | 已接入 16 字节头像布局及完整 PNG 素材表读写；动态图像播放待实现       |
 | adapters.shared-history | 多版本共用编辑与历史 | 文档、布局、原始区域                    | 已接入批量、撤销、手动定位及原始字节操作                 |
 
 ## FE7U／FE7J 基础版本适配
@@ -71,10 +71,10 @@
 | fe7.units        | 人物基础字段                     | FE7U／FE7J；52 字节                     | 已接入；固定 253 条可见记录，ID 1–253；补丁扩展待实现                    |
 | fe7.classes      | 职业基础字段                     | FE7U／FE7J；84 字节                     | 已接入；含转职加成与武器熟练度；其他职业资源待实现                       |
 | fe7.items        | 道具基础字段                     | FE7U／FE7J；36 字节                     | 已接入；含武器经验，按两个已知指针字段判断表末尾；扩展行为待实现         |
-| fe7u.names       | 名称读取与搜索                   | FE7U；Huffman 根／树指针在 0x6B8／0x6BC | 已接入名称读写、压缩／anti-Huffman 读取与恢复地址；更多字库与通用文本待实现            |
-| fe7j.names       | 名称读取与搜索                   | FE7J；Shift-JIS 与 FE7 专属名字形       | 已接入名称读写、压缩／anti-Huffman 读取、恢复地址及紧凑职业名双向映射；自定义字库和通用文本待实现 |
-| fe7u.assets      | 头像、职业卡及图标               | FE7U；28 字节头像记录                   | 已接入读取，验证 LZ77 头像；素材导入及扩展格式待实现                     |
-| fe7j.assets      | 头像、职业卡及图标               | FE7J；28 字节头像记录                   | 已接入读取，验证未压缩头像；素材导入及扩展格式待实现                     |
+| fe7u.names       | 名称读取与搜索                   | FE7U；Huffman 根／树指针在 0x6B8／0x6BC | 已接入名称及已有文本 ID 读写、压缩／anti-Huffman 读取与恢复地址；更多字库待实现            |
+| fe7j.names       | 名称读取与搜索                   | FE7J；Shift-JIS 与 FE7 专属名字形       | 已接入名称及已有文本 ID 读写、压缩／anti-Huffman 读取、恢复地址及紧凑职业名双向映射；自定义字库待实现 |
+| fe7u.assets      | 头像、职业卡及图标               | FE7U；28 字节头像记录                   | 已接入 LZ77 头像、职业卡及图标 PNG 导出／替换；扩展格式待实现                     |
+| fe7j.assets      | 头像、职业卡及图标               | FE7J；28 字节头像记录                   | 已接入未压缩头像、职业卡及图标 PNG 导出／替换；扩展格式待实现                     |
 | fe7.shared-edits | 批量、手动布局、原始数据及表搬迁 | 共用会话与文档操作                      | 已接入；保存重开和撤销重做由领域测试验证                                 |
 
 FE7 搬迁当前确认旧版声明的表入口及资源内已知指针；完整游戏代码引用仍需补充确认，未选定引用继续指向保留的旧数据。合成数据验证不代替真实 ROM 或游戏运行验证。
@@ -97,7 +97,7 @@ FE7 搬迁当前确认旧版声明的表入口及资源内已知指针；完整�
 
 ## 五版名称写入
 
-依据 `FETextEncode.Encode`、`make_huffman_map`、`FETextDecode.huffman_decode` 和 `TextForm.WriteText` 的文本入口及编码规则；名称写入为独立叶项，通用文本编辑仍未完成。
+依据 `FETextEncode.Encode`、`make_huffman_map`、`FETextDecode.huffman_decode` 和 `TextForm.WriteText` 的文本入口及编码规则；名称写入为独立叶项，已有文本 ID 的编辑见下方通用文本组。
 
 | ID | 能力 | 版本／前提 | 实现范围 |
 | --- | --- | --- | --- |
@@ -105,7 +105,7 @@ FE7 搬迁当前确认旧版声明的表入口及资源内已知指针；完整�
 | text.name-encode | 按当前树压缩名称 | 英文 ASCII／日文 Shift-JIS；有效 Huffman 树 | 已实现字符边界上的完整分词、低位优先编码及原生 0x1F 填充码；解码数据最多 4096 字节、32 位码长及 65536 位流，英文／日文保留七／八位结束码空间和三字节读取余量 |
 | text.name-symbols | 紧凑职业名双向映射 | FE8J／FE7J／FE6 原版字形 | 已实现；读写共用一份映射，拒绝有损字符转换，不替换为问号或近似字符 |
 | text.name-write | 追加文本并原子更新入口 | 有效主文本表指针；最多 32 MiB | 已实现四字节对齐追加、旧文本保留、修订与布局绑定、撤销重做及保存重开；独立文本 ID 的旧别名保持不变 |
-| text.name-versions | 版本与字库边界 | 五版原版字符集 | 五版基础名称写入已接入；自定义字库、更多补丁、anti-Huffman 写入、新建文本 ID、控制码参数编辑和通用对话文本仍待实现 |
+| text.name-versions | 版本与字库边界 | 五版原版字符集 | 五版基础名称写入已接入；已有文本 ID 的指令及参数编辑见通用文本组；自定义字库、更多补丁、anti-Huffman 写入和新建文本 ID 仍待实现 |
 
 ```mermaid
 flowchart LR
@@ -123,9 +123,45 @@ flowchart LR
 | ID | 能力 | 版本／前提 | 实现范围 |
 | --- | --- | --- | --- |
 | text.description-input | 人物／职业／道具描述及使用描述 | FE8U／FE7U／FE8J／FE7J／FE6 原版；已有非零文本 ID | 已接入多行正文草稿、预览、取消、应用；名称／描述／使用描述共享 ID 的字段一起列出 |
-| text.description-controls | 正文与控制单元无损往返 | 英文 ASCII／日文 Shift-JIS、换行及原有控制码 | 保留完整字符边界、紧凑字形与 16 位参数；正文与换行可改，其他标记内容及顺序保持不变；非法编码、未知扩展和不完整参数只读 |
+| text.description-controls | 正文与控制单元无损往返 | 英文 ASCII／日文 Shift-JIS、换行及原有控制码 | 保留完整字符边界、紧凑字形与 16 位参数；支持可读指令、原始标记及已确认指令／参数修改；非法编码、未知扩展和不完整参数只读 |
 | text.description-write | 追加描述并原子更新入口 | 有效主文本表指针与 Huffman 树 | 复用已有写入机制；不改动未编辑文本，保留旧资源和独立 ID 别名；验证撤销重做、保存重开及继续编辑 |
-| text.description-versions | 版本与字库边界 | 五版原版字符集 | 五版描述及对应 UI 已接入；自定义字库、控制码参数编辑、对话脚本及新建文本 ID 尚未接入 |
+| text.description-versions | 版本与字库边界 | 五版原版字符集 | 五版描述及对应 UI 已接入；已有文本 ID 与控制指令共用通用文本编辑；自定义字库及新建文本 ID 尚未接入 |
+
+## 五版通用文本与控制指令
+
+依据 `TextForm.Init`、`TextEscape`、`text_escape_ALL.en.txt` 和 `FETextDecode.append_string`。从“文本”标签页进入，复用已有 `TextEdit` 和文档历史。
+
+| ID | 能力 | 版本／前提 | 实现范围 |
+| --- | --- | --- | --- |
+| text.browse | 浏览、搜索与 ID 定位 | 五版；连续有效的现有文本表 | 已接入正文与十六进制 ID 搜索，索引随文档修订更新；保留单条错误及 RAM 入口，ID 0 不编辑，恢复地址仅供读取 |
+| text.commands | 可读指令及原始表示 | 原版共有指令及英文引号；Shift-JIS 字符优先识别 | 已接入 `[A]`、`[Wink]`、`[LoadFace][0xNNNN]` 等标记、指令参考及 ROM 控制单元查看；完整 16 位参数、打包扩展指令与字面转义无损处理 |
+| text.command-edit | 指令增删与参数修改 | 已确认指令及当前 Huffman 树 | 已接入描述与通用文本；检查语法、版本、参数完整性、低字节与可编码性；未知指令或字符保留原始表示并只读，等价表示拒绝重复写入 |
+| text.shared-preview | 草稿与共享影响预览 | 每个窗口／文本 ID | 已接入跨记录草稿保留、原文冲突提示及重新读取；预览绑定修订与布局，已知名称／描述／使用描述引用可跳回记录，事件使用方尚未索引 |
+| text.dialogue-write | 原子写入及历史 | 有效主入口；最多 32 MiB | 已接入追加、入口更新、旧资源及独立别名保留、撤销重做与保存重开；五版固定对话验证指令增删及头像参数修改 |
+| text.dialogue-extensions | 表容量、自定义引擎与外部格式 | 后续功能 | 新建 ID、文本表扩展、自定义字库／引擎、anti-Huffman 写入、文本文件导入导出及游戏画面预览待实现 |
+
+指令可被识别不代表所有参数都有当前 Huffman 编码。例如 FE7U／FE6 原版缺少头像参数 `0x0101`，FE6 原版缺少 `[Wink]` 的编码；这些输入在预览阶段被拒绝，不生成新的 Huffman 树。
+
+## 五版静态素材 PNG 读写
+
+依据 `ImageItemIconForm`、`ImagePortraitForm.DrawPortraitSeet`／`BuildPortraitSeet`、`ImagePortraitFE6Form` 与 `ImageUtil`；覆盖五版原版的已有素材 ID。
+
+| ID | 能力 | 版本／前提 | 实现范围 |
+| --- | --- | --- | --- |
+| image.png | PNG 导出与替换预览 | 五版；已有图标、普通头像及职业卡 | 已接入原生文件对话框、实际写入颜色预览、已知共享字段列表、应用及取消；图标 16×16，头像完整素材表 128×112，职业卡保持原尺寸 |
+| image.palette | 调色板与透明色 | GBA 4bpp、BGR555 | 图标严格使用原共享调色板；头像最多 15 种不透明色加透明色，新颜色转换为 GBA 颜色并预览；拒绝半透明和超限颜色 |
+| image.portrait-sheet | 静态头像及眼睛、嘴部、小头像图块 | FE7／FE8；FE6 独立布局 | 保留原有坐标及压缩方式；FE6 嘴部写入主图、小头像不压缩，FE7／FE8 嘴部独立、小头像压缩；空白区非透明像素被拒绝 |
+| image.write | 原子追加与资源入口更新 | 默认末尾追加；32 MiB 上限 | 图标复制整个可寻址图标区并更新已确认入口，保留其他图标；头像单独追加各部分及调色板；旧区与独立 ID 的别名保留，一次撤销恢复长度及指针 |
+| image.bounds | 写入及验证边界 | 有效素材指针、文档修订、窗口布局 | 预览绑定文档与布局；保护已知数据表和入口；验证保存重开及继续编辑；MUG_EXCEED、HALFBODY 等头像扩展仅保留已有预览，不提供完整素材表写入 |
+
+```mermaid
+flowchart LR
+    PNG[PNG 导入] --> Check[校验尺寸、透明色与调色板]
+    Check --> Pack[按版本还原图块与压缩]
+    Pack --> Preview[读回实际颜色并展示共享用途]
+    Preview --> Apply[一次提交资源追加和入口更新]
+    Apply --> Undo[撤销时恢复全部指针及原长度]
+```
 
 ## 后续功能组
 
@@ -136,8 +172,8 @@ flowchart LR
 | metadata.definitions | [游戏格式与规则定义库](metadata-design.md)                              | 具体版本、事件或补丁功能的需求 | 设计已确认／暂缓实施：当前不创建包或迁移定义，按实际需要接入                                                           |
 | adapters.games       | `ROMFE8JP`、`ROMFE6JP`、`ROMFE7U`、`ROMFE7JP`                           | 文档、布局、编码               | 部分实现：FE8J／FE7J／FE6 日文原版和 FE7U 的基础表、名称、预览及共用编辑已接入；更多字库、补丁字段和改版布局待实现     |
 | storage.allocation   | `InputFormRef.WriteBinaryData`、表扩展与指针更新                        | 原子编辑、引用记录             | 部分实现：末尾／声明区间分配、已确认引用更新、五版本表搬迁及扩容回滚已接入；表记录数扩展、旧区回收和完整引用管理待实现 |
-| text.edit            | `TextForm`、`FETextEncode`、`SystemTextEncoder`、`ToolTranslateROMForm` | 编码、空间                     | 部分实现：五版基础名称与描述正文写入、控制码保留及对应 UI 已接入；控制码参数编辑、更多编码／字库、翻译及外部文本格式待实现                                                                               |
-| images.static        | `ImagePortraitForm`、各图标／背景编辑器                                 | 调色板、压缩、空间             | 头像、职业卡及道具图标读取已实现；导入导出、调色板编辑器、其他图像类型和引用更新待实现                                 |
+| text.edit            | `TextForm`、`FETextEncode`、`SystemTextEncoder`、`ToolTranslateROMForm` | 编码、空间                     | 部分实现：五版名称、描述与已有文本 ID 的正文／指令／参数编辑及对应 UI 已接入；更多编码／字库、自定义引擎、翻译及外部文本格式待实现                                                                               |
+| images.static        | `ImagePortraitForm`、各图标／背景编辑器                                 | 调色板、压缩、空间             | 五版标准头像、职业卡及道具图标 PNG 导出／替换、调色板校验及已确认引用更新已接入；独立调色板编辑器、头像扩展写入及其他图像类型待实现                                 |
 | chapters.maps        | `MapEditorForm`、章节配置、事件单位                                     | 图像、章节布局、空间           | 待实现：地图绘制、地形、地图变化、部署和 AI                                                                            |
 | chapters.events      | `EventScriptForm`、模板与世界地图事件                                   | 事件指令定义、引用             | 待实现：脚本编解码与交互编辑                                                                                           |
 | gameplay.tables      | 支援、商店、升级、掉落及其他规则表                                      | 表适配、引用                   | 待盘点：按来源索引拆分各版本叶项                                                                                       |

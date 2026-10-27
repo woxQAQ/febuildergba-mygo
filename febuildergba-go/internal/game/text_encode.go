@@ -159,7 +159,8 @@ func (f textFormat) encodeTextUnits(data []byte, entry int, units []textUnit, na
 		for size := 1; size <= 2 && i+size <= len(units); size++ {
 			symbol := units[i].symbol
 			if size == 2 {
-				if !units[i].pair || !units[i+1].pair || symbol > 0xFF || units[i+1].symbol > 0xFF {
+				extended := symbol == 0x80 && units[i].control && units[i+1].control
+				if (!extended && (!units[i].pair || !units[i+1].pair)) || symbol > 0xFF || units[i+1].symbol > 0xFF {
 					continue
 				}
 				symbol |= units[i+1].symbol << 8

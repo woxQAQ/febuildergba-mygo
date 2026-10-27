@@ -5,6 +5,7 @@ import (
 	"encoding/binary"
 	"errors"
 	"fmt"
+	"image"
 
 	"github.com/woxQAQ/febuildergba-mygo/internal/rom"
 	"github.com/woxQAQ/febuildergba-mygo/internal/space"
@@ -19,6 +20,8 @@ var (
 	ErrImage        = errors.New("game.invalid_image")
 	ErrNameEncoding = errors.New("game.invalid_name_encoding")
 	ErrTextEncoding = errors.New("game.invalid_text_encoding")
+	ErrTextControl  = errors.New("game.unsupported_text_control")
+	ErrTextArgument = errors.New("game.invalid_text_argument")
 )
 
 type Kind string
@@ -99,6 +102,10 @@ type Adapter interface {
 	Inspect([]byte, map[Kind]Layout) Inspection
 	TableMove([]byte, Table) (space.Move, error)
 	Preview([]byte, AssetRef) (Preview, error)
+	AssetImage([]byte, AssetRef) (*image.RGBA, error)
+	PlanAssetEdit([]byte, AssetRef, image.Image) (space.Plan, error)
+	TextCommands() []string
+	TextTable([]byte) (TextTable, error)
 	ReadText([]byte, uint16) (TextValue, error)
 	PlanTextEdit([]byte, uint16, string, TextRole) (space.Plan, error)
 }
@@ -111,6 +118,7 @@ type Session struct {
 	Patches  []string
 	image    rom.Snapshot
 	layouts  map[Kind]Layout
+	texts    []TextEntry
 }
 
 func Open(path string) (*Session, error) {
@@ -137,6 +145,7 @@ func (s *Session) Refresh() {
 
 func (s *Session) refresh(image rom.Snapshot) {
 	s.image = image
+	s.texts = nil
 	inspection := s.Adapter.Inspect(image.Data, s.layouts)
 	s.Tables, s.Patches = inspection.Tables, inspection.Patches
 	if !s.Adapter.Match(image.Data) {
