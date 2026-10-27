@@ -9,9 +9,9 @@ func NewMapFixture(version string) *FixtureBuilder {
 	var f *FixtureBuilder
 	var roots [4]int
 	switch version {
-	case "FE8U":
+	case versionFE8U:
 		f, roots = NewMinimalFE8U(), [4]int{0x19968, 0x1999C, 0x19900, 0x34680}
-	case "FE8J":
+	case versionFE8J:
 		f, roots = NewMinimalFE8J(), [4]int{0x19640, 0x19674, 0x195D8, 0x34588}
 	case versionFE7U:
 		f, roots = NewMinimalFE7U(), [4]int{0x19230, 0x19264, 0x191C8, 0x3159C}

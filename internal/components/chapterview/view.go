@@ -38,7 +38,7 @@ type View struct {
 	mapView            mapview.View
 	entries            map[int]*entryDraft
 	selections         map[int]*chapterSelection
-	turns              map[int]*turnState
+	events             map[eventKey]*eventState
 }
 
 func (v *View) Configuration() bool { return v.mode == 0 }
@@ -50,7 +50,7 @@ func (v *View) load(state *components.State, row game.Row) {
 			session:    s,
 			entries:    make(map[int]*entryDraft),
 			selections: make(map[int]*chapterSelection),
-			turns:      make(map[int]*turnState),
+			events:     make(map[eventKey]*eventState),
 		}
 	}
 	s.Refresh()
@@ -162,14 +162,18 @@ func (v *View) Render(
 	openHex func(int, int),
 ) {
 	v.load(state, row)
-	ui.Tabs(c.Key("chapter-mode"), &v.mode, locales.DeployConfiguration(), locales.Deployments(), locales.TurnEvents()).
+	ui.Tabs(c.Key("chapter-mode"), &v.mode, locales.DeployConfiguration(), locales.Deployments(), locales.TurnEvents(), locales.AreaEvents()).
 		Label(locales.Chapters())
 	if v.Configuration() {
 		v.mapView.Render(c, state.Session, row, mapview.Overlay{})
 		return
 	}
-	if v.mode == 2 {
-		v.turnEditor(c, state, row, advanced, jump, openHex)
+	if v.mode == 2 || v.mode == 3 {
+		table := game.TurnEvents
+		if v.mode == 3 {
+			table = game.AlwaysEvents
+		}
+		v.eventEditor(c, state, row, table, advanced, jump, openHex)
 		return
 	}
 	ui.Column(c.Key("deployments")).Gap(12).Children(func() {
@@ -203,7 +207,7 @@ func (v *View) Render(
 		if entry == nil {
 			return
 		}
-		v.unitScene(c, state, row, entry)
+		v.unitScene(c, state, row, entry, nil)
 		if len(v.resource.Warnings) > 0 {
 			ui.Text(c, locales.GameIncompleteDeploymentScript()).
 				FontSize(12).

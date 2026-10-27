@@ -250,9 +250,12 @@ func (s *Session) NewDeploymentDraft(
 		}
 		return s.deploymentDraft(chapter, group), nil
 	}
-	turns, readErr := s.ChapterTurns(chapter)
-	if readErr == nil {
-		for _, event := range turns.Events {
+	for _, kind := range []EventTable{TurnEvents, AlwaysEvents} {
+		conditions, readErr := s.ChapterEvents(chapter, kind)
+		if readErr != nil {
+			continue
+		}
+		for _, event := range conditions.Events {
 			for _, group := range event.Groups {
 				if group.Pointer == site {
 					if group.Err != nil {

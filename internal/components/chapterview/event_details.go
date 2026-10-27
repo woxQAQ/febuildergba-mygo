@@ -7,15 +7,14 @@ import (
 
 	"github.com/woxQAQ/febuildergba-mygo/game"
 	"github.com/woxQAQ/febuildergba-mygo/internal/components"
-	"github.com/woxQAQ/febuildergba-mygo/internal/components/mapview"
 	"github.com/woxQAQ/febuildergba-mygo/internal/locales"
 )
 
-func (v *View) turnDetails(
+func (v *View) eventDetails(
 	c *ui.Context,
 	state *components.State,
 	row game.Row,
-	entry *turnState,
+	entry *eventState,
 	advanced bool,
 	jump func(game.Kind, int),
 	openHex func(int, int),
@@ -39,15 +38,17 @@ func (v *View) turnDetails(
 							Children(func() {
 								ui.Text(c, locales.Label(field.ID)).
 									Grow(1).
-									Tooltip(locales.TurnConditionHelp())
-								v.turnNumber(c, state, entry, field)
+									Tooltip(labelsFor(entry.data.Table()).help)
+								v.eventNumber(c, state, entry, field)
 							})
 					}
 				})
 			}
+			overlay := areaOverlay(entry, events)
+			var unit *entryDraft
 			units := entry.data.Deployment(entry.selected)
 			if units != nil {
-				unit := entry.units[units]
+				unit = entry.units[units]
 				if unit == nil {
 					unit = &entryDraft{data: units, lastSelected: -1}
 					entry.units[units] = unit
@@ -56,16 +57,21 @@ func (v *View) turnDetails(
 					ui.Text(c, locales.TurnNewUnits()).
 						Bold().
 						Tooltip(locales.TurnNewHelp())
-					ui.Tabs(c.Key("turn-position-mode"), &v.positionMode, locales.DeployStart(), locales.DeployEnd()).
+					ui.Tabs(c.Key("event-position-mode"), &v.positionMode, locales.DeployStart(), locales.DeployEnd()).
 						Label(locales.DeployPosition()).
 						OnChange(func() { unit.lastSelected = -1 })
 				})
-				v.unitScene(c, state, row, unit)
+				v.unitScene(c, state, row, unit, overlay.Regions)
+			} else {
+				v.eventLinks(c, state, event)
+				v.mapView.Render(c, state.Session, row, overlay)
+			}
+			if entry.data.Table() == game.AlwaysEvents && event.Kind == 0x0B {
+				v.areaControls(c, state, entry, event)
+			}
+			if unit != nil {
 				v.unitActions(c, state, unit)
 				v.fields(c, state, unit, advanced, jump)
-			} else {
-				v.turnLinks(c, state, event)
-				v.mapView.Render(c, state.Session, row, mapview.Overlay{})
 			}
 			if advanced && event.Address > 0 {
 				ui.Row(c).Gap(8).Wrap().Children(func() {

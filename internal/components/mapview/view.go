@@ -18,7 +18,14 @@ type Marker struct {
 	Selected       bool
 }
 
+type Region struct {
+	Bounds   image.Rectangle
+	Index    int
+	Selected bool
+}
+
 type Overlay struct {
+	Regions []Region
 	Markers []Marker
 	Choose  func(image.Point)
 	Focus   *image.Point
@@ -70,6 +77,9 @@ func (v *View) Selection() (image.Point, bool) {
 }
 
 func (v *View) focus(point image.Point) {
+	if _, valid := v.resource.Cell(point.X, point.Y); !valid {
+		return
+	}
 	v.selection, v.selected = point, true
 	scale := float32(uint32(1)<<uint(v.zoom)) / 2
 	v.scroll.X = max(0, float32(point.X)*16*scale-120)
@@ -168,7 +178,7 @@ func (v *View) Render(
 				}
 				accent := c.Theme().Accent
 				canvas.DrawOver(
-					func(p *ui.Painter, r ui.Rect) { v.overlay(p, r, scale, accent, overlay.Markers) },
+					func(p *ui.Painter, r ui.Rect) { v.overlay(p, r, scale, accent, overlay) },
 				)
 			})
 		if v.selected {
@@ -188,9 +198,10 @@ func (v *View) overlay(
 	r ui.Rect,
 	scale float32,
 	accent ui.Color,
-	markers []Marker,
+	overlay Overlay,
 ) {
 	cell := 16 * scale
+	v.regions(p, r, cell, accent, overlay.Regions)
 	if v.grid {
 		for x := 1; x < v.resource.Width; x++ {
 			at := r.X + float32(x)*cell
@@ -207,7 +218,7 @@ func (v *View) overlay(
 		ui.RGB(172, 55, 47),
 		ui.RGB(90, 90, 90),
 	}
-	for _, marker := range markers {
+	for _, marker := range overlay.Markers {
 		if _, valid := v.resource.Cell(
 			marker.Position.X,
 			marker.Position.Y,

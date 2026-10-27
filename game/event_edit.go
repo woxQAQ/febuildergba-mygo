@@ -15,33 +15,40 @@ const (
 	TurnStart = "turn_start"
 	TurnEnd   = "turn_end"
 	TurnPhase = "turn_phase"
-	TurnFlag  = "turn_flag"
+	EventFlag = "event_flag"
+	AreaX1    = "area_x1"
+	AreaY1    = "area_y1"
+	AreaX2    = "area_x2"
+	AreaY2    = "area_y2"
 	TurnRoute = "turn_route"
 )
 
-type turnRecord struct {
-	event      TurnEvent
+type eventRecord struct {
+	event      EventCondition
 	raw        []byte
 	deployment *DeploymentDraft
 }
 
-// TurnDraft edits a complete condition list. Native scripts remain untouched;
+// EventDraft edits a complete condition list. Native scripts remain untouched;
 // new reinforcement rows own a deployment and a generated minimal load script.
-type TurnDraft struct {
+type EventDraft struct {
 	document *rom.Document
 	revision uint64
 	layouts  map[Kind]Layout
 	chapter  int
-	original ChapterTurns
-	records  []turnRecord
+	original ChapterEvents
+	records  []eventRecord
 }
 
-func (s *Session) NewTurnDraft(chapter int) (*TurnDraft, error) {
-	resource, err := s.ChapterTurns(chapter)
+func (s *Session) NewEventDraft(
+	chapter int,
+	table EventTable,
+) (*EventDraft, error) {
+	resource, err := s.ChapterEvents(chapter, table)
 	if err != nil {
 		return nil, err
 	}
-	d := &TurnDraft{
+	d := &EventDraft{
 		document: s.Document,
 		revision: s.image.Revision,
 		layouts:  maps.Clone(s.layouts),
@@ -51,19 +58,19 @@ func (s *Session) NewTurnDraft(chapter int) (*TurnDraft, error) {
 	for _, event := range resource.Events {
 		d.records = append(
 			d.records,
-			turnRecord{event: event, raw: bytes.Clone(event.Raw)},
+			eventRecord{event: event, raw: bytes.Clone(event.Raw)},
 		)
 	}
 	return d, nil
 }
 
-func (d *TurnDraft) Current(s *Session) bool {
+func (d *EventDraft) Current(s *Session) bool {
 	return d.document == s.Document &&
 		d.revision == s.Document.State().Revision &&
 		maps.Equal(d.layouts, s.layouts)
 }
 
-func (d *TurnDraft) Modified() bool {
+func (d *EventDraft) Modified() bool {
 	if len(d.records) != len(d.original.Events) {
 		return true
 	}
@@ -76,37 +83,37 @@ func (d *TurnDraft) Modified() bool {
 	return false
 }
 
-func (d *TurnDraft) Events() []TurnEvent {
-	events := make([]TurnEvent, len(d.records))
+func (d *EventDraft) Table() EventTable { return d.original.Table }
+
+func (d *EventDraft) Events() []EventCondition {
+	events := make([]EventCondition, len(d.records))
 	for i, record := range d.records {
 		event := record.event
-		event.Raw = bytes.Clone(record.raw)
-		event.Flag = int(u16(record.raw, 2))
-		event.Start, event.End, event.Phase = int(
-			record.raw[8],
-		), int(
-			record.raw[9],
-		), int(
-			u16(record.raw, 10),
-		)
-		if len(record.raw) == 16 {
-			event.Route = u32(record.raw, 12)
-		}
+		event.decode(record.raw)
 		events[i] = event
 	}
 	return events
 }
 
-func (d *TurnDraft) Fields(index int) []Field {
+func (d *EventDraft) Fields(index int) []Field {
 	if index < 0 || index >= len(d.records) ||
-		u16(d.records[index].raw, 0) != 2 {
+		int(u16(d.records[index].raw, 0)) != d.original.Table.condition() {
 		return nil
+	}
+	if d.original.Table == AlwaysEvents {
+		return []Field{
+			{ID: AreaX1, Offset: 8, Width: 1, Signed: true},
+			{ID: AreaY1, Offset: 9, Width: 1, Signed: true},
+			{ID: AreaX2, Offset: 10, Width: 1, Signed: true},
+			{ID: AreaY2, Offset: 11, Width: 1, Signed: true},
+			{ID: EventFlag, Offset: 2, Width: 2, Hex: true},
+		}
 	}
 	fields := []Field{
 		{ID: TurnStart, Offset: 8, Width: 1},
 		{ID: TurnEnd, Offset: 9, Width: 1},
 		{ID: TurnPhase, Offset: 10, Width: 2, Hex: true},
-		{ID: TurnFlag, Offset: 2, Width: 2, Hex: true},
+		{ID: EventFlag, Offset: 2, Width: 2, Hex: true},
 	}
 	if len(d.records[index].raw) == 16 {
 		fields = append(fields, Field{ID: TurnRoute, Offset: 12, Width: 4})
@@ -114,7 +121,7 @@ func (d *TurnDraft) Fields(index int) []Field {
 	return fields
 }
 
-func (d *TurnDraft) Value(index int, id string) (int64, error) {
+func (d *EventDraft) Value(index int, id string) (int64, error) {
 	for _, field := range d.Fields(index) {
 		if field.ID == id {
 			return field.Value(d.records[index].raw, 0), nil
@@ -123,14 +130,14 @@ func (d *TurnDraft) Value(index int, id string) (int64, error) {
 	return 0, ErrField
 }
 
-func (d *TurnDraft) Set(index int, id string, value int64) (err error) {
+func (d *EventDraft) Set(index int, id string, value int64) (err error) {
 	ctx := fault.Context{
-		Resource: turnEventsResource,
+		Resource: eventConditionsResource,
 		RecordID: new(index),
 		Field:    id,
 		Value:    new(value),
 	}
-	defer func() { err = fault.Wrap(err, "game.change_turn_draft", ctx) }()
+	defer func() { err = fault.Wrap(err, "game.change_event_draft", ctx) }()
 	for _, field := range d.Fields(index) {
 		if field.ID != id {
 			continue
@@ -150,18 +157,24 @@ func (d *TurnDraft) Set(index int, id string, value int64) (err error) {
 	return ErrField
 }
 
-func (d *TurnDraft) Add(s *Session) error {
+func (d *EventDraft) Add(s *Session) error {
 	if !d.Current(s) {
 		return rom.ErrStale
 	}
-	if len(d.records) >= maxTurnEvents {
+	if len(d.records) >= maxEventConditions {
 		return ErrValue
 	}
-	raw := make([]byte, d.original.format.turnStride(2))
-	raw[0], raw[8], raw[10] = 2, 3, 0x80
+	kind := d.original.Table.condition()
+	raw := make([]byte, d.original.format.eventStride(d.original.Table, kind))
+	raw[0] = byte(
+		kind,
+	) // #nosec G115 -- Confirmed native condition kinds are 2 and 11.
+	if d.original.Table == TurnEvents {
+		raw[8], raw[10] = 3, 0x80
+	}
 	group := DeploymentGroup{
 		Pointer:    -1,
-		Label:      "deploy_turn_event",
+		Label:      d.original.Table.source(),
 		Stride:     d.original.format.stride,
 		faction:    2,
 		terminator: make([]byte, 4),
@@ -172,12 +185,19 @@ func (d *TurnDraft) Add(s *Session) error {
 	}
 	d.records = append(
 		d.records,
-		turnRecord{event: TurnEvent{Kind: 2}, raw: raw, deployment: units},
+		eventRecord{
+			event: EventCondition{
+				Kind:         kind,
+				reversedArea: d.original.format.kind == eventFE8,
+			},
+			raw:        raw,
+			deployment: units,
+		},
 	)
 	return nil
 }
 
-func (d *TurnDraft) Remove(index int) error {
+func (d *EventDraft) Remove(index int) error {
 	if index < 0 || index >= len(d.records) {
 		return ErrField
 	}
@@ -185,14 +205,14 @@ func (d *TurnDraft) Remove(index int) error {
 	return nil
 }
 
-func (d *TurnDraft) Deployment(index int) *DeploymentDraft {
+func (d *EventDraft) Deployment(index int) *DeploymentDraft {
 	if index < 0 || index >= len(d.records) {
 		return nil
 	}
 	return d.records[index].deployment
 }
 
-type TurnEdit struct {
+type EventEdit struct {
 	document                        *rom.Document
 	revision                        uint64
 	layouts                         map[Kind]Layout
@@ -201,15 +221,21 @@ type TurnEdit struct {
 	uses                            []int
 }
 
-func (e *TurnEdit) Destination() int { return e.plan.Destination.Start }
+func (e *EventEdit) Destination() int { return e.plan.Destination.Start }
 
-func (e *TurnEdit) Length() int { return e.plan.Destination.End - e.plan.Destination.Start }
-func (e *TurnEdit) Before() int { return e.before }
-func (e *TurnEdit) After() int  { return e.after }
-func (e *TurnEdit) Uses() []int { return slices.Clone(e.uses) }
+func (e *EventEdit) Length() int { return e.plan.Destination.End - e.plan.Destination.Start }
+func (e *EventEdit) Before() int { return e.before }
+func (e *EventEdit) After() int  { return e.after }
+func (e *EventEdit) Uses() []int { return slices.Clone(e.uses) }
 
-func (s *Session) PlanTurnEdit(d *TurnDraft) (result *TurnEdit, err error) {
-	defer func() { err = fault.Wrap(err, "game.plan_turn_events", fault.Context{Resource: turnEventsResource}) }()
+func (s *Session) PlanEventEdit(d *EventDraft) (result *EventEdit, err error) {
+	defer func() {
+		err = fault.Wrap(
+			err,
+			"game.plan_event_conditions",
+			fault.Context{Resource: eventConditionsResource},
+		)
+	}()
 	s.Refresh()
 	if d == nil || !d.Current(s) {
 		return nil, rom.ErrStale
@@ -270,7 +296,7 @@ func (s *Session) PlanTurnEdit(d *TurnDraft) (result *TurnEdit, err error) {
 			),
 		},
 	) // #nosec G115 -- PlanAppend bounds ROM addresses.
-	result = &TurnEdit{
+	result = &EventEdit{
 		document: s.Document,
 		revision: s.image.Revision,
 		layouts:  maps.Clone(s.layouts),
@@ -282,10 +308,11 @@ func (s *Session) PlanTurnEdit(d *TurnDraft) (result *TurnEdit, err error) {
 	}
 	if chapters := s.Table(Chapters); chapters != nil && chapters.Err == nil {
 		for _, row := range chapters.Rows {
-			turns, readErr := s.Adapter.ChapterTurns(
+			turns, readErr := s.Adapter.ChapterEvents(
 				s.image.Data,
 				row.ID,
 				row.Address,
+				d.original.Table,
 			)
 			if readErr == nil && turns.Pointer == site {
 				result.uses = append(result.uses, row.ID)
@@ -295,15 +322,21 @@ func (s *Session) PlanTurnEdit(d *TurnDraft) (result *TurnEdit, err error) {
 	return result, nil
 }
 
-func (s *Session) ApplyTurnEdit(edit *TurnEdit) (err error) {
-	defer func() { err = fault.Wrap(err, "game.apply_turn_events", fault.Context{Resource: turnEventsResource}) }()
+func (s *Session) ApplyEventEdit(edit *EventEdit) (err error) {
+	defer func() {
+		err = fault.Wrap(
+			err,
+			"game.apply_event_conditions",
+			fault.Context{Resource: eventConditionsResource},
+		)
+	}()
 	if edit == nil || edit.document != s.Document ||
 		!maps.Equal(edit.layouts, s.layouts) {
 		return rom.ErrStale
 	}
 	if err := s.Document.ApplyEdit(
 		edit.revision,
-		turnEventsResource,
+		eventConditionsResource,
 		edit.plan.Edit,
 	); err != nil {
 		return err
@@ -351,17 +384,17 @@ func (f deploymentFormat) reinforcementScript() []byte {
 // resources. A corrupted graph cannot authorize overwriting record tables.
 func (s *Session) resourcePointer(site int) error {
 	if site < 0xC0 || site%4 != 0 || !within(s.image.Data, site, 4) {
-		return ErrTurnEvents
+		return ErrEventConditions
 	}
 	for _, table := range s.Tables {
 		if table.Pointer >= 0 && site < table.Pointer+4 &&
 			site+4 > table.Pointer {
-			return ErrTurnEvents
+			return ErrEventConditions
 		}
 		if table.Err == nil {
 			for _, row := range table.Rows {
 				if site < row.Address+table.Stride && site+4 > row.Address {
-					return ErrTurnEvents
+					return ErrEventConditions
 				}
 			}
 		}

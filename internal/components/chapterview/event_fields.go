@@ -12,14 +12,14 @@ import (
 	"github.com/woxQAQ/febuildergba-mygo/internal/locales"
 )
 
-func (v *View) turnNumber(
+func (v *View) eventNumber(
 	c *ui.Context,
 	state *components.State,
-	entry *turnState,
+	entry *eventState,
 	field game.Field,
 ) {
 	if field.ID == game.TurnPhase || field.ID == game.TurnRoute {
-		v.turnChoice(c, state, entry, field)
+		v.eventChoice(c, state, entry, field)
 		return
 	}
 	if entry.inputs == nil {
@@ -46,7 +46,7 @@ func (v *View) turnNumber(
 			FontSize(13).
 			FontFeatures("tnum").
 			TextAlign(ui.End).
-			Label(locales.TurnEvents()+" / "+locales.Label(field.ID)).
+			Label(labelsFor(entry.data.Table()).title+" / "+locales.Label(field.ID)).
 			Disabled(state.Busy || !entry.data.Current(state.Session)).
 			OnChange(func() {
 				parsed, err := components.ParseInteger(input.text)
@@ -73,10 +73,10 @@ func (v *View) turnNumber(
 	}
 }
 
-func (v *View) turnChoice(
+func (v *View) eventChoice(
 	c *ui.Context,
 	state *components.State,
-	entry *turnState,
+	entry *eventState,
 	field game.Field,
 ) {
 	if entry.inputs == nil {
@@ -119,7 +119,7 @@ func (v *View) turnChoice(
 	ui.Select(c.Key("value"), &input.text, labels).
 		Width(180).
 		MaxWidthPercent(100).
-		Label(locales.TurnEvents() + " / " + locales.Label(field.ID)).
+		Label(labelsFor(entry.data.Table()).title + " / " + locales.Label(field.ID)).
 		Disabled(state.Busy || !entry.data.Current(state.Session)).
 		OnChange(func() {
 			if index := slices.Index(labels, input.text); index >= 0 {

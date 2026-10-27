@@ -5,6 +5,7 @@ import (
 
 	"github.com/woxQAQ/febuildergba-mygo/game"
 	"github.com/woxQAQ/febuildergba-mygo/internal/components"
+	"github.com/woxQAQ/febuildergba-mygo/internal/components/mapview"
 	"github.com/woxQAQ/febuildergba-mygo/internal/locales"
 )
 
@@ -13,12 +14,14 @@ func (v *View) unitScene(
 	state *components.State,
 	row game.Row,
 	entry *entryDraft,
+	regions []mapview.Region,
 ) {
 	units := entry.data.Units()
 	if entry.selected >= len(units) {
 		entry.selected = max(0, len(units)-1)
 	}
 	mapOverlay := v.overlay(entry, units)
+	mapOverlay.Regions = regions
 	if entry.selected != entry.lastSelected && entry.selected < len(units) {
 		entry.lastSelected = entry.selected
 		point := units[entry.selected].Start

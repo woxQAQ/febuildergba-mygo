@@ -64,11 +64,11 @@ func (msgs Messages) DeployEntry() string {
 	return Catalog.Format(msgs.locale, "deploy_entry", nil)
 }
 
-// DeployScope says "Chapter tables and static references in opening and turn events. Conditions are not executed. Marks show record numbe…"
+// DeployScope says "Chapter tables and static references in opening, turn and area events. Conditions are not executed. Marks show record…"
 // in the language the app shows.
 func DeployScope() string { return In(i18n.Locale()).DeployScope() }
 
-// DeployScope says "Chapter tables and static references in opening and turn events. Conditions are not executed. Marks show record numbe…"
+// DeployScope says "Chapter tables and static references in opening, turn and area events. Conditions are not executed. Marks show record…"
 // in the language of msgs.
 func (msgs Messages) DeployScope() string {
 	return Catalog.Format(msgs.locale, "deploy_scope", nil)
@@ -3460,14 +3460,14 @@ func (msgs Messages) TurnPhase() string {
 	return Catalog.Format(msgs.locale, "turn_phase", nil)
 }
 
-// TurnFlag says "Completion flag"
+// EventFlag says "Completion flag"
 // in the language the app shows.
-func TurnFlag() string { return In(i18n.Locale()).TurnFlag() }
+func EventFlag() string { return In(i18n.Locale()).EventFlag() }
 
-// TurnFlag says "Completion flag"
+// EventFlag says "Completion flag"
 // in the language of msgs.
-func (msgs Messages) TurnFlag() string {
-	return Catalog.Format(msgs.locale, "turn_flag", nil)
+func (msgs Messages) EventFlag() string {
+	return Catalog.Format(msgs.locale, "event_flag", nil)
 }
 
 // TurnRoute says "Route / difficulty"
@@ -3710,14 +3710,14 @@ func (msgs Messages) DeployTurnEvent() string {
 	return Catalog.Format(msgs.locale, "deploy_turn_event", nil)
 }
 
-// GameInvalidTurnEvents says "The turn event pointer, record range or terminator is invalid. Other chapter settings remain editable."
+// GameInvalidEventConditions says "The event condition pointer, record range or terminator is invalid. Other chapter settings remain editable."
 // in the language the app shows.
-func GameInvalidTurnEvents() string { return In(i18n.Locale()).GameInvalidTurnEvents() }
+func GameInvalidEventConditions() string { return In(i18n.Locale()).GameInvalidEventConditions() }
 
-// GameInvalidTurnEvents says "The turn event pointer, record range or terminator is invalid. Other chapter settings remain editable."
+// GameInvalidEventConditions says "The event condition pointer, record range or terminator is invalid. Other chapter settings remain editable."
 // in the language of msgs.
-func (msgs Messages) GameInvalidTurnEvents() string {
-	return Catalog.Format(msgs.locale, "game_invalid_turn_events", nil)
+func (msgs Messages) GameInvalidEventConditions() string {
+	return Catalog.Format(msgs.locale, "game_invalid_event_conditions", nil)
 }
 
 // TurnInterval says "Turns"
@@ -3728,4 +3728,214 @@ func TurnInterval() string { return In(i18n.Locale()).TurnInterval() }
 // in the language of msgs.
 func (msgs Messages) TurnInterval() string {
 	return Catalog.Format(msgs.locale, "turn_interval", nil)
+}
+
+// AreaEvents says "Area events"
+// in the language the app shows.
+func AreaEvents() string { return In(i18n.Locale()).AreaEvents() }
+
+// AreaEvents says "Area events"
+// in the language of msgs.
+func (msgs Messages) AreaEvents() string {
+	return Catalog.Format(msgs.locale, "area_events", nil)
+}
+
+// AreaAdd says "Add area reinforcement"
+// in the language the app shows.
+func AreaAdd() string { return In(i18n.Locale()).AreaAdd() }
+
+// AreaAdd says "Add area reinforcement"
+// in the language of msgs.
+func (msgs Messages) AreaAdd() string {
+	return Catalog.Format(msgs.locale, "area_add", nil)
+}
+
+// AreaRemove says "Remove event condition"
+// in the language the app shows.
+func AreaRemove() string { return In(i18n.Locale()).AreaRemove() }
+
+// AreaRemove says "Remove event condition"
+// in the language of msgs.
+func (msgs Messages) AreaRemove() string {
+	return Catalog.Format(msgs.locale, "area_remove", nil)
+}
+
+// AreaScope says "Edit area triggers in the general condition list. Map regions show their effective bounds. Other condition kinds and …"
+// in the language the app shows.
+func AreaScope() string { return In(i18n.Locale()).AreaScope() }
+
+// AreaScope says "Edit area triggers in the general condition list. Map regions show their effective bounds. Other condition kinds and …"
+// in the language of msgs.
+func (msgs Messages) AreaScope() string {
+	return Catalog.Format(msgs.locale, "area_scope", nil)
+}
+
+// AreaPreview says "Preview area events"
+// in the language the app shows.
+func AreaPreview() string { return In(i18n.Locale()).AreaPreview() }
+
+// AreaPreview says "Preview area events"
+// in the language of msgs.
+func (msgs Messages) AreaPreview() string {
+	return Catalog.Format(msgs.locale, "area_preview", nil)
+}
+
+// AreaReload says "Discard area draft and reload"
+// in the language the app shows.
+func AreaReload() string { return In(i18n.Locale()).AreaReload() }
+
+// AreaReload says "Discard area draft and reload"
+// in the language of msgs.
+func (msgs Messages) AreaReload() string {
+	return Catalog.Format(msgs.locale, "area_reload", nil)
+}
+
+// AreaApply says "Apply area events"
+// in the language the app shows.
+func AreaApply() string { return In(i18n.Locale()).AreaApply() }
+
+// AreaApply says "Apply area events"
+// in the language of msgs.
+func (msgs Messages) AreaApply() string {
+	return Catalog.Format(msgs.locale, "area_apply", nil)
+}
+
+// AreaPreviewScope says "The general condition list changes for the chapters below. Existing scripts stay unchanged."
+// in the language the app shows.
+func AreaPreviewScope() string { return In(i18n.Locale()).AreaPreviewScope() }
+
+// AreaPreviewScope says "The general condition list changes for the chapters below. Existing scripts stay unchanged."
+// in the language of msgs.
+func (msgs Messages) AreaPreviewScope() string {
+	return Catalog.Format(msgs.locale, "area_preview_scope", nil)
+}
+
+// AreaConditionHelp says "Both endpoint cells are included. Coordinates are signed bytes. FE6/7 require ordered endpoints; FE8 accepts either o…"
+// in the language the app shows.
+func AreaConditionHelp() string { return In(i18n.Locale()).AreaConditionHelp() }
+
+// AreaConditionHelp says "Both endpoint cells are included. Coordinates are signed bytes. FE6/7 require ordered endpoints; FE8 accepts either o…"
+// in the language of msgs.
+func (msgs Messages) AreaConditionHelp() string {
+	return Catalog.Format(msgs.locale, "area_condition_help", nil)
+}
+
+// AreaRange says "Region"
+// in the language the app shows.
+func AreaRange() string { return In(i18n.Locale()).AreaRange() }
+
+// AreaRange says "Region"
+// in the language of msgs.
+func (msgs Messages) AreaRange() string {
+	return Catalog.Format(msgs.locale, "area_range", nil)
+}
+
+// AreaScript says "Script"
+// in the language the app shows.
+func AreaScript() string { return In(i18n.Locale()).AreaScript() }
+
+// AreaScript says "Script"
+// in the language of msgs.
+func (msgs Messages) AreaScript() string {
+	return Catalog.Format(msgs.locale, "area_script", nil)
+}
+
+// AreaPlaceFirst says "Set first corner to cell"
+// in the language the app shows.
+func AreaPlaceFirst() string { return In(i18n.Locale()).AreaPlaceFirst() }
+
+// AreaPlaceFirst says "Set first corner to cell"
+// in the language of msgs.
+func (msgs Messages) AreaPlaceFirst() string {
+	return Catalog.Format(msgs.locale, "area_place_first", nil)
+}
+
+// AreaPlaceLast says "Set last corner to cell"
+// in the language the app shows.
+func AreaPlaceLast() string { return In(i18n.Locale()).AreaPlaceLast() }
+
+// AreaPlaceLast says "Set last corner to cell"
+// in the language of msgs.
+func (msgs Messages) AreaPlaceLast() string {
+	return Catalog.Format(msgs.locale, "area_place_last", nil)
+}
+
+// AreaEmpty says "This version requires ordered endpoints. The current region cannot trigger."
+// in the language the app shows.
+func AreaEmpty() string { return In(i18n.Locale()).AreaEmpty() }
+
+// AreaEmpty says "This version requires ordered endpoints. The current region cannot trigger."
+// in the language of msgs.
+func (msgs Messages) AreaEmpty() string {
+	return Catalog.Format(msgs.locale, "area_empty", nil)
+}
+
+// AreaRepeats says "Flag 0 allows this event to trigger again. Use an unused nonzero completion flag for a single activation."
+// in the language the app shows.
+func AreaRepeats() string { return In(i18n.Locale()).AreaRepeats() }
+
+// AreaRepeats says "Flag 0 allows this event to trigger again. Use an unused nonzero completion flag for a single activation."
+// in the language of msgs.
+func (msgs Messages) AreaRepeats() string {
+	return Catalog.Format(msgs.locale, "area_repeats", nil)
+}
+
+// AreaX1 says "First corner X"
+// in the language the app shows.
+func AreaX1() string { return In(i18n.Locale()).AreaX1() }
+
+// AreaX1 says "First corner X"
+// in the language of msgs.
+func (msgs Messages) AreaX1() string {
+	return Catalog.Format(msgs.locale, "area_x1", nil)
+}
+
+// AreaY1 says "First corner Y"
+// in the language the app shows.
+func AreaY1() string { return In(i18n.Locale()).AreaY1() }
+
+// AreaY1 says "First corner Y"
+// in the language of msgs.
+func (msgs Messages) AreaY1() string {
+	return Catalog.Format(msgs.locale, "area_y1", nil)
+}
+
+// AreaX2 says "Last corner X"
+// in the language the app shows.
+func AreaX2() string { return In(i18n.Locale()).AreaX2() }
+
+// AreaX2 says "Last corner X"
+// in the language of msgs.
+func (msgs Messages) AreaX2() string {
+	return Catalog.Format(msgs.locale, "area_x2", nil)
+}
+
+// AreaY2 says "Last corner Y"
+// in the language the app shows.
+func AreaY2() string { return In(i18n.Locale()).AreaY2() }
+
+// AreaY2 says "Last corner Y"
+// in the language of msgs.
+func (msgs Messages) AreaY2() string {
+	return Catalog.Format(msgs.locale, "area_y2", nil)
+}
+
+// DeployAreaEvent says "Area event"
+// in the language the app shows.
+func DeployAreaEvent() string { return In(i18n.Locale()).DeployAreaEvent() }
+
+// DeployAreaEvent says "Area event"
+// in the language of msgs.
+func (msgs Messages) DeployAreaEvent() string {
+	return Catalog.Format(msgs.locale, "deploy_area_event", nil)
+}
+
+// EventConditions says "Event conditions"
+// in the language the app shows.
+func EventConditions() string { return In(i18n.Locale()).EventConditions() }
+
+// EventConditions says "Event conditions"
+// in the language of msgs.
+func (msgs Messages) EventConditions() string {
+	return Catalog.Format(msgs.locale, "event_conditions", nil)
 }

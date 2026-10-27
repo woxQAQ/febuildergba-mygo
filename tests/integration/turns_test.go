@@ -25,7 +25,7 @@ func TestRealTurnReinforcements(t *testing.T) {
 		t.Run(fixture.id, func(t *testing.T) {
 			sample := samples[fixture.id]
 			s := openRealROM(t, fixture.filename)
-			native, err := s.ChapterTurns(sample.chapter)
+			native, err := s.ChapterEvents(sample.chapter, game.TurnEvents)
 			if err != nil {
 				t.Fatal(err)
 			}
@@ -44,7 +44,7 @@ func TestRealTurnReinforcements(t *testing.T) {
 				t.Fatalf("fixed reinforcement condition: %+v", event)
 			}
 			before := s.Document.Snapshot()
-			d, err := s.NewTurnDraft(sample.chapter)
+			d, err := s.NewEventDraft(sample.chapter, game.TurnEvents)
 			if err != nil {
 				t.Fatal(err)
 			}
@@ -70,15 +70,15 @@ func TestRealTurnReinforcements(t *testing.T) {
 			if err := group.Set(1, "deploy_start_x", 3); err != nil {
 				t.Fatal(err)
 			}
-			plan, err := s.PlanTurnEdit(d)
+			plan, err := s.PlanEventEdit(d)
 			if err != nil {
 				t.Fatal(err)
 			}
-			if err := s.ApplyTurnEdit(plan); err != nil {
+			if err := s.ApplyEventEdit(plan); err != nil {
 				t.Fatal(err)
 			}
 			after := s.Document.Snapshot()
-			result, err := s.ChapterTurns(sample.chapter)
+			result, err := s.ChapterEvents(sample.chapter, game.TurnEvents)
 			if err != nil {
 				t.Fatal(err)
 			}
@@ -146,7 +146,10 @@ func TestRealTurnReinforcements(t *testing.T) {
 			if err != nil {
 				t.Fatal(err)
 			}
-			again, err := reopened.ChapterTurns(sample.chapter)
+			again, err := reopened.ChapterEvents(
+				sample.chapter,
+				game.TurnEvents,
+			)
 			if err != nil ||
 				!bytes.Equal(again.Events[added].Raw, created.Raw) ||
 				again.Events[added].Groups[0].Units[1].Start.X != 3 {
@@ -169,21 +172,27 @@ func TestRealTurnReinforcements(t *testing.T) {
 			if err := reopened.ApplyDeploymentEdit(unitPlan); err != nil {
 				t.Fatal(err)
 			}
-			removal, err := reopened.NewTurnDraft(sample.chapter)
+			removal, err := reopened.NewEventDraft(
+				sample.chapter,
+				game.TurnEvents,
+			)
 			if err != nil {
 				t.Fatal(err)
 			}
 			if err := removal.Remove(added); err != nil {
 				t.Fatal(err)
 			}
-			removePlan, err := reopened.PlanTurnEdit(removal)
+			removePlan, err := reopened.PlanEventEdit(removal)
 			if err != nil {
 				t.Fatal(err)
 			}
-			if err := reopened.ApplyTurnEdit(removePlan); err != nil {
+			if err := reopened.ApplyEventEdit(removePlan); err != nil {
 				t.Fatal(err)
 			}
-			remaining, err := reopened.ChapterTurns(sample.chapter)
+			remaining, err := reopened.ChapterEvents(
+				sample.chapter,
+				game.TurnEvents,
+			)
 			if err != nil || len(remaining.Events) != sample.count {
 				t.Fatal("remove saved reinforcement")
 			}

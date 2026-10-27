@@ -37,7 +37,7 @@ func TestTurnChapterContext(t *testing.T) {
 			}
 			f.WriteU8(manual+eventOffset, 3)
 			s = openFixture(t, f)
-			d, err := s.NewTurnDraft(0)
+			d, err := s.NewEventDraft(0, TurnEvents)
 			if err != nil {
 				t.Fatal(err)
 			}
@@ -48,17 +48,17 @@ func TestTurnChapterContext(t *testing.T) {
 			if err := d.Set(index, TurnStart, 9); err != nil {
 				t.Fatal(err)
 			}
-			plan, err := s.PlanTurnEdit(d)
+			plan, err := s.PlanEventEdit(d)
 			if err != nil {
 				t.Fatal(err)
 			}
 			if len(plan.Uses()) != 1 || plan.Uses()[0] != 0 {
 				t.Fatal("separate header alias treated as a shared edit target")
 			}
-			if err := s.ApplyTurnEdit(plan); err != nil {
+			if err := s.ApplyEventEdit(plan); err != nil {
 				t.Fatal(err)
 			}
-			unchanged, err := s.ChapterTurns(1)
+			unchanged, err := s.ChapterEvents(1, TurnEvents)
 			if err != nil ||
 				unchanged.Address != f.GetPosition("deploy_turns") ||
 				unchanged.Events[index].Start != 3 {
@@ -71,11 +71,11 @@ func TestTurnChapterContext(t *testing.T) {
 			if err := s.ApplyTableMove(move); err != nil {
 				t.Fatal(err)
 			}
-			relocated, err := s.ChapterTurns(0)
+			relocated, err := s.ChapterEvents(0, TurnEvents)
 			if err != nil || relocated.Events[index].Start != 9 {
 				t.Fatal("chapter relocation lost turn context")
 			}
-			draft, err := s.NewTurnDraft(0)
+			draft, err := s.NewEventDraft(0, TurnEvents)
 			if err != nil {
 				t.Fatal(err)
 			}
@@ -88,25 +88,25 @@ func TestTurnChapterContext(t *testing.T) {
 			if draft.Current(s) {
 				t.Fatal("manual chapter layout did not invalidate draft")
 			}
-			manualTurns, err := s.ChapterTurns(0)
+			manualTurns, err := s.ChapterEvents(0, TurnEvents)
 			if err != nil || manualTurns.Pointer != aliasHeader ||
 				manualTurns.Events[index].Start != 3 {
 				t.Fatal(
 					"manual chapter layout did not select its actual event header",
 				)
 			}
-			manualDraft, err := s.NewTurnDraft(0)
+			manualDraft, err := s.NewEventDraft(0, TurnEvents)
 			if err != nil {
 				t.Fatal(err)
 			}
 			if err := manualDraft.Add(s); err != nil {
 				t.Fatal(err)
 			}
-			manualPlan, err := s.PlanTurnEdit(manualDraft)
+			manualPlan, err := s.PlanEventEdit(manualDraft)
 			if err != nil {
 				t.Fatal(err)
 			}
-			if err := s.ApplyTurnEdit(manualPlan); err != nil {
+			if err := s.ApplyEventEdit(manualPlan); err != nil {
 				t.Fatal(err)
 			}
 		})
@@ -135,9 +135,9 @@ func TestTurnResourceRecovery(t *testing.T) {
 			}
 			s := openFixture(t, f)
 			before := s.Document.Snapshot()
-			d, err := s.NewTurnDraft(0)
+			d, err := s.NewEventDraft(0, TurnEvents)
 			if name == "malformed terminator" || name == "unterminated" {
-				if err == nil || !errors.Is(err, ErrTurnEvents) ||
+				if err == nil || !errors.Is(err, ErrEventConditions) ||
 					!bytes.Equal(before.Data, s.Document.Snapshot().Data) {
 					t.Fatalf("invalid condition table: %v", err)
 				}
@@ -180,14 +180,14 @@ func TestTurnResourceRecovery(t *testing.T) {
 			if err := d.Add(s); err != nil {
 				t.Fatal(err)
 			}
-			plan, err := s.PlanTurnEdit(d)
+			plan, err := s.PlanEventEdit(d)
 			if err != nil {
 				t.Fatal(err)
 			}
-			if err := s.ApplyTurnEdit(plan); err != nil {
+			if err := s.ApplyEventEdit(plan); err != nil {
 				t.Fatal(err)
 			}
-			result, err := s.ChapterTurns(0)
+			result, err := s.ChapterEvents(0, TurnEvents)
 			if err != nil {
 				t.Fatal(err)
 			}

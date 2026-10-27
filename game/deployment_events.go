@@ -78,23 +78,28 @@ func (s *deploymentScanner) entries(base int) {
 			}
 		}
 	}
-	// The shared table reader handles variable FE7 lengths and a four-byte
-	// terminator even when it is the final resource in the ROM.
-	turns, err := s.format.readTurns(s.data, base)
-	if err != nil {
-		s.warn(base)
+	for _, table := range []EventTable{TurnEvents, AlwaysEvents} {
+		s.conditions(base, table)
 	}
-	s.result.ranges = append(s.result.ranges, turns.ranges...)
-	for _, event := range turns.Events {
-		if event.Kind != 2 {
+}
+
+func (s *deploymentScanner) conditions(base int, table EventTable) {
+	site := base + table.offset()
+	conditions, err := s.format.readEvents(s.data, site, table)
+	if err != nil {
+		s.warn(site)
+	}
+	s.result.ranges = append(s.result.ranges, conditions.ranges...)
+	for _, event := range conditions.Events {
+		if event.Kind != table.condition() {
 			continue
 		}
 		if event.Script < 0xC0 || event.Script%4 != 0 {
 			s.warn(event.Address + 4)
 			continue
 		}
-		source := "deploy_turn_event"
-		if event.Start <= 1 && event.Phase == 0 {
+		source := table.source()
+		if table == TurnEvents && event.Start <= 1 && event.Phase == 0 {
 			source = "deploy_turn_one"
 		}
 		s.walk(event.Script, [16]int{}, 0, s.chapter, source)

@@ -18,7 +18,7 @@ func TestTurnReinforcementWorkflow(t *testing.T) {
 			f := testutil.NewTurnFixture(fixture.name)
 			s := openFixture(t, f)
 			before := s.Document.Snapshot()
-			native, err := s.ChapterTurns(0)
+			native, err := s.ChapterEvents(0, TurnEvents)
 			if err != nil {
 				t.Fatal(err)
 			}
@@ -40,11 +40,11 @@ func TestTurnReinforcementWorkflow(t *testing.T) {
 				(len(native.Events[0].Raw) != 12 || len(condition.Raw) != 16 || condition.Route != 4) {
 				t.Fatal("mixed FE7 record lengths or route")
 			}
-			d, err := s.NewTurnDraft(0)
+			d, err := s.NewEventDraft(0, TurnEvents)
 			if err != nil {
 				t.Fatal(err)
 			}
-			for field, value := range map[string]int64{TurnStart: 7, TurnEnd: 0, TurnPhase: 0x40, TurnFlag: 0x4321} {
+			for field, value := range map[string]int64{TurnStart: 7, TurnEnd: 0, TurnPhase: 0x40, EventFlag: 0x4321} {
 				if err := d.Set(index, field, value); err != nil {
 					t.Fatal(err)
 				}
@@ -74,7 +74,7 @@ func TestTurnReinforcementWorkflow(t *testing.T) {
 			if !bytes.Equal(before.Data, s.Document.Snapshot().Data) {
 				t.Fatal("draft changed document")
 			}
-			plan, err := s.PlanTurnEdit(d)
+			plan, err := s.PlanEventEdit(d)
 			if err != nil {
 				t.Fatal(err)
 			}
@@ -90,11 +90,11 @@ func TestTurnReinforcementWorkflow(t *testing.T) {
 			if err := units.Set(0, "deploy_level", 12); err != nil {
 				t.Fatal(err)
 			}
-			if err := s.ApplyTurnEdit(plan); err != nil {
+			if err := s.ApplyEventEdit(plan); err != nil {
 				t.Fatal(err)
 			}
 			after := s.Document.Snapshot()
-			r, err := s.ChapterTurns(0)
+			r, err := s.ChapterEvents(0, TurnEvents)
 			if err != nil {
 				t.Fatal(err)
 			}
@@ -239,7 +239,7 @@ func TestTurnReinforcementWorkflow(t *testing.T) {
 			if !bytes.Equal(preserved, before.Data) {
 				t.Fatal("old resources changed")
 			}
-			shared, err := s.ChapterTurns(1)
+			shared, err := s.ChapterEvents(1, TurnEvents)
 			if err != nil || shared.Address != r.Address {
 				t.Fatal("shared header did not follow selected pointer")
 			}
@@ -260,7 +260,7 @@ func TestTurnReinforcementWorkflow(t *testing.T) {
 			if err != nil {
 				t.Fatal(err)
 			}
-			reopenedTurns, err := reopened.ChapterTurns(0)
+			reopenedTurns, err := reopened.ChapterEvents(0, TurnEvents)
 			if err != nil ||
 				!bytes.Equal(reopenedTurns.Events[added].Raw, event.Raw) {
 				t.Fatal("save/reopen lost event")
@@ -280,21 +280,21 @@ func TestTurnReinforcementWorkflow(t *testing.T) {
 			if err := reopened.ApplyDeploymentEdit(unitPlan); err != nil {
 				t.Fatal(err)
 			}
-			deleteDraft, err := reopened.NewTurnDraft(0)
+			deleteDraft, err := reopened.NewEventDraft(0, TurnEvents)
 			if err != nil {
 				t.Fatal(err)
 			}
 			if err := deleteDraft.Remove(added); err != nil {
 				t.Fatal(err)
 			}
-			deletion, err := reopened.PlanTurnEdit(deleteDraft)
+			deletion, err := reopened.PlanEventEdit(deleteDraft)
 			if err != nil {
 				t.Fatal(err)
 			}
-			if err := reopened.ApplyTurnEdit(deletion); err != nil {
+			if err := reopened.ApplyEventEdit(deletion); err != nil {
 				t.Fatal(err)
 			}
-			remaining, err := reopened.ChapterTurns(0)
+			remaining, err := reopened.ChapterEvents(0, TurnEvents)
 			if err != nil || len(remaining.Events) != len(native.Events) {
 				t.Fatal("remove reinforcement")
 			}
@@ -307,14 +307,14 @@ func TestTurnDraftIsolation(t *testing.T) {
 		t.Run(name, func(t *testing.T) {
 			f := testutil.NewTurnFixture("FE8U")
 			s := openFixture(t, f)
-			d, err := s.NewTurnDraft(0)
+			d, err := s.NewEventDraft(0, TurnEvents)
 			if err != nil {
 				t.Fatal(err)
 			}
 			if err := d.Add(s); err != nil {
 				t.Fatal(err)
 			}
-			p, err := s.PlanTurnEdit(d)
+			p, err := s.PlanEventEdit(d)
 			if err != nil {
 				t.Fatal(err)
 			}
@@ -341,7 +341,7 @@ func TestTurnDraftIsolation(t *testing.T) {
 					t.Fatal(err)
 				}
 				s.Refresh()
-				d, err = s.NewTurnDraft(0)
+				d, err = s.NewEventDraft(0, TurnEvents)
 				if err != nil {
 					t.Fatal(err)
 				}
@@ -349,7 +349,7 @@ func TestTurnDraftIsolation(t *testing.T) {
 					t.Fatal(err)
 				}
 				before := s.Document.Snapshot()
-				_, err = s.PlanTurnEdit(d)
+				_, err = s.PlanEventEdit(d)
 				if !errors.Is(err, space.ErrCapacity) ||
 					!bytes.Equal(before.Data, s.Document.Snapshot().Data) {
 					t.Fatalf("capacity failure: %v", err)
@@ -372,7 +372,7 @@ func TestTurnDraftIsolation(t *testing.T) {
 				return
 			}
 			before := s.Document.Snapshot()
-			if err := s.ApplyTurnEdit(
+			if err := s.ApplyEventEdit(
 				p,
 			); !errors.Is(err, expected) ||
 				!bytes.Equal(before.Data, s.Document.Snapshot().Data) {

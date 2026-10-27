@@ -31,6 +31,8 @@
 
 [turns.go](../internal/testutil/turns.go) 的 `NewTurnFixture` 加入 FE7 12／16 字节混合记录、固定类型 2 回合条件和不透明条件。期望加载／等待／结束指令使用独立字面量字节，验证条件目标字段、旧记录与未知脚本保留、新建增援及 FE8 路径、一次历史、独立指针别名、共享入口、章节表搬迁／手动布局、空表、损坏结束记录、发现上限、空间冲突、容量失败及保存重开后的部署和条件编辑。
 
+[areas.go](../internal/testutil/areas.go) 的 `NewAreaFixture` 在混合回合表旁加入固定 12 字节的标志、区域和不透明常驻条件，另设仅由区域引用的脚本、部署和 FE8 路径。验证有符号及倒序范围、未知条件保留、新建增援、脚本字面量、原子历史、共享／独立头别名、章节搬迁／手动布局、空表／损坏结束记录、独有资源空间保护和保存重开后的继续编辑。
+
 可通过 `GetPosition` 查询 `units`、`classes`、`items`、`chapters`（可见记录起点）、`*_base`（指针目标，包含隐藏记录）及 `*_pointer`（首个候选指针的位置）。`Bytes` 返回副本；`Save` 将数据写入测试临时目录。
 
 Fixture 的有效性由 [fixture_test.go](../internal/testutil/fixture_test.go) 通过真实游戏会话解析验证。改变游戏规则时，应对照旧版来源更新 fixture 和预期结果，避免从被测实现动态生成所有期望。
