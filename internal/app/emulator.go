@@ -1,13 +1,17 @@
 package app
 
 import (
-	"errors"
 	"os"
 	"os/exec"
 	"runtime"
+
+	"github.com/woxQAQ/febuildergba-mygo/fault"
 )
 
-func launchEmulator(path string) error {
+var errNoEmulator = fault.Code{ID: "app.no_emulator", Kind: fault.NotFound}
+
+func launchEmulator(path string) (err error) {
+	defer func() { err = fault.Wrap(err, "app.emulator", fault.Context{Path: path}) }()
 	if command := os.Getenv("FEBUILDER_EMULATOR"); command != "" {
 		return startProcess(command, path)
 	}
@@ -22,7 +26,7 @@ func launchEmulator(path string) error {
 				Run()
 		}
 	}
-	return errors.New("no_emulator")
+	return errNoEmulator
 }
 
 func startProcess(executable string, args ...string) error {
@@ -30,7 +34,11 @@ func startProcess(executable string, args ...string) error {
 	// or found on PATH; no shell is used.
 	command := exec.Command(executable, args...)
 	if err := command.Start(); err != nil {
-		return err
+		return fault.Wrap(
+			err,
+			"app.start_process",
+			fault.Context{Path: executable},
+		)
 	}
 	go func() { _ = command.Wait() }()
 	return nil

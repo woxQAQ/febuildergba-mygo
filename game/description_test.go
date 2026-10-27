@@ -7,6 +7,7 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/woxQAQ/febuildergba-mygo/fault"
 	"github.com/woxQAQ/febuildergba-mygo/internal/testutil"
 )
 
@@ -171,33 +172,36 @@ func TestDescriptionEdits(t *testing.T) {
 func TestDescriptionRejectsLossyEdits(t *testing.T) {
 	s := openFixture(t, descriptionFixture())
 	before := s.Document.Snapshot()
-	for _, content := range []string{
-		editedDescription + "[Unknown]",
-		strings.Replace(editedDescription, "[ToggleRed]", "[Item]", 1),
-		strings.Replace(editedDescription, "[LoadFace][0x0141]", "[0x0141][LoadFace]", 1),
-		editedDescription + "[LoadFace]",
-		editedDescription + "[0x0000]",
-		editedDescription + "[0x0100]",
-		editedDescription + "[0x01]",
-		editedDescription + "\\n",
-		editedDescription + "é",
-		editedDescription + "\x00",
-		editedDescription + "\t",
-		editedDescription + strings.Repeat("A", 4097),
+	for _, sample := range []struct {
+		content string
+		want    fault.Code
+	}{
+		{editedDescription + "[Unknown]", ErrTextControl},
+		{strings.Replace(editedDescription, "[ToggleRed]", "[Item]", 1), ErrTextEncoding},
+		{strings.Replace(editedDescription, "[LoadFace][0x0141]", "[0x0141][LoadFace]", 1), ErrTextControl},
+		{editedDescription + "[LoadFace]", ErrTextArgument},
+		{editedDescription + "[0x0000]", ErrTextControl},
+		{editedDescription + "[0x0100]", ErrTextControl},
+		{editedDescription + "[0x01]", ErrTextEncoding},
+		{editedDescription + "\\n", ErrTextEncoding},
+		{editedDescription + "é", ErrTextEncoding},
+		{editedDescription + "\x00", ErrTextEncoding},
+		{editedDescription + "\t", ErrTextEncoding},
+		{editedDescription + strings.Repeat("A", 4097), ErrTextEncoding},
 	} {
 		if _, err := s.PlanTextEdit(
 			Units,
 			1,
 			"description_id",
-			content,
-		); !errors.Is(
+			sample.content,
+		); fault.CodeOf(
 			err,
-			ErrTextEncoding,
-		) {
+		) != sample.want {
 			t.Fatalf(
-				"accepted invalid or unencodable text %q: %v",
-				content,
+				"text %q: got %v, want %v",
+				sample.content,
 				err,
+				sample.want,
 			)
 		}
 	}
@@ -270,7 +274,7 @@ func TestUnsupportedDescriptionControls(t *testing.T) {
 				1,
 				"description_id",
 				value.Content+"\n",
-			); !errors.Is(err, ErrTextEncoding) ||
+			); fault.CodeOf(err) != fault.CodeOf(value.ReadOnlyReason) ||
 				s.Document.State().Dirty {
 				t.Fatalf(
 					"unsupported control semantics were rewritten: %v",

@@ -338,7 +338,7 @@ func TestDocument_StaleRevision(t *testing.T) {
 
 	// 尝试基于过期的 rev1 再次修改：应该被拒绝
 	err := d.Apply(rev1, "op2", []Change{{Offset: 0x20, Data: []byte{0x02}}})
-	if err != ErrStale {
+	if !errors.Is(err, ErrStale) {
 		t.Errorf("Expected ErrStale when using old revision, got: %v", err)
 	}
 

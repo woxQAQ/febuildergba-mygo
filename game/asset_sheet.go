@@ -6,6 +6,7 @@ import (
 	"image"
 	"image/draw"
 
+	"github.com/woxQAQ/febuildergba-mygo/fault"
 	"github.com/woxQAQ/febuildergba-mygo/gba"
 	"github.com/woxQAQ/febuildergba-mygo/rom"
 	"github.com/woxQAQ/febuildergba-mygo/space"
@@ -69,7 +70,18 @@ func readAssetPart(
 		var err error
 		part.data, err = gba.DecompressLZ77(data[at:], 8192)
 		if err != nil || len(part.data) < length {
-			return part, ErrImage
+			return part, fault.New(
+				ErrImage,
+				"game.decompress_asset",
+				fault.Context{
+					Range: &fault.Range{
+						Offset: at,
+						Length: length,
+						Size:   len(data),
+					},
+				},
+				err,
+			)
 		}
 	case within(data, at, length):
 		part.data = bytes.Clone(data[at : at+length])
@@ -99,7 +111,12 @@ func (f portraitFormat) sheet(data []byte, id int) (assetSheet, error) {
 		if err != nil || u32(data, at+f.cardPointer) == 0 ||
 			len(part.data)%320 != 0 ||
 			len(part.data) > 80*128/2 {
-			return sheet, ErrImage
+			return sheet, fault.New(
+				ErrImage,
+				"game.read_class_card",
+				fault.Context{ResourceID: new(id)},
+				err,
+			)
 		}
 		height := len(part.data) / 40
 		part.pieces = [][6]int{{0, 0, 80, height, 0, 0}}
@@ -202,7 +219,12 @@ func (s *assetSheet) render() error {
 		copy(padded, part.data)
 		tiles, err := gba.Tiles4BPP(padded, s.palette, part.width, height)
 		if err != nil {
-			return ErrImage
+			return fault.New(
+				ErrImage,
+				"game.render_asset",
+				fault.Context{},
+				err,
+			)
 		}
 		for _, piece := range part.pieces {
 			blitPortrait(s.image, tiles, piece, draw.Src)
@@ -217,7 +239,12 @@ func (s assetSheet) encode(src image.Image) ([]assetResource, error) {
 		var paletteErr error
 		palette, paletteErr = gba.Palette4BPP(src, palette)
 		if paletteErr != nil {
-			return nil, ErrAssetColors
+			return nil, fault.New(
+				ErrAssetColors,
+				"game.encode_palette",
+				fault.Context{},
+				paletteErr,
+			)
 		}
 		src = gba.Quantise4BPP(src)
 	}
@@ -256,7 +283,12 @@ func (s assetSheet) encode(src image.Image) ([]assetResource, error) {
 			)
 			tiles, err := gba.EncodeTiles4BPP(region, palette)
 			if err != nil {
-				return nil, ErrAssetColors
+				return nil, fault.New(
+					ErrAssetColors,
+					"game.encode_asset",
+					fault.Context{},
+					err,
+				)
 			}
 			for row := range p[3] / 8 {
 				offset := ((p[5]/8+row)*(part.width/8) + p[4]/8) * 32
@@ -275,7 +307,12 @@ func (s assetSheet) encode(src image.Image) ([]assetResource, error) {
 			var err error
 			content, err = gba.CompressLZ77(body)
 			if err != nil {
-				return nil, ErrImage
+				return nil, fault.New(
+					ErrImage,
+					"game.compress_asset",
+					fault.Context{},
+					err,
+				)
 			}
 		}
 		// Allocation is completed by the adapter after all pixels are

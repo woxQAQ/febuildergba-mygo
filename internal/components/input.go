@@ -1,12 +1,17 @@
 package components
 
 import (
-	"errors"
 	"strconv"
 	"strings"
 
+	"github.com/woxQAQ/febuildergba-mygo/fault"
 	"github.com/woxQAQ/febuildergba-mygo/rom"
 )
+
+var errInvalidAddress = fault.Code{
+	ID:   "input.invalid_address",
+	Kind: fault.InvalidInput,
+}
 
 func ParseInteger(text string) (int64, error) {
 	text = strings.TrimSpace(text)
@@ -21,13 +26,25 @@ func ParseAddress(text string) (int, error) {
 	text = strings.TrimPrefix(strings.ToLower(strings.TrimSpace(text)), "0x")
 	value, err := strconv.ParseUint(text, 16, 32)
 	if err != nil {
-		return 0, errors.New("invalid_address")
+		return 0, fault.New(
+			errInvalidAddress,
+			"input.parse_address",
+			fault.Context{},
+			err,
+		)
 	}
 	if value >= 0x08000000 && value < 0x0A000000 {
 		value -= 0x08000000
 	}
 	if value >= rom.MaxSize {
-		return 0, errors.New("invalid_address")
+		return 0, fault.Wrap(
+			errInvalidAddress,
+			"input.parse_address",
+			fault.Context{
+				Value:  new(int64(value)),
+				Bounds: &fault.Bounds{Min: 0, Max: rom.MaxSize - 1},
+			},
+		)
 	}
 	return int(value), nil
 }

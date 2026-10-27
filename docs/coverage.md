@@ -40,6 +40,7 @@
 | fe8u.asset-preview   | 头像、职业卡及图标预览     | ImagePortraitForm、ImageItemIconForm、ImageUtil | 已实现读取、像素缩放、原始数据跳转及标准素材 PNG 导出／替换；扩展头像格式暂只读                                |
 | fe8u.layout          | 手动表定位                 | InputFormRef 高级操作                           | 已实现；沿用已知字段，只影响当前窗口，不改写指针                              |
 | fe8u.raw             | 固定长度字节编辑           | 原始数据操作                                    | 已实现；每次 1–4096 字节，写入检查文档归属及修订                              |
+| diagnostics.errors   | 结构化错误与原因保留       | 领域操作、文件系统与编解码                       | 已接入当前编辑、保存、空间、文本、图像及地图流程；稳定错误码、处理类别与操作上下文，中英文映射及结构化日志；独立诊断面板待实现 |
 | ui.language          | 中英文界面与诊断           | MyGo i18n                                       | 已实现；切换同步所有窗口与菜单，保存语言偏好                                  |
 | emulator.launch      | 保存后打开模拟器           | 外部工具                                        | 已实现；支持配置可执行文件、PATH 和 macOS bundle                              |
 | emulator.warp        | 跳转指定章节               | EmulatorMemoryUtil.CHEAT_WARP_FE6/FE7/FE8       | 待实现；涉及 RAM 事件注入、版本差异及章节状态初始化                           |

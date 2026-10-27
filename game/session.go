@@ -3,25 +3,54 @@ package game
 import (
 	"bytes"
 	"encoding/binary"
-	"errors"
-	"fmt"
 	"image"
 
+	"github.com/woxQAQ/febuildergba-mygo/fault"
 	"github.com/woxQAQ/febuildergba-mygo/rom"
 	"github.com/woxQAQ/febuildergba-mygo/space"
 )
 
 var (
-	ErrVersion      = errors.New("game.unsupported_version")
-	ErrLayout       = errors.New("game.invalid_layout")
-	ErrField        = errors.New("game.invalid_field")
-	ErrValue        = errors.New("game.invalid_value")
-	ErrText         = errors.New("game.invalid_text")
-	ErrImage        = errors.New("game.invalid_image")
-	ErrNameEncoding = errors.New("game.invalid_name_encoding")
-	ErrTextEncoding = errors.New("game.invalid_text_encoding")
-	ErrTextControl  = errors.New("game.unsupported_text_control")
-	ErrTextArgument = errors.New("game.invalid_text_argument")
+	ErrVersion = fault.Code{
+		ID:   "game.unsupported_version",
+		Kind: fault.Unsupported,
+	}
+	ErrLayout = fault.Code{
+		ID:   "game.invalid_layout",
+		Kind: fault.InvalidData,
+	}
+	ErrField = fault.Code{
+		ID:   "game.invalid_field",
+		Kind: fault.InvalidInput,
+	}
+	ErrValue = fault.Code{
+		ID:   "game.invalid_value",
+		Kind: fault.InvalidInput,
+	}
+	ErrText = fault.Code{
+		ID:   "game.invalid_text",
+		Kind: fault.InvalidData,
+	}
+	ErrImage = fault.Code{
+		ID:   "game.invalid_image",
+		Kind: fault.InvalidData,
+	}
+	ErrNameEncoding = fault.Code{
+		ID:   "game.invalid_name_encoding",
+		Kind: fault.InvalidInput,
+	}
+	ErrTextEncoding = fault.Code{
+		ID:   "game.invalid_text_encoding",
+		Kind: fault.InvalidInput,
+	}
+	ErrTextControl = fault.Code{
+		ID:   "game.unsupported_text_control",
+		Kind: fault.Unsupported,
+	}
+	ErrTextArgument = fault.Code{
+		ID:   "game.invalid_text_argument",
+		Kind: fault.InvalidInput,
+	}
 )
 
 type Kind string
@@ -124,7 +153,8 @@ type Session struct {
 	texts    []TextEntry
 }
 
-func Open(path string) (*Session, error) {
+func Open(path string) (session *Session, err error) {
+	defer func() { err = fault.Wrap(err, "game.open", fault.Context{Path: path}) }()
 	doc, err := rom.Open(path)
 	if err != nil {
 		return nil, err
@@ -182,7 +212,18 @@ func (s *Session) locate(
 	kind Kind,
 	id int,
 	fieldID string,
-) (*Table, Row, Field, error) {
+) (table *Table, row Row, field Field, err error) {
+	defer func() {
+		err = fault.Wrap(
+			err,
+			"game.locate_field",
+			fault.Context{
+				Table:    string(kind),
+				RecordID: new(id),
+				Field:    fieldID,
+			},
+		)
+	}()
 	t := s.Table(kind)
 	if t == nil {
 		return nil, Row{}, Field{}, ErrLayout
@@ -204,16 +245,25 @@ func (s *Session) locate(
 }
 
 // Set applies one field to one or more records as a single undoable operation.
-func (s *Session) Set(kind Kind, ids []int, fieldID string, value int64) error {
+func (s *Session) Set(
+	kind Kind,
+	ids []int,
+	fieldID string,
+	value int64,
+) (err error) {
+	ctx := fault.Context{Table: string(kind), Field: fieldID, Value: new(value)}
+	defer func() { err = fault.Wrap(err, "game.set", ctx) }()
 	var changes []rom.Change
 	for _, id := range ids {
+		ctx.RecordID = new(id)
 		_, row, field, err := s.locate(kind, id, fieldID)
 		if err != nil {
 			return err
 		}
 		low, high := field.Bounds()
 		if value < low || value > high {
-			return fmt.Errorf("%w: %s (%d…%d)", ErrValue, fieldID, low, high)
+			ctx.Bounds = &fault.Bounds{Min: low, Max: high}
+			return ErrValue
 		}
 		data := make([]byte, field.Width)
 		for i := range data {
@@ -224,6 +274,7 @@ func (s *Session) Set(kind Kind, ids []int, fieldID string, value int64) error {
 			rom.Change{Offset: row.Address + field.Offset, Data: data},
 		)
 	}
+	ctx.RecordID = nil
 	if err := s.Document.Apply(
 		s.image.Revision,
 		string(kind)+"."+fieldID,
@@ -237,7 +288,17 @@ func (s *Session) Set(kind Kind, ids []int, fieldID string, value int64) error {
 
 func (s *Session) Raw(address, length int) ([]byte, error) {
 	if !within(s.image.Data, address, length) {
-		return nil, rom.ErrRange
+		return nil, fault.Wrap(
+			rom.ErrRange,
+			"game.raw",
+			fault.Context{
+				Range: &fault.Range{
+					Offset: address,
+					Length: length,
+					Size:   len(s.image.Data),
+				},
+			},
+		)
 	}
 	return bytes.Clone(s.image.Data[address : address+length]), nil
 }

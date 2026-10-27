@@ -6,6 +6,8 @@ import (
 	"slices"
 	"strings"
 	"testing"
+
+	"github.com/woxQAQ/febuildergba-mygo/fault"
 )
 
 func TestJapaneseDescriptionCharacters(t *testing.T) {
@@ -107,7 +109,7 @@ func TestJapaneseDescriptionCharacters(t *testing.T) {
 				1,
 				"description_id",
 				value.Content+"\n",
-			); !errors.Is(err, ErrTextEncoding) ||
+			); fault.CodeOf(err) != fault.CodeOf(value.ReadOnlyReason) ||
 				broken.Document.State().Dirty {
 				t.Fatalf(
 					"invalid source bytes were silently rewritten: %v",

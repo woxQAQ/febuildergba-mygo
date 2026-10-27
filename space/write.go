@@ -6,17 +6,23 @@ import (
 	"bytes"
 	"cmp"
 	"encoding/binary"
-	"errors"
 	"slices"
 	"strings"
 
+	"github.com/woxQAQ/febuildergba-mygo/fault"
 	"github.com/woxQAQ/febuildergba-mygo/rom"
 )
 
 var (
-	ErrRange     = errors.New("space.invalid_range")
-	ErrCapacity  = errors.New("space.no_capacity")
-	ErrReference = errors.New("space.invalid_reference")
+	ErrRange = fault.Code{
+		ID:   "space.invalid_range",
+		Kind: fault.InvalidInput,
+	}
+	ErrCapacity  = fault.Code{ID: "space.no_capacity", Kind: fault.Capacity}
+	ErrReference = fault.Code{
+		ID:   "space.invalid_reference",
+		Kind: fault.Conflict,
+	}
 )
 
 // Range is a half-open ROM interval [Start, End).
@@ -61,7 +67,20 @@ type Plan struct {
 
 // PlanAppend allocates aligned space at the ROM end without reusing existing
 // bytes.
-func PlanAppend(size int, content []byte) (Plan, error) {
+func PlanAppend(size int, content []byte) (result Plan, err error) {
+	defer func() {
+		err = fault.Wrap(
+			err,
+			"space.append",
+			fault.Context{
+				Range: &fault.Range{
+					Offset: size,
+					Length: len(content),
+					Size:   size,
+				},
+			},
+		)
+	}()
 	if size < 1 || size > rom.MaxSize || len(content) == 0 {
 		return Plan{}, ErrRange
 	}
@@ -83,7 +102,20 @@ func PlanAppend(size int, content []byte) (Plan, error) {
 // PlanMove preserves the source and updates only explicitly selected
 // references.
 // Internal references are rewritten in the copy, leaving the original intact.
-func PlanMove(data []byte, move Move) (Plan, error) {
+func PlanMove(data []byte, move Move) (result Plan, err error) {
+	defer func() {
+		err = fault.Wrap(
+			err,
+			"space.move",
+			fault.Context{
+				Range: &fault.Range{
+					Offset: move.Source.Start,
+					Length: move.Source.End - move.Source.Start,
+					Size:   len(data),
+				},
+			},
+		)
+	}()
 	if len(data) > rom.MaxSize || !move.Source.valid(len(data)) ||
 		move.Source.Start%4 != 0 {
 		return Plan{}, ErrRange
@@ -105,7 +137,17 @@ func PlanMove(data []byte, move Move) (Plan, error) {
 	previous := -1
 	for _, ref := range references {
 		if !validReference(data, move.Source, ref) || ref.Address == previous {
-			return Plan{}, ErrReference
+			return Plan{}, fault.Wrap(
+				ErrReference,
+				"space.verify_reference",
+				fault.Context{
+					Range: &fault.Range{
+						Offset: ref.Address,
+						Length: 4,
+						Size:   len(data),
+					},
+				},
+			)
 		}
 		previous = ref.Address
 		reserved = append(reserved, Range{ref.Address, ref.Address + 4})
@@ -166,7 +208,20 @@ func allocate(
 	size, length int,
 	available []FreeRange,
 	reserved []Range,
-) (Range, error) {
+) (result Range, err error) {
+	defer func() {
+		err = fault.Wrap(
+			err,
+			"space.allocate",
+			fault.Context{
+				Range: &fault.Range{
+					Offset: size,
+					Length: length,
+					Size:   rom.MaxSize,
+				},
+			},
+		)
+	}()
 	free := slices.Clone(available)
 	slices.SortFunc(
 		free,

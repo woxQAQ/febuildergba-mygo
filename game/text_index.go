@@ -1,6 +1,10 @@
 package game
 
-import "slices"
+import (
+	"slices"
+
+	"github.com/woxQAQ/febuildergba-mygo/fault"
+)
 
 // TextTable describes the existing contiguous pointer table. Recovery is only
 // a browsing fallback; writes still require the game's primary table pointer.
@@ -58,7 +62,8 @@ func (g gameFormat) TextTable(data []byte) (TextTable, error) {
 	return table, nil
 }
 
-func (s *Session) TextEntries() ([]TextEntry, error) {
+func (s *Session) TextEntries() (entries []TextEntry, err error) {
+	defer func() { err = fault.Wrap(err, "game.list_text", fault.Context{Resource: textResource}) }()
 	s.Refresh()
 	if s.texts != nil {
 		return slices.Clone(s.texts), nil
@@ -84,7 +89,14 @@ func (s *Session) TextEntries() ([]TextEntry, error) {
 	return slices.Clone(s.texts), nil
 }
 
-func (s *Session) TextByID(id uint16) (TextValue, error) {
+func (s *Session) TextByID(id uint16) (result TextValue, err error) {
+	defer func() {
+		err = fault.Wrap(
+			err,
+			"game.text_by_id",
+			fault.Context{Resource: textResource, ResourceID: new(int(id))},
+		)
+	}()
 	s.Refresh()
 	table, err := s.Adapter.TextTable(s.image.Data)
 	if err != nil {
@@ -95,12 +107,26 @@ func (s *Session) TextByID(id uint16) (TextValue, error) {
 	}
 	value, err := s.Adapter.ReadText(s.image.Data, id)
 	if table.Recovered && err == nil {
-		value.Editable, value.ReadOnlyReason = false, ErrText
+		value.Editable, value.ReadOnlyReason = false, fault.Wrap(
+			ErrText,
+			"game.recovered_text_table",
+			fault.Context{Resource: textResource, ResourceID: new(int(id))},
+		)
 	}
 	return value, err
 }
 
-func (s *Session) PlanTextIDEdit(id uint16, content string) (*TextEdit, error) {
+func (s *Session) PlanTextIDEdit(
+	id uint16,
+	content string,
+) (result *TextEdit, err error) {
+	defer func() {
+		err = fault.Wrap(
+			err,
+			"game.plan_text_id",
+			fault.Context{Resource: textResource, ResourceID: new(int(id))},
+		)
+	}()
 	value, err := s.TextByID(id)
 	if err != nil {
 		return nil, err

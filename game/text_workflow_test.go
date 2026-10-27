@@ -8,6 +8,7 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/woxQAQ/febuildergba-mygo/fault"
 	"github.com/woxQAQ/febuildergba-mygo/internal/testutil"
 	"github.com/woxQAQ/febuildergba-mygo/rom"
 )
@@ -138,22 +139,38 @@ func TestTextIDRejectsInvalidOperations(t *testing.T) {
 			t.Fatalf("wrote outside the existing text table: %04X, %v", id, err)
 		}
 	}
-	for _, content := range []string{
-		"[LoadFace]", "[LoadFace]A", "[LoadFace][Wink]", "[LoadFace][0x0000]", "[LoadFace][0x0100]",
-		"[LoadFace][0x10000]", "[LoadFace][0xFFFF]", "[0x0080]", "[0x0080][0x0026]",
-		"[0x001E]", "[0x0041]", "[Unknown]", "[NL", "[Wink]🙂", "\\", strings.Repeat("A", 4097),
+	for _, sample := range []struct {
+		content string
+		want    fault.Code
+	}{
+		{"[LoadFace]", ErrTextArgument},
+		{"[LoadFace]A", ErrTextArgument},
+		{"[LoadFace][Wink]", ErrTextArgument},
+		{"[LoadFace][0x0000]", ErrTextArgument},
+		{"[LoadFace][0x0100]", ErrTextArgument},
+		{"[LoadFace][0x10000]", ErrTextEncoding},
+		{"[LoadFace][0xFFFF]", ErrTextEncoding},
+		{"[0x0080]", ErrTextArgument},
+		{"[0x0080][0x0026]", ErrTextControl},
+		{"[0x001E]", ErrTextControl},
+		{"[0x0041]", ErrTextControl},
+		{"[Unknown]", ErrTextControl},
+		{"[NL", ErrTextEncoding},
+		{"[Wink]🙂", ErrTextEncoding},
+		{"\\", ErrTextEncoding},
+		{strings.Repeat("A", 4097), ErrTextEncoding},
 	} {
 		if _, err := s.PlanTextIDEdit(
 			4,
-			content,
-		); !errors.Is(
+			sample.content,
+		); fault.CodeOf(
 			err,
-			ErrTextEncoding,
-		) {
+		) != sample.want {
 			t.Fatalf(
-				"accepted invalid or unencodable text %q: %v",
-				content,
+				"text %q: got %v, want %v",
+				sample.content,
 				err,
+				sample.want,
 			)
 		}
 	}

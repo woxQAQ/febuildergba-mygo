@@ -1,17 +1,19 @@
 package app
 
 import (
-	"errors"
 	"path/filepath"
 
 	"github.com/egoist/mygo"
 	"github.com/egoist/mygo/ui"
 
+	"github.com/woxQAQ/febuildergba-mygo/fault"
 	"github.com/woxQAQ/febuildergba-mygo/game"
 	"github.com/woxQAQ/febuildergba-mygo/internal/components"
 	"github.com/woxQAQ/febuildergba-mygo/locales"
 	"github.com/woxQAQ/febuildergba-mygo/pages"
 )
+
+var errRunSaved = fault.Code{ID: "app.run_saved", Kind: fault.Conflict}
 
 func (m *application) newWindow(session *game.Session) *mygo.Window {
 	a := pages.New()
@@ -44,11 +46,16 @@ func (m *application) newWindow(session *game.Session) *mygo.Window {
 			return
 		}
 		if a.Editor.Session.Document.State().Dirty {
-			a.Editor.Err = errors.New("run_saved")
+			a.Editor.Err = errRunSaved
 			return
 		}
 		path := a.Editor.Session.Document.State().Path
-		background(win, a, func() error { return launchEmulator(path) })
+		background(
+			win,
+			a,
+			"app.launch_emulator",
+			func() error { return launchEmulator(path) },
+		)
 	}
 	win.OnClose(func(e *mygo.CloseEvent) {
 		if a.Editor.Busy {
@@ -82,6 +89,12 @@ func (m *application) newWindow(session *game.Session) *mygo.Window {
 					closeWindow = true
 				}
 			}
+			err = fault.Wrap(
+				err,
+				"app.close_window",
+				fault.Context{Path: doc.State().Path},
+			)
+			logError(err)
 			win.Update(func() {
 				a.Editor.Busy = false
 				a.Editor.Err = err
@@ -99,10 +112,14 @@ func (m *application) newWindow(session *game.Session) *mygo.Window {
 		}
 		doc := a.Editor.Session.Document
 		go func() {
-			changed, _ := doc.ExternalChanged()
+			changed, err := doc.ExternalChanged()
+			logError(err)
 			win.Update(func() {
 				if a.Editor.Session != nil && a.Editor.Session.Document == doc {
 					a.Editor.External = changed
+					if err != nil {
+						a.Editor.Err = err
+					}
 				}
 			})
 		}()
@@ -122,15 +139,26 @@ func updateTitle(win *mygo.Window, a *pages.Workspace) {
 	win.SetTitle(title)
 }
 
-func background(win *mygo.Window, a *pages.Workspace, work func() error) {
+func background(
+	win *mygo.Window,
+	a *pages.Workspace,
+	operation string,
+	work func() error,
+) {
 	if a.Editor.Busy {
 		return
 	}
 	a.Editor.Busy = true
 	doc := a.Editor.Session.Document
 	go func() {
-		err := work()
-		changed, _ := doc.ExternalChanged()
+		err := fault.Wrap(
+			work(),
+			operation,
+			fault.Context{Path: doc.State().Path},
+		)
+		logError(err)
+		changed, checkErr := doc.ExternalChanged()
+		logError(checkErr)
 		win.Update(
 			func() { a.Editor.Busy = false; a.Editor.Err = err; a.Editor.External = changed; updateTitle(win, a) },
 		)

@@ -2,23 +2,35 @@ package game
 
 import (
 	"bytes"
-	"errors"
 	"image"
 	"image/draw"
 	"image/png"
 	"maps"
 	"slices"
 
+	"github.com/woxQAQ/febuildergba-mygo/fault"
 	"github.com/woxQAQ/febuildergba-mygo/gba"
 	"github.com/woxQAQ/febuildergba-mygo/rom"
 	"github.com/woxQAQ/febuildergba-mygo/space"
 )
 
 var (
-	ErrAssetFormat = errors.New("game.unsupported_asset_format")
-	ErrAssetSize   = errors.New("game.invalid_asset_size")
-	ErrAssetColors = errors.New("game.invalid_asset_colors")
-	ErrAssetPixels = errors.New("game.unmapped_asset_pixels")
+	ErrAssetFormat = fault.Code{
+		ID:   "game.unsupported_asset_format",
+		Kind: fault.Unsupported,
+	}
+	ErrAssetSize = fault.Code{
+		ID:   "game.invalid_asset_size",
+		Kind: fault.InvalidInput,
+	}
+	ErrAssetColors = fault.Code{
+		ID:   "game.invalid_asset_colors",
+		Kind: fault.InvalidInput,
+	}
+	ErrAssetPixels = fault.Code{
+		ID:   "game.unmapped_asset_pixels",
+		Kind: fault.InvalidInput,
+	}
 )
 
 // MaxAssetPNG bounds both file reads and decoding; sheets are at most 160x160.
@@ -53,7 +65,14 @@ func (e *AssetEdit) Image() *image.RGBA {
 	return out
 }
 
-func (s *Session) AssetPNG(ref AssetRef) ([]byte, error) {
+func (s *Session) AssetPNG(ref AssetRef) (content []byte, err error) {
+	defer func() {
+		err = fault.Wrap(
+			err,
+			"game.export_asset",
+			fault.Context{Resource: string(ref.Kind), ResourceID: new(ref.ID)},
+		)
+	}()
 	s.Refresh()
 	bitmap, err := s.Adapter.AssetImage(s.image.Data, ref)
 	if err != nil {
@@ -69,20 +88,35 @@ func (s *Session) AssetPNG(ref AssetRef) ([]byte, error) {
 func (s *Session) PlanAssetEdit(
 	ref AssetRef,
 	content []byte,
-) (*AssetEdit, error) {
+) (result *AssetEdit, err error) {
+	defer func() {
+		err = fault.Wrap(
+			err,
+			"game.plan_asset",
+			fault.Context{Resource: string(ref.Kind), ResourceID: new(ref.ID)},
+		)
+	}()
 	s.Refresh()
 	if len(content) == 0 || len(content) > MaxAssetPNG {
 		return nil, ErrAssetSize
 	}
 	config, err := png.DecodeConfig(bytes.NewReader(content))
-	if err != nil || config.Width < 8 || config.Height < 8 ||
+	if err != nil {
+		return nil, fault.New(
+			ErrImage,
+			"game.decode_png_header",
+			fault.Context{},
+			err,
+		)
+	}
+	if config.Width < 8 || config.Height < 8 ||
 		config.Width > 160 ||
 		config.Height > 160 {
 		return nil, ErrAssetSize
 	}
 	bitmap, err := png.Decode(bytes.NewReader(content))
 	if err != nil {
-		return nil, ErrImage
+		return nil, fault.New(ErrImage, "game.decode_png", fault.Context{}, err)
 	}
 	plan, err := s.Adapter.PlanAssetEdit(s.image.Data, ref, bitmap)
 	if err != nil {
@@ -137,7 +171,13 @@ func (s *Session) PlanAssetEdit(
 	return edit, nil
 }
 
-func (s *Session) ApplyAssetEdit(edit *AssetEdit) error {
+func (s *Session) ApplyAssetEdit(edit *AssetEdit) (err error) {
+	ctx := fault.Context{}
+	if edit != nil {
+		ctx.Resource = string(edit.ref.Kind)
+		ctx.ResourceID = new(edit.ref.ID)
+	}
+	defer func() { err = fault.Wrap(err, "game.apply_asset", ctx) }()
 	if edit == nil || edit.document != s.Document ||
 		!maps.Equal(edit.layouts, s.layouts) {
 		return rom.ErrStale
@@ -226,7 +266,12 @@ func (f iconFormat) resources(
 	palette := preview.Regions[1].Address
 	tiles, err := gba.EncodeTiles4BPP(bitmap, data[palette:palette+32])
 	if err != nil {
-		return nil, ErrAssetColors
+		return nil, fault.New(
+			ErrAssetColors,
+			"game.encode_icon",
+			fault.Context{Resource: string(ItemIconAsset), ResourceID: new(id)},
+			err,
+		)
 	}
 	base, ok := pointer(data, f.pointer)
 	// The byte-sized ID reserves FF. Preserve the full addressable window so

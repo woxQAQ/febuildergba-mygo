@@ -1,4 +1,9 @@
 {
+  "fault_exists": "目标路径已存在。请检查其内容或选择其他位置。",
+  "fault_not_found": "找不到文件或目录。请检查位置并重新选择。",
+  "fault_permission": "没有访问权限。请检查文件权限或选择可写入的位置。",
+  "fault_io": "文件操作失败。请查看诊断详情，检查磁盘空间和目标位置后再试。",
+  "fault_canceled": "操作已取消。",
   "map_preview": "基础地图",
   "map_zoom": "地图缩放",
   "map_grid": "网格",

@@ -1,38 +1,72 @@
 package components
 
 import (
-	"errors"
-	"strings"
-
-	"github.com/egoist/mygo/i18n"
-
+	"github.com/woxQAQ/febuildergba-mygo/fault"
 	"github.com/woxQAQ/febuildergba-mygo/game"
 	"github.com/woxQAQ/febuildergba-mygo/locales"
-	"github.com/woxQAQ/febuildergba-mygo/rom"
-	"github.com/woxQAQ/febuildergba-mygo/space"
 )
 
-// ErrorText maps domain errors to catalog messages while retaining unknown
-// details.
+// ErrorText renders the primary failure. Diagnostic strings are never treated
+// as catalog keys, and secondary causes do not override the outer decision.
 func ErrorText(err error) string {
 	if err == nil {
 		return ""
 	}
-	if mapError, ok := errors.AsType[*game.MapError](err); ok {
-		return locales.MapResourceError(locales.Label(mapError.Resource))
-	}
-	key := strings.ReplaceAll(err.Error(), ".", "_")
-	if _, _, ok := locales.Catalog.Message(i18n.Locale(), key); ok {
-		return locales.Catalog.Format(i18n.Locale(), key, nil)
-	}
-	for _, target := range []error{game.ErrVersion, game.ErrLayout, game.ErrValue, game.ErrField, game.ErrImage, game.ErrMap, game.ErrText, game.ErrNameEncoding, game.ErrTextControl, game.ErrTextArgument, game.ErrTextEncoding, space.ErrRange, space.ErrCapacity, space.ErrReference, rom.ErrRange, rom.ErrStale, rom.ErrExternalChange, rom.ErrExists, rom.ErrReadOnly, rom.ErrSize} {
-		if errors.Is(err, target) {
-			return locales.Catalog.Format(
-				i18n.Locale(),
-				strings.ReplaceAll(target.Error(), ".", "_"),
-				nil,
-			)
+	code := fault.CodeOf(err)
+	if code == game.ErrMap {
+		for frame := range fault.Frames(err) {
+			if frame.Code == code && frame.Context.Resource != "" {
+				return locales.MapResourceError(
+					locales.Label(frame.Context.Resource),
+				)
+			}
 		}
 	}
+	if message, ok := errorMessages[code.ID]; ok {
+		return message()
+	}
 	return locales.Error() + " " + err.Error()
+}
+
+// Catalog ownership stays at the presentation boundary. Functions resolve the
+// current locale each time, including errors kept while switching languages.
+var errorMessages = map[string]func() string{
+	"game.unsupported_version":      locales.GameUnsupportedVersion,
+	"game.invalid_layout":           locales.GameInvalidLayout,
+	"game.invalid_field":            locales.GameInvalidField,
+	"game.invalid_value":            locales.GameInvalidValue,
+	"game.invalid_text":             locales.GameInvalidText,
+	"game.invalid_image":            locales.GameInvalidImage,
+	"game.invalid_name_encoding":    locales.GameInvalidNameEncoding,
+	"game.invalid_text_encoding":    locales.GameInvalidTextEncoding,
+	"game.unsupported_text_control": locales.GameUnsupportedTextControl,
+	"game.invalid_text_argument":    locales.GameInvalidTextArgument,
+	"game.invalid_map":              locales.GameInvalidMap,
+	"game.unsupported_asset_format": locales.GameUnsupportedAssetFormat,
+	"game.invalid_asset_size":       locales.GameInvalidAssetSize,
+	"game.invalid_asset_colors":     locales.GameInvalidAssetColors,
+	"game.unmapped_asset_pixels":    locales.GameUnmappedAssetPixels,
+	"gba.invalid_graphics":          locales.GameInvalidImage,
+	"space.invalid_range":           locales.SpaceInvalidRange,
+	"space.no_capacity":             locales.SpaceNoCapacity,
+	"space.invalid_reference":       locales.SpaceInvalidReference,
+	"rom.range":                     locales.RomRange,
+	"rom.stale_edit":                locales.RomStaleEdit,
+	"rom.external_change":           locales.RomExternalChange,
+	"rom.target_exists":             locales.RomTargetExists,
+	"rom.read_only":                 locales.RomReadOnly,
+	"rom.invalid_size":              locales.RomInvalidSize,
+	"input.invalid_address":         locales.InvalidAddress,
+	"input.invalid_hex":             locales.InvalidHex,
+	"input.raw_length":              locales.RawLength,
+	"input.raw_read_first":          locales.RawReadFirst,
+	"app.png_export_path":           locales.PngExportPath,
+	"app.png_export_rom":            locales.PngExportRom,
+	"app.no_emulator":               locales.NoEmulator,
+	"app.run_saved":                 locales.RunSaved,
+	"fault.not_found":               locales.FaultNotFound,
+	"fault.permission":              locales.FaultPermission,
+	"fault.exists":                  locales.FaultExists,
+	"fault.io":                      locales.FaultIo,
+	"fault.canceled":                locales.FaultCanceled,
 }

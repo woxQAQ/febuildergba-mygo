@@ -10,9 +10,21 @@ import (
 
 	"github.com/egoist/mygo"
 
+	"github.com/woxQAQ/febuildergba-mygo/fault"
 	"github.com/woxQAQ/febuildergba-mygo/game"
 	"github.com/woxQAQ/febuildergba-mygo/locales"
 	"github.com/woxQAQ/febuildergba-mygo/pages"
+)
+
+var (
+	errPngExportPath = fault.Code{
+		ID:   "app.png_export_path",
+		Kind: fault.InvalidInput,
+	}
+	errPngExportRom = fault.Code{
+		ID:   "app.png_export_rom",
+		Kind: fault.Conflict,
+	}
 )
 
 func importPNG(
@@ -39,6 +51,8 @@ func importPNG(
 		if err == nil && len(paths) > 0 {
 			content, err = readPNG(paths[0])
 		}
+		err = fault.Wrap(err, "app.import_png", fault.Context{})
+		logError(err)
 		win.Update(func() {
 			workspace.Editor.Busy = false
 			done(content, err)
@@ -46,14 +60,15 @@ func importPNG(
 	}()
 }
 
-func readPNG(path string) ([]byte, error) {
+func readPNG(path string) (result []byte, err error) {
+	defer func() { err = fault.Wrap(err, "app.read_png", fault.Context{Path: path}) }()
 	file, err := os.Open(
 		path,
 	) // #nosec G304 -- path is selected in the native import dialog.
 	if err != nil {
 		return nil, err
 	}
-	defer func() { _ = file.Close() }()
+	defer func() { err = errors.Join(err, file.Close()) }()
 	content, err := io.ReadAll(io.LimitReader(file, game.MaxAssetPNG+1))
 	if err != nil {
 		return nil, err
@@ -93,7 +108,7 @@ func (m *application) exportPNG(
 		}
 	}
 	title, question, replace, cancel := locales.ExportPng(), locales.ReplaceQuestion(), locales.Replace(), locales.Cancel()
-	background(win, workspace, func() error {
+	background(win, workspace, "app.export_png", func() error {
 		path, err := mygo.Dialog.Save(
 			mygo.SaveDialogOptions{
 				Parent:      win,
@@ -108,14 +123,14 @@ func (m *application) exportPNG(
 			return err
 		}
 		if !strings.EqualFold(filepath.Ext(path), ".png") {
-			return errors.New("png_export_path")
+			return errPngExportPath
 		}
 		existing, err := os.Stat(path)
 		if err == nil {
 			for _, romPath := range romPaths {
 				romInfo, statErr := os.Stat(romPath)
 				if statErr == nil && os.SameFile(existing, romInfo) {
-					return errors.New("png_export_rom")
+					return errPngExportRom
 				}
 			}
 			answer, dialogErr := mygo.Dialog.Message(
@@ -134,6 +149,10 @@ func (m *application) exportPNG(
 		} else if !errors.Is(err, os.ErrNotExist) {
 			return err
 		}
-		return os.WriteFile(path, content, 0o600)
+		return fault.Wrap(
+			os.WriteFile(path, content, 0o600),
+			"app.write_png",
+			fault.Context{Path: path},
+		)
 	})
 }

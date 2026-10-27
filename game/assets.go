@@ -3,6 +3,7 @@ package game
 import (
 	"image"
 
+	"github.com/woxQAQ/febuildergba-mygo/fault"
 	"github.com/woxQAQ/febuildergba-mygo/gba"
 )
 
@@ -30,7 +31,14 @@ type Preview struct {
 
 // Preview reads the same document snapshot as the fields that reference the
 // asset.
-func (s *Session) Preview(ref AssetRef) (Preview, error) {
+func (s *Session) Preview(ref AssetRef) (result Preview, err error) {
+	defer func() {
+		err = fault.Wrap(
+			err,
+			"game.preview_asset",
+			fault.Context{Resource: string(ref.Kind), ResourceID: new(ref.ID)},
+		)
+	}()
 	if !s.Adapter.Match(s.image.Data) {
 		return Preview{}, ErrVersion
 	}
@@ -59,7 +67,14 @@ func (f iconFormat) read(data []byte, id int) (Preview, error) {
 		16,
 	)
 	if err != nil {
-		return Preview{}, ErrImage
+		return Preview{}, fault.New(
+			ErrImage,
+			"game.render_icon",
+			fault.Context{
+				Range: &fault.Range{Offset: at, Length: 128, Size: len(data)},
+			},
+			err,
+		)
 	}
 	return Preview{Image: bitmap, Regions: []AssetRegion{
 		{Label: "image_tiles", Address: at, Length: 128},

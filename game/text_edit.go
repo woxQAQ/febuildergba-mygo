@@ -3,13 +3,15 @@ package game
 import (
 	"bytes"
 	"encoding/binary"
-	"fmt"
 	"maps"
 	"slices"
 
+	"github.com/woxQAQ/febuildergba-mygo/fault"
 	"github.com/woxQAQ/febuildergba-mygo/rom"
 	"github.com/woxQAQ/febuildergba-mygo/space"
 )
+
+const textResource = "text"
 
 // TextUse identifies a known field sharing a text ID. Events and other text
 // users also observe edits to that same ID.
@@ -41,7 +43,22 @@ func (e *TextEdit) Length() int     { return e.plan.Destination.End - e.plan.Des
 func (e *TextEdit) Size() int       { return e.plan.Edit.Size }
 func (e *TextEdit) Uses() []TextUse { return slices.Clone(e.uses) }
 
-func (s *Session) Text(kind Kind, id int, fieldID string) (TextValue, error) {
+func (s *Session) Text(
+	kind Kind,
+	id int,
+	fieldID string,
+) (result TextValue, err error) {
+	defer func() {
+		err = fault.Wrap(
+			err,
+			"game.read_text_field",
+			fault.Context{
+				Table:    string(kind),
+				RecordID: new(id),
+				Field:    fieldID,
+			},
+		)
+	}()
 	s.Refresh()
 	_, row, field, err := s.locate(kind, id, fieldID)
 	if err != nil {
@@ -60,7 +77,18 @@ func (s *Session) PlanTextEdit(
 	kind Kind,
 	id int,
 	fieldID, content string,
-) (*TextEdit, error) {
+) (result *TextEdit, err error) {
+	defer func() {
+		err = fault.Wrap(
+			err,
+			"game.plan_text_field",
+			fault.Context{
+				Table:    string(kind),
+				RecordID: new(id),
+				Field:    fieldID,
+			},
+		)
+	}()
 	s.Refresh()
 	_, row, field, err := s.locate(kind, id, fieldID)
 	if err != nil {
@@ -81,7 +109,18 @@ func (s *Session) planTextEdit(
 	textID uint16,
 	fieldID, content string,
 	role TextRole,
-) (*TextEdit, error) {
+) (result *TextEdit, err error) {
+	defer func() {
+		err = fault.Wrap(
+			err,
+			"game.plan_text",
+			fault.Context{
+				Resource:   textResource,
+				ResourceID: new(int(textID)),
+				Field:      fieldID,
+			},
+		)
+	}()
 	plan, err := s.Adapter.PlanTextEdit(s.image.Data, textID, content, role)
 	if err != nil {
 		return nil, err
@@ -111,7 +150,13 @@ func (s *Session) planTextEdit(
 	return edit, nil
 }
 
-func (s *Session) ApplyTextEdit(edit *TextEdit) error {
+func (s *Session) ApplyTextEdit(edit *TextEdit) (err error) {
+	ctx := fault.Context{Resource: textResource}
+	if edit != nil {
+		ctx.ResourceID = new(int(edit.textID))
+		ctx.Field = edit.fieldID
+	}
+	defer func() { err = fault.Wrap(err, "game.apply_text", ctx) }()
 	if edit == nil || edit.document != s.Document ||
 		!maps.Equal(edit.layouts, s.layouts) {
 		return rom.ErrStale
@@ -127,7 +172,19 @@ func (s *Session) ApplyTextEdit(edit *TextEdit) error {
 	return nil
 }
 
-func (g gameFormat) ReadText(data []byte, id uint16) (TextValue, error) {
+func (g gameFormat) ReadText(
+	data []byte,
+	id uint16,
+) (result TextValue, err error) {
+	defer func() {
+		ctx := fault.Context{Resource: textResource, ResourceID: new(int(id))}
+		err = fault.Wrap(err, "game.read_text", ctx)
+		result.ReadOnlyReason = fault.Wrap(
+			result.ReadOnlyReason,
+			"game.edit_text",
+			ctx,
+		)
+	}()
 	if !g.Match(data) {
 		return TextValue{}, ErrVersion
 	}
@@ -163,15 +220,19 @@ func (g gameFormat) encodeText(
 			return nil, "", err
 		}
 		if !original.Editable {
-			return nil, "", fmt.Errorf(
-				"%w: %w",
-				ErrTextEncoding,
+			return nil, "", fault.Wrap(
 				original.ReadOnlyReason,
+				"game.encode_text",
+				fault.Context{Resource: textResource, ResourceID: new(int(id))},
 			)
 		}
 		value, err := g.text.parseDescription(content)
 		if err != nil {
-			return nil, "", fmt.Errorf("%w: %w", ErrTextEncoding, err)
+			return nil, "", fault.Wrap(
+				err,
+				"game.parse_text",
+				fault.Context{Resource: textResource, ResourceID: new(int(id))},
+			)
 		}
 		if original.Content == value.Content {
 			return nil, "", ErrValue

@@ -8,6 +8,8 @@ import (
 	"unicode/utf8"
 
 	"golang.org/x/text/encoding/japanese"
+
+	"github.com/woxQAQ/febuildergba-mygo/fault"
 )
 
 // nameSymbol removes the name-padding control from a leaf's visible output.
@@ -115,7 +117,12 @@ func (f textFormat) characterUnits(content string) ([]textUnit, error) {
 		var err error
 		storage, err = japanese.ShiftJIS.NewEncoder().String(storage)
 		if err != nil {
-			return nil, ErrTextEncoding
+			return nil, fault.New(
+				ErrTextEncoding,
+				"game.encode_characters",
+				fault.Context{},
+				err,
+			)
 		}
 	}
 	data := []byte(storage)
@@ -145,11 +152,21 @@ func (f textFormat) encodeName(
 	}
 	units, err := f.characterUnits(name)
 	if err != nil {
-		return nil, ErrNameEncoding
+		return nil, fault.New(
+			ErrNameEncoding,
+			"game.encode_name",
+			fault.Context{},
+			err,
+		)
 	}
 	encoded, err := f.encodeTextUnits(data, entry, units, true)
 	if errors.Is(err, ErrTextEncoding) {
-		return nil, ErrNameEncoding
+		return nil, fault.New(
+			ErrNameEncoding,
+			"game.encode_name",
+			fault.Context{},
+			err,
+		)
 	}
 	return encoded, err
 }

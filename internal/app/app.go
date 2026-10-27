@@ -3,15 +3,20 @@
 package app
 
 import (
-	"log"
-
-	"github.com/woxQAQ/febuildergba-mygo/internal/components"
+	"log/slog"
 
 	"github.com/egoist/mygo"
 
+	"github.com/woxQAQ/febuildergba-mygo/fault"
 	"github.com/woxQAQ/febuildergba-mygo/game"
 	"github.com/woxQAQ/febuildergba-mygo/pages"
 )
+
+func logError(err error) {
+	if err != nil {
+		slog.Error("operation failed", "error", fault.LogValue(err))
+	}
+}
 
 type application struct {
 	windows map[*mygo.Window]*pages.Workspace
@@ -30,7 +35,7 @@ func Run(paths []string) error {
 		for _, path := range paths {
 			session, err := game.Open(path)
 			if err != nil {
-				log.Printf("open ROM: %q", components.ErrorText(err))
+				logError(err)
 				continue
 			}
 			m.newWindow(session)

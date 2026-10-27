@@ -4,12 +4,27 @@ import (
 	"bytes"
 	"maps"
 
+	"github.com/woxQAQ/febuildergba-mygo/fault"
 	"github.com/woxQAQ/febuildergba-mygo/rom"
 )
 
 // UseLayout changes interpretation for this session, without rewriting pointers
 // or ROM bytes.
-func (s *Session) UseLayout(kind Kind, layout Layout) error {
+func (s *Session) UseLayout(kind Kind, layout Layout) (err error) {
+	defer func() {
+		err = fault.Wrap(
+			err,
+			"game.use_layout",
+			fault.Context{
+				Table: string(kind),
+				Range: &fault.Range{
+					Offset: layout.Address,
+					Length: layout.Stride,
+					Size:   len(s.image.Data),
+				},
+			},
+		)
+	}()
 	s.Refresh()
 	if !s.Adapter.Match(s.image.Data) {
 		return ErrVersion
@@ -55,7 +70,22 @@ func (r *RawRegion) Address() int     { return r.address }
 func (r *RawRegion) Revision() uint64 { return r.revision }
 func (r *RawRegion) Bytes() []byte    { return bytes.Clone(r.original) }
 
-func (s *Session) ReadRegion(address, length int) (*RawRegion, error) {
+func (s *Session) ReadRegion(
+	address, length int,
+) (result *RawRegion, err error) {
+	defer func() {
+		err = fault.Wrap(
+			err,
+			"game.read_region",
+			fault.Context{
+				Range: &fault.Range{
+					Offset: address,
+					Length: length,
+					Size:   len(s.image.Data),
+				},
+			},
+		)
+	}()
 	s.Refresh()
 	if length < 1 || !within(s.image.Data, address, length) {
 		return nil, rom.ErrRange
@@ -70,7 +100,19 @@ func (s *Session) ReadRegion(address, length int) (*RawRegion, error) {
 
 // ApplyRegion is a fixed-length replacement. A stale draft must be read again
 // explicitly.
-func (s *Session) ApplyRegion(region *RawRegion, replacement []byte) error {
+func (s *Session) ApplyRegion(
+	region *RawRegion,
+	replacement []byte,
+) (err error) {
+	ctx := fault.Context{}
+	if region != nil {
+		ctx.Range = &fault.Range{
+			Offset: region.address,
+			Length: len(replacement),
+			Size:   len(region.original),
+		}
+	}
+	defer func() { err = fault.Wrap(err, "game.apply_region", ctx) }()
 	if region == nil || region.document != s.Document {
 		return rom.ErrStale
 	}

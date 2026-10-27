@@ -1,6 +1,10 @@
 package game
 
-import "fmt"
+import (
+	"fmt"
+
+	"github.com/woxQAQ/febuildergba-mygo/fault"
+)
 
 type tableRule struct {
 	kind                                Kind
@@ -28,14 +32,36 @@ func (rule tableRule) read(
 	if manual {
 		t.Layout = layout
 		if !validLayout(data, layout, rule.firstID, rule.fields) {
-			t.Err = fmt.Errorf("%w: %s", ErrLayout, rule.kind)
+			t.Err = fault.Wrap(
+				ErrLayout,
+				"game.validate_layout",
+				fault.Context{
+					Table: string(rule.kind),
+					Range: &fault.Range{
+						Offset: t.Address,
+						Length: t.Stride,
+						Size:   len(data),
+					},
+				},
+			)
 			return t
 		}
 	} else {
 		t.Layout = Layout{Stride: rule.stride, Count: rule.count}
 		t.Pointer, t.Address = rule.locate(data)
 		if t.Pointer < 0 {
-			t.Err = fmt.Errorf("%w: %s", ErrLayout, rule.kind)
+			t.Err = fault.Wrap(
+				ErrLayout,
+				"game.locate_table",
+				fault.Context{
+					Table: string(rule.kind),
+					Range: &fault.Range{
+						Offset: t.Address,
+						Length: t.Stride,
+						Size:   len(data),
+					},
+				},
+			)
 			return t
 		}
 	}
@@ -55,16 +81,36 @@ func (rule tableRule) read(
 		t.Rows = append(
 			t.Rows,
 			Row{
-				ID:        rule.firstID + i,
-				Address:   at,
-				Name:      name,
-				NameID:    nameID,
-				TextError: err,
+				ID:      rule.firstID + i,
+				Address: at,
+				Name:    name,
+				NameID:  nameID,
+				TextError: fault.Wrap(
+					err,
+					"game.read_name",
+					fault.Context{
+						Table:      string(rule.kind),
+						RecordID:   new(rule.firstID + i),
+						Resource:   textResource,
+						ResourceID: new(int(nameID)),
+					},
+				),
 			},
 		)
 	}
 	if len(t.Rows) == 0 {
-		t.Err = fmt.Errorf("%w: %s", ErrLayout, rule.kind)
+		t.Err = fault.Wrap(
+			ErrLayout,
+			"game.read_table",
+			fault.Context{
+				Table: string(rule.kind),
+				Range: &fault.Range{
+					Offset: t.Address,
+					Length: t.Stride,
+					Size:   len(data),
+				},
+			},
+		)
 	}
 	t.Count = len(t.Rows)
 	return t

@@ -6,6 +6,7 @@
 | [重建计划](rebuild-plan.md)                   | 产品范围、架构边界及阶段依赖         |
 | [实现记录](implementation-status.md)          | 当前能力、代码位置和主要缺口         |
 | [覆盖矩阵](coverage.md)                       | 各功能的实现状态、旧版来源及剩余工作 |
+| [结构化错误设计](error-design.md) | 错误分类、操作上下文、原因保留与展示规则 |
 | [元数据层设计](metadata-design.md)            | 已确认、按具体需求接入的设计         |
 | [界面设计](../DESIGN.md)      | 当前主题、布局及对应实现             |
 

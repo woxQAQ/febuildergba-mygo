@@ -78,7 +78,10 @@ func ErrorBanner(c *ui.Context, state *State) {
 		BorderColor(t.Border).
 		Children(func() {
 			ui.Text(c, locales.ErrorTitle()).Bold().TextColor(t.Danger)
-			ui.Text(c, ErrorText(state.Err)).Grow(1).Selectable()
+			ui.Text(c, ErrorText(state.Err)).
+				Grow(1).
+				Selectable().
+				Tooltip(state.Err.Error())
 			ui.Button(c, locales.Dismiss()).OnClick(func() { state.Err = nil })
 		})
 }

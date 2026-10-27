@@ -95,6 +95,7 @@ go run ./cmd/legacy-inventory
 
 ```text
 main.go
+fault/                    错误码、处理类别、操作上下文与原因树
 rom/                      字节文档、修改历史、保存与备份
 space/                    空间分配、资源搬迁规划与已确认引用更新
 gba/                      GBA 图形编解码
@@ -140,11 +141,13 @@ flowchart TD
     Components --> Locales
 ```
 
+错误处理见[结构化错误设计](docs/error-design.md)：`fault.Code` 定义稳定错误码和处理类别，`fault.Error` 保留操作、上下文与原因。UI 文案不依赖 `Error()` 的格式；文件操作在应用边界记录结构化日志，全局错误横幅悬停可查看诊断详情。
+
 页面保留自己的筛选、选择和草稿状态；组件通过参数与回调接入页面，组件不导入页面或窗口协调层。`components.State` 的修改在 UI 线程进行，后台 I/O 通过 `Window.Update` 回到窗口。`game`、`rom`、`space`、`gba` 不依赖 MyGo。新增游戏通过游戏适配接入，普通布局由字段定义描述。
 
 ## 国际化
 
-`mygo.json` 将 `locales` 配置为翻译目录：`en.json` 是源语言，`zh-Hans.json` 是简体中文。静态文案调用生成的类型化函数，动态字段 ID 由 `locales/labels.go` 映射到 catalog key，领域错误文案由 `internal/components/errtext.go` 映射；语言匹配、回退、复数与原生控件翻译由 MyGo 处理。`locales` 不导入领域包，所有层都可以依赖它。
+`mygo.json` 将 `locales` 配置为翻译目录：`en.json` 是源语言，`zh-Hans.json` 是简体中文。静态文案调用生成的类型化函数，动态字段 ID 由 `locales/labels.go` 映射到 catalog key，领域错误文案由 `internal/components/errtext.go` 按结构化错误码显式映射；语言匹配、回退、复数与原生控件翻译由 MyGo 处理。`locales` 不导入领域包，所有层都可以依赖它。
 
 修改 JSON 后执行：
 

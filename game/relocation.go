@@ -2,8 +2,8 @@ package game
 
 import (
 	"bytes"
-	"fmt"
 
+	"github.com/woxQAQ/febuildergba-mygo/fault"
 	"github.com/woxQAQ/febuildergba-mygo/rom"
 	"github.com/woxQAQ/febuildergba-mygo/space"
 )
@@ -31,7 +31,8 @@ func (m *TableMove) Revision() uint64    { return m.revision }
 func (s *Session) PlanTableMove(
 	kind Kind,
 	available []space.FreeRange,
-) (*TableMove, error) {
+) (result *TableMove, err error) {
+	defer func() { err = fault.Wrap(err, "game.plan_table_move", fault.Context{Table: string(kind)}) }()
 	s.Refresh()
 	table := s.Table(kind)
 	if table == nil || table.Err != nil || table.Manual {
@@ -86,7 +87,12 @@ func (s *Session) PlanTableMove(
 	}, nil
 }
 
-func (s *Session) ApplyTableMove(move *TableMove) error {
+func (s *Session) ApplyTableMove(move *TableMove) (err error) {
+	ctx := fault.Context{}
+	if move != nil {
+		ctx.Table = string(move.kind)
+	}
+	defer func() { err = fault.Wrap(err, "game.apply_table_move", ctx) }()
 	if move == nil || move.document != s.Document {
 		return rom.ErrStale
 	}
@@ -193,10 +199,17 @@ func (rule tableRule) extent(data []byte, table Table) (space.Range, error) {
 		end := start + length
 		if !within(data, end, rule.stride) ||
 			!rule.ends(data, end, table.Count) {
-			return space.Range{}, fmt.Errorf(
-				"%w: %s terminator",
+			return space.Range{}, fault.Wrap(
 				ErrLayout,
-				rule.kind,
+				"game.table_terminator",
+				fault.Context{
+					Table: string(rule.kind),
+					Range: &fault.Range{
+						Offset: end,
+						Length: rule.stride,
+						Size:   len(data),
+					},
+				},
 			)
 		}
 		length += rule.stride

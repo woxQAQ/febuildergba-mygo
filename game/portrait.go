@@ -5,6 +5,7 @@ import (
 	"image"
 	"image/draw"
 
+	"github.com/woxQAQ/febuildergba-mygo/fault"
 	"github.com/woxQAQ/febuildergba-mygo/gba"
 )
 
@@ -85,7 +86,18 @@ func (f portraitFormat) read(data []byte, id int) (Preview, error) {
 		// Static portraits use the first four tile rows; FE6 stores mouth tiles
 		// below them.
 		if err != nil || len(tiles) < 4096 {
-			return result, ErrImage
+			return result, fault.New(
+				ErrImage,
+				"game.decompress_portrait",
+				fault.Context{
+					Range: &fault.Range{
+						Offset: graphic,
+						Length: 4096,
+						Size:   len(data),
+					},
+				},
+				err,
+			)
 		}
 	} else {
 		header := u32(data, graphic)
@@ -109,7 +121,12 @@ func (f portraitFormat) read(data []byte, id int) (Preview, error) {
 	}
 	sheet, err := gba.Tiles4BPP(tiles, data[palette:palette+32], 256, height)
 	if err != nil {
-		return result, ErrImage
+		return result, fault.New(
+			ErrImage,
+			"game.render_portrait",
+			fault.Context{},
+			err,
+		)
 	}
 	face := image.NewRGBA(image.Rect(0, 0, 96, 80))
 	// ImagePortraitForm's standard portrait sheet placement, in pixels.
@@ -184,7 +201,18 @@ func readClassCard(
 	}
 	tiles, err := gba.DecompressLZ77(data[card:], 80*128/2)
 	if err != nil || len(tiles)%320 != 0 {
-		return result, ErrImage
+		return result, fault.New(
+			ErrImage,
+			"game.decompress_class_card",
+			fault.Context{
+				Range: &fault.Range{
+					Offset: card,
+					Length: 80 * 128 / 2,
+					Size:   len(data),
+				},
+			},
+			err,
+		)
 	}
 	result.Image, err = gba.Tiles4BPP(
 		tiles,
@@ -193,7 +221,12 @@ func readClassCard(
 		len(tiles)/40,
 	)
 	if err != nil {
-		return result, ErrImage
+		return result, fault.New(
+			ErrImage,
+			"game.render_class_card",
+			fault.Context{},
+			err,
+		)
 	}
 	return result, nil
 }

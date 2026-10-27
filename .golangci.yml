@@ -90,6 +90,5 @@ formatters:
     golines:
       max-len: 80
       tab-len: 4
-      shorten-comments: true
       reformat-tags: true
       chain-split-dots: true

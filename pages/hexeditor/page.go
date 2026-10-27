@@ -3,19 +3,34 @@ package hexeditor
 
 import (
 	"encoding/hex"
-	"errors"
 	"fmt"
 	"strconv"
 	"strings"
 
+	"github.com/egoist/mygo/ui"
+
+	"github.com/woxQAQ/febuildergba-mygo/fault"
 	"github.com/woxQAQ/febuildergba-mygo/game"
 	"github.com/woxQAQ/febuildergba-mygo/internal/components"
 	"github.com/woxQAQ/febuildergba-mygo/locales"
-
-	"github.com/egoist/mygo/ui"
 )
 
 const rawViewLimit = 4096
+
+var (
+	errInvalidHex = fault.Code{
+		ID:   "input.invalid_hex",
+		Kind: fault.InvalidInput,
+	}
+	errRawLength = fault.Code{
+		ID:   "input.raw_length",
+		Kind: fault.InvalidInput,
+	}
+	errRawReadFirst = fault.Code{
+		ID:   "input.raw_read_first",
+		Kind: fault.Conflict,
+	}
+)
 
 type rawDraft struct {
 	address, length            string
@@ -44,11 +59,16 @@ func formatHex(data []byte) string {
 func decodeHex(text string, length int) ([]byte, error) {
 	compact := strings.Join(strings.Fields(text), "")
 	if len(compact) != length*2 {
-		return nil, errors.New("invalid_hex")
+		return nil, errInvalidHex
 	}
 	data, err := hex.DecodeString(compact)
 	if err != nil {
-		return nil, errors.New("invalid_hex")
+		return nil, fault.New(
+			errInvalidHex,
+			"input.decode_hex",
+			fault.Context{},
+			err,
+		)
 	}
 	return data, nil
 }
@@ -60,7 +80,15 @@ func (a *Page) rawRange() (int, int, error) {
 	}
 	length, err := components.ParseInteger(a.raw.length)
 	if err != nil || length < 1 || length > rawViewLimit {
-		return 0, 0, errors.New("raw_length")
+		return 0, 0, fault.New(
+			errRawLength,
+			"input.raw_length",
+			fault.Context{
+				Value:  new(length),
+				Bounds: &fault.Bounds{Min: 1, Max: rawViewLimit},
+			},
+			err,
+		)
 	}
 	return address, int(length), nil
 }
@@ -97,7 +125,7 @@ func (a *Page) applyRaw() {
 	}
 	if address != a.raw.region.Address() ||
 		length != len(a.raw.region.Bytes()) {
-		a.raw.err = errors.New("raw_read_first")
+		a.raw.err = errRawReadFirst
 		return
 	}
 	data, err := decodeHex(a.raw.text, length)

@@ -5,6 +5,7 @@ import (
 
 	"github.com/egoist/mygo"
 
+	"github.com/woxQAQ/febuildergba-mygo/fault"
 	"github.com/woxQAQ/febuildergba-mygo/game"
 	"github.com/woxQAQ/febuildergba-mygo/locales"
 	"github.com/woxQAQ/febuildergba-mygo/pages"
@@ -30,6 +31,8 @@ func (m *application) openDialog(win *mygo.Window, a *pages.Workspace) {
 		if err == nil && len(paths) > 0 {
 			session, err = game.Open(paths[0])
 		}
+		err = fault.Wrap(err, "app.open", fault.Context{})
+		logError(err)
 		win.Update(func() {
 			a.Editor.Busy = false
 			a.Editor.Err = err
@@ -59,7 +62,7 @@ func saveDocument(win *mygo.Window, a *pages.Workspace, as bool) {
 	}
 	doc := a.Editor.Session.Document
 	title, replaceQuestion, replace, cancel := locales.SaveAs(), locales.ReplaceQuestion(), locales.Replace(), locales.Cancel()
-	background(win, a, func() error {
+	background(win, a, "app.save", func() error {
 		if !as {
 			return doc.Save()
 		}
@@ -127,6 +130,8 @@ func reloadDocument(win *mygo.Window, a *pages.Workspace) {
 		if load {
 			session, err = game.Open(state.Path)
 		}
+		err = fault.Wrap(err, "app.reload", fault.Context{Path: state.Path})
+		logError(err)
 		win.Update(func() {
 			a.Editor.Busy = false
 			a.Editor.Err = err

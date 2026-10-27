@@ -1,4 +1,9 @@
 {
+  "fault_exists": "The requested path already exists. Check its contents or choose a different location.",
+  "fault_not_found": "The file or directory was not found. Check its location and choose it again.",
+  "fault_permission": "Access was denied. Check file permissions or choose a writable location.",
+  "fault_io": "The file operation failed. Check the diagnostic details, disk space and destination before trying again.",
+  "fault_canceled": "The operation was canceled.",
   "map_preview": "Base map",
   "map_zoom": "Map zoom",
   "map_grid": "Grid",

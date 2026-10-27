@@ -3,12 +3,16 @@ package gba
 
 import (
 	"encoding/binary"
-	"errors"
 	"image"
 	"image/color"
+
+	"github.com/woxQAQ/febuildergba-mygo/fault"
 )
 
-var ErrGraphics = errors.New("gba.invalid_graphics")
+var ErrGraphics = fault.Code{
+	ID:   "gba.invalid_graphics",
+	Kind: fault.InvalidData,
+}
 
 // DecompressLZ77 reads a GBA 0x10 stream, bounded by the caller's resource
 // size.

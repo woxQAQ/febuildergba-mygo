@@ -34,6 +34,56 @@ type Messages struct{ locale string }
 // source language.
 func In(locale string) Messages { return Messages{locale} }
 
+// FaultExists says "The requested path already exists. Check its contents or choose a different location."
+// in the language the app shows.
+func FaultExists() string { return In(i18n.Locale()).FaultExists() }
+
+// FaultExists says "The requested path already exists. Check its contents or choose a different location."
+// in the language of msgs.
+func (msgs Messages) FaultExists() string {
+	return Catalog.Format(msgs.locale, "fault_exists", nil)
+}
+
+// FaultNotFound says "The file or directory was not found. Check its location and choose it again."
+// in the language the app shows.
+func FaultNotFound() string { return In(i18n.Locale()).FaultNotFound() }
+
+// FaultNotFound says "The file or directory was not found. Check its location and choose it again."
+// in the language of msgs.
+func (msgs Messages) FaultNotFound() string {
+	return Catalog.Format(msgs.locale, "fault_not_found", nil)
+}
+
+// FaultPermission says "Access was denied. Check file permissions or choose a writable location."
+// in the language the app shows.
+func FaultPermission() string { return In(i18n.Locale()).FaultPermission() }
+
+// FaultPermission says "Access was denied. Check file permissions or choose a writable location."
+// in the language of msgs.
+func (msgs Messages) FaultPermission() string {
+	return Catalog.Format(msgs.locale, "fault_permission", nil)
+}
+
+// FaultIo says "The file operation failed. Check the diagnostic details, disk space and destination before trying again."
+// in the language the app shows.
+func FaultIo() string { return In(i18n.Locale()).FaultIo() }
+
+// FaultIo says "The file operation failed. Check the diagnostic details, disk space and destination before trying again."
+// in the language of msgs.
+func (msgs Messages) FaultIo() string {
+	return Catalog.Format(msgs.locale, "fault_io", nil)
+}
+
+// FaultCanceled says "The operation was canceled."
+// in the language the app shows.
+func FaultCanceled() string { return In(i18n.Locale()).FaultCanceled() }
+
+// FaultCanceled says "The operation was canceled."
+// in the language of msgs.
+func (msgs Messages) FaultCanceled() string {
+	return Catalog.Format(msgs.locale, "fault_canceled", nil)
+}
+
 // MapPreview says "Base map"
 // in the language the app shows.
 func MapPreview() string { return In(i18n.Locale()).MapPreview() }

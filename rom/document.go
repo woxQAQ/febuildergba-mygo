@@ -6,24 +6,34 @@ import (
 	"cmp"
 	"crypto/sha256"
 	"errors"
-	"fmt"
 	"io"
 	"os"
 	"path/filepath"
 	"slices"
 	"sync"
 	"time"
+
+	"github.com/woxQAQ/febuildergba-mygo/fault"
 )
 
 const MaxSize = 32 << 20
 
 var (
-	ErrRange          = errors.New("rom.range")
-	ErrStale          = errors.New("rom.stale_edit")
-	ErrExternalChange = errors.New("rom.external_change")
-	ErrExists         = errors.New("rom.target_exists")
-	ErrReadOnly       = errors.New("rom.read_only")
-	ErrSize           = errors.New("rom.invalid_size")
+	ErrRange          = fault.Code{ID: "rom.range", Kind: fault.InvalidInput}
+	ErrStale          = fault.Code{ID: "rom.stale_edit", Kind: fault.Conflict}
+	ErrExternalChange = fault.Code{
+		ID:   "rom.external_change",
+		Kind: fault.Conflict,
+	}
+	ErrExists = fault.Code{
+		ID:   "rom.target_exists",
+		Kind: fault.Conflict,
+	}
+	ErrReadOnly = fault.Code{ID: "rom.read_only", Kind: fault.Permission}
+	ErrSize     = fault.Code{
+		ID:   "rom.invalid_size",
+		Kind: fault.InvalidData,
+	}
 )
 
 // Change replaces a range in a document edit.
@@ -76,8 +86,10 @@ type Document struct {
 	revision, stateID, nextID, savedID uint64
 }
 
-func Open(path string) (*Document, error) {
-	path, err := filepath.Abs(path)
+func Open(path string) (doc *Document, err error) {
+	ctx := fault.Context{Path: path}
+	defer func() { err = fault.Wrap(err, "rom.open", ctx) }()
+	path, err = filepath.Abs(path)
 	if err != nil {
 		return nil, err
 	}
@@ -96,13 +108,14 @@ func Open(path string) (*Document, error) {
 }
 
 func readFile(path string) (data []byte, mode os.FileMode, err error) {
+	defer func() { err = fault.Wrap(err, "rom.read", fault.Context{Path: path}) }()
 	// #nosec G304 -- ROM paths are explicitly selected by the user via a dialog
 	// or CLI.
 	f, err := os.Open(path)
 	if err != nil {
 		return nil, 0, err
 	}
-	defer func() { err = errors.Join(err, f.Close()) }()
+	defer func() { err = errors.Join(err, fault.Wrap(f.Close(), "rom.close", fault.Context{Path: path})) }()
 	info, err := f.Stat()
 	if err != nil {
 		return nil, 0, err
@@ -166,10 +179,25 @@ func (d *Document) ApplyEdit(revision uint64, label string, edit Edit) error {
 
 func (d *Document) apply(revision uint64, label string, edit Edit) error {
 	if revision != d.revision {
-		return ErrStale
+		return fault.Wrap(
+			ErrStale,
+			"rom.apply",
+			fault.Context{
+				Revision: &fault.Revision{
+					Expected: revision,
+					Actual:   d.revision,
+				},
+			},
+		)
 	}
 	if edit.Size < len(d.data) || edit.Size > MaxSize || edit.Size < 1 {
-		return ErrSize
+		return fault.Wrap(
+			ErrSize,
+			"rom.apply",
+			fault.Context{
+				Range: &fault.Range{Length: edit.Size, Size: len(d.data)},
+			},
+		)
 	}
 	ordered := append([]Change(nil), edit.Changes...)
 	slices.SortFunc(ordered, func(a, b Change) int {
@@ -185,7 +213,17 @@ func (d *Document) apply(revision uint64, label string, edit Edit) error {
 	for _, c := range ordered {
 		if c.Offset < end || c.Offset < 0 || c.Offset > edit.Size ||
 			len(c.Data) > edit.Size-c.Offset {
-			return fmt.Errorf("%w: 0x%X + %d", ErrRange, c.Offset, len(c.Data))
+			return fault.Wrap(
+				ErrRange,
+				"rom.apply",
+				fault.Context{
+					Range: &fault.Range{
+						Offset: c.Offset,
+						Length: len(c.Data),
+						Size:   edit.Size,
+					},
+				},
+			)
 		}
 		end = c.Offset + len(c.Data)
 		before := d.data[min(c.Offset, len(d.data)):min(end, len(d.data))]
@@ -258,7 +296,11 @@ func (d *Document) ExternalChanged() (bool, error) {
 	d.mu.RUnlock()
 	data, _, err := readFile(path)
 	if err != nil {
-		return true, err
+		return true, fault.Wrap(
+			err,
+			"rom.check_external",
+			fault.Context{Path: path},
+		)
 	}
 	return sha256.Sum256(data) != expected, nil
 }
@@ -269,14 +311,20 @@ func (d *Document) Save() error {
 	d.mu.RLock()
 	path := d.path
 	d.mu.RUnlock()
-	return d.save(path, false)
+	return fault.Wrap(
+		d.save(path, false),
+		"rom.save",
+		fault.Context{Path: path},
+	)
 }
 
 // SaveAs requires explicit consent to replace a different existing target.
-func (d *Document) SaveAs(path string, replace bool) error {
+func (d *Document) SaveAs(path string, replace bool) (err error) {
+	ctx := fault.Context{Path: path}
+	defer func() { err = fault.Wrap(err, "rom.save_as", ctx) }()
 	d.saveMu.Lock()
 	defer d.saveMu.Unlock()
-	path, err := filepath.Abs(path)
+	path, err = filepath.Abs(path)
 	if err != nil {
 		return err
 	}
@@ -309,7 +357,12 @@ func (d *Document) save(path string, replace bool) (err error) {
 	}
 	if path == originalPath {
 		if !exists || sha256.Sum256(previous) != expectedHash {
-			return ErrExternalChange
+			return fault.New(
+				ErrExternalChange,
+				"rom.check_external",
+				fault.Context{Path: path},
+				err,
+			)
 		}
 	} else if exists && !replace {
 		return ErrExists
@@ -326,7 +379,7 @@ func (d *Document) save(path string, replace bool) (err error) {
 	}
 	tmp, err := os.CreateTemp(filepath.Dir(path), ".febuilder-save-*")
 	if err != nil {
-		return err
+		return fault.Wrap(err, "rom.create_temp", fault.Context{Path: path})
 	}
 	tmpPath := tmp.Name()
 	defer func() {
@@ -334,7 +387,14 @@ func (d *Document) save(path string, replace bool) (err error) {
 			tmpPath,
 		); cleanupErr != nil &&
 			!errors.Is(cleanupErr, os.ErrNotExist) {
-			err = errors.Join(err, cleanupErr)
+			err = errors.Join(
+				err,
+				fault.Wrap(
+					cleanupErr,
+					"rom.cleanup",
+					fault.Context{Path: tmpPath},
+				),
+			)
 		}
 	}()
 	if err = writeSync(tmp, data, mode); err != nil {
@@ -350,21 +410,32 @@ func (d *Document) save(path string, replace bool) (err error) {
 	latest, _, checkErr := readFile(path)
 	if exists {
 		if checkErr != nil || !bytes.Equal(latest, previous) {
-			return ErrExternalChange
+			return fault.New(
+				ErrExternalChange,
+				"rom.recheck",
+				fault.Context{Path: path},
+				checkErr,
+			)
 		}
 	} else if !errors.Is(checkErr, os.ErrNotExist) {
-		return ErrExternalChange
+		return fault.New(
+			ErrExternalChange,
+			"rom.recheck",
+			fault.Context{Path: path},
+			checkErr,
+		)
 	}
 	if err = os.Rename(tmpPath, path); err != nil {
-		return err
+		return fault.Wrap(err, "rom.replace", fault.Context{Path: path})
 	}
 	publish()
 	return nil
 }
 
-func backupFile(path string, data []byte) error {
+func backupFile(path string, data []byte) (err error) {
+	defer func() { err = fault.Wrap(err, "rom.backup", fault.Context{Path: path}) }()
 	backupDir := path + ".backups"
-	if err := os.MkdirAll(backupDir, 0o700); err != nil {
+	if err = os.MkdirAll(backupDir, 0o700); err != nil {
 		return err
 	}
 	backup, err := os.CreateTemp(
@@ -375,18 +446,26 @@ func backupFile(path string, data []byte) error {
 		return err
 	}
 	if err = writeSync(backup, data, 0o600); err != nil {
-		return errors.Join(err, os.Remove(backup.Name()))
+		return errors.Join(
+			err,
+			fault.Wrap(
+				os.Remove(backup.Name()),
+				"rom.cleanup",
+				fault.Context{Path: backup.Name()},
+			),
+		)
 	}
 	return nil
 }
 
 func writeSync(f *os.File, data []byte, mode os.FileMode) (err error) {
-	defer func() { err = errors.Join(err, f.Close()) }()
+	ctx := fault.Context{Path: f.Name()}
+	defer func() { err = errors.Join(err, fault.Wrap(f.Close(), "rom.close", ctx)) }()
 	if err = f.Chmod(mode); err != nil {
-		return err
+		return fault.Wrap(err, "rom.chmod", ctx)
 	}
 	if _, err = f.Write(data); err != nil {
-		return err
+		return fault.Wrap(err, "rom.write", ctx)
 	}
-	return f.Sync()
+	return fault.Wrap(f.Sync(), "rom.sync", ctx)
 }

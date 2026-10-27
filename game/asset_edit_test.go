@@ -296,7 +296,7 @@ func TestAssetImportRejections(t *testing.T) {
 		{"unchanged", AssetRef{ItemIconAsset, 0}, unchanged, ErrValue},
 		{"reserved icon", AssetRef{ItemIconAsset, 255}, valid, ErrImage},
 		{"reserved portrait", AssetRef{PortraitAsset, 0}, valid, ErrImage},
-		{"truncated PNG", AssetRef{ItemIconAsset, 0}, valid[:24], ErrAssetSize},
+		{"truncated PNG", AssetRef{ItemIconAsset, 0}, valid[:24], ErrImage},
 		{"file limit", AssetRef{ItemIconAsset, 0}, make([]byte, MaxAssetPNG+1), ErrAssetSize},
 	} {
 		t.Run(sample.name, func(t *testing.T) {

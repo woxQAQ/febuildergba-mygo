@@ -7,6 +7,8 @@ import (
 	"image/color"
 	"testing"
 
+	"github.com/woxQAQ/febuildergba-mygo/fault"
+	"github.com/woxQAQ/febuildergba-mygo/gba"
 	"github.com/woxQAQ/febuildergba-mygo/internal/testutil"
 )
 
@@ -196,10 +198,19 @@ func TestChapterMapRejectsDamagedResources(t *testing.T) {
 			s := openFixture(t, f)
 			before := s.Document.Snapshot()
 			_, err := s.ChapterMap(0)
-			damaged, ok := errors.AsType[*MapError](err)
-			if !errors.Is(err, ErrMap) || !ok ||
-				damaged.Resource != sample.resource {
+			var resource string
+			for frame := range fault.Frames(err) {
+				if frame.Context.Resource != "" {
+					resource = frame.Context.Resource
+				}
+			}
+			if !errors.Is(err, ErrMap) || fault.CodeOf(err) != ErrMap ||
+				resource != sample.resource {
 				t.Fatalf("resource error: %v, want %s", err, sample.resource)
+			}
+			if sample.name == "graphics stream" &&
+				!errors.Is(err, gba.ErrGraphics) {
+				t.Fatalf("lost decompression cause: %v", err)
 			}
 			if !bytes.Equal(before.Data, s.Document.Snapshot().Data) ||
 				s.Document.State().Dirty {
