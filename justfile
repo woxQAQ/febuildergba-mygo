@@ -27,7 +27,7 @@ i18n-check:
 
 # 按 .golangci.yml 格式化 Go 代码。
 fmt:
-    golangci-lint fmt ./...
+    golangci-lint fmt ./... && oxfmt . "!FEBuilderGBA/**"
 
 # 运行项目配置的静态检查。
 lint:
