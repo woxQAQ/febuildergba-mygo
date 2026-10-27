@@ -15,7 +15,7 @@ func NewMapFixture(version string) *FixtureBuilder {
 		f, roots = NewMinimalFE8J(), [4]int{0x19640, 0x19674, 0x195D8, 0x34588}
 	case versionFE7U:
 		f, roots = NewMinimalFE7U(), [4]int{0x19230, 0x19264, 0x191C8, 0x3159C}
-	case "FE7J":
+	case versionFE7J:
 		f, roots = NewMinimalFE7J(), [4]int{0x19618, 0x1964C, 0x195B0, 0x31ABC}
 	case versionFE6:
 		f, roots = NewMinimalFE6(), [4]int{0x18AE4, 0x18B18, 0x18A7C, 0x2BB70}

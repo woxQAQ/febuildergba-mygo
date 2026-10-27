@@ -2,6 +2,7 @@ package testutil
 
 const (
 	versionFE7U = "FE7U"
+	versionFE7J = "FE7J"
 	versionFE6  = "FE6"
 )
 
@@ -17,7 +18,7 @@ func NewDeploymentFixture(version string) *FixtureBuilder {
 		root, chapterStride, eventOffset, first, second, stride, opening = 0x345E4, 148, 116, 40, 44, 20, 72
 	case versionFE7U:
 		root, chapterStride, eventOffset, first, second, stride, opening = 0x315D4, 152, 120, 24, 28, 16, 56
-	case "FE7J":
+	case versionFE7J:
 		root, chapterStride, eventOffset, first, second, stride, opening = 0x31B18, 148, 116, 24, 28, 16, 56
 	case versionFE6:
 		root, chapterStride, eventOffset, first, second, stride, opening = 0x2BBCC, 68, 58, 16, 20, 16, -1

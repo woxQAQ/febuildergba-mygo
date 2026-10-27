@@ -64,11 +64,11 @@ func (msgs Messages) DeployEntry() string {
 	return Catalog.Format(msgs.locale, "deploy_entry", nil)
 }
 
-// DeployScope says "Chapter tables and static references in opening and first player-turn events. Conditions are not executed. Marks show…"
+// DeployScope says "Chapter tables and static references in opening and turn events. Conditions are not executed. Marks show record numbe…"
 // in the language the app shows.
 func DeployScope() string { return In(i18n.Locale()).DeployScope() }
 
-// DeployScope says "Chapter tables and static references in opening and first player-turn events. Conditions are not executed. Marks show…"
+// DeployScope says "Chapter tables and static references in opening and turn events. Conditions are not executed. Marks show record numbe…"
 // in the language of msgs.
 func (msgs Messages) DeployScope() string {
 	return Catalog.Format(msgs.locale, "deploy_scope", nil)
@@ -3418,4 +3418,314 @@ func BatchTitle(count int) string { return In(i18n.Locale()).BatchTitle(count) }
 // in the language of msgs.
 func (msgs Messages) BatchTitle(count int) string {
 	return Catalog.Format(msgs.locale, "batch_title", map[string]any{"count": count})
+}
+
+// TurnEvents says "Turn reinforcements"
+// in the language the app shows.
+func TurnEvents() string { return In(i18n.Locale()).TurnEvents() }
+
+// TurnEvents says "Turn reinforcements"
+// in the language of msgs.
+func (msgs Messages) TurnEvents() string {
+	return Catalog.Format(msgs.locale, "turn_events", nil)
+}
+
+// TurnStart says "First turn"
+// in the language the app shows.
+func TurnStart() string { return In(i18n.Locale()).TurnStart() }
+
+// TurnStart says "First turn"
+// in the language of msgs.
+func (msgs Messages) TurnStart() string {
+	return Catalog.Format(msgs.locale, "turn_start", nil)
+}
+
+// TurnEnd says "Last turn"
+// in the language the app shows.
+func TurnEnd() string { return In(i18n.Locale()).TurnEnd() }
+
+// TurnEnd says "Last turn"
+// in the language of msgs.
+func (msgs Messages) TurnEnd() string {
+	return Catalog.Format(msgs.locale, "turn_end", nil)
+}
+
+// TurnPhase says "Trigger phase"
+// in the language the app shows.
+func TurnPhase() string { return In(i18n.Locale()).TurnPhase() }
+
+// TurnPhase says "Trigger phase"
+// in the language of msgs.
+func (msgs Messages) TurnPhase() string {
+	return Catalog.Format(msgs.locale, "turn_phase", nil)
+}
+
+// TurnFlag says "Completion flag"
+// in the language the app shows.
+func TurnFlag() string { return In(i18n.Locale()).TurnFlag() }
+
+// TurnFlag says "Completion flag"
+// in the language of msgs.
+func (msgs Messages) TurnFlag() string {
+	return Catalog.Format(msgs.locale, "turn_flag", nil)
+}
+
+// TurnRoute says "Route / difficulty"
+// in the language the app shows.
+func TurnRoute() string { return In(i18n.Locale()).TurnRoute() }
+
+// TurnRoute says "Route / difficulty"
+// in the language of msgs.
+func (msgs Messages) TurnRoute() string {
+	return Catalog.Format(msgs.locale, "turn_route", nil)
+}
+
+// TurnAdd says "Add turn reinforcement"
+// in the language the app shows.
+func TurnAdd() string { return In(i18n.Locale()).TurnAdd() }
+
+// TurnAdd says "Add turn reinforcement"
+// in the language of msgs.
+func (msgs Messages) TurnAdd() string {
+	return Catalog.Format(msgs.locale, "turn_add", nil)
+}
+
+// TurnRemove says "Remove turn event"
+// in the language the app shows.
+func TurnRemove() string { return In(i18n.Locale()).TurnRemove() }
+
+// TurnRemove says "Remove turn event"
+// in the language of msgs.
+func (msgs Messages) TurnRemove() string {
+	return Catalog.Format(msgs.locale, "turn_remove", nil)
+}
+
+// TurnPreview says "Preview turn events"
+// in the language the app shows.
+func TurnPreview() string { return In(i18n.Locale()).TurnPreview() }
+
+// TurnPreview says "Preview turn events"
+// in the language of msgs.
+func (msgs Messages) TurnPreview() string {
+	return Catalog.Format(msgs.locale, "turn_preview", nil)
+}
+
+// TurnApply says "Apply turn events"
+// in the language the app shows.
+func TurnApply() string { return In(i18n.Locale()).TurnApply() }
+
+// TurnApply says "Apply turn events"
+// in the language of msgs.
+func (msgs Messages) TurnApply() string {
+	return Catalog.Format(msgs.locale, "turn_apply", nil)
+}
+
+// TurnReload says "Discard turn draft and reload"
+// in the language the app shows.
+func TurnReload() string { return In(i18n.Locale()).TurnReload() }
+
+// TurnReload says "Discard turn draft and reload"
+// in the language of msgs.
+func (msgs Messages) TurnReload() string {
+	return Catalog.Format(msgs.locale, "turn_reload", nil)
+}
+
+// TurnOpenUnits says "Edit this deployment"
+// in the language the app shows.
+func TurnOpenUnits() string { return In(i18n.Locale()).TurnOpenUnits() }
+
+// TurnOpenUnits says "Edit this deployment"
+// in the language of msgs.
+func (msgs Messages) TurnOpenUnits() string {
+	return Catalog.Format(msgs.locale, "turn_open_units", nil)
+}
+
+// TurnNewUnits says "New reinforcement group"
+// in the language the app shows.
+func TurnNewUnits() string { return In(i18n.Locale()).TurnNewUnits() }
+
+// TurnNewUnits says "New reinforcement group"
+// in the language of msgs.
+func (msgs Messages) TurnNewUnits() string {
+	return Catalog.Format(msgs.locale, "turn_new_units", nil)
+}
+
+// TurnExistingScript says "The existing event script is preserved. Open a deployment to edit its units separately."
+// in the language the app shows.
+func TurnExistingScript() string { return In(i18n.Locale()).TurnExistingScript() }
+
+// TurnExistingScript says "The existing event script is preserved. Open a deployment to edit its units separately."
+// in the language of msgs.
+func (msgs Messages) TurnExistingScript() string {
+	return Catalog.Format(msgs.locale, "turn_existing_script", nil)
+}
+
+// TurnOpaque says "This condition kind is preserved as raw data. It can be removed; its fields are read-only."
+// in the language the app shows.
+func TurnOpaque() string { return In(i18n.Locale()).TurnOpaque() }
+
+// TurnOpaque says "This condition kind is preserved as raw data. It can be removed; its fields are read-only."
+// in the language of msgs.
+func (msgs Messages) TurnOpaque() string {
+	return Catalog.Format(msgs.locale, "turn_opaque", nil)
+}
+
+// TurnScope says "Edit native turn conditions without executing conditions or ASM. Unresolved events keep their original scripts. New c…"
+// in the language the app shows.
+func TurnScope() string { return In(i18n.Locale()).TurnScope() }
+
+// TurnScope says "Edit native turn conditions without executing conditions or ASM. Unresolved events keep their original scripts. New c…"
+// in the language of msgs.
+func (msgs Messages) TurnScope() string {
+	return Catalog.Format(msgs.locale, "turn_scope", nil)
+}
+
+// TurnConditionHelp says "Last turn 0 means the first turn only; FF means no upper limit. Flag 0 sets no flag. A nonzero flag prevents executio…"
+// in the language the app shows.
+func TurnConditionHelp() string { return In(i18n.Locale()).TurnConditionHelp() }
+
+// TurnConditionHelp says "Last turn 0 means the first turn only; FF means no upper limit. Flag 0 sets no flag. A nonzero flag prevents executio…"
+// in the language of msgs.
+func (msgs Messages) TurnConditionHelp() string {
+	return Catalog.Format(msgs.locale, "turn_condition_help", nil)
+}
+
+// TurnPreviewScope says "Turn events change for the chapters below. Existing scripts stay unchanged."
+// in the language the app shows.
+func TurnPreviewScope() string { return In(i18n.Locale()).TurnPreviewScope() }
+
+// TurnPreviewScope says "Turn events change for the chapters below. Existing scripts stay unchanged."
+// in the language of msgs.
+func (msgs Messages) TurnPreviewScope() string {
+	return Catalog.Format(msgs.locale, "turn_preview_scope", nil)
+}
+
+// TurnNewHelp says "The new group and its condition share one preview and history operation. Units, items, AI and map positions use the d…"
+// in the language the app shows.
+func TurnNewHelp() string { return In(i18n.Locale()).TurnNewHelp() }
+
+// TurnNewHelp says "The new group and its condition share one preview and history operation. Units, items, AI and map positions use the d…"
+// in the language of msgs.
+func (msgs Messages) TurnNewHelp() string {
+	return Catalog.Format(msgs.locale, "turn_new_help", nil)
+}
+
+// TurnPhasePlayer says "Player phase"
+// in the language the app shows.
+func TurnPhasePlayer() string { return In(i18n.Locale()).TurnPhasePlayer() }
+
+// TurnPhasePlayer says "Player phase"
+// in the language of msgs.
+func (msgs Messages) TurnPhasePlayer() string {
+	return Catalog.Format(msgs.locale, "turn_phase_player", nil)
+}
+
+// TurnPhaseAlly says "Ally phase"
+// in the language the app shows.
+func TurnPhaseAlly() string { return In(i18n.Locale()).TurnPhaseAlly() }
+
+// TurnPhaseAlly says "Ally phase"
+// in the language of msgs.
+func (msgs Messages) TurnPhaseAlly() string {
+	return Catalog.Format(msgs.locale, "turn_phase_ally", nil)
+}
+
+// TurnPhaseEnemy says "Enemy phase"
+// in the language the app shows.
+func TurnPhaseEnemy() string { return In(i18n.Locale()).TurnPhaseEnemy() }
+
+// TurnPhaseEnemy says "Enemy phase"
+// in the language of msgs.
+func (msgs Messages) TurnPhaseEnemy() string {
+	return Catalog.Format(msgs.locale, "turn_phase_enemy", nil)
+}
+
+// TurnRouteAny says "All routes / difficulties"
+// in the language the app shows.
+func TurnRouteAny() string { return In(i18n.Locale()).TurnRouteAny() }
+
+// TurnRouteAny says "All routes / difficulties"
+// in the language of msgs.
+func (msgs Messages) TurnRouteAny() string {
+	return Catalog.Format(msgs.locale, "turn_route_any", nil)
+}
+
+// TurnRouteEliwood says "Eliwood"
+// in the language the app shows.
+func TurnRouteEliwood() string { return In(i18n.Locale()).TurnRouteEliwood() }
+
+// TurnRouteEliwood says "Eliwood"
+// in the language of msgs.
+func (msgs Messages) TurnRouteEliwood() string {
+	return Catalog.Format(msgs.locale, "turn_route_eliwood", nil)
+}
+
+// TurnRouteHector says "Hector"
+// in the language the app shows.
+func TurnRouteHector() string { return In(i18n.Locale()).TurnRouteHector() }
+
+// TurnRouteHector says "Hector"
+// in the language of msgs.
+func (msgs Messages) TurnRouteHector() string {
+	return Catalog.Format(msgs.locale, "turn_route_hector", nil)
+}
+
+// TurnRouteEliwoodHard says "Eliwood hard"
+// in the language the app shows.
+func TurnRouteEliwoodHard() string { return In(i18n.Locale()).TurnRouteEliwoodHard() }
+
+// TurnRouteEliwoodHard says "Eliwood hard"
+// in the language of msgs.
+func (msgs Messages) TurnRouteEliwoodHard() string {
+	return Catalog.Format(msgs.locale, "turn_route_eliwood_hard", nil)
+}
+
+// TurnRouteHectorHard says "Hector hard"
+// in the language the app shows.
+func TurnRouteHectorHard() string { return In(i18n.Locale()).TurnRouteHectorHard() }
+
+// TurnRouteHectorHard says "Hector hard"
+// in the language of msgs.
+func (msgs Messages) TurnRouteHectorHard() string {
+	return Catalog.Format(msgs.locale, "turn_route_hector_hard", nil)
+}
+
+// TurnRouteHard says "Hard mode"
+// in the language the app shows.
+func TurnRouteHard() string { return In(i18n.Locale()).TurnRouteHard() }
+
+// TurnRouteHard says "Hard mode"
+// in the language of msgs.
+func (msgs Messages) TurnRouteHard() string {
+	return Catalog.Format(msgs.locale, "turn_route_hard", nil)
+}
+
+// DeployTurnEvent says "Turn event"
+// in the language the app shows.
+func DeployTurnEvent() string { return In(i18n.Locale()).DeployTurnEvent() }
+
+// DeployTurnEvent says "Turn event"
+// in the language of msgs.
+func (msgs Messages) DeployTurnEvent() string {
+	return Catalog.Format(msgs.locale, "deploy_turn_event", nil)
+}
+
+// GameInvalidTurnEvents says "The turn event pointer, record range or terminator is invalid. Other chapter settings remain editable."
+// in the language the app shows.
+func GameInvalidTurnEvents() string { return In(i18n.Locale()).GameInvalidTurnEvents() }
+
+// GameInvalidTurnEvents says "The turn event pointer, record range or terminator is invalid. Other chapter settings remain editable."
+// in the language of msgs.
+func (msgs Messages) GameInvalidTurnEvents() string {
+	return Catalog.Format(msgs.locale, "game_invalid_turn_events", nil)
+}
+
+// TurnInterval says "Turns"
+// in the language the app shows.
+func TurnInterval() string { return In(i18n.Locale()).TurnInterval() }
+
+// TurnInterval says "Turns"
+// in the language of msgs.
+func (msgs Messages) TurnInterval() string {
+	return Catalog.Format(msgs.locale, "turn_interval", nil)
 }

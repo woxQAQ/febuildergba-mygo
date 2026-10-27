@@ -2,6 +2,7 @@ package game
 
 import (
 	"github.com/woxQAQ/febuildergba-mygo/fault"
+	"github.com/woxQAQ/febuildergba-mygo/space"
 )
 
 type deploymentEventKind uint8
@@ -77,39 +78,27 @@ func (s *deploymentScanner) entries(base int) {
 			}
 		}
 	}
-	// FE6 starts chapters through a first-turn event. FE7 and FE8 can also
-	// load initial enemies there; later turns and other conditions are excluded.
-	turns, valid := pointer(s.data, base)
-	if !valid {
-		if within(s.data, base, 4) && u32(s.data, base) != 0 {
-			s.warn(base)
-		}
-		return
+	// The shared table reader handles variable FE7 lengths and a four-byte
+	// terminator even when it is the final resource in the ROM.
+	turns, err := s.format.readTurns(s.data, base)
+	if err != nil {
+		s.warn(base)
 	}
-	for i, at := 0, turns; i < 256; i++ {
-		if !within(s.data, at, 12) {
-			s.warn(at)
-			return
+	s.result.ranges = append(s.result.ranges, turns.ranges...)
+	for _, event := range turns.Events {
+		if event.Kind != 2 {
+			continue
 		}
-		kind := u16(s.data, at)
-		if kind == 0 {
-			return
+		if event.Script < 0xC0 || event.Script%4 != 0 {
+			s.warn(event.Address + 4)
+			continue
 		}
-		if kind == 2 && s.data[at+8] <= 1 && s.data[at+10] == 0 {
-			if target, valid := pointer(s.data, at+4); valid {
-				s.walk(target, [16]int{}, 0, s.chapter, "deploy_turn_one")
-			} else {
-				s.warn(at)
-			}
+		source := "deploy_turn_event"
+		if event.Start <= 1 && event.Phase == 0 {
+			source = "deploy_turn_one"
 		}
-		length := 12
-		if (s.format.kind == eventFE7J || s.format.kind == eventFE7U) &&
-			kind != 1 {
-			length = 16
-		}
-		at += length
+		s.walk(event.Script, [16]int{}, 0, s.chapter, source)
 	}
-	s.warn(turns)
 }
 
 type deploymentInstruction struct {
@@ -291,6 +280,10 @@ func (s *deploymentScanner) walk(
 			s.warn(at)
 			return mapID
 		}
+		s.result.ranges = append(
+			s.result.ranges,
+			space.Range{Start: at, End: at + command.length},
+		)
 		if command.label >= 0 {
 			labels[command.label] = true
 			if pending[command.label] {

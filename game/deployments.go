@@ -6,6 +6,7 @@ import (
 	"slices"
 
 	"github.com/woxQAQ/febuildergba-mygo/fault"
+	"github.com/woxQAQ/febuildergba-mygo/space"
 )
 
 var (
@@ -48,6 +49,7 @@ type DeploymentUnit struct {
 type ChapterDeployments struct {
 	Groups   []DeploymentGroup
 	Warnings []error
+	ranges   []space.Range
 }
 
 type deploymentSlot struct {
@@ -157,13 +159,9 @@ func (f deploymentFormat) read(
 		ResourceID: new(int(eventID)),
 	}
 	defer func() { err = fault.Wrap(err, "game.read_deployment_entries", ctx) }()
-	list, ok := pointer(data, f.root)
-	if !ok || list < 0xC0 || list%4 != 0 {
-		return result, ErrDeployment
-	}
-	base, ok := pointer(data, list+int(eventID)*4)
-	if !ok || base < 0xC0 || base%4 != 0 {
-		return result, ErrDeployment
+	base, err := f.eventHeader(data, eventID)
+	if err != nil {
+		return result, err
 	}
 	parsed := make(map[int]DeploymentGroup)
 	for _, slot := range f.slots {

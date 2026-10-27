@@ -38,6 +38,7 @@ type View struct {
 	mapView            mapview.View
 	entries            map[int]*entryDraft
 	selections         map[int]*chapterSelection
+	turns              map[int]*turnState
 }
 
 func (v *View) Configuration() bool { return v.mode == 0 }
@@ -49,6 +50,7 @@ func (v *View) load(state *components.State, row game.Row) {
 			session:    s,
 			entries:    make(map[int]*entryDraft),
 			selections: make(map[int]*chapterSelection),
+			turns:      make(map[int]*turnState),
 		}
 	}
 	s.Refresh()
@@ -160,10 +162,14 @@ func (v *View) Render(
 	openHex func(int, int),
 ) {
 	v.load(state, row)
-	ui.Tabs(c.Key("chapter-mode"), &v.mode, locales.DeployConfiguration(), locales.Deployments()).
+	ui.Tabs(c.Key("chapter-mode"), &v.mode, locales.DeployConfiguration(), locales.Deployments(), locales.TurnEvents()).
 		Label(locales.Chapters())
 	if v.Configuration() {
 		v.mapView.Render(c, state.Session, row, mapview.Overlay{})
+		return
+	}
+	if v.mode == 2 {
+		v.turnEditor(c, state, row, advanced, jump, openHex)
 		return
 	}
 	ui.Column(c.Key("deployments")).Gap(12).Children(func() {
@@ -197,40 +203,7 @@ func (v *View) Render(
 		if entry == nil {
 			return
 		}
-		units := entry.data.Units()
-		if entry.selected >= len(units) {
-			entry.selected = max(0, len(units)-1)
-		}
-		mapOverlay := v.overlay(entry, units)
-		if entry.selected != entry.lastSelected && entry.selected < len(units) {
-			entry.lastSelected = entry.selected
-			point := units[entry.selected].Start
-			if v.positionMode == 1 && !units[entry.selected].RelativeEnd {
-				point = units[entry.selected].End
-			}
-			mapOverlay.Focus = new(point)
-		}
-		ui.Row(c.Key("map-and-units")).
-			Wrap().
-			Gap(16).
-			AlignItems(ui.Start).
-			Children(func() {
-				ui.Column(c.Key("map")).
-					Width(420).
-					MaxWidthPercent(100).
-					MinWidth(0).
-					Children(func() {
-						v.mapView.Render(c, state.Session, row, mapOverlay)
-					})
-				ui.Column(c.Key("units")).
-					MinWidth(280).
-					Grow(1).
-					Gap(8).
-					Children(func() {
-						v.unitList(c, state, entry, units)
-					})
-			})
-
+		v.unitScene(c, state, row, entry)
 		if len(v.resource.Warnings) > 0 {
 			ui.Text(c, locales.GameIncompleteDeploymentScript()).
 				FontSize(12).
@@ -383,40 +356,7 @@ func (v *View) actions(
 ) {
 	stale := !entry.data.Current(state.Session)
 	disabled := state.Busy || stale
-	ui.Row(c).Wrap().Gap(8).Children(func() {
-		ui.Button(c, locales.DeployAdd()).Disabled(disabled).OnClick(func() {
-			state.Err = entry.data.Add()
-			entry.selected = max(0, entry.data.Count()-1)
-			entry.preview, entry.inputs = nil, nil
-		})
-		ui.Button(c, locales.DeployDuplicate()).
-			Disabled(disabled || entry.data.Count() == 0).
-			OnClick(func() {
-				state.Err = entry.data.Duplicate(entry.selected)
-				entry.selected = max(0, entry.data.Count()-1)
-				entry.preview, entry.inputs = nil, nil
-			})
-		ui.Button(c, locales.DeployRemove()).
-			Disabled(disabled || entry.data.Count() == 0).
-			OnClick(func() {
-				state.Err = entry.data.Remove(entry.selected)
-				entry.selected = min(
-					entry.selected,
-					max(0, entry.data.Count()-1),
-				)
-				entry.preview, entry.inputs = nil, nil
-			})
-		point, selected := v.mapView.Selection()
-		ui.Button(c, locales.DeployPlaceStart()).
-			Disabled(disabled || !selected || entry.data.Count() == 0).
-			OnClick(func() { v.place(state, entry, point, false) })
-		units := entry.data.Units()
-		relative := entry.selected < len(units) &&
-			units[entry.selected].RelativeEnd
-		ui.Button(c, locales.DeployPlaceEnd()).
-			Disabled(disabled || !selected || entry.data.Count() == 0 || relative).
-			OnClick(func() { v.place(state, entry, point, true) })
-	})
+	v.unitActions(c, state, entry)
 	if stale {
 		ui.Text(c, locales.DeployStale()).TextColor(c.Theme().Danger)
 	}

@@ -1,9 +1,9 @@
 package recordform
 
 import (
-	"github.com/woxQAQ/febuildergba-mygo/game"
-
 	"github.com/egoist/mygo/ui"
+
+	"github.com/woxQAQ/febuildergba-mygo/game"
 )
 
 type assetPreview struct {

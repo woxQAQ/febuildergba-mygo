@@ -79,14 +79,21 @@ formatters:
   enable:
     - gofumpt
     - goimports
+    - gci
     - golines
   settings:
+    gci:
+      sections:
+        - standard
+        - default
+        - prefix(github.com/woxQAQ)
+      custom-order: true
     gofumpt:
       extra:
         group-params: true
     goimports:
       local-prefixes:
-        - github.com/woxQAQ/febuildergba-mygo
+        - github.com/woxQAQ
     golines:
       max-len: 80
       tab-len: 4

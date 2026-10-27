@@ -31,6 +31,7 @@ func ErrorText(err error) string {
 // Catalog ownership stays at the presentation boundary. Functions resolve the
 // current locale each time, including errors kept while switching languages.
 var errorMessages = map[string]func() string{
+	"game.invalid_turn_events":          locales.GameInvalidTurnEvents,
 	"game.invalid_deployment":           locales.GameInvalidDeployment,
 	"game.incomplete_deployment_script": locales.GameIncompleteDeploymentScript,
 	"game.unsupported_version":          locales.GameUnsupportedVersion,

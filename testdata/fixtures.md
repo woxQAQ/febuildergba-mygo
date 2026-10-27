@@ -29,6 +29,8 @@
 
 [deployments.go](../internal/testutil/deployments.go) 的 `NewDeploymentFixture` 在地图样本上加入独立字节定义的 FE8／FE7／FE6 部署、共享事件头、资源别名、终止数据和开场／首回合加载命令。FE8 路径固定包含两段、打包标志、速度、目标单位、未知字节和等待值；修改只允许改变目标字段。部署流程另覆盖空入口创建、草稿冲突、章节表搬迁和手动布局、声明空间保护、容量失败、保存重开；事件样本验证类型化指针、内存槽加载辅助事件、跨地图引用、前向分支、动态与递归失败隔离。
 
+[turns.go](../internal/testutil/turns.go) 的 `NewTurnFixture` 加入 FE7 12／16 字节混合记录、固定类型 2 回合条件和不透明条件。期望加载／等待／结束指令使用独立字面量字节，验证条件目标字段、旧记录与未知脚本保留、新建增援及 FE8 路径、一次历史、独立指针别名、共享入口、章节表搬迁／手动布局、空表、损坏结束记录、发现上限、空间冲突、容量失败及保存重开后的部署和条件编辑。
+
 可通过 `GetPosition` 查询 `units`、`classes`、`items`、`chapters`（可见记录起点）、`*_base`（指针目标，包含隐藏记录）及 `*_pointer`（首个候选指针的位置）。`Bytes` 返回副本；`Save` 将数据写入测试临时目录。
 
 Fixture 的有效性由 [fixture_test.go](../internal/testutil/fixture_test.go) 通过真实游戏会话解析验证。改变游戏规则时，应对照旧版来源更新 fixture 和预期结果，避免从被测实现动态生成所有期望。

@@ -207,12 +207,13 @@ func (r deploymentRecord) unit() DeploymentUnit {
 // DeploymentDraft preserves complete native records and FE8 paths. Changes stay
 // local until an immutable append-and-reference plan is explicitly applied.
 type DeploymentDraft struct {
-	document *rom.Document
-	revision uint64
-	layouts  map[Kind]Layout
-	chapter  int
-	group    DeploymentGroup
-	records  []deploymentRecord
+	document   *rom.Document
+	revision   uint64
+	layouts    map[Kind]Layout
+	chapter    int
+	group      DeploymentGroup
+	records    []deploymentRecord
+	generation uint64
 }
 
 func (s *Session) NewDeploymentDraft(
@@ -247,17 +248,26 @@ func (s *Session) NewDeploymentDraft(
 		if len(group.Units) > 0 {
 			group.faction = group.Units[0].Faction
 		}
-		return &DeploymentDraft{
-			document: s.Document,
-			revision: s.image.Revision,
-			layouts:  maps.Clone(s.layouts),
-			chapter:  chapter,
-			group:    group,
-			records:  cloneDeploymentRecords(group.records),
-		}, nil
+		return s.deploymentDraft(chapter, group), nil
+	}
+	turns, readErr := s.ChapterTurns(chapter)
+	if readErr == nil {
+		for _, event := range turns.Events {
+			for _, group := range event.Groups {
+				if group.Pointer == site {
+					if group.Err != nil {
+						return nil, group.Err
+					}
+					return s.deploymentDraft(chapter, group), nil
+				}
+			}
+		}
 	}
 	return nil, ErrField
 }
+
+// Generation changes with local edits, independently of the ROM revision.
+func (d *DeploymentDraft) Generation() uint64 { return d.generation }
 
 func (d *DeploymentDraft) Revision() uint64 { return d.revision }
 func (d *DeploymentDraft) Pointer() int     { return d.group.Pointer }
@@ -333,6 +343,7 @@ func (d *DeploymentDraft) Set(
 		if record.value(field) == value {
 			return nil
 		}
+		d.generation++
 		data, at := record.data, field.offset
 		if field.movement {
 			if len(record.movement) == 0 {
@@ -370,6 +381,7 @@ func (d *DeploymentDraft) Add() error {
 	}
 	data := make([]byte, d.group.Stride)
 	data[0], data[3] = 1, 8|byte((d.group.faction&3)<<1)
+	d.generation++
 	d.records = append(d.records, deploymentRecord{data: data})
 	return nil
 }
@@ -379,6 +391,7 @@ func (d *DeploymentDraft) Duplicate(index int) error {
 		len(d.records) >= maxDeploymentUnits {
 		return ErrValue
 	}
+	d.generation++
 	d.records = append(
 		d.records,
 		cloneDeploymentRecords(d.records[index : index+1])[0],
@@ -390,6 +403,7 @@ func (d *DeploymentDraft) Remove(index int) error {
 	if index < 0 || index >= len(d.records) {
 		return ErrField
 	}
+	d.generation++
 	d.records = slices.Delete(d.records, index, index+1)
 	return nil
 }
@@ -442,33 +456,10 @@ func (s *Session) PlanDeploymentEdit(
 			}
 		}
 	}
-	var content []byte
-	for _, record := range draft.records {
-		content = append(content, record.data...)
-	}
-	content = append(content, draft.group.terminator...)
-	pathOffsets := make(map[int]int)
-	for i, record := range draft.records {
-		if !record.movementEdited {
-			continue
-		}
-		for len(content)%4 != 0 {
-			content = append(content, 0)
-		}
-		pathOffsets[i] = len(content)
-		content = append(content, record.movement...)
-	}
+	content := draft.payload((len(s.image.Data) + 3) &^ 3)
 	plan, err := space.PlanAppend(len(s.image.Data), content)
 	if err != nil {
 		return nil, err
-	}
-	payload := plan.Edit.Changes[0].Data
-	for index, offset := range pathOffsets {
-		address := plan.Destination.Start + offset
-		binary.LittleEndian.PutUint32(
-			payload[index*draft.group.Stride+8:],
-			uint32(0x08000000+address),
-		) // #nosec G115 -- PlanAppend bounds addresses by MaxSize.
 	}
 	plan.Edit.Changes = append(
 		plan.Edit.Changes,

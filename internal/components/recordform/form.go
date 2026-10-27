@@ -6,11 +6,10 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/woxQAQ/febuildergba-mygo/internal/components"
-
 	"github.com/egoist/mygo/ui"
 
 	"github.com/woxQAQ/febuildergba-mygo/game"
+	"github.com/woxQAQ/febuildergba-mygo/internal/components"
 	"github.com/woxQAQ/febuildergba-mygo/internal/components/chapterview"
 	"github.com/woxQAQ/febuildergba-mygo/locales"
 )

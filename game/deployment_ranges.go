@@ -47,10 +47,37 @@ func (g gameFormat) deploymentRanges(data []byte) []space.Range {
 					}
 				}
 			}
+			turns, turnErr := g.ChapterTurns(data, row.ID, row.Address)
+			if turnErr == nil {
+				result = append(result, turns.ranges...)
+				for _, event := range turns.Events {
+					for _, group := range event.Groups {
+						add(group.Pointer, 4)
+						add(
+							group.Address,
+							len(
+								group.records,
+							)*group.Stride+len(
+								group.terminator,
+							),
+						)
+						for _, record := range group.records {
+							if len(record.data) == 20 &&
+								len(record.movement) > 0 {
+								add(
+									int(u32(record.data, 8)&0x01FFFFFF),
+									len(record.movement),
+								)
+							}
+						}
+					}
+				}
+			}
 			deployment, err := g.ChapterDeployments(data, row.ID, row.Address)
 			if err != nil {
 				continue
 			}
+			result = append(result, deployment.ranges...)
 			for _, group := range deployment.Groups {
 				add(group.Pointer, 4)
 				if group.Address == 0 || seen[group.Address] {
