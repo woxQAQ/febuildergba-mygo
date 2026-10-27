@@ -5,33 +5,38 @@ import (
 	"fmt"
 	"strings"
 
+	"github.com/woxQAQ/febuildergba-mygo/internal/components"
+
 	"github.com/egoist/mygo/ui"
 
-	"github.com/woxQAQ/febuildergba-mygo/internal/editor"
-	"github.com/woxQAQ/febuildergba-mygo/internal/game"
-	"github.com/woxQAQ/febuildergba-mygo/internal/locales"
+	"github.com/woxQAQ/febuildergba-mygo/game"
+	"github.com/woxQAQ/febuildergba-mygo/internal/components/mapview"
+	"github.com/woxQAQ/febuildergba-mygo/locales"
 )
 
 type Form struct {
-	state                 *editor.State
+	state                 *components.State
 	drafts                map[fieldKey]*fieldDraft
 	texts                 map[fieldKey]*textDraft
 	activeField           fieldKey
 	preview               assetPreview
+	chapterMap            mapview.View
 	largePreview, showRaw bool
 	sidebar               float32
 	openHex               func(int, int)
+	openText              func(uint16)
 	jump                  func(game.Kind, int)
 	assets                AssetActions
 }
 
-func New(state *editor.State, openHex func(int, int), jump func(game.Kind, int), assets AssetActions) *Form {
-	return &Form{state: state, openHex: openHex, jump: jump, assets: assets}
+func New(state *components.State, openHex func(int, int), openText func(uint16), jump func(game.Kind, int), assets AssetActions) *Form {
+	return &Form{state: state, openHex: openHex, openText: openText, jump: jump, assets: assets}
 }
 
 func (a *Form) Reset() {
 	a.ClearDrafts()
 	a.preview = assetPreview{}
+	a.chapterMap = mapview.View{}
 }
 
 func (a *Form) ClearDrafts() {
@@ -55,7 +60,11 @@ func (a *Form) View(c *ui.Context, kind game.Kind, row game.Row, table *game.Tab
 					ui.Image(c, preview.bitmap).Size(float32(bounds.Dx())*scale, float32(bounds.Dy())*scale).Label(row.Name + " " + locales.ImagePreview())
 				}
 				ui.Textf(c, "%02X", row.ID).FontSize(20).TextColor(c.Theme().TextMuted)
-				a.nameEditor(c, kind, row).Grow(1).MinWidth(0)
+				if kind == game.Chapters {
+					ui.Text(c, row.Name).FontSize(20).Grow(1)
+				} else {
+					a.nameEditor(c, kind, row).Grow(1).MinWidth(0)
+				}
 				if preview != nil && preview.bitmap != nil {
 					ui.Checkbox(c, &a.largePreview, "2×").Label(locales.PreviewZoom())
 				}
@@ -63,7 +72,7 @@ func (a *Form) View(c *ui.Context, kind game.Kind, row game.Row, table *game.Tab
 			})
 			a.assetEditor(c, preview)
 			if preview != nil && preview.err != nil {
-				ui.Text(c, locales.ErrorText(preview.err)).TextColor(c.Theme().TextMuted)
+				ui.Text(c, components.ErrorText(preview.err)).TextColor(c.Theme().TextMuted)
 			}
 			if a.showRaw && preview != nil && len(preview.resource.Regions) > 0 {
 				ui.Row(c).Gap(8).Children(func() {
@@ -78,7 +87,11 @@ func (a *Form) View(c *ui.Context, kind game.Kind, row game.Row, table *game.Tab
 			if len(a.state.Session.Patches) > 0 {
 				ui.Text(c, locales.Patches()+": "+strings.Join(a.state.Session.Patches, ", ")).TextColor(c.Theme().TextMuted)
 			}
-			a.descriptionEditors(c, kind, row, table)
+			if kind == game.Chapters {
+				a.chapterMap.Render(c, a.state.Session, row)
+			} else {
+				a.descriptionEditors(c, kind, row, table)
+			}
 			a.recordFields(c, kind, row, table)
 			if a.showRaw {
 				data, err := a.state.Session.Raw(row.Address, min(table.Stride, 256))

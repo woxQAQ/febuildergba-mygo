@@ -1,7 +1,7 @@
 package recordform
 
 import (
-	"github.com/woxQAQ/febuildergba-mygo/internal/game"
+	"github.com/woxQAQ/febuildergba-mygo/game"
 
 	"github.com/egoist/mygo/ui"
 )

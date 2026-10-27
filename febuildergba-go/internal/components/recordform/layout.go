@@ -3,8 +3,10 @@ package recordform
 import (
 	"strings"
 
-	"github.com/woxQAQ/febuildergba-mygo/internal/game"
-	"github.com/woxQAQ/febuildergba-mygo/internal/locales"
+	"github.com/woxQAQ/febuildergba-mygo/internal/components"
+
+	"github.com/woxQAQ/febuildergba-mygo/game"
+	"github.com/woxQAQ/febuildergba-mygo/locales"
 
 	"github.com/egoist/mygo/ui"
 )
@@ -117,7 +119,7 @@ func (a *Form) inlineSection(c *ui.Context, kind game.Kind, row game.Row, group 
 		} else if f.Width == 2 {
 			inputWidth = max(inputWidth, 72)
 		}
-		if f.Reference != "" {
+		if f.Reference != "" || f.Text != game.NoText {
 			actionWidth = 48
 		}
 	}
@@ -161,7 +163,7 @@ func (a *Form) abilityMatrix(c *ui.Context, kind game.Kind, row game.Row, matrix
 					}
 					value, err := a.state.Session.Value(kind, row.ID, f.ID)
 					if err != nil {
-						ui.Text(c.Key(id), locales.ErrorText(err))
+						ui.Text(c.Key(id), components.ErrorText(err))
 						continue
 					}
 					a.numberField(c, kind, row, f, value)
@@ -174,17 +176,30 @@ func (a *Form) abilityMatrix(c *ui.Context, kind game.Kind, row game.Row, matrix
 func (a *Form) inlineField(c *ui.Context, kind game.Kind, row game.Row, f game.Field, inputWidth, actionWidth float32) {
 	ui.Row(c.Key(f.ID)).Gap(6).MinHeight(28).Children(func() {
 		key := fieldKey{kind, row.ID, f.ID}
-		ui.Text(c, locales.Label(f.ID)).FontSize(13).SingleLine().MaxWidth(140).MinWidth(0).Grow(1).Tooltip(locales.Label(f.ID)).OnClick(func() { a.focusField(key) })
+		label := locales.Label(f.ID)
+		help := label
+		if kind == game.Chapters && (f.ID == "objective_text_id" || f.ID == "objective_detail_text_id") {
+			help += "\n" + locales.ChapterObjectiveHelp()
+		}
+		ui.Text(c, label).FontSize(13).SingleLine().MaxWidth(140).MinWidth(0).Grow(1).Tooltip(help).OnClick(func() { a.focusField(key) })
 		value, err := a.state.Session.Value(kind, row.ID, f.ID)
 		if err != nil {
-			ui.Text(c, locales.ErrorText(err))
+			ui.Text(c, components.ErrorText(err))
 			return
 		}
 		a.numberField(c, kind, row, f, value).Width(inputWidth).Shrink(0)
-		if f.Reference != "" {
+		switch {
+		case f.Reference != "":
 			ui.Button(c, locales.Jump()).Size(actionWidth, 26).Padding(3, 6).Shrink(0).Disabled(a.state.Busy).
 				OnClick(func() { a.jump(f.Reference, int(value)) })
-		} else if actionWidth > 0 {
+		case f.Text != game.NoText:
+			ui.Button(c, locales.Jump()).Size(actionWidth, 26).Padding(3, 6).Shrink(0).Disabled(a.state.Busy || value <= 0 || value >= 0x7FFF).
+				OnClick(func() {
+					if value > 0 && value < 0x7FFF {
+						a.openText(uint16(value))
+					}
+				})
+		case actionWidth > 0:
 			ui.Box(c).Width(actionWidth).Shrink(0)
 		}
 	})

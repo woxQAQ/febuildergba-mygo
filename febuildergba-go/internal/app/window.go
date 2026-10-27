@@ -7,10 +7,10 @@ import (
 	"github.com/egoist/mygo"
 	"github.com/egoist/mygo/ui"
 
+	"github.com/woxQAQ/febuildergba-mygo/game"
 	"github.com/woxQAQ/febuildergba-mygo/internal/components"
-	"github.com/woxQAQ/febuildergba-mygo/internal/game"
-	"github.com/woxQAQ/febuildergba-mygo/internal/locales"
-	"github.com/woxQAQ/febuildergba-mygo/internal/pages"
+	"github.com/woxQAQ/febuildergba-mygo/locales"
+	"github.com/woxQAQ/febuildergba-mygo/pages"
 )
 
 func (m *application) newWindow(session *game.Session) *mygo.Window {

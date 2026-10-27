@@ -4,11 +4,12 @@ package app
 import (
 	"log"
 
+	"github.com/woxQAQ/febuildergba-mygo/internal/components"
+
 	"github.com/egoist/mygo"
 
-	"github.com/woxQAQ/febuildergba-mygo/internal/game"
-	"github.com/woxQAQ/febuildergba-mygo/internal/locales"
-	"github.com/woxQAQ/febuildergba-mygo/internal/pages"
+	"github.com/woxQAQ/febuildergba-mygo/game"
+	"github.com/woxQAQ/febuildergba-mygo/pages"
 )
 
 type application struct {
@@ -28,7 +29,7 @@ func Run(paths []string) error {
 		for _, path := range paths {
 			session, err := game.Open(path)
 			if err != nil {
-				log.Printf("open ROM: %q", locales.ErrorText(err))
+				log.Printf("open ROM: %q", components.ErrorText(err))
 				continue
 			}
 			m.newWindow(session)

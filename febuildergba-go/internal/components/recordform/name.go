@@ -3,9 +3,9 @@ package recordform
 import (
 	"github.com/egoist/mygo/ui"
 
+	"github.com/woxQAQ/febuildergba-mygo/game"
 	"github.com/woxQAQ/febuildergba-mygo/internal/components"
-	"github.com/woxQAQ/febuildergba-mygo/internal/game"
-	"github.com/woxQAQ/febuildergba-mygo/internal/locales"
+	"github.com/woxQAQ/febuildergba-mygo/locales"
 )
 
 func (a *Form) nameEditor(c *ui.Context, kind game.Kind, row game.Row) ui.Element {
@@ -31,7 +31,7 @@ func (a *Form) nameEditor(c *ui.Context, kind game.Kind, row game.Row) ui.Elemen
 			ui.Text(c, locales.NameNeedsId()).FontSize(12).TextColor(c.Theme().TextMuted)
 		}
 		if draft.err != nil {
-			ui.Text(c, locales.ErrorText(draft.err)).TextColor(c.Theme().Danger)
+			ui.Text(c, components.ErrorText(draft.err)).TextColor(c.Theme().Danger)
 		}
 		a.textPreview(c, key, draft, locales.ApplyName())
 	})

@@ -10,7 +10,7 @@ import (
 	"image/png"
 	"testing"
 
-	"github.com/woxQAQ/febuildergba-mygo/internal/game"
+	"github.com/woxQAQ/febuildergba-mygo/game"
 )
 
 func TestRealAssetReplacements(t *testing.T) {

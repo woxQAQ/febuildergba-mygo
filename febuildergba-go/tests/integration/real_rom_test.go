@@ -10,7 +10,7 @@ import (
 	"slices"
 	"testing"
 
-	"github.com/woxQAQ/febuildergba-mygo/internal/game"
+	"github.com/woxQAQ/febuildergba-mygo/game"
 )
 
 const romDir = "../../.rom"

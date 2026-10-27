@@ -5,9 +5,9 @@ import (
 
 	"github.com/egoist/mygo"
 
-	"github.com/woxQAQ/febuildergba-mygo/internal/game"
-	"github.com/woxQAQ/febuildergba-mygo/internal/locales"
-	"github.com/woxQAQ/febuildergba-mygo/internal/pages"
+	"github.com/woxQAQ/febuildergba-mygo/game"
+	"github.com/woxQAQ/febuildergba-mygo/locales"
+	"github.com/woxQAQ/febuildergba-mygo/pages"
 )
 
 func (m *application) openDialog(win *mygo.Window, a *pages.Workspace) {

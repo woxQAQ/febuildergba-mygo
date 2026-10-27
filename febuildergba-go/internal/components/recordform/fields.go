@@ -5,9 +5,10 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/woxQAQ/febuildergba-mygo/internal/editor"
-	"github.com/woxQAQ/febuildergba-mygo/internal/game"
-	"github.com/woxQAQ/febuildergba-mygo/internal/locales"
+	"github.com/woxQAQ/febuildergba-mygo/internal/components"
+
+	"github.com/woxQAQ/febuildergba-mygo/game"
+	"github.com/woxQAQ/febuildergba-mygo/locales"
 
 	"github.com/egoist/mygo/ui"
 )
@@ -97,7 +98,7 @@ func (a *Form) numberField(c *ui.Context, kind game.Kind, row game.Row, f game.F
 		}
 		return true
 	}).OnChange(func() {
-		parsed, err := editor.ParseInteger(draft.text)
+		parsed, err := components.ParseInteger(draft.text)
 		if err != nil || parsed < low || parsed > high {
 			draft.invalid = true
 			return
@@ -165,7 +166,7 @@ func (a *Form) fieldInspector(c *ui.Context, kind game.Kind, row game.Row, table
 		f := *active
 		value, err := a.state.Session.Value(kind, row.ID, f.ID)
 		if err != nil {
-			ui.Text(c, locales.ErrorText(err))
+			ui.Text(c, components.ErrorText(err))
 			return
 		}
 		low, high := f.Bounds()

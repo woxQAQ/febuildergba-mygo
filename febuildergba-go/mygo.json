@@ -4,7 +4,7 @@
   "version": "0.1.0",
   "out": "build",
   "i18n": {
-    "dir": "internal/locales",
+    "dir": "locales",
     "source": "en"
   }
 }

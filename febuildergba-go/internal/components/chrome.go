@@ -1,4 +1,5 @@
-// Package components builds reusable window chrome around editor pages.
+// Package components builds the window's UI layer below pages: chrome,
+// per-window editing state, input parsing, and domain widgets.
 package components
 
 import (
@@ -8,8 +9,7 @@ import (
 	"github.com/egoist/mygo/i18n"
 	"github.com/egoist/mygo/ui"
 
-	"github.com/woxQAQ/febuildergba-mygo/internal/editor"
-	"github.com/woxQAQ/febuildergba-mygo/internal/locales"
+	"github.com/woxQAQ/febuildergba-mygo/locales"
 )
 
 const HeaderHeight = 48
@@ -25,7 +25,7 @@ func ApplyTheme(c *ui.Context) {
 	c.SetTheme(&t)
 }
 
-func Header(c *ui.Context, state *editor.State) {
+func Header(c *ui.Context, state *State) {
 	t := c.Theme()
 	bar := c.TitleBar()
 	ui.Row(c).Height(max(HeaderHeight, bar.Height)).Shrink(0).
@@ -54,19 +54,19 @@ func Header(c *ui.Context, state *editor.State) {
 	})
 }
 
-func ErrorBanner(c *ui.Context, state *editor.State) {
+func ErrorBanner(c *ui.Context, state *State) {
 	if state.Err == nil {
 		return
 	}
 	t := c.Theme()
 	ui.Row(c).Padding(10, 16).Gap(8).AlignItems(ui.Center).Background(t.Background).BorderWidth(0, 0, 1, 0).BorderColor(t.Border).Children(func() {
 		ui.Text(c, locales.ErrorTitle()).Bold().TextColor(t.Danger)
-		ui.Text(c, locales.ErrorText(state.Err)).Grow(1).Selectable()
+		ui.Text(c, ErrorText(state.Err)).Grow(1).Selectable()
 		ui.Button(c, locales.Dismiss()).OnClick(func() { state.Err = nil })
 	})
 }
 
-func ExternalChangeBanner(c *ui.Context, state *editor.State, reload func()) {
+func ExternalChangeBanner(c *ui.Context, state *State, reload func()) {
 	if !state.External {
 		return
 	}
@@ -81,7 +81,7 @@ func ExternalChangeBanner(c *ui.Context, state *editor.State, reload func()) {
 	})
 }
 
-func StatusBar(c *ui.Context, state *editor.State, run func()) {
+func StatusBar(c *ui.Context, state *State, run func()) {
 	document := state.Session.Document.State()
 	ui.Row(c).Padding(8, 16).Gap(12).AlignItems(ui.Center).BorderWidth(1, 0, 0, 0).BorderColor(c.Theme().Border).Children(func() {
 		ui.Textf(c, "%s  %.2f MiB", state.Session.Adapter.ID(), float64(document.Size)/(1<<20)).TextColor(c.Theme().TextMuted)

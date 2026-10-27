@@ -8,9 +8,9 @@
 
 元数据指描述游戏格式和规则的数据，例如字段宽度、表定位规则、事件参数类型和补丁适用条件。它用于统一维护多游戏版本与补丁差异，并让社区格式通过适配进入同一套领域模型。
 
-当前 [Field 与 Table](../febuildergba-go/internal/game/session.go)、[FE8U 表定义](../febuildergba-go/internal/game/fe8u.go) 和 [表解析](../febuildergba-go/internal/game/tables.go) 已具备部分基础。现有实现继续使用；元数据层不是当前编辑器运行或继续开发的前置条件。
+当前 [Field 与 Table](../febuildergba-go/game/session.go)、[FE8U 表定义](../febuildergba-go/game/fe8u.go) 和 [表解析](../febuildergba-go/game/tables.go) 已具备部分基础。现有实现继续使用；元数据层不是当前编辑器运行或继续开发的前置条件。
 
-未来包名暂定 `internal/metadata`，表示游戏定义库。具体类型、接口和 JSON 字段在首次实际接入时确定，不预先建立通用配置框架。
+未来包名暂定 `metadata`，表示游戏定义库。具体类型、接口和 JSON 字段在首次实际接入时确定，不预先建立通用配置框架。
 
 ## 数据边界
 

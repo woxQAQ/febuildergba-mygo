@@ -24,7 +24,7 @@
 ## 实现依据
 
 - [旧版项目文件](../FEBuilderGBA/FEBuilderGBA/FEBuilderGBA.csproj)：.NET Framework 4.0、WinForms。
-- [当前 Go 入口](../febuildergba-go/main.go)：已经接入 MyGo 原生 ROM 工作区；领域核心位于 `internal/rom` 和 `internal/game`。当前依赖为 MyGo `v0.6.3`。
+- [当前 Go 入口](../febuildergba-go/main.go)：已经接入 MyGo 原生 ROM 工作区；领域核心位于 `rom` 和 `game`。当前依赖为 MyGo `v0.6.3`。
 - [InputFormRef](../FEBuilderGBA/FEBuilderGBA/InputFormRef.cs)：字段绑定、UI、空间分配和写入逻辑集中；新实现需要把领域规则从控件命名中提取出来。
 - [ROM](../FEBuilderGBA/FEBuilderGBA/Rom.cs)、[Undo](../FEBuilderGBA/FEBuilderGBA/Undo.cs)、[保存流程](../FEBuilderGBA/FEBuilderGBA/MainFormUtil.cs)：ROM 字节、撤销、备份、附属信息和文件保存需要统一协调。
 - [人物编辑](../FEBuilderGBA/FEBuilderGBA/UnitForm.cs)：依赖文本读取，并识别技能系统和魔力拆分等补丁。
