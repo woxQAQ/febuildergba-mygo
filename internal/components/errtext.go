@@ -3,7 +3,7 @@ package components
 import (
 	"github.com/woxQAQ/febuildergba-mygo/fault"
 	"github.com/woxQAQ/febuildergba-mygo/game"
-	"github.com/woxQAQ/febuildergba-mygo/locales"
+	"github.com/woxQAQ/febuildergba-mygo/internal/locales"
 )
 
 // ErrorText renders the primary failure. Diagnostic strings are never treated

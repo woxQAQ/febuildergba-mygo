@@ -106,15 +106,15 @@ rom/                      字节文档、修改历史、保存与备份
 space/                    空间分配、资源搬迁规划与已确认引用更新
 gba/                      GBA 图形编解码
 game/                     游戏适配、表与字段定义、文本编解码和图像读写
-locales/                  JSON catalogs、MyGo 生成的 API 与字段标签解析
-pages/
-  workspace.go            标签导航、页面组合和窗口动作回调
-  empty.go                未打开 ROM 的页面
-  records/                记录列表、搜索、多选、表定位和批量编辑
-  texteditor/             文本 ID 导航、指令参考及编辑草稿
-  hexeditor/              十六进制页面及其草稿
 internal/
+  locales/                JSON catalogs、MyGo 生成的 API 与字段标签解析
   app/                    窗口生命周期、原生菜单、文件对话框、模拟器启动
+  pages/
+    workspace.go          标签导航、页面组合和窗口动作回调
+    empty.go              未打开 ROM 的页面
+    records/              记录列表、搜索、多选、表定位和批量编辑
+    texteditor/           文本 ID 导航、指令参考及编辑草稿
+    hexeditor/            十六进制页面及其草稿
   components/
     chrome.go             主题、标题栏、状态栏与通知
     state.go              单窗口共享编辑状态与撤销重做
@@ -154,7 +154,7 @@ flowchart TD
 
 ## 国际化
 
-`mygo.json` 将 `locales` 配置为翻译目录：`en.json` 是源语言，`zh-Hans.json` 是简体中文。静态文案调用生成的类型化函数，动态字段 ID 由 `locales/labels.go` 映射到 catalog key，领域错误文案由 `internal/components/errtext.go` 按结构化错误码显式映射；语言匹配、回退、复数与原生控件翻译由 MyGo 处理。`locales` 不导入领域包，所有层都可以依赖它。
+`mygo.json` 将 `internal/locales` 配置为翻译目录：`en.json` 是源语言，`zh-Hans.json` 是简体中文。静态文案调用生成的类型化函数，动态字段 ID 由 `internal/locales/labels.go` 映射到 catalog key，领域错误文案由 `internal/components/errtext.go` 按结构化错误码显式映射；语言匹配、回退、复数与原生控件翻译由 MyGo 处理。`locales` 不导入领域包，所有层都可以依赖它。
 
 修改 JSON 后执行：
 

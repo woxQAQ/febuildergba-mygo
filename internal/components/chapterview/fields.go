@@ -8,7 +8,7 @@ import (
 
 	"github.com/woxQAQ/febuildergba-mygo/game"
 	"github.com/woxQAQ/febuildergba-mygo/internal/components"
-	"github.com/woxQAQ/febuildergba-mygo/locales"
+	"github.com/woxQAQ/febuildergba-mygo/internal/locales"
 )
 
 type inputKey struct {

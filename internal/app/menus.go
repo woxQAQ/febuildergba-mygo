@@ -3,8 +3,8 @@ package app
 import (
 	"github.com/egoist/mygo"
 
-	"github.com/woxQAQ/febuildergba-mygo/locales"
-	"github.com/woxQAQ/febuildergba-mygo/pages"
+	"github.com/woxQAQ/febuildergba-mygo/internal/locales"
+	"github.com/woxQAQ/febuildergba-mygo/internal/pages"
 )
 
 func (m *application) setMenu() {

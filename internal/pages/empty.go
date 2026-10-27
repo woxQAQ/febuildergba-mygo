@@ -4,7 +4,7 @@ package pages
 import (
 	"github.com/egoist/mygo/ui"
 
-	"github.com/woxQAQ/febuildergba-mygo/locales"
+	"github.com/woxQAQ/febuildergba-mygo/internal/locales"
 )
 
 func empty(c *ui.Context) {

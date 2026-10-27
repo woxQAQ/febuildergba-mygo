@@ -34,4 +34,4 @@
 
 ## 实现位置
 
-[components](internal/components) 定义标题栏、状态提示、文本草稿及 [recordform](internal/components/recordform) 字段布局；[pages](pages) 组合记录导航、批量操作、通用文本和十六进制编辑。启动与构建命令统一维护在[README](README.md)。
+[components](internal/components) 定义标题栏、状态提示、文本草稿及 [recordform](internal/components/recordform) 字段布局；[pages](internal/pages) 组合记录导航、批量操作、通用文本和十六进制编辑。启动与构建命令统一维护在[README](README.md)。

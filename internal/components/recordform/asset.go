@@ -8,7 +8,7 @@ import (
 	"github.com/egoist/mygo/ui"
 
 	"github.com/woxQAQ/febuildergba-mygo/game"
-	"github.com/woxQAQ/febuildergba-mygo/locales"
+	"github.com/woxQAQ/febuildergba-mygo/internal/locales"
 	"github.com/woxQAQ/febuildergba-mygo/rom"
 )
 

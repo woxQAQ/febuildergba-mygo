@@ -9,7 +9,7 @@ import (
 	"github.com/egoist/mygo/i18n"
 	"github.com/egoist/mygo/ui"
 
-	"github.com/woxQAQ/febuildergba-mygo/locales"
+	"github.com/woxQAQ/febuildergba-mygo/internal/locales"
 )
 
 const HeaderHeight = 48

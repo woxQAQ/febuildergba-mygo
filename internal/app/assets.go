@@ -12,8 +12,8 @@ import (
 
 	"github.com/woxQAQ/febuildergba-mygo/fault"
 	"github.com/woxQAQ/febuildergba-mygo/game"
-	"github.com/woxQAQ/febuildergba-mygo/locales"
-	"github.com/woxQAQ/febuildergba-mygo/pages"
+	"github.com/woxQAQ/febuildergba-mygo/internal/locales"
+	"github.com/woxQAQ/febuildergba-mygo/internal/pages"
 )
 
 var (

@@ -9,7 +9,7 @@ import (
 
 	"github.com/woxQAQ/febuildergba-mygo/fault"
 	"github.com/woxQAQ/febuildergba-mygo/game"
-	"github.com/woxQAQ/febuildergba-mygo/pages"
+	"github.com/woxQAQ/febuildergba-mygo/internal/pages"
 )
 
 func logError(err error) {

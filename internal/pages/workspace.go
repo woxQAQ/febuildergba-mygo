@@ -8,10 +8,10 @@ import (
 	"github.com/woxQAQ/febuildergba-mygo/game"
 	"github.com/woxQAQ/febuildergba-mygo/internal/components"
 	"github.com/woxQAQ/febuildergba-mygo/internal/components/recordform"
-	"github.com/woxQAQ/febuildergba-mygo/locales"
-	"github.com/woxQAQ/febuildergba-mygo/pages/hexeditor"
-	"github.com/woxQAQ/febuildergba-mygo/pages/records"
-	"github.com/woxQAQ/febuildergba-mygo/pages/texteditor"
+	"github.com/woxQAQ/febuildergba-mygo/internal/locales"
+	"github.com/woxQAQ/febuildergba-mygo/internal/pages/hexeditor"
+	"github.com/woxQAQ/febuildergba-mygo/internal/pages/records"
+	"github.com/woxQAQ/febuildergba-mygo/internal/pages/texteditor"
 )
 
 // Actions connects page intent to the owning desktop window.
