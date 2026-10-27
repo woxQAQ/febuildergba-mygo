@@ -3,13 +3,14 @@ package rom
 
 import (
 	"bytes"
+	"cmp"
 	"crypto/sha256"
 	"errors"
 	"fmt"
 	"io"
 	"os"
 	"path/filepath"
-	"sort"
+	"slices"
 	"sync"
 	"time"
 )
@@ -171,10 +172,9 @@ func (d *Document) apply(revision uint64, label string, edit Edit) error {
 		return ErrSize
 	}
 	ordered := append([]Change(nil), edit.Changes...)
-	sort.Slice(
-		ordered,
-		func(i, j int) bool { return ordered[i].Offset < ordered[j].Offset },
-	)
+	slices.SortFunc(ordered, func(a, b Change) int {
+		return cmp.Compare(a.Offset, b.Offset)
+	})
 	op := operation{
 		label:      label,
 		beforeID:   d.stateID,

@@ -3,16 +3,18 @@
 package main
 
 import (
+	"cmp"
 	"encoding/csv"
 	"encoding/xml"
 	"errors"
 	"flag"
 	"fmt"
 	"io/fs"
+	"maps"
 	"os"
 	"path/filepath"
 	"regexp"
-	"sort"
+	"slices"
 	"strconv"
 	"strings"
 )
@@ -64,10 +66,9 @@ func run(directory, out string) (err error) {
 		}
 		entries = append(entries, items...)
 	}
-	sort.Slice(
-		entries,
-		func(i, j int) bool { return entries[i].id < entries[j].id },
-	)
+	slices.SortFunc(entries, func(a, b entry) int {
+		return cmp.Compare(a.id, b.id)
+	})
 	if err = writeInventory(out, entries); err != nil {
 		return err
 	}
@@ -264,11 +265,7 @@ func printCounts(out string, entries []entry) {
 		counts[item.kind]++
 	}
 	fmt.Printf("%s: %d entries\n", out, len(entries))
-	keys := make([]string, 0, len(counts))
-	for key := range counts {
-		keys = append(keys, key)
-	}
-	sort.Strings(keys)
+	keys := slices.Sorted(maps.Keys(counts))
 	for _, key := range keys {
 		fmt.Printf("  %s: %d\n", key, counts[key])
 	}

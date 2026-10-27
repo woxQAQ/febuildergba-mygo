@@ -39,7 +39,7 @@ func (rule tableRule) read(
 			return t
 		}
 	}
-	for i := 0; i < t.Count; i++ {
+	for i := range t.Count {
 		at := t.Address + i*t.Stride
 		if !within(data, at, t.Stride) {
 			break

@@ -61,7 +61,7 @@ func (f Field) Bounds() (int64, int64) {
 
 func (f Field) Value(data []byte, address int) int64 {
 	var v uint32
-	for i := 0; i < f.Width; i++ {
+	for i := range f.Width {
 		v |= uint32(data[address+f.Offset+i]) << (i * 8)
 	}
 	value := int64(v)

@@ -1,6 +1,7 @@
 package game
 
 import (
+	"errors"
 	"slices"
 	"strings"
 	"unicode"
@@ -147,7 +148,7 @@ func (f textFormat) encodeName(
 		return nil, ErrNameEncoding
 	}
 	encoded, err := f.encodeTextUnits(data, entry, units, true)
-	if err == ErrTextEncoding {
+	if errors.Is(err, ErrTextEncoding) {
 		return nil, ErrNameEncoding
 	}
 	return encoded, err

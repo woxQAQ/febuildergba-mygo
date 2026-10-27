@@ -196,8 +196,8 @@ func TestChapterMapRejectsDamagedResources(t *testing.T) {
 			s := openFixture(t, f)
 			before := s.Document.Snapshot()
 			_, err := s.ChapterMap(0)
-			var damaged *MapError
-			if !errors.Is(err, ErrMap) || !errors.As(err, &damaged) ||
+			damaged, ok := errors.AsType[*MapError](err)
+			if !errors.Is(err, ErrMap) || !ok ||
 				damaged.Resource != sample.resource {
 				t.Fatalf("resource error: %v, want %s", err, sample.resource)
 			}
