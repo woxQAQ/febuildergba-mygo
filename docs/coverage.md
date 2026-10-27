@@ -2,7 +2,7 @@
 
 基线：旧版子模块 `8e3557912ddab708d11bf85ad311b41bb6630fd1`。最终范围见 [重建计划](rebuild-plan.md)。本文件记录实际行为，不以窗口或源码文件数量估算功能完成率。
 
-[来源索引](../febuildergba-go/README.md#覆盖索引) 已枚举 `.csproj` 的独立编译项、`Program.cs` 中显式检查的 CLI 参数、配置目录的 TXT 文件，以及能静态提取到的窗口调用者。当前有 312 个表单、13 个用户控件、105 个其他源码项、12 个唯一 CLI 参数（含启动与 DEBUG 参数）、4,185 个按 `PATCH_` 文件名前缀归类的条目和 12,749 个其他 TXT 文件。`config` 只表示未按该前缀识别的 TXT，不代表文件内容都是配置；其中也有补丁定义、游戏文本、汇编符号和说明文档。
+[来源索引](../README.md#覆盖索引) 已枚举 `.csproj` 的独立编译项、`Program.cs` 中显式检查的 CLI 参数、配置目录的 TXT 文件，以及能静态提取到的窗口调用者。当前有 312 个表单、13 个用户控件、105 个其他源码项、12 个唯一 CLI 参数（含启动与 DEBUG 参数）、4,185 个按 `PATCH_` 文件名前缀归类的条目和 12,749 个其他 TXT 文件。`config` 只表示未按该前缀识别的 TXT，不代表文件内容都是配置；其中也有补丁定义、游戏文本、汇编符号和说明文档。
 
 索引共 17,376 项，其中 TXT 共 16,934 个：`config/data` 下 422 个、`config/patch2` 下 16,509 个、`config/translate` 下 3 个。不同游戏、语言及补丁历史版本会分别占用条目；文件数量不能等同于不同功能数。所有 `assessment` 值均由生成器固定写成 `unassessed`，不是新版完成状态，也不应手工维护。正则提取的调用者不是完整调用图；动态跳转、菜单子操作、二进制素材、非 TXT 外部格式及独立工具仍需要人工对照。下面的首批行为矩阵不替代这些剩余盘点。
 
@@ -182,7 +182,7 @@ flowchart LR
 
 ## 五版章节地图预览
 
-依据 `ImageUtilMap.DrawMap`／`GetChipsetID`、`MapPointerForm.PlistToOffsetAddr` 及五版 `ROMFE*` 指针位置。资源指针列表在旧版称为 PLIST；新版逐类读取当前入口，允许各类使用独立列表。GBA 背景图块解释位于 [background.go](../febuildergba-go/gba/background.go)，章节资源组合位于 [maps.go](../febuildergba-go/game/maps.go)。
+依据 `ImageUtilMap.DrawMap`／`GetChipsetID`、`MapPointerForm.PlistToOffsetAddr` 及五版 `ROMFE*` 指针位置。资源指针列表在旧版称为 PLIST；新版逐类读取当前入口，允许各类使用独立列表。GBA 背景图块解释位于 [background.go](../gba/background.go)，章节资源组合位于 [maps.go](../game/maps.go)。
 
 | ID | 能力 | 版本／前提 | 实现范围 |
 | --- | --- | --- | --- |
@@ -225,7 +225,7 @@ flowchart LR
 
 新增能力记录来源条目、版本、补丁前提、外部格式及实现状态，当前摘要见[实现记录](implementation-status.md)。
 
-来源索引用于定位旧实现、核对遗漏和查找关联资源。当前 Go 应用运行时不读取该 CSV，也不依赖旧版 TXT 目录。索引按需在本地生成，不纳入版本管理；旧版基线或扫描规则改变后应重新生成。生成命令见[编辑器 README](../febuildergba-go/README.md#覆盖索引)。
+来源索引用于定位旧实现、核对遗漏和查找关联资源。当前 Go 应用运行时不读取该 CSV，也不依赖旧版 TXT 目录。索引按需在本地生成，不纳入版本管理；旧版基线或扫描规则改变后应重新生成。生成命令见[编辑器 README](../README.md#覆盖索引)。
 
 ## 旧版 TXT 与新版兼容边界
 

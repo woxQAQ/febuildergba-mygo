@@ -1,2 +1,9 @@
 .DS_Store
 /.cache/
+/build/
+/.mygo/
+/.rom/
+/FEBuilderGBA-MYGO
+/febuildergba-mygo
+*.gba
+*.gba.backups/
