@@ -13,11 +13,11 @@ func NewMapFixture(version string) *FixtureBuilder {
 		f, roots = NewMinimalFE8U(), [4]int{0x19968, 0x1999C, 0x19900, 0x34680}
 	case "FE8J":
 		f, roots = NewMinimalFE8J(), [4]int{0x19640, 0x19674, 0x195D8, 0x34588}
-	case "FE7U":
+	case versionFE7U:
 		f, roots = NewMinimalFE7U(), [4]int{0x19230, 0x19264, 0x191C8, 0x3159C}
 	case "FE7J":
 		f, roots = NewMinimalFE7J(), [4]int{0x19618, 0x1964C, 0x195B0, 0x31ABC}
-	case "FE6":
+	case versionFE6:
 		f, roots = NewMinimalFE6(), [4]int{0x18AE4, 0x18B18, 0x18A7C, 0x2BB70}
 	default:
 		panic("unknown map fixture version: " + version)
@@ -75,9 +75,9 @@ func NewMapFixture(version string) *FixtureBuilder {
 	base := f.GetPosition("chapters")
 	stride := 148
 	switch version {
-	case "FE7U":
+	case versionFE7U:
 		stride = 152
-	case "FE6":
+	case versionFE6:
 		stride = 68
 	}
 	for i := range 2 {

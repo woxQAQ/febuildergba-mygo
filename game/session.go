@@ -133,6 +133,7 @@ type Adapter interface {
 	TableMove([]byte, Table) (space.Move, error)
 	Preview([]byte, AssetRef) (Preview, error)
 	ChapterMap([]byte, int) (MapPreview, error)
+	ChapterDeployments([]byte, int, int) (ChapterDeployments, error)
 	AssetImage([]byte, AssetRef) (*image.RGBA, error)
 	PlanAssetEdit([]byte, AssetRef, image.Image) (space.Plan, error)
 	TextCommands() []string

@@ -34,7 +34,8 @@ func fe7uFormat() gameFormat {
 				fields:        itemFields(),
 			},
 		},
-		chapters: fe7Chapters(0x31580, true),
+		chapters:    fe7Chapters(0x31580, true),
+		deployments: fe7Deployments(0x315D4, eventFE7U),
 		maps: mapFormat{
 			graphics: 0x19230,
 			palette:  0x19264,

@@ -303,6 +303,7 @@ func (g gameFormat) validAssetTargets(
 	for _, rule := range g.tableRules(data) {
 		protected = append(protected, rule.pointers...)
 	}
+	deploymentRanges := g.deploymentRanges(data)
 	seen := make(map[int]bool)
 	for _, resource := range resources {
 		at := resource.pointer
@@ -310,6 +311,11 @@ func (g gameFormat) validAssetTargets(
 			return false
 		}
 		seen[at] = true
+		for _, region := range deploymentRanges {
+			if at < region.End && region.Start < at+4 {
+				return false
+			}
+		}
 		for _, address := range protected {
 			if at < address+4 && address < at+4 {
 				return false

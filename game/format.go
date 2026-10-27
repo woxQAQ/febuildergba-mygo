@@ -2,15 +2,16 @@ package game
 
 // gameFormat groups the locations and encodings consumed by the shared editors.
 type gameFormat struct {
-	id, header string
-	minimum    int
-	tables     []tableRule
-	chapters   chapterFormat
-	maps       mapFormat
-	text       textFormat
-	portraits  portraitFormat
-	icons      iconFormat
-	features   func([]byte) (map[byte]string, []string)
+	id, header  string
+	minimum     int
+	tables      []tableRule
+	chapters    chapterFormat
+	deployments deploymentFormat
+	maps        mapFormat
+	text        textFormat
+	portraits   portraitFormat
+	icons       iconFormat
+	features    func([]byte) (map[byte]string, []string)
 }
 
 func (g gameFormat) ID() string { return g.id }

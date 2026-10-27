@@ -11,7 +11,7 @@ import (
 	"github.com/egoist/mygo/ui"
 
 	"github.com/woxQAQ/febuildergba-mygo/game"
-	"github.com/woxQAQ/febuildergba-mygo/internal/components/mapview"
+	"github.com/woxQAQ/febuildergba-mygo/internal/components/chapterview"
 	"github.com/woxQAQ/febuildergba-mygo/locales"
 )
 
@@ -21,7 +21,7 @@ type Form struct {
 	texts                 map[fieldKey]*textDraft
 	activeField           fieldKey
 	preview               assetPreview
-	chapterMap            mapview.View
+	chapter               chapterview.View
 	largePreview, showRaw bool
 	sidebar               float32
 	openHex               func(int, int)
@@ -49,7 +49,7 @@ func New(
 func (a *Form) Reset() {
 	a.ClearDrafts()
 	a.preview = assetPreview{}
-	a.chapterMap = mapview.View{}
+	a.chapter = chapterview.View{}
 }
 
 func (a *Form) ClearDrafts() {
@@ -124,12 +124,22 @@ func (a *Form) View(
 							TextColor(c.Theme().TextMuted)
 					}
 					if kind == game.Chapters {
-						a.chapterMap.Render(c, a.state.Session, row)
+						a.chapter.Render(
+							c,
+							a.state,
+							row,
+							a.showRaw,
+							a.jump,
+							a.openHex,
+						)
 					} else {
 						a.descriptionEditors(c, kind, row, table)
 					}
-					a.recordFields(c, kind, row, table)
-					if a.showRaw {
+					if kind != game.Chapters || a.chapter.Configuration() {
+						a.recordFields(c, kind, row, table)
+					}
+					if a.showRaw &&
+						(kind != game.Chapters || a.chapter.Configuration()) {
 						data, err := a.state.Session.Raw(
 							row.Address,
 							min(table.Stride, 256),
@@ -143,6 +153,8 @@ func (a *Form) View(
 						}
 					}
 				})
-			a.fieldInspector(c, kind, row, table)
+			if kind != game.Chapters || a.chapter.Configuration() {
+				a.fieldInspector(c, kind, row, table)
+			}
 		})
 }

@@ -182,6 +182,7 @@ func (g gameFormat) TableMove(data []byte, table Table) (space.Move, error) {
 		}
 		move.Reserved = append(move.Reserved, region)
 	}
+	move.Reserved = append(move.Reserved, g.deploymentRanges(data)...)
 	return move, nil
 }
 

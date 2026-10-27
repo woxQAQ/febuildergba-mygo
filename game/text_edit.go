@@ -312,6 +312,11 @@ func (g gameFormat) textEntry(data []byte, id uint16) (int, error) {
 		!within(data, entry, 4) {
 		return 0, ErrText
 	}
+	for _, region := range g.deploymentRanges(data) {
+		if entry < region.End && region.Start < entry+4 {
+			return 0, ErrLayout
+		}
+	}
 	protected := []int{g.text.pointer, g.text.treePointer, g.text.rootPointer}
 	for _, rule := range g.tableRules(data) {
 		protected = append(protected, rule.pointers...)

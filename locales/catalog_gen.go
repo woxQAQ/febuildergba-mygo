@@ -34,6 +34,688 @@ type Messages struct{ locale string }
 // source language.
 func In(locale string) Messages { return Messages{locale} }
 
+// Deployments says "Deployments"
+// in the language the app shows.
+func Deployments() string { return In(i18n.Locale()).Deployments() }
+
+// Deployments says "Deployments"
+// in the language of msgs.
+func (msgs Messages) Deployments() string {
+	return Catalog.Format(msgs.locale, "deployments", nil)
+}
+
+// DeployConfiguration says "Configuration"
+// in the language the app shows.
+func DeployConfiguration() string { return In(i18n.Locale()).DeployConfiguration() }
+
+// DeployConfiguration says "Configuration"
+// in the language of msgs.
+func (msgs Messages) DeployConfiguration() string {
+	return Catalog.Format(msgs.locale, "deploy_configuration", nil)
+}
+
+// DeployEntry says "Deployment entry"
+// in the language the app shows.
+func DeployEntry() string { return In(i18n.Locale()).DeployEntry() }
+
+// DeployEntry says "Deployment entry"
+// in the language of msgs.
+func (msgs Messages) DeployEntry() string {
+	return Catalog.Format(msgs.locale, "deploy_entry", nil)
+}
+
+// DeployScope says "Chapter tables and static references in opening and first player-turn events. Conditions are not executed. Marks show…"
+// in the language the app shows.
+func DeployScope() string { return In(i18n.Locale()).DeployScope() }
+
+// DeployScope says "Chapter tables and static references in opening and first player-turn events. Conditions are not executed. Marks show…"
+// in the language of msgs.
+func (msgs Messages) DeployScope() string {
+	return Catalog.Format(msgs.locale, "deploy_scope", nil)
+}
+
+// DeployPlayerNormal says "Player · normal"
+// in the language the app shows.
+func DeployPlayerNormal() string { return In(i18n.Locale()).DeployPlayerNormal() }
+
+// DeployPlayerNormal says "Player · normal"
+// in the language of msgs.
+func (msgs Messages) DeployPlayerNormal() string {
+	return Catalog.Format(msgs.locale, "deploy_player_normal", nil)
+}
+
+// DeployPlayerHard says "Player · hard"
+// in the language the app shows.
+func DeployPlayerHard() string { return In(i18n.Locale()).DeployPlayerHard() }
+
+// DeployPlayerHard says "Player · hard"
+// in the language of msgs.
+func (msgs Messages) DeployPlayerHard() string {
+	return Catalog.Format(msgs.locale, "deploy_player_hard", nil)
+}
+
+// DeploySkirmishPlayer1 says "Skirmish player · 1"
+// in the language the app shows.
+func DeploySkirmishPlayer1() string { return In(i18n.Locale()).DeploySkirmishPlayer1() }
+
+// DeploySkirmishPlayer1 says "Skirmish player · 1"
+// in the language of msgs.
+func (msgs Messages) DeploySkirmishPlayer1() string {
+	return Catalog.Format(msgs.locale, "deploy_skirmish_player_1", nil)
+}
+
+// DeploySkirmishPlayer2 says "Skirmish player · 2"
+// in the language the app shows.
+func DeploySkirmishPlayer2() string { return In(i18n.Locale()).DeploySkirmishPlayer2() }
+
+// DeploySkirmishPlayer2 says "Skirmish player · 2"
+// in the language of msgs.
+func (msgs Messages) DeploySkirmishPlayer2() string {
+	return Catalog.Format(msgs.locale, "deploy_skirmish_player_2", nil)
+}
+
+// DeploySkirmishPlayer3 says "Skirmish player · 3"
+// in the language the app shows.
+func DeploySkirmishPlayer3() string { return In(i18n.Locale()).DeploySkirmishPlayer3() }
+
+// DeploySkirmishPlayer3 says "Skirmish player · 3"
+// in the language of msgs.
+func (msgs Messages) DeploySkirmishPlayer3() string {
+	return Catalog.Format(msgs.locale, "deploy_skirmish_player_3", nil)
+}
+
+// DeploySkirmishEnemy1 says "Skirmish enemy · 1"
+// in the language the app shows.
+func DeploySkirmishEnemy1() string { return In(i18n.Locale()).DeploySkirmishEnemy1() }
+
+// DeploySkirmishEnemy1 says "Skirmish enemy · 1"
+// in the language of msgs.
+func (msgs Messages) DeploySkirmishEnemy1() string {
+	return Catalog.Format(msgs.locale, "deploy_skirmish_enemy_1", nil)
+}
+
+// DeploySkirmishEnemy2 says "Skirmish enemy · 2"
+// in the language the app shows.
+func DeploySkirmishEnemy2() string { return In(i18n.Locale()).DeploySkirmishEnemy2() }
+
+// DeploySkirmishEnemy2 says "Skirmish enemy · 2"
+// in the language of msgs.
+func (msgs Messages) DeploySkirmishEnemy2() string {
+	return Catalog.Format(msgs.locale, "deploy_skirmish_enemy_2", nil)
+}
+
+// DeploySkirmishEnemy3 says "Skirmish enemy · 3"
+// in the language the app shows.
+func DeploySkirmishEnemy3() string { return In(i18n.Locale()).DeploySkirmishEnemy3() }
+
+// DeploySkirmishEnemy3 says "Skirmish enemy · 3"
+// in the language of msgs.
+func (msgs Messages) DeploySkirmishEnemy3() string {
+	return Catalog.Format(msgs.locale, "deploy_skirmish_enemy_3", nil)
+}
+
+// DeployEliwoodEnemyNormal says "Eliwood enemy · normal"
+// in the language the app shows.
+func DeployEliwoodEnemyNormal() string { return In(i18n.Locale()).DeployEliwoodEnemyNormal() }
+
+// DeployEliwoodEnemyNormal says "Eliwood enemy · normal"
+// in the language of msgs.
+func (msgs Messages) DeployEliwoodEnemyNormal() string {
+	return Catalog.Format(msgs.locale, "deploy_eliwood_enemy_normal", nil)
+}
+
+// DeployEliwoodEnemyHard says "Eliwood enemy · hard"
+// in the language the app shows.
+func DeployEliwoodEnemyHard() string { return In(i18n.Locale()).DeployEliwoodEnemyHard() }
+
+// DeployEliwoodEnemyHard says "Eliwood enemy · hard"
+// in the language of msgs.
+func (msgs Messages) DeployEliwoodEnemyHard() string {
+	return Catalog.Format(msgs.locale, "deploy_eliwood_enemy_hard", nil)
+}
+
+// DeployHectorEnemyNormal says "Hector enemy · normal"
+// in the language the app shows.
+func DeployHectorEnemyNormal() string { return In(i18n.Locale()).DeployHectorEnemyNormal() }
+
+// DeployHectorEnemyNormal says "Hector enemy · normal"
+// in the language of msgs.
+func (msgs Messages) DeployHectorEnemyNormal() string {
+	return Catalog.Format(msgs.locale, "deploy_hector_enemy_normal", nil)
+}
+
+// DeployHectorEnemyHard says "Hector enemy · hard"
+// in the language the app shows.
+func DeployHectorEnemyHard() string { return In(i18n.Locale()).DeployHectorEnemyHard() }
+
+// DeployHectorEnemyHard says "Hector enemy · hard"
+// in the language of msgs.
+func (msgs Messages) DeployHectorEnemyHard() string {
+	return Catalog.Format(msgs.locale, "deploy_hector_enemy_hard", nil)
+}
+
+// DeployEliwoodPlayerNormal says "Eliwood player · normal"
+// in the language the app shows.
+func DeployEliwoodPlayerNormal() string { return In(i18n.Locale()).DeployEliwoodPlayerNormal() }
+
+// DeployEliwoodPlayerNormal says "Eliwood player · normal"
+// in the language of msgs.
+func (msgs Messages) DeployEliwoodPlayerNormal() string {
+	return Catalog.Format(msgs.locale, "deploy_eliwood_player_normal", nil)
+}
+
+// DeployEliwoodPlayerHard says "Eliwood player · hard"
+// in the language the app shows.
+func DeployEliwoodPlayerHard() string { return In(i18n.Locale()).DeployEliwoodPlayerHard() }
+
+// DeployEliwoodPlayerHard says "Eliwood player · hard"
+// in the language of msgs.
+func (msgs Messages) DeployEliwoodPlayerHard() string {
+	return Catalog.Format(msgs.locale, "deploy_eliwood_player_hard", nil)
+}
+
+// DeployHectorPlayerNormal says "Hector player · normal"
+// in the language the app shows.
+func DeployHectorPlayerNormal() string { return In(i18n.Locale()).DeployHectorPlayerNormal() }
+
+// DeployHectorPlayerNormal says "Hector player · normal"
+// in the language of msgs.
+func (msgs Messages) DeployHectorPlayerNormal() string {
+	return Catalog.Format(msgs.locale, "deploy_hector_player_normal", nil)
+}
+
+// DeployHectorPlayerHard says "Hector player · hard"
+// in the language the app shows.
+func DeployHectorPlayerHard() string { return In(i18n.Locale()).DeployHectorPlayerHard() }
+
+// DeployHectorPlayerHard says "Hector player · hard"
+// in the language of msgs.
+func (msgs Messages) DeployHectorPlayerHard() string {
+	return Catalog.Format(msgs.locale, "deploy_hector_player_hard", nil)
+}
+
+// DeployPlayer says "Player placement"
+// in the language the app shows.
+func DeployPlayer() string { return In(i18n.Locale()).DeployPlayer() }
+
+// DeployPlayer says "Player placement"
+// in the language of msgs.
+func (msgs Messages) DeployPlayer() string {
+	return Catalog.Format(msgs.locale, "deploy_player", nil)
+}
+
+// DeployEnemy says "Enemy placement"
+// in the language the app shows.
+func DeployEnemy() string { return In(i18n.Locale()).DeployEnemy() }
+
+// DeployEnemy says "Enemy placement"
+// in the language of msgs.
+func (msgs Messages) DeployEnemy() string {
+	return Catalog.Format(msgs.locale, "deploy_enemy", nil)
+}
+
+// DeployOpening says "Opening event reference"
+// in the language the app shows.
+func DeployOpening() string { return In(i18n.Locale()).DeployOpening() }
+
+// DeployOpening says "Opening event reference"
+// in the language of msgs.
+func (msgs Messages) DeployOpening() string {
+	return Catalog.Format(msgs.locale, "deploy_opening", nil)
+}
+
+// DeployTurnOne says "First player-turn event reference"
+// in the language the app shows.
+func DeployTurnOne() string { return In(i18n.Locale()).DeployTurnOne() }
+
+// DeployTurnOne says "First player-turn event reference"
+// in the language of msgs.
+func (msgs Messages) DeployTurnOne() string {
+	return Catalog.Format(msgs.locale, "deploy_turn_one", nil)
+}
+
+// DeployMovement says "Movement data"
+// in the language the app shows.
+func DeployMovement() string { return In(i18n.Locale()).DeployMovement() }
+
+// DeployMovement says "Movement data"
+// in the language of msgs.
+func (msgs Messages) DeployMovement() string {
+	return Catalog.Format(msgs.locale, "deploy_movement", nil)
+}
+
+// DeployCharacter says "Character ID"
+// in the language the app shows.
+func DeployCharacter() string { return In(i18n.Locale()).DeployCharacter() }
+
+// DeployCharacter says "Character ID"
+// in the language of msgs.
+func (msgs Messages) DeployCharacter() string {
+	return Catalog.Format(msgs.locale, "deploy_character", nil)
+}
+
+// DeployClass says "Class ID"
+// in the language the app shows.
+func DeployClass() string { return In(i18n.Locale()).DeployClass() }
+
+// DeployClass says "Class ID"
+// in the language of msgs.
+func (msgs Messages) DeployClass() string {
+	return Catalog.Format(msgs.locale, "deploy_class", nil)
+}
+
+// DeployLeader says "Leader ID"
+// in the language the app shows.
+func DeployLeader() string { return In(i18n.Locale()).DeployLeader() }
+
+// DeployLeader says "Leader ID"
+// in the language of msgs.
+func (msgs Messages) DeployLeader() string {
+	return Catalog.Format(msgs.locale, "deploy_leader", nil)
+}
+
+// DeployLevel says "Level"
+// in the language the app shows.
+func DeployLevel() string { return In(i18n.Locale()).DeployLevel() }
+
+// DeployLevel says "Level"
+// in the language of msgs.
+func (msgs Messages) DeployLevel() string {
+	return Catalog.Format(msgs.locale, "deploy_level", nil)
+}
+
+// DeployFaction says "Faction"
+// in the language the app shows.
+func DeployFaction() string { return In(i18n.Locale()).DeployFaction() }
+
+// DeployFaction says "Faction"
+// in the language of msgs.
+func (msgs Messages) DeployFaction() string {
+	return Catalog.Format(msgs.locale, "deploy_faction", nil)
+}
+
+// DeployAutolevel says "Autolevel"
+// in the language the app shows.
+func DeployAutolevel() string { return In(i18n.Locale()).DeployAutolevel() }
+
+// DeployAutolevel says "Autolevel"
+// in the language of msgs.
+func (msgs Messages) DeployAutolevel() string {
+	return Catalog.Format(msgs.locale, "deploy_autolevel", nil)
+}
+
+// DeployStartX says "Start X"
+// in the language the app shows.
+func DeployStartX() string { return In(i18n.Locale()).DeployStartX() }
+
+// DeployStartX says "Start X"
+// in the language of msgs.
+func (msgs Messages) DeployStartX() string {
+	return Catalog.Format(msgs.locale, "deploy_start_x", nil)
+}
+
+// DeployStartY says "Start Y"
+// in the language the app shows.
+func DeployStartY() string { return In(i18n.Locale()).DeployStartY() }
+
+// DeployStartY says "Start Y"
+// in the language of msgs.
+func (msgs Messages) DeployStartY() string {
+	return Catalog.Format(msgs.locale, "deploy_start_y", nil)
+}
+
+// DeployEndX says "End X"
+// in the language the app shows.
+func DeployEndX() string { return In(i18n.Locale()).DeployEndX() }
+
+// DeployEndX says "End X"
+// in the language of msgs.
+func (msgs Messages) DeployEndX() string {
+	return Catalog.Format(msgs.locale, "deploy_end_x", nil)
+}
+
+// DeployEndY says "End Y"
+// in the language the app shows.
+func DeployEndY() string { return In(i18n.Locale()).DeployEndY() }
+
+// DeployEndY says "End Y"
+// in the language of msgs.
+func (msgs Messages) DeployEndY() string {
+	return Catalog.Format(msgs.locale, "deploy_end_y", nil)
+}
+
+// DeployPosition says "Position"
+// in the language the app shows.
+func DeployPosition() string { return In(i18n.Locale()).DeployPosition() }
+
+// DeployPosition says "Position"
+// in the language of msgs.
+func (msgs Messages) DeployPosition() string {
+	return Catalog.Format(msgs.locale, "deploy_position", nil)
+}
+
+// DeployPositionFlags says "Position flags"
+// in the language the app shows.
+func DeployPositionFlags() string { return In(i18n.Locale()).DeployPositionFlags() }
+
+// DeployPositionFlags says "Position flags"
+// in the language of msgs.
+func (msgs Messages) DeployPositionFlags() string {
+	return Catalog.Format(msgs.locale, "deploy_position_flags", nil)
+}
+
+// DeployAi says "AI"
+// in the language the app shows.
+func DeployAi() string { return In(i18n.Locale()).DeployAi() }
+
+// DeployAi says "AI"
+// in the language of msgs.
+func (msgs Messages) DeployAi() string {
+	return Catalog.Format(msgs.locale, "deploy_ai", nil)
+}
+
+// DeployItem1 says "Item 1"
+// in the language the app shows.
+func DeployItem1() string { return In(i18n.Locale()).DeployItem1() }
+
+// DeployItem1 says "Item 1"
+// in the language of msgs.
+func (msgs Messages) DeployItem1() string {
+	return Catalog.Format(msgs.locale, "deploy_item_1", nil)
+}
+
+// DeployItem2 says "Item 2"
+// in the language the app shows.
+func DeployItem2() string { return In(i18n.Locale()).DeployItem2() }
+
+// DeployItem2 says "Item 2"
+// in the language of msgs.
+func (msgs Messages) DeployItem2() string {
+	return Catalog.Format(msgs.locale, "deploy_item_2", nil)
+}
+
+// DeployItem3 says "Item 3"
+// in the language the app shows.
+func DeployItem3() string { return In(i18n.Locale()).DeployItem3() }
+
+// DeployItem3 says "Item 3"
+// in the language of msgs.
+func (msgs Messages) DeployItem3() string {
+	return Catalog.Format(msgs.locale, "deploy_item_3", nil)
+}
+
+// DeployItem4 says "Item 4"
+// in the language the app shows.
+func DeployItem4() string { return In(i18n.Locale()).DeployItem4() }
+
+// DeployItem4 says "Item 4"
+// in the language of msgs.
+func (msgs Messages) DeployItem4() string {
+	return Catalog.Format(msgs.locale, "deploy_item_4", nil)
+}
+
+// DeployAi1 says "AI 1"
+// in the language the app shows.
+func DeployAi1() string { return In(i18n.Locale()).DeployAi1() }
+
+// DeployAi1 says "AI 1"
+// in the language of msgs.
+func (msgs Messages) DeployAi1() string {
+	return Catalog.Format(msgs.locale, "deploy_ai_1", nil)
+}
+
+// DeployAi2 says "AI 2"
+// in the language the app shows.
+func DeployAi2() string { return In(i18n.Locale()).DeployAi2() }
+
+// DeployAi2 says "AI 2"
+// in the language of msgs.
+func (msgs Messages) DeployAi2() string {
+	return Catalog.Format(msgs.locale, "deploy_ai_2", nil)
+}
+
+// DeployAi3 says "AI 3"
+// in the language the app shows.
+func DeployAi3() string { return In(i18n.Locale()).DeployAi3() }
+
+// DeployAi3 says "AI 3"
+// in the language of msgs.
+func (msgs Messages) DeployAi3() string {
+	return Catalog.Format(msgs.locale, "deploy_ai_3", nil)
+}
+
+// DeployAi4 says "AI 4"
+// in the language the app shows.
+func DeployAi4() string { return In(i18n.Locale()).DeployAi4() }
+
+// DeployAi4 says "AI 4"
+// in the language of msgs.
+func (msgs Messages) DeployAi4() string {
+	return Catalog.Format(msgs.locale, "deploy_ai_4", nil)
+}
+
+// DeployStart says "Start positions"
+// in the language the app shows.
+func DeployStart() string { return In(i18n.Locale()).DeployStart() }
+
+// DeployStart says "Start positions"
+// in the language of msgs.
+func (msgs Messages) DeployStart() string {
+	return Catalog.Format(msgs.locale, "deploy_start", nil)
+}
+
+// DeployEnd says "End positions"
+// in the language the app shows.
+func DeployEnd() string { return In(i18n.Locale()).DeployEnd() }
+
+// DeployEnd says "End positions"
+// in the language of msgs.
+func (msgs Messages) DeployEnd() string {
+	return Catalog.Format(msgs.locale, "deploy_end", nil)
+}
+
+// DeployAdd says "Add unit"
+// in the language the app shows.
+func DeployAdd() string { return In(i18n.Locale()).DeployAdd() }
+
+// DeployAdd says "Add unit"
+// in the language of msgs.
+func (msgs Messages) DeployAdd() string {
+	return Catalog.Format(msgs.locale, "deploy_add", nil)
+}
+
+// DeployDuplicate says "Duplicate unit"
+// in the language the app shows.
+func DeployDuplicate() string { return In(i18n.Locale()).DeployDuplicate() }
+
+// DeployDuplicate says "Duplicate unit"
+// in the language of msgs.
+func (msgs Messages) DeployDuplicate() string {
+	return Catalog.Format(msgs.locale, "deploy_duplicate", nil)
+}
+
+// DeployRemove says "Remove unit"
+// in the language the app shows.
+func DeployRemove() string { return In(i18n.Locale()).DeployRemove() }
+
+// DeployRemove says "Remove unit"
+// in the language of msgs.
+func (msgs Messages) DeployRemove() string {
+	return Catalog.Format(msgs.locale, "deploy_remove", nil)
+}
+
+// DeployPreview says "Preview deployment"
+// in the language the app shows.
+func DeployPreview() string { return In(i18n.Locale()).DeployPreview() }
+
+// DeployPreview says "Preview deployment"
+// in the language of msgs.
+func (msgs Messages) DeployPreview() string {
+	return Catalog.Format(msgs.locale, "deploy_preview", nil)
+}
+
+// DeployApply says "Apply deployment"
+// in the language the app shows.
+func DeployApply() string { return In(i18n.Locale()).DeployApply() }
+
+// DeployApply says "Apply deployment"
+// in the language of msgs.
+func (msgs Messages) DeployApply() string {
+	return Catalog.Format(msgs.locale, "deploy_apply", nil)
+}
+
+// DeployReload says "Discard draft and reload"
+// in the language the app shows.
+func DeployReload() string { return In(i18n.Locale()).DeployReload() }
+
+// DeployReload says "Discard draft and reload"
+// in the language of msgs.
+func (msgs Messages) DeployReload() string {
+	return Catalog.Format(msgs.locale, "deploy_reload", nil)
+}
+
+// DeployEmpty says "This entry is empty. Add a unit to create a deployment group."
+// in the language the app shows.
+func DeployEmpty() string { return In(i18n.Locale()).DeployEmpty() }
+
+// DeployEmpty says "This entry is empty. Add a unit to create a deployment group."
+// in the language of msgs.
+func (msgs Messages) DeployEmpty() string {
+	return Catalog.Format(msgs.locale, "deploy_empty", nil)
+}
+
+// DeployDraft says "Unapplied deployment draft"
+// in the language the app shows.
+func DeployDraft() string { return In(i18n.Locale()).DeployDraft() }
+
+// DeployDraft says "Unapplied deployment draft"
+// in the language of msgs.
+func (msgs Messages) DeployDraft() string {
+	return Catalog.Format(msgs.locale, "deploy_draft", nil)
+}
+
+// DeployStale says "The ROM or table layout changed. This draft is preserved; discard it and reload before applying."
+// in the language the app shows.
+func DeployStale() string { return In(i18n.Locale()).DeployStale() }
+
+// DeployStale says "The ROM or table layout changed. This draft is preserved; discard it and reload before applying."
+// in the language of msgs.
+func (msgs Messages) DeployStale() string {
+	return Catalog.Format(msgs.locale, "deploy_stale", nil)
+}
+
+// DeployPreviewScope says "Append deployment data and update the selected pointer site. Other pointers keep their existing data. Chapters sharin…"
+// in the language the app shows.
+func DeployPreviewScope() string { return In(i18n.Locale()).DeployPreviewScope() }
+
+// DeployPreviewScope says "Append deployment data and update the selected pointer site. Other pointers keep their existing data. Chapters sharin…"
+// in the language of msgs.
+func (msgs Messages) DeployPreviewScope() string {
+	return Catalog.Format(msgs.locale, "deploy_preview_scope", nil)
+}
+
+// DeployUses says "Known chapters sharing this entry"
+// in the language the app shows.
+func DeployUses() string { return In(i18n.Locale()).DeployUses() }
+
+// DeployUses says "Known chapters sharing this entry"
+// in the language of msgs.
+func (msgs Messages) DeployUses() string {
+	return Catalog.Format(msgs.locale, "deploy_uses", nil)
+}
+
+// DeployPlaceStart says "Set start to selected cell"
+// in the language the app shows.
+func DeployPlaceStart() string { return In(i18n.Locale()).DeployPlaceStart() }
+
+// DeployPlaceStart says "Set start to selected cell"
+// in the language of msgs.
+func (msgs Messages) DeployPlaceStart() string {
+	return Catalog.Format(msgs.locale, "deploy_place_start", nil)
+}
+
+// DeployPlaceEnd says "Set end to selected cell"
+// in the language the app shows.
+func DeployPlaceEnd() string { return In(i18n.Locale()).DeployPlaceEnd() }
+
+// DeployPlaceEnd says "Set end to selected cell"
+// in the language of msgs.
+func (msgs Messages) DeployPlaceEnd() string {
+	return Catalog.Format(msgs.locale, "deploy_place_end", nil)
+}
+
+// DeployPositionHelp says "Faction: 0 player, 1 ally, 2 enemy, 3 reserved. Autolevel: 0 off, 1 on. Class 0 inherits the character's class. FE8 e…"
+// in the language the app shows.
+func DeployPositionHelp() string { return In(i18n.Locale()).DeployPositionHelp() }
+
+// DeployPositionHelp says "Faction: 0 player, 1 ally, 2 enemy, 3 reserved. Autolevel: 0 off, 1 on. Class 0 inherits the character's class. FE8 e…"
+// in the language of msgs.
+func (msgs Messages) DeployPositionHelp() string {
+	return Catalog.Format(msgs.locale, "deploy_position_help", nil)
+}
+
+// DeployPickHelp says "Click to select a unit; repeat to cycle stacked units. Select an empty cell, then use the position buttons to move th…"
+// in the language the app shows.
+func DeployPickHelp() string { return In(i18n.Locale()).DeployPickHelp() }
+
+// DeployPickHelp says "Click to select a unit; repeat to cycle stacked units. Select an empty cell, then use the position buttons to move th…"
+// in the language of msgs.
+func (msgs Messages) DeployPickHelp() string {
+	return Catalog.Format(msgs.locale, "deploy_pick_help", nil)
+}
+
+// DeployNoSelection says "Select a unit to edit its properties."
+// in the language the app shows.
+func DeployNoSelection() string { return In(i18n.Locale()).DeployNoSelection() }
+
+// DeployNoSelection says "Select a unit to edit its properties."
+// in the language of msgs.
+func (msgs Messages) DeployNoSelection() string {
+	return Catalog.Format(msgs.locale, "deploy_no_selection", nil)
+}
+
+// GameInvalidDeployment says "The deployment entry, records or movement data could not be read. Other entries remain editable."
+// in the language the app shows.
+func GameInvalidDeployment() string { return In(i18n.Locale()).GameInvalidDeployment() }
+
+// GameInvalidDeployment says "The deployment entry, records or movement data could not be read. Other entries remain editable."
+// in the language of msgs.
+func (msgs Messages) GameInvalidDeployment() string {
+	return Catalog.Format(msgs.locale, "game_invalid_deployment", nil)
+}
+
+// GameIncompleteDeploymentScript says "Some event references could not be resolved statically. Available entries remain editable."
+// in the language the app shows.
+func GameIncompleteDeploymentScript() string {
+	return In(i18n.Locale()).GameIncompleteDeploymentScript()
+}
+
+// GameIncompleteDeploymentScript says "Some event references could not be resolved statically. Available entries remain editable."
+// in the language of msgs.
+func (msgs Messages) GameIncompleteDeploymentScript() string {
+	return Catalog.Format(msgs.locale, "game_incomplete_deployment_script", nil)
+}
+
+// DeployRaw says "Deployment bytes"
+// in the language the app shows.
+func DeployRaw() string { return In(i18n.Locale()).DeployRaw() }
+
+// DeployRaw says "Deployment bytes"
+// in the language of msgs.
+func (msgs Messages) DeployRaw() string {
+	return Catalog.Format(msgs.locale, "deploy_raw", nil)
+}
+
+// DeployReference says "Entry pointer"
+// in the language the app shows.
+func DeployReference() string { return In(i18n.Locale()).DeployReference() }
+
+// DeployReference says "Entry pointer"
+// in the language of msgs.
+func (msgs Messages) DeployReference() string {
+	return Catalog.Format(msgs.locale, "deploy_reference", nil)
+}
+
 // FaultExists says "The requested path already exists. Check its contents or choose a different location."
 // in the language the app shows.
 func FaultExists() string { return In(i18n.Locale()).FaultExists() }
@@ -174,11 +856,11 @@ func (msgs Messages) MapChooseCell() string {
 	return Catalog.Format(msgs.locale, "map_choose_cell", nil)
 }
 
-// MapPreviewScope says "Static base map. Units, fog, animations and event changes are not shown."
+// MapPreviewScope says "Static base map before fog, animations and event changes. The deployment view overlays the selected group’s record …"
 // in the language the app shows.
 func MapPreviewScope() string { return In(i18n.Locale()).MapPreviewScope() }
 
-// MapPreviewScope says "Static base map. Units, fog, animations and event changes are not shown."
+// MapPreviewScope says "Static base map before fog, animations and event changes. The deployment view overlays the selected group’s record …"
 // in the language of msgs.
 func (msgs Messages) MapPreviewScope() string {
 	return Catalog.Format(msgs.locale, "map_preview_scope", nil)

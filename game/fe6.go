@@ -37,7 +37,8 @@ func fe6Format() gameFormat {
 				fields:        fe6ItemFields(),
 			},
 		},
-		chapters: fe6Chapters(),
+		chapters:    fe6Chapters(),
+		deployments: fe6Deployments(0x2BBCC),
 		maps: mapFormat{
 			graphics: 0x18AE4,
 			palette:  0x18B18,

@@ -2,6 +2,7 @@
 package mapview
 
 import (
+	"fmt"
 	"image"
 
 	"github.com/woxQAQ/febuildergba-mygo/internal/components"
@@ -11,6 +12,18 @@ import (
 	"github.com/woxQAQ/febuildergba-mygo/game"
 	"github.com/woxQAQ/febuildergba-mygo/locales"
 )
+
+type Marker struct {
+	Position       image.Point
+	Index, Faction int
+	Selected       bool
+}
+
+type Overlay struct {
+	Markers []Marker
+	Choose  func(image.Point)
+	Focus   *image.Point
+}
 
 type View struct {
 	session          *game.Session
@@ -52,8 +65,28 @@ func (v *View) load(session *game.Session, row game.Row) {
 	}
 }
 
-func (v *View) Render(c *ui.Context, session *game.Session, row game.Row) {
+func (v *View) Selection() (image.Point, bool) {
+	_, valid := v.resource.Cell(v.selection.X, v.selection.Y)
+	return v.selection, v.selected && valid && v.err == nil
+}
+
+func (v *View) focus(point image.Point) {
+	v.selection, v.selected = point, true
+	scale := float32(uint32(1)<<uint(v.zoom)) / 2
+	v.scroll.X = max(0, float32(point.X)*16*scale-120)
+	v.scroll.Y = max(0, float32(point.Y)*16*scale-120)
+}
+
+func (v *View) Render(
+	c *ui.Context,
+	session *game.Session,
+	row game.Row,
+	overlay Overlay,
+) {
 	v.load(session, row)
+	if overlay.Focus != nil {
+		v.focus(*overlay.Focus)
+	}
 	ui.Column(c.Key("chapter-map")).Gap(8).Children(func() {
 		ui.Row(c).Wrap().Gap(12).AlignItems(ui.Center).Children(func() {
 			ui.Text(c, locales.MapPreview()).
@@ -126,6 +159,9 @@ func (v *View) Render(c *ui.Context, session *game.Session, row game.Row) {
 							v.selection.X,
 							v.selection.Y,
 						)
+						if v.selected && overlay.Choose != nil {
+							overlay.Choose(v.selection)
+						}
 					}
 				}
 				if _, _, ended := canvas.DragEnded(); ended {
@@ -133,7 +169,7 @@ func (v *View) Render(c *ui.Context, session *game.Session, row game.Row) {
 				}
 				accent := c.Theme().Accent
 				canvas.DrawOver(
-					func(p *ui.Painter, r ui.Rect) { v.overlay(p, r, scale, accent) },
+					func(p *ui.Painter, r ui.Rect) { v.overlay(p, r, scale, accent, overlay.Markers) },
 				)
 			})
 		if v.selected {
@@ -153,6 +189,7 @@ func (v *View) overlay(
 	r ui.Rect,
 	scale float32,
 	accent ui.Color,
+	markers []Marker,
 ) {
 	cell := 16 * scale
 	if v.grid {
@@ -163,6 +200,41 @@ func (v *View) overlay(
 		for y := 1; y < v.resource.Height; y++ {
 			at := r.Y + float32(y)*cell
 			p.Line(r.X, at, r.X+r.W, at, 1, ui.RGBA(0, 0, 0, 0.4))
+		}
+	}
+	colors := []ui.Color{
+		ui.RGB(45, 91, 166),
+		ui.RGB(45, 122, 74),
+		ui.RGB(172, 55, 47),
+		ui.RGB(90, 90, 90),
+	}
+	for _, marker := range markers {
+		if _, valid := v.resource.Cell(
+			marker.Position.X,
+			marker.Position.Y,
+		); !valid {
+			continue
+		}
+		box := ui.Rect{
+			X: r.X + float32(marker.Position.X)*cell + 1,
+			Y: r.Y + float32(marker.Position.Y)*cell + 1,
+			W: cell - 2,
+			H: cell - 2,
+		}
+		p.Fill(box, colors[marker.Faction&3], 0)
+		p.Stroke(box, ui.RGB(255, 255, 255), 0, 1)
+		if cell >= 16 {
+			p.Text(
+				box.X+1,
+				box.Y,
+				fmt.Sprintf("%02X", marker.Index),
+				min(cell*0.6, 16),
+				ui.RGB(255, 255, 255),
+			)
+		}
+		if marker.Selected {
+			p.Stroke(box, ui.RGB(255, 255, 255), 0, 3)
+			p.Stroke(box, accent, 0, 1)
 		}
 	}
 	if v.selected {
