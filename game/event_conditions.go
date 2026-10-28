@@ -25,40 +25,69 @@ type EventTable uint8
 const (
 	TurnEvents EventTable = iota
 	AlwaysEvents
+	TalkEvents
 )
 
+var eventTables = [...]EventTable{TurnEvents, TalkEvents, AlwaysEvents}
+
 func (table EventTable) offset() int {
-	if table == AlwaysEvents {
+	switch table {
+	case AlwaysEvents:
 		return 12
+	case TalkEvents:
+		return 4
+	default:
+		return 0
 	}
-	return 0
 }
 
-func (table EventTable) condition() int {
-	if table == AlwaysEvents {
+func (f deploymentFormat) condition(table EventTable) int {
+	switch table {
+	case AlwaysEvents:
 		return 0x0B
+	case TalkEvents:
+		if f.kind == eventFE6 {
+			return 4
+		}
+		return 3
+	default:
+		return 2
 	}
-	return 2
 }
 
 func (table EventTable) source() string {
-	if table == AlwaysEvents {
+	switch table {
+	case AlwaysEvents:
 		return "deploy_area_event"
+	case TalkEvents:
+		return "deploy_talk_event"
+	default:
+		return "deploy_turn_event"
 	}
-	return "deploy_turn_event"
+}
+
+func (event EventCondition) source(table EventTable) string {
+	if table == AlwaysEvents && event.Kind != 11 {
+		return "deploy_objective_event"
+	}
+	return table.source()
 }
 
 // EventCondition retains its native bytes independently of its script. Typed
 // parameters are decoded views, and only confirmed fields are offered for edits.
 type EventCondition struct {
-	Address, Kind, Flag, Script int
-	Start, End, Phase           int
-	Route                       uint32
-	X1, Y1, X2, Y2              int
-	Raw                         []byte
-	Groups                      []DeploymentGroup
-	Warnings                    []error
-	reversedArea                bool
+	Address, Kind, Flag, Script           int
+	Start, End, Phase                     int
+	Route                                 uint32
+	X1, Y1, X2, Y2                        int
+	Initiator, Target, TalkMode, TalkFlag int
+	TriggerFlag                           uint32
+	Rout                                  bool
+	Texts                                 []uint16
+	Raw                                   []byte
+	Groups                                []DeploymentGroup
+	Warnings                              []error
+	reversedArea                          bool
 }
 
 // Area returns map cell bounds with an exclusive maximum. The native endpoints
@@ -78,8 +107,16 @@ func (event EventCondition) Area() image.Rectangle {
 	return image.Rect(x1, y1, x2+1, y2+1)
 }
 
-func (event *EventCondition) decode(raw []byte) {
+func (event *EventCondition) decode(raw []byte, f deploymentFormat) {
 	event.Raw = bytes.Clone(raw)
+	event.reversedArea = f.kind == eventFE8
+	event.TriggerFlag = u32(raw, 8)
+	if f.kind != eventFE8 {
+		event.TriggerFlag &= 0xFFFF
+	}
+	event.Rout = f.rout != 0 && int(u32(raw, 8)) == f.rout &&
+		((f.kind == eventFE6 && u16(raw, 0) == 13) ||
+			(f.kind != eventFE6 && u16(raw, 0) == 14))
 	event.Kind, event.Flag = int(u16(raw, 0)), int(u16(raw, 2))
 	event.Start, event.End, event.Phase = int(
 		raw[8],
@@ -88,8 +125,14 @@ func (event *EventCondition) decode(raw []byte) {
 	), int(
 		u16(raw, 10),
 	)
+	event.Initiator, event.Target = int(raw[8]), int(raw[9])
+	event.TalkMode, event.TalkFlag = 0, 0
 	if len(raw) == 16 {
 		event.Route = u32(raw, 12)
+		event.TalkMode, event.TalkFlag = int(u16(raw, 12)), int(u16(raw, 14))
+		if f.kind == eventFE7J || f.kind == eventFE7U {
+			event.TalkMode &= 0xFF
+		}
 	}
 	// Native area coordinates use signed bytes, including off-map bounds.
 	event.X1, event.Y1, event.X2, event.Y2 = int(
@@ -109,9 +152,13 @@ type ChapterEvents struct {
 	Events           []EventCondition
 	ranges           []space.Range
 	format           deploymentFormat
+	ending           *EventCondition
 }
 
 func (f deploymentFormat) eventStride(table EventTable, kind int) int {
+	if table == TalkEvents && f.kind != eventFE6 {
+		return 16
+	}
 	if table == TurnEvents && (f.kind == eventFE7J || f.kind == eventFE7U) &&
 		kind != 1 {
 		return 16
@@ -142,7 +189,7 @@ func (f deploymentFormat) readEvents(
 		Range:    &fault.Range{Offset: site, Length: 4, Size: len(data)},
 	}
 	defer func() { err = fault.Wrap(err, "game.read_event_conditions", ctx) }()
-	if table > AlwaysEvents || site < 0xC0 || site%4 != 0 ||
+	if table > TalkEvents || site < 0xC0 || site%4 != 0 ||
 		!within(data, site, 4) {
 		return result, ErrEventConditions
 	}
@@ -171,8 +218,11 @@ func (f deploymentFormat) readEvents(
 			return result, ErrEventConditions
 		}
 		event := EventCondition{Address: at, reversedArea: f.kind == eventFE8}
-		event.decode(data[at : at+length])
+		event.decode(data[at:at+length], f)
 		event.Script, _ = pointer(data, at+4)
+		if u32(data, at+4) == 1 {
+			event.Script = 1 // Native marker: set the completion flag without a script.
+		}
 		result.Events = append(result.Events, event)
 		at += length
 	}
@@ -206,7 +256,7 @@ func (g gameFormat) ChapterEvents(
 	chapter, address int,
 	table EventTable,
 ) (ChapterEvents, error) {
-	if table > AlwaysEvents {
+	if table > TalkEvents {
 		return ChapterEvents{}, ErrEventConditions
 	}
 	for _, field := range g.chapters.fields {
@@ -231,31 +281,43 @@ func (g gameFormat) ChapterEvents(
 		}
 		parsed := make(map[int]DeploymentGroup)
 		for i := range result.Events {
-			event := &result.Events[i]
-			resources := ChapterDeployments{}
-			scanner := deploymentScanner{
-				format:    g.deployments,
-				data:      data,
-				result:    &resources,
-				seen:      make(map[int]bool),
-				active:    make(map[int]bool),
-				parsed:    parsed,
-				remaining: 8192,
-				chapter:   chapter,
-			}
-			if event.Script < 0xC0 || event.Script%4 != 0 {
-				scanner.warn(event.Address + 4)
-			} else {
-				scanner.walk(
-					event.Script,
-					[16]int{},
-					0,
+			result.ranges = append(
+				result.ranges,
+				g.deployments.eventResources(
+					data,
 					chapter,
-					table.source(),
+					table,
+					&result.Events[i],
+					parsed,
+				)...)
+		}
+		if table == AlwaysEvents {
+			site := header + g.deployments.ending
+			if within(data, site, 4) {
+				result.ranges = append(
+					result.ranges,
+					space.Range{Start: site, End: site + 4},
 				)
+				if script, valid := pointer(
+					data,
+					site,
+				); valid && script >= 0xC0 &&
+					script%4 == 0 {
+					result.ending = &EventCondition{
+						Address: site,
+						Script:  script,
+					}
+					result.ranges = append(
+						result.ranges,
+						g.deployments.eventResources(
+							data,
+							chapter,
+							table,
+							result.ending,
+							parsed,
+						)...)
+				}
 			}
-			event.Groups, event.Warnings = resources.Groups, resources.Warnings
-			result.ranges = append(result.ranges, resources.ranges...)
 		}
 		return result, nil
 	}

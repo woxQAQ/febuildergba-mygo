@@ -6,6 +6,6 @@ import (
 
 // TextDraft keeps text editing commands with the focused, unapplied draft.
 func TextDraft(state *State, input ui.Element) ui.Element {
-	state.TextFocused = state.TextFocused || input.Focused()
+	state.TextFocused = state.TextFocused || input.FocusWithin()
 	return input
 }

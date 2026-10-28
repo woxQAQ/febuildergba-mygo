@@ -20,6 +20,9 @@ type entryDraft struct {
 	selected, lastSelected int
 	list                   ui.ListState
 	inputs                 map[inputKey]*numberDraft
+	pathMode               int
+	pathUnitChoice         string
+	paths                  map[int]*pathState
 }
 
 type chapterSelection struct {
@@ -67,7 +70,7 @@ func (v *View) draft(
 	group game.DeploymentGroup,
 ) *entryDraft {
 	entry := v.entries[group.Pointer]
-	if entry != nil && !entry.data.Modified() &&
+	if entry != nil && !entry.data.Modified() && !entry.invalid() &&
 		!entry.data.Current(state.Session) {
 		delete(v.entries, group.Pointer)
 		entry = nil
@@ -160,20 +163,18 @@ func (v *View) Render(
 	advanced bool,
 	jump func(game.Kind, int),
 	openHex func(int, int),
+	openText func(uint16),
 ) {
 	v.load(state, row)
-	ui.Tabs(c.Key("chapter-mode"), &v.mode, locales.DeployConfiguration(), locales.Deployments(), locales.TurnEvents(), locales.AreaEvents()).
+	ui.Tabs(c.Key("chapter-mode"), &v.mode, locales.DeployConfiguration(), locales.Deployments(), locales.TurnEvents(), locales.AreaEvents(), locales.TalkEvents(), locales.Objectives()).
 		Label(locales.Chapters())
 	if v.Configuration() {
 		v.mapView.Render(c, state.Session, row, mapview.Overlay{})
 		return
 	}
-	if v.mode == 2 || v.mode == 3 {
-		table := game.TurnEvents
-		if v.mode == 3 {
-			table = game.AlwaysEvents
-		}
-		v.eventEditor(c, state, row, table, advanced, jump, openHex)
+	if v.mode >= 2 && v.mode <= 5 {
+		table := [...]game.EventTable{game.TurnEvents, game.AlwaysEvents, game.TalkEvents, game.AlwaysEvents}[v.mode-2]
+		v.eventEditor(c, state, row, table, advanced, jump, openHex, openText)
 		return
 	}
 	ui.Column(c.Key("deployments")).Gap(12).Children(func() {
@@ -240,9 +241,6 @@ func (v *View) overlay(
 	for i, unit := range units {
 		point := unit.Start
 		if v.positionMode == 1 {
-			if unit.RelativeEnd {
-				continue
-			}
 			point = unit.End
 		}
 		markers = append(
@@ -270,9 +268,6 @@ func (v *View) overlay(
 			unit := units[index]
 			position := unit.Start
 			if v.positionMode == 1 {
-				if unit.RelativeEnd {
-					continue
-				}
 				position = unit.End
 			}
 			if position == point {

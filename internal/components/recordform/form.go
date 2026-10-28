@@ -1,5 +1,4 @@
-// Package recordform renders a record's fields, asset preview and active-field
-// inspector.
+// Package recordform renders a record's fields, asset preview and active-field inspector.
 package recordform
 
 import (
@@ -130,6 +129,7 @@ func (a *Form) View(
 							a.showRaw,
 							a.jump,
 							a.openHex,
+							a.openText,
 						)
 					} else {
 						a.descriptionEditors(c, kind, row, table)

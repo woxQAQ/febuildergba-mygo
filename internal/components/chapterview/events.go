@@ -17,18 +17,46 @@ type eventKey struct {
 }
 
 type eventState struct {
-	data                   *game.EventDraft
-	preview                *game.EventEdit
-	selected, lastSelected int
-	list                   ui.ListState
-	inputs                 map[inputKey]*numberDraft
-	units                  map[*game.DeploymentDraft]*entryDraft
-	generations            map[*game.DeploymentDraft]uint64
+	data                         *game.EventDraft
+	preview                      *game.EventEdit
+	selected, lastSelected, view int
+	list                         ui.ListState
+	inputs                       map[inputKey]*numberDraft
+	units                        map[*game.DeploymentDraft]*entryDraft
+	generations                  map[*game.DeploymentDraft]uint64
+	textChoices                  []dialogueChoice
+	textReference                string
 }
 
 type eventLabels struct{ title, add, remove, scope, preview, reload, apply, previewScope, help string }
 
-func labelsFor(table game.EventTable) eventLabels {
+func (v *View) labelsFor(table game.EventTable) eventLabels {
+	if v.mode == 5 {
+		return eventLabels{
+			title:        locales.Objectives(),
+			add:          locales.ObjectiveAddBoss(),
+			remove:       locales.TalkRemove(),
+			scope:        locales.ObjectiveScope(),
+			preview:      locales.ObjectivePreview(),
+			reload:       locales.ObjectiveReload(),
+			apply:        locales.ObjectiveApply(),
+			previewScope: locales.ObjectivePreviewScope(),
+			help:         locales.ObjectiveFlagHelp(),
+		}
+	}
+	if table == game.TalkEvents {
+		return eventLabels{
+			title:        locales.TalkEvents(),
+			add:          locales.TalkAdd(),
+			remove:       locales.TalkRemove(),
+			scope:        locales.TalkScope(),
+			preview:      locales.TalkPreview(),
+			reload:       locales.TalkReload(),
+			apply:        locales.TalkApply(),
+			previewScope: locales.TalkPreviewScope(),
+			help:         locales.TalkConditionHelp(),
+		}
+	}
 	if table == game.AlwaysEvents {
 		return eventLabels{
 			title:        locales.AreaEvents(),
@@ -76,7 +104,8 @@ func (v *View) eventDraft(
 			units:        make(map[*game.DeploymentDraft]*entryDraft),
 		}
 		for i := range data.Events() {
-			if len(data.Fields(i)) > 0 {
+			if len(data.Fields(i)) > 0 &&
+				(key.table != game.AlwaysEvents || data.Events()[i].Kind == 11) {
 				entry.selected = i
 				break
 			}
@@ -93,6 +122,11 @@ func (v *View) eventDraft(
 }
 
 func (e *eventState) invalid() bool {
+	for i := range e.data.Events() {
+		if id, created := e.data.Dialog(i); created && id == 0 {
+			return true
+		}
+	}
 	for _, input := range e.inputs {
 		if input.invalid {
 			return true
@@ -127,32 +161,53 @@ func (v *View) eventEditor(
 	advanced bool,
 	jump func(game.Kind, int),
 	openHex func(int, int),
+	openText func(uint16),
 ) {
 	key := eventKey{row.ID, table}
+	objective := v.mode == 5
 	entry, err := v.eventDraft(state, key)
 	if err != nil {
 		ui.Text(c, components.ErrorText(err)).
 			TextColor(c.Theme().Danger).
 			Tooltip(err.Error())
-		v.mapView.Render(c, state.Session, row, mapview.Overlay{})
+		if table != game.TalkEvents && !objective {
+			v.mapView.Render(c, state.Session, row, mapview.Overlay{})
+		}
 		return
 	}
-	labels := labelsFor(table)
+	labels := v.labelsFor(table)
 	stale := !entry.data.Current(state.Session)
 	disabled := state.Busy || stale
 	events := entry.data.Events()
 	entry.selected = min(entry.selected, max(0, len(events)-1))
+	if entry.view != v.mode {
+		entry.view = v.mode
+		for i, event := range events {
+			if (objective && (event.Kind == 1 || event.Rout)) ||
+				(!objective && table == game.AlwaysEvents && event.Kind == 11) {
+				entry.selected = i
+				break
+			}
+		}
+	}
 	ui.Column(c.Key(key)).Gap(12).Children(func() {
-		eventTable(c, entry, events)
+		if objective {
+			v.objectiveSummary(c, state, row, entry, openHex, openText)
+		}
+		v.eventTable(c, entry, events, state.Session)
 		ui.Row(c).Wrap().Gap(8).Children(func() {
-			ui.Button(c, labels.add).
-				Tooltip(labels.scope).
-				Disabled(disabled).
-				OnClick(func() {
-					state.Err = entry.data.Add(state.Session)
-					entry.selected = len(entry.data.Events()) - 1
-					entry.preview = nil
-				})
+			if objective {
+				v.objectiveAdd(c, state, entry)
+			} else {
+				ui.Button(c, labels.add).
+					Tooltip(labels.scope).
+					Disabled(disabled).
+					OnClick(func() {
+						state.Err = entry.data.Add(state.Session)
+						entry.selected = len(entry.data.Events()) - 1
+						entry.preview = nil
+					})
+			}
 			ui.Button(c, labels.remove).
 				Disabled(disabled || len(events) == 0).
 				OnClick(func() {
@@ -171,18 +226,28 @@ func (v *View) eventEditor(
 			ui.Text(c, locales.DeployStale()).TextColor(c.Theme().Danger)
 		}
 		if len(events) > 0 {
-			v.eventDetails(c, state, row, entry, advanced, jump, openHex)
-		} else {
+			v.eventDetails(
+				c,
+				state,
+				row,
+				entry,
+				advanced,
+				jump,
+				openHex,
+				openText,
+			)
+		} else if table != game.TalkEvents && !objective {
 			v.mapView.Render(c, state.Session, row, mapview.Overlay{})
 		}
 		v.eventActions(c, state, row, entry)
 	})
 }
 
-func eventTable(
+func (v *View) eventTable(
 	c *ui.Context,
 	entry *eventState,
 	events []game.EventCondition,
+	session *game.Session,
 ) {
 	if len(events) == 0 {
 		return
@@ -200,10 +265,20 @@ func eventTable(
 			Fixed: true,
 		},
 	}
+	objective := v.mode == 5
 	area := entry.data.Table() == game.AlwaysEvents
+	talk := entry.data.Table() == game.TalkEvents
+	if talk {
+		columns[1].Title = locales.Label(game.TalkInitiator)
+		columns[2].Title = locales.Label(game.TalkTarget)
+	}
 	if area {
 		columns[1].Title = locales.AreaRange()
 		columns[2].Title = locales.AreaScript()
+	}
+	if objective {
+		columns[1].Title = locales.ObjectiveCondition()
+		columns[2].Title = locales.ObjectiveEvent()
 	}
 	ui.Table(c.Key("conditions"), &entry.list, columns, len(events), func(index, column int) {
 		event := events[index]
@@ -212,19 +287,28 @@ func eventTable(
 			ui.Textf(c, "%02X", index).FontFeatures("tnum")
 		case 1:
 			switch {
+			case objective:
+				ui.Text(c, objectiveConditionCaption(event)).SingleLine()
+			case talk && len(entry.data.Fields(index)) > 0:
+				ui.Text(c, characterCaption(session, event.Initiator, len(entry.data.Fields(index)) > 3)).
+					SingleLine()
 			case area && event.Kind == 0x0B:
 				ui.Textf(c, "%d,%d → %d,%d", event.X1, event.Y1, event.X2, event.Y2).
 					FontFeatures("tnum")
-			case !area && event.Kind == 2:
+			case entry.data.Table() == game.TurnEvents && event.Kind == 2:
 				ui.Text(c, turnInterval(event.Start, event.End)).
 					FontFeatures("tnum")
 			default:
 				ui.Textf(c, "0x%02X", event.Kind)
 			}
 		case 2:
-			if area {
+			switch {
+			case talk && len(entry.data.Fields(index)) > 0:
+				ui.Text(c, characterCaption(session, event.Target, false)).
+					SingleLine()
+			case area || talk:
 				ui.Textf(c, "0x%08X", event.Script).FontFeatures("tnum")
-			} else {
+			default:
 				ui.Text(c, phaseLabel(event.Phase))
 			}
 		case 3:
@@ -232,7 +316,7 @@ func eventTable(
 		}
 	}).
 		Height(min(160, c.Theme().Space(9)*float32(len(events)+1))).
-		Label(labelsFor(entry.data.Table()).title)
+		Label(v.labelsFor(entry.data.Table()).title)
 }
 
 func (v *View) eventLinks(
@@ -283,7 +367,7 @@ func (v *View) eventActions(
 	}
 	table := entry.data.Table()
 	key := eventKey{row.ID, table}
-	labels := labelsFor(table)
+	labels := v.labelsFor(table)
 	ui.Row(c).Wrap().Gap(8).Children(func() {
 		ui.Button(c, labels.preview).
 			Disabled(state.Busy || stale || entry.invalid() || !entry.data.Modified()).
@@ -328,6 +412,7 @@ func (v *View) eventActions(
 				if err == nil {
 					v.events[key] = &eventState{
 						data:         fresh,
+						view:         v.mode,
 						selected:     entry.selected,
 						lastSelected: -1,
 						units: make(

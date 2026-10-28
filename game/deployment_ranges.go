@@ -43,12 +43,12 @@ func (g gameFormat) deploymentRanges(data []byte) []space.Range {
 						if g.deployments.opening >= 0 {
 							last = g.deployments.opening + 8
 						}
-						add(header, last)
+						add(header, max(last, g.deployments.ending+4))
 					}
 				}
 			}
 			var groups []DeploymentGroup
-			for _, kind := range []EventTable{TurnEvents, AlwaysEvents} {
+			for _, kind := range eventTables {
 				conditions, err := g.ChapterEvents(
 					data,
 					row.ID,
@@ -59,6 +59,9 @@ func (g gameFormat) deploymentRanges(data []byte) []space.Range {
 					continue
 				}
 				result = append(result, conditions.ranges...)
+				if conditions.ending != nil {
+					groups = append(groups, conditions.ending.Groups...)
+				}
 				for _, event := range conditions.Events {
 					groups = append(groups, event.Groups...)
 				}

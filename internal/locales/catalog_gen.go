@@ -34,6 +34,216 @@ type Messages struct{ locale string }
 // source language.
 func In(locale string) Messages { return Messages{locale} }
 
+// MoveUnits says "Unit list"
+// in the language the app shows.
+func MoveUnits() string { return In(i18n.Locale()).MoveUnits() }
+
+// MoveUnits says "Unit list"
+// in the language of msgs.
+func (msgs Messages) MoveUnits() string {
+	return Catalog.Format(msgs.locale, "move_units", nil)
+}
+
+// MovePath says "Movement path"
+// in the language the app shows.
+func MovePath() string { return In(i18n.Locale()).MovePath() }
+
+// MovePath says "Movement path"
+// in the language of msgs.
+func (msgs Messages) MovePath() string {
+	return Catalog.Format(msgs.locale, "move_path", nil)
+}
+
+// MoveSteps says "Movement steps"
+// in the language the app shows.
+func MoveSteps() string { return In(i18n.Locale()).MoveSteps() }
+
+// MoveSteps says "Movement steps"
+// in the language of msgs.
+func (msgs Messages) MoveSteps() string {
+	return Catalog.Format(msgs.locale, "move_steps", nil)
+}
+
+// MoveX says "Step X"
+// in the language the app shows.
+func MoveX() string { return In(i18n.Locale()).MoveX() }
+
+// MoveX says "Step X"
+// in the language of msgs.
+func (msgs Messages) MoveX() string {
+	return Catalog.Format(msgs.locale, "move_x", nil)
+}
+
+// MoveY says "Step Y"
+// in the language the app shows.
+func MoveY() string { return In(i18n.Locale()).MoveY() }
+
+// MoveY says "Step Y"
+// in the language of msgs.
+func (msgs Messages) MoveY() string {
+	return Catalog.Format(msgs.locale, "move_y", nil)
+}
+
+// MoveConfig says "Configuration"
+// in the language the app shows.
+func MoveConfig() string { return In(i18n.Locale()).MoveConfig() }
+
+// MoveConfig says "Configuration"
+// in the language of msgs.
+func (msgs Messages) MoveConfig() string {
+	return Catalog.Format(msgs.locale, "move_config", nil)
+}
+
+// MoveSyncUnit says "Wait for character"
+// in the language the app shows.
+func MoveSyncUnit() string { return In(i18n.Locale()).MoveSyncUnit() }
+
+// MoveSyncUnit says "Wait for character"
+// in the language of msgs.
+func (msgs Messages) MoveSyncUnit() string {
+	return Catalog.Format(msgs.locale, "move_sync_unit", nil)
+}
+
+// MoveSyncStep says "Wait through step"
+// in the language the app shows.
+func MoveSyncStep() string { return In(i18n.Locale()).MoveSyncStep() }
+
+// MoveSyncStep says "Wait through step"
+// in the language of msgs.
+func (msgs Messages) MoveSyncStep() string {
+	return Catalog.Format(msgs.locale, "move_sync_step", nil)
+}
+
+// MoveDelay says "Delay (frames)"
+// in the language the app shows.
+func MoveDelay() string { return In(i18n.Locale()).MoveDelay() }
+
+// MoveDelay says "Delay (frames)"
+// in the language of msgs.
+func (msgs Messages) MoveDelay() string {
+	return Catalog.Format(msgs.locale, "move_delay", nil)
+}
+
+// MoveAdd says "Add step"
+// in the language the app shows.
+func MoveAdd() string { return In(i18n.Locale()).MoveAdd() }
+
+// MoveAdd says "Add step"
+// in the language of msgs.
+func (msgs Messages) MoveAdd() string {
+	return Catalog.Format(msgs.locale, "move_add", nil)
+}
+
+// MoveDuplicate says "Copy step"
+// in the language the app shows.
+func MoveDuplicate() string { return In(i18n.Locale()).MoveDuplicate() }
+
+// MoveDuplicate says "Copy step"
+// in the language of msgs.
+func (msgs Messages) MoveDuplicate() string {
+	return Catalog.Format(msgs.locale, "move_duplicate", nil)
+}
+
+// MoveRemove says "Delete step"
+// in the language the app shows.
+func MoveRemove() string { return In(i18n.Locale()).MoveRemove() }
+
+// MoveRemove says "Delete step"
+// in the language of msgs.
+func (msgs Messages) MoveRemove() string {
+	return Catalog.Format(msgs.locale, "move_remove", nil)
+}
+
+// MoveUp says "Move up"
+// in the language the app shows.
+func MoveUp() string { return In(i18n.Locale()).MoveUp() }
+
+// MoveUp says "Move up"
+// in the language of msgs.
+func (msgs Messages) MoveUp() string {
+	return Catalog.Format(msgs.locale, "move_up", nil)
+}
+
+// MoveDown says "Move down"
+// in the language the app shows.
+func MoveDown() string { return In(i18n.Locale()).MoveDown() }
+
+// MoveDown says "Move down"
+// in the language of msgs.
+func (msgs Messages) MoveDown() string {
+	return Catalog.Format(msgs.locale, "move_down", nil)
+}
+
+// MovePlace says "Set step position"
+// in the language the app shows.
+func MovePlace() string { return In(i18n.Locale()).MovePlace() }
+
+// MovePlace says "Set step position"
+// in the language of msgs.
+func (msgs Messages) MovePlace() string {
+	return Catalog.Format(msgs.locale, "move_place", nil)
+}
+
+// MoveEmpty says "No movement steps; deploy at the starting position."
+// in the language the app shows.
+func MoveEmpty() string { return In(i18n.Locale()).MoveEmpty() }
+
+// MoveEmpty says "No movement steps; deploy at the starting position."
+// in the language of msgs.
+func (msgs Messages) MoveEmpty() string {
+	return Catalog.Format(msgs.locale, "move_empty", nil)
+}
+
+// MoveScope says "FE8 REDA steps use absolute destinations. Lines join encoded targets; terrain routing and landing adjustments are det…"
+// in the language the app shows.
+func MoveScope() string { return In(i18n.Locale()).MoveScope() }
+
+// MoveScope says "FE8 REDA steps use absolute destinations. Lines join encoded targets; terrain routing and landing adjustments are det…"
+// in the language of msgs.
+func (msgs Messages) MoveScope() string {
+	return Catalog.Format(msgs.locale, "move_scope", nil)
+}
+
+// MoveSyncHelp says "Character 0 starts without synchronization. Otherwise wait until that character has no active movement, or has comple…"
+// in the language the app shows.
+func MoveSyncHelp() string { return In(i18n.Locale()).MoveSyncHelp() }
+
+// MoveSyncHelp says "Character 0 starts without synchronization. Otherwise wait until that character has no active movement, or has comple…"
+// in the language of msgs.
+func (msgs Messages) MoveSyncHelp() string {
+	return Catalog.Format(msgs.locale, "move_sync_help", nil)
+}
+
+// MoveConfigHelp says "Native six-bit movement configuration. 0 uses the engine's default speed; other values are interpreted by the engine.…"
+// in the language the app shows.
+func MoveConfigHelp() string { return In(i18n.Locale()).MoveConfigHelp() }
+
+// MoveConfigHelp says "Native six-bit movement configuration. 0 uses the engine's default speed; other values are interpreted by the engine.…"
+// in the language of msgs.
+func (msgs Messages) MoveConfigHelp() string {
+	return Catalog.Format(msgs.locale, "move_config_help", nil)
+}
+
+// MoveDelayHelp says "Delay before this step, stored in 16 bits. The engine uses a signed 16-bit timer and may wrap high-bit values; use 0…"
+// in the language the app shows.
+func MoveDelayHelp() string { return In(i18n.Locale()).MoveDelayHelp() }
+
+// MoveDelayHelp says "Delay before this step, stored in 16 bits. The engine uses a signed 16-bit timer and may wrap high-bit values; use 0…"
+// in the language of msgs.
+func (msgs Messages) MoveDelayHelp() string {
+	return Catalog.Format(msgs.locale, "move_delay_help", nil)
+}
+
+// MoveLimit says "This path exceeds the native 16-step buffer. Original data can be preserved; edited paths must be reduced to at most …"
+// in the language the app shows.
+func MoveLimit() string { return In(i18n.Locale()).MoveLimit() }
+
+// MoveLimit says "This path exceeds the native 16-step buffer. Original data can be preserved; edited paths must be reduced to at most …"
+// in the language of msgs.
+func (msgs Messages) MoveLimit() string {
+	return Catalog.Format(msgs.locale, "move_limit", nil)
+}
+
 // Deployments says "Deployments"
 // in the language the app shows.
 func Deployments() string { return In(i18n.Locale()).Deployments() }
@@ -64,11 +274,11 @@ func (msgs Messages) DeployEntry() string {
 	return Catalog.Format(msgs.locale, "deploy_entry", nil)
 }
 
-// DeployScope says "Chapter tables and static references in opening, turn and area events. Conditions are not executed. Marks show record…"
+// DeployScope says "Chapter tables and static references in opening, turn, area, objective and talk events. Conditions are not executed. …"
 // in the language the app shows.
 func DeployScope() string { return In(i18n.Locale()).DeployScope() }
 
-// DeployScope says "Chapter tables and static references in opening, turn and area events. Conditions are not executed. Marks show record…"
+// DeployScope says "Chapter tables and static references in opening, turn, area, objective and talk events. Conditions are not executed. …"
 // in the language of msgs.
 func (msgs Messages) DeployScope() string {
 	return Catalog.Format(msgs.locale, "deploy_scope", nil)
@@ -3760,11 +3970,11 @@ func (msgs Messages) AreaRemove() string {
 	return Catalog.Format(msgs.locale, "area_remove", nil)
 }
 
-// AreaScope says "Edit area triggers in the general condition list. Map regions show their effective bounds. Other condition kinds and …"
+// AreaScope says "Edit area triggers in the general condition list. Area and objective views share one draft and are applied together. …"
 // in the language the app shows.
 func AreaScope() string { return In(i18n.Locale()).AreaScope() }
 
-// AreaScope says "Edit area triggers in the general condition list. Map regions show their effective bounds. Other condition kinds and …"
+// AreaScope says "Edit area triggers in the general condition list. Area and objective views share one draft and are applied together. …"
 // in the language of msgs.
 func (msgs Messages) AreaScope() string {
 	return Catalog.Format(msgs.locale, "area_scope", nil)
@@ -3800,11 +4010,11 @@ func (msgs Messages) AreaApply() string {
 	return Catalog.Format(msgs.locale, "area_apply", nil)
 }
 
-// AreaPreviewScope says "The general condition list changes for the chapters below. Existing scripts stay unchanged."
+// AreaPreviewScope says "The complete general condition list changes for the chapters below, including pending area and objective edits. Exist…"
 // in the language the app shows.
 func AreaPreviewScope() string { return In(i18n.Locale()).AreaPreviewScope() }
 
-// AreaPreviewScope says "The general condition list changes for the chapters below. Existing scripts stay unchanged."
+// AreaPreviewScope says "The complete general condition list changes for the chapters below, including pending area and objective edits. Exist…"
 // in the language of msgs.
 func (msgs Messages) AreaPreviewScope() string {
 	return Catalog.Format(msgs.locale, "area_preview_scope", nil)
@@ -3938,4 +4148,504 @@ func EventConditions() string { return In(i18n.Locale()).EventConditions() }
 // in the language of msgs.
 func (msgs Messages) EventConditions() string {
 	return Catalog.Format(msgs.locale, "event_conditions", nil)
+}
+
+// TalkEvents says "Talk events"
+// in the language the app shows.
+func TalkEvents() string { return In(i18n.Locale()).TalkEvents() }
+
+// TalkEvents says "Talk events"
+// in the language of msgs.
+func (msgs Messages) TalkEvents() string {
+	return Catalog.Format(msgs.locale, "talk_events", nil)
+}
+
+// TalkAdd says "New dialogue"
+// in the language the app shows.
+func TalkAdd() string { return In(i18n.Locale()).TalkAdd() }
+
+// TalkAdd says "New dialogue"
+// in the language of msgs.
+func (msgs Messages) TalkAdd() string {
+	return Catalog.Format(msgs.locale, "talk_add", nil)
+}
+
+// TalkRemove says "Remove condition"
+// in the language the app shows.
+func TalkRemove() string { return In(i18n.Locale()).TalkRemove() }
+
+// TalkRemove says "Remove condition"
+// in the language of msgs.
+func (msgs Messages) TalkRemove() string {
+	return Catalog.Format(msgs.locale, "talk_remove", nil)
+}
+
+// TalkScope says "Edit native talk conditions. New ordinary dialogues display an existing text ID. Recruitment, items and faction chang…"
+// in the language the app shows.
+func TalkScope() string { return In(i18n.Locale()).TalkScope() }
+
+// TalkScope says "Edit native talk conditions. New ordinary dialogues display an existing text ID. Recruitment, items and faction chang…"
+// in the language of msgs.
+func (msgs Messages) TalkScope() string {
+	return Catalog.Format(msgs.locale, "talk_scope", nil)
+}
+
+// TalkPreview says "Preview talk events"
+// in the language the app shows.
+func TalkPreview() string { return In(i18n.Locale()).TalkPreview() }
+
+// TalkPreview says "Preview talk events"
+// in the language of msgs.
+func (msgs Messages) TalkPreview() string {
+	return Catalog.Format(msgs.locale, "talk_preview", nil)
+}
+
+// TalkReload says "Reload talk events"
+// in the language the app shows.
+func TalkReload() string { return In(i18n.Locale()).TalkReload() }
+
+// TalkReload says "Reload talk events"
+// in the language of msgs.
+func (msgs Messages) TalkReload() string {
+	return Catalog.Format(msgs.locale, "talk_reload", nil)
+}
+
+// TalkApply says "Apply talk events"
+// in the language the app shows.
+func TalkApply() string { return In(i18n.Locale()).TalkApply() }
+
+// TalkApply says "Apply talk events"
+// in the language of msgs.
+func (msgs Messages) TalkApply() string {
+	return Catalog.Format(msgs.locale, "talk_apply", nil)
+}
+
+// TalkPreviewScope says "Talk events change for the chapters below. Existing scripts stay unchanged."
+// in the language the app shows.
+func TalkPreviewScope() string { return In(i18n.Locale()).TalkPreviewScope() }
+
+// TalkPreviewScope says "Talk events change for the chapters below. Existing scripts stay unchanged."
+// in the language of msgs.
+func (msgs Messages) TalkPreviewScope() string {
+	return Catalog.Format(msgs.locale, "talk_preview_scope", nil)
+}
+
+// TalkConditionHelp says "Talk conditions are directional. FE6 matches both characters exactly; FE7/FE8 allow initiator 00 to match anyone. A n…"
+// in the language the app shows.
+func TalkConditionHelp() string { return In(i18n.Locale()).TalkConditionHelp() }
+
+// TalkConditionHelp says "Talk conditions are directional. FE6 matches both characters exactly; FE7/FE8 allow initiator 00 to match anyone. A n…"
+// in the language of msgs.
+func (msgs Messages) TalkConditionHelp() string {
+	return Catalog.Format(msgs.locale, "talk_condition_help", nil)
+}
+
+// TalkInitiator says "Initiator"
+// in the language the app shows.
+func TalkInitiator() string { return In(i18n.Locale()).TalkInitiator() }
+
+// TalkInitiator says "Initiator"
+// in the language of msgs.
+func (msgs Messages) TalkInitiator() string {
+	return Catalog.Format(msgs.locale, "talk_initiator", nil)
+}
+
+// TalkTarget says "Target"
+// in the language the app shows.
+func TalkTarget() string { return In(i18n.Locale()).TalkTarget() }
+
+// TalkTarget says "Target"
+// in the language of msgs.
+func (msgs Messages) TalkTarget() string {
+	return Catalog.Format(msgs.locale, "talk_target", nil)
+}
+
+// TalkMode says "Additional condition"
+// in the language the app shows.
+func TalkMode() string { return In(i18n.Locale()).TalkMode() }
+
+// TalkMode says "Additional condition"
+// in the language of msgs.
+func (msgs Messages) TalkMode() string {
+	return Catalog.Format(msgs.locale, "talk_mode", nil)
+}
+
+// TalkFlag says "Check flag"
+// in the language the app shows.
+func TalkFlag() string { return In(i18n.Locale()).TalkFlag() }
+
+// TalkFlag says "Check flag"
+// in the language of msgs.
+func (msgs Messages) TalkFlag() string {
+	return Catalog.Format(msgs.locale, "talk_flag", nil)
+}
+
+// TalkModeNone says "None"
+// in the language the app shows.
+func TalkModeNone() string { return In(i18n.Locale()).TalkModeNone() }
+
+// TalkModeNone says "None"
+// in the language of msgs.
+func (msgs Messages) TalkModeNone() string {
+	return Catalog.Format(msgs.locale, "talk_mode_none", nil)
+}
+
+// TalkModeFlag says "Check flag is set"
+// in the language the app shows.
+func TalkModeFlag() string { return In(i18n.Locale()).TalkModeFlag() }
+
+// TalkModeFlag says "Check flag is set"
+// in the language of msgs.
+func (msgs Messages) TalkModeFlag() string {
+	return Catalog.Format(msgs.locale, "talk_mode_flag", nil)
+}
+
+// TalkAnyone says "Any initiator"
+// in the language the app shows.
+func TalkAnyone() string { return In(i18n.Locale()).TalkAnyone() }
+
+// TalkAnyone says "Any initiator"
+// in the language of msgs.
+func (msgs Messages) TalkAnyone() string {
+	return Catalog.Format(msgs.locale, "talk_anyone", nil)
+}
+
+// TalkRepeat says "Completion flag 0 allows this talk to repeat. Use an unused nonzero flag for a one-time dialogue."
+// in the language the app shows.
+func TalkRepeat() string { return In(i18n.Locale()).TalkRepeat() }
+
+// TalkRepeat says "Completion flag 0 allows this talk to repeat. Use an unused nonzero flag for a one-time dialogue."
+// in the language of msgs.
+func (msgs Messages) TalkRepeat() string {
+	return Catalog.Format(msgs.locale, "talk_repeat", nil)
+}
+
+// TalkDisabledMode says "This FE8 condition uses mode 1 or 2, which prevents it from triggering."
+// in the language the app shows.
+func TalkDisabledMode() string { return In(i18n.Locale()).TalkDisabledMode() }
+
+// TalkDisabledMode says "This FE8 condition uses mode 1 or 2, which prevents it from triggering."
+// in the language of msgs.
+func (msgs Messages) TalkDisabledMode() string {
+	return Catalog.Format(msgs.locale, "talk_disabled_mode", nil)
+}
+
+// TalkText says "Dialogue text"
+// in the language the app shows.
+func TalkText() string { return In(i18n.Locale()).TalkText() }
+
+// TalkText says "Dialogue text"
+// in the language of msgs.
+func (msgs Messages) TalkText() string {
+	return Catalog.Format(msgs.locale, "talk_text", nil)
+}
+
+// TalkTextHelp says "Choose an existing text ID by hexadecimal ID or content. Text controls define speakers and portraits. Editing the tex…"
+// in the language the app shows.
+func TalkTextHelp() string { return In(i18n.Locale()).TalkTextHelp() }
+
+// TalkTextHelp says "Choose an existing text ID by hexadecimal ID or content. Text controls define speakers and portraits. Editing the tex…"
+// in the language of msgs.
+func (msgs Messages) TalkTextHelp() string {
+	return Catalog.Format(msgs.locale, "talk_text_help", nil)
+}
+
+// DeployTalkEvent says "Talk event"
+// in the language the app shows.
+func DeployTalkEvent() string { return In(i18n.Locale()).DeployTalkEvent() }
+
+// DeployTalkEvent says "Talk event"
+// in the language of msgs.
+func (msgs Messages) DeployTalkEvent() string {
+	return Catalog.Format(msgs.locale, "deploy_talk_event", nil)
+}
+
+// Objectives says "Victory and defeat"
+// in the language the app shows.
+func Objectives() string { return In(i18n.Locale()).Objectives() }
+
+// Objectives says "Victory and defeat"
+// in the language of msgs.
+func (msgs Messages) Objectives() string {
+	return Catalog.Format(msgs.locale, "objectives", nil)
+}
+
+// DeployObjectiveEvent says "General condition event"
+// in the language the app shows.
+func DeployObjectiveEvent() string { return In(i18n.Locale()).DeployObjectiveEvent() }
+
+// DeployObjectiveEvent says "General condition event"
+// in the language of msgs.
+func (msgs Messages) DeployObjectiveEvent() string {
+	return Catalog.Format(msgs.locale, "deploy_objective_event", nil)
+}
+
+// EventTextRefs says "Referenced text"
+// in the language the app shows.
+func EventTextRefs() string { return In(i18n.Locale()).EventTextRefs() }
+
+// EventTextRefs says "Referenced text"
+// in the language of msgs.
+func (msgs Messages) EventTextRefs() string {
+	return Catalog.Format(msgs.locale, "event_text_refs", nil)
+}
+
+// ObjectiveAddBoss says "Add boss victory"
+// in the language the app shows.
+func ObjectiveAddBoss() string { return In(i18n.Locale()).ObjectiveAddBoss() }
+
+// ObjectiveAddBoss says "Add boss victory"
+// in the language of msgs.
+func (msgs Messages) ObjectiveAddBoss() string {
+	return Catalog.Format(msgs.locale, "objective_add_boss", nil)
+}
+
+// ObjectiveAddRout says "Add rout victory"
+// in the language the app shows.
+func ObjectiveAddRout() string { return In(i18n.Locale()).ObjectiveAddRout() }
+
+// ObjectiveAddRout says "Add rout victory"
+// in the language of msgs.
+func (msgs Messages) ObjectiveAddRout() string {
+	return Catalog.Format(msgs.locale, "objective_add_rout", nil)
+}
+
+// ObjectiveAddFailure says "Add failure condition"
+// in the language the app shows.
+func ObjectiveAddFailure() string { return In(i18n.Locale()).ObjectiveAddFailure() }
+
+// ObjectiveAddFailure says "Add failure condition"
+// in the language of msgs.
+func (msgs Messages) ObjectiveAddFailure() string {
+	return Catalog.Format(msgs.locale, "objective_add_failure", nil)
+}
+
+// ObjectiveScope says "Conditions are checked in their original order. Other victory entries and engine rules remain active. Area and object…"
+// in the language the app shows.
+func ObjectiveScope() string { return In(i18n.Locale()).ObjectiveScope() }
+
+// ObjectiveScope says "Conditions are checked in their original order. Other victory entries and engine rules remain active. Area and object…"
+// in the language of msgs.
+func (msgs Messages) ObjectiveScope() string {
+	return Catalog.Format(msgs.locale, "objective_scope", nil)
+}
+
+// ObjectivePreview says "Preview conditions"
+// in the language the app shows.
+func ObjectivePreview() string { return In(i18n.Locale()).ObjectivePreview() }
+
+// ObjectivePreview says "Preview conditions"
+// in the language of msgs.
+func (msgs Messages) ObjectivePreview() string {
+	return Catalog.Format(msgs.locale, "objective_preview", nil)
+}
+
+// ObjectiveReload says "Reload conditions"
+// in the language the app shows.
+func ObjectiveReload() string { return In(i18n.Locale()).ObjectiveReload() }
+
+// ObjectiveReload says "Reload conditions"
+// in the language of msgs.
+func (msgs Messages) ObjectiveReload() string {
+	return Catalog.Format(msgs.locale, "objective_reload", nil)
+}
+
+// ObjectiveApply says "Apply conditions"
+// in the language the app shows.
+func ObjectiveApply() string { return In(i18n.Locale()).ObjectiveApply() }
+
+// ObjectiveApply says "Apply conditions"
+// in the language of msgs.
+func (msgs Messages) ObjectiveApply() string {
+	return Catalog.Format(msgs.locale, "objective_apply", nil)
+}
+
+// ObjectivePreviewScope says "Append the complete general-condition table and update this pointer. Chapters sharing this pointer change together; i…"
+// in the language the app shows.
+func ObjectivePreviewScope() string { return In(i18n.Locale()).ObjectivePreviewScope() }
+
+// ObjectivePreviewScope says "Append the complete general-condition table and update this pointer. Chapters sharing this pointer change together; i…"
+// in the language of msgs.
+func (msgs Messages) ObjectivePreviewScope() string {
+	return Catalog.Format(msgs.locale, "objective_preview_scope", nil)
+}
+
+// ObjectiveFlagHelp says "The completion flag is checked before the condition and set before the script starts; 0 permits repeats. Flag conditi…"
+// in the language the app shows.
+func ObjectiveFlagHelp() string { return In(i18n.Locale()).ObjectiveFlagHelp() }
+
+// ObjectiveFlagHelp says "The completion flag is checked before the condition and set before the script starts; 0 permits repeats. Flag conditi…"
+// in the language of msgs.
+func (msgs Messages) ObjectiveFlagHelp() string {
+	return Catalog.Format(msgs.locale, "objective_flag_help", nil)
+}
+
+// EventTriggerFlag says "Trigger flag"
+// in the language the app shows.
+func EventTriggerFlag() string { return In(i18n.Locale()).EventTriggerFlag() }
+
+// EventTriggerFlag says "Trigger flag"
+// in the language of msgs.
+func (msgs Messages) EventTriggerFlag() string {
+	return Catalog.Format(msgs.locale, "event_trigger_flag", nil)
+}
+
+// ObjectiveCondition says "Condition"
+// in the language the app shows.
+func ObjectiveCondition() string { return In(i18n.Locale()).ObjectiveCondition() }
+
+// ObjectiveCondition says "Condition"
+// in the language of msgs.
+func (msgs Messages) ObjectiveCondition() string {
+	return Catalog.Format(msgs.locale, "objective_condition", nil)
+}
+
+// ObjectiveEvent says "Linked event"
+// in the language the app shows.
+func ObjectiveEvent() string { return In(i18n.Locale()).ObjectiveEvent() }
+
+// ObjectiveEvent says "Linked event"
+// in the language of msgs.
+func (msgs Messages) ObjectiveEvent() string {
+	return Catalog.Format(msgs.locale, "objective_event", nil)
+}
+
+// ObjectiveRout says "Native rout condition"
+// in the language the app shows.
+func ObjectiveRout() string { return In(i18n.Locale()).ObjectiveRout() }
+
+// ObjectiveRout says "Native rout condition"
+// in the language of msgs.
+func (msgs Messages) ObjectiveRout() string {
+	return Catalog.Format(msgs.locale, "objective_rout", nil)
+}
+
+// ObjectiveExistingScript says "Existing event"
+// in the language the app shows.
+func ObjectiveExistingScript() string { return In(i18n.Locale()).ObjectiveExistingScript() }
+
+// ObjectiveExistingScript says "Existing event"
+// in the language of msgs.
+func (msgs Messages) ObjectiveExistingScript() string {
+	return Catalog.Format(msgs.locale, "objective_existing_script", nil)
+}
+
+// ObjectiveEnding says "Chapter ending"
+// in the language the app shows.
+func ObjectiveEnding() string { return In(i18n.Locale()).ObjectiveEnding() }
+
+// ObjectiveEnding says "Chapter ending"
+// in the language of msgs.
+func (msgs Messages) ObjectiveEnding() string {
+	return Catalog.Format(msgs.locale, "objective_ending", nil)
+}
+
+// ObjectiveGameOver says "Game over"
+// in the language the app shows.
+func ObjectiveGameOver() string { return In(i18n.Locale()).ObjectiveGameOver() }
+
+// ObjectiveGameOver says "Game over"
+// in the language of msgs.
+func (msgs Messages) ObjectiveGameOver() string {
+	return Catalog.Format(msgs.locale, "objective_game_over", nil)
+}
+
+// ObjectiveFlagOnly says "Set completion flag only"
+// in the language the app shows.
+func ObjectiveFlagOnly() string { return In(i18n.Locale()).ObjectiveFlagOnly() }
+
+// ObjectiveFlagOnly says "Set completion flag only"
+// in the language of msgs.
+func (msgs Messages) ObjectiveFlagOnly() string {
+	return Catalog.Format(msgs.locale, "objective_flag_only", nil)
+}
+
+// ObjectiveDisplay says "Objective text"
+// in the language the app shows.
+func ObjectiveDisplay() string { return In(i18n.Locale()).ObjectiveDisplay() }
+
+// ObjectiveDisplay says "Objective text"
+// in the language of msgs.
+func (msgs Messages) ObjectiveDisplay() string {
+	return Catalog.Format(msgs.locale, "objective_display", nil)
+}
+
+// ObjectiveDisplayHelp says "These text IDs edit the displayed wording. The list below edits actual general conditions. Tile events, turn events a…"
+// in the language the app shows.
+func ObjectiveDisplayHelp() string { return In(i18n.Locale()).ObjectiveDisplayHelp() }
+
+// ObjectiveDisplayHelp says "These text IDs edit the displayed wording. The list below edits actual general conditions. Tile events, turn events a…"
+// in the language of msgs.
+func (msgs Messages) ObjectiveDisplayHelp() string {
+	return Catalog.Format(msgs.locale, "objective_display_help", nil)
+}
+
+// ObjectiveBossHelp says "Requires a valid chapter-ending event. Add trigger flag 0x02 with completion flag 0x03 and link the existing ending. …"
+// in the language the app shows.
+func ObjectiveBossHelp() string { return In(i18n.Locale()).ObjectiveBossHelp() }
+
+// ObjectiveBossHelp says "Requires a valid chapter-ending event. Add trigger flag 0x02 with completion flag 0x03 and link the existing ending. …"
+// in the language of msgs.
+func (msgs Messages) ObjectiveBossHelp() string {
+	return Catalog.Format(msgs.locale, "objective_boss_help", nil)
+}
+
+// ObjectiveRoutHelp says "Requires a valid chapter-ending event. FE8 uses trigger flag 0x06; FE7 and FE6 use their native callback. FE6 include…"
+// in the language the app shows.
+func ObjectiveRoutHelp() string { return In(i18n.Locale()).ObjectiveRoutHelp() }
+
+// ObjectiveRoutHelp says "Requires a valid chapter-ending event. FE8 uses trigger flag 0x06; FE7 and FE6 use their native callback. FE6 include…"
+// in the language of msgs.
+func (msgs Messages) ObjectiveRoutHelp() string {
+	return Catalog.Format(msgs.locale, "objective_rout_help", nil)
+}
+
+// ObjectiveFailureHelp says "Reuse this chapter's game-over event, or the native event when readable. Trigger flag defaults to 0x65 and can be cha…"
+// in the language the app shows.
+func ObjectiveFailureHelp() string { return In(i18n.Locale()).ObjectiveFailureHelp() }
+
+// ObjectiveFailureHelp says "Reuse this chapter's game-over event, or the native event when readable. Trigger flag defaults to 0x65 and can be cha…"
+// in the language of msgs.
+func (msgs Messages) ObjectiveFailureHelp() string {
+	return Catalog.Format(msgs.locale, "objective_failure_help", nil)
+}
+
+// ObjectiveZeroNever says "Trigger flag 0 never matches in FE6/7."
+// in the language the app shows.
+func ObjectiveZeroNever() string { return In(i18n.Locale()).ObjectiveZeroNever() }
+
+// ObjectiveZeroNever says "Trigger flag 0 never matches in FE6/7."
+// in the language of msgs.
+func (msgs Messages) ObjectiveZeroNever() string {
+	return Catalog.Format(msgs.locale, "objective_zero_never", nil)
+}
+
+// ObjectiveZeroAlways says "Trigger flag 0 matches unconditionally in FE8."
+// in the language the app shows.
+func ObjectiveZeroAlways() string { return In(i18n.Locale()).ObjectiveZeroAlways() }
+
+// ObjectiveZeroAlways says "Trigger flag 0 matches unconditionally in FE8."
+// in the language of msgs.
+func (msgs Messages) ObjectiveZeroAlways() string {
+	return Catalog.Format(msgs.locale, "objective_zero_always", nil)
+}
+
+// ObjectiveOpenScript says "View linked script"
+// in the language the app shows.
+func ObjectiveOpenScript() string { return In(i18n.Locale()).ObjectiveOpenScript() }
+
+// ObjectiveOpenScript says "View linked script"
+// in the language of msgs.
+func (msgs Messages) ObjectiveOpenScript() string {
+	return Catalog.Format(msgs.locale, "objective_open_script", nil)
+}
+
+// ObjectiveScriptHelp says "Link an existing chapter event, the ending, game over, or the native flag-only marker. Script bytes remain intact. Co…"
+// in the language the app shows.
+func ObjectiveScriptHelp() string { return In(i18n.Locale()).ObjectiveScriptHelp() }
+
+// ObjectiveScriptHelp says "Link an existing chapter event, the ending, game over, or the native flag-only marker. Script bytes remain intact. Co…"
+// in the language of msgs.
+func (msgs Messages) ObjectiveScriptHelp() string {
+	return Catalog.Format(msgs.locale, "objective_script_help", nil)
 }

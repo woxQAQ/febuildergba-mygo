@@ -24,12 +24,16 @@ func (v *View) unitScene(
 	mapOverlay.Regions = regions
 	if entry.selected != entry.lastSelected && entry.selected < len(units) {
 		entry.lastSelected = entry.selected
+		if entry.pathMode == 1 {
+			entry.pathState().lastSelected = -1
+		}
 		point := units[entry.selected].Start
-		if v.positionMode == 1 && !units[entry.selected].RelativeEnd {
+		if v.positionMode == 1 {
 			point = units[entry.selected].End
 		}
 		mapOverlay.Focus = new(point)
 	}
+	v.pathOverlay(entry, &mapOverlay, units)
 	ui.Row(c.Key("map-and-units")).
 		Wrap().
 		Gap(16).
@@ -47,7 +51,7 @@ func (v *View) unitScene(
 				Grow(1).
 				Gap(8).
 				Children(func() {
-					v.unitList(c, state, entry, units)
+					v.unitSidebar(c, state, entry, units)
 				})
 		})
 }
@@ -62,6 +66,7 @@ func (v *View) unitActions(
 		ui.Button(c, locales.DeployAdd()).Disabled(disabled).OnClick(func() {
 			state.Err = entry.data.Add()
 			entry.selected = max(0, entry.data.Count()-1)
+			entry.paths = nil
 			entry.preview, entry.inputs = nil, nil
 		})
 		ui.Button(c, locales.DeployDuplicate()).
@@ -69,6 +74,7 @@ func (v *View) unitActions(
 			OnClick(func() {
 				state.Err = entry.data.Duplicate(entry.selected)
 				entry.selected = max(0, entry.data.Count()-1)
+				entry.paths = nil
 				entry.preview, entry.inputs = nil, nil
 			})
 		ui.Button(c, locales.DeployRemove()).
@@ -79,17 +85,15 @@ func (v *View) unitActions(
 					entry.selected,
 					max(0, entry.data.Count()-1),
 				)
+				entry.paths = nil
 				entry.preview, entry.inputs = nil, nil
 			})
 		point, selected := v.mapView.Selection()
 		ui.Button(c, locales.DeployPlaceStart()).
 			Disabled(disabled || !selected || entry.data.Count() == 0).
 			OnClick(func() { v.place(state, entry, point, false) })
-		units := entry.data.Units()
-		relative := entry.selected < len(units) &&
-			units[entry.selected].RelativeEnd
 		ui.Button(c, locales.DeployPlaceEnd()).
-			Disabled(disabled || !selected || entry.data.Count() == 0 || relative).
+			Disabled(disabled || !selected || entry.data.Count() == 0).
 			OnClick(func() { v.place(state, entry, point, true) })
 	})
 }

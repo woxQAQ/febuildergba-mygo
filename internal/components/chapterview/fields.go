@@ -105,11 +105,31 @@ func (v *View) number(
 	entry *entryDraft,
 	field game.DeploymentField,
 ) {
+	unit := entry.selected
+	value, _ := entry.data.Value(unit, field.ID)
+	deploymentNumber(
+		c,
+		state,
+		entry,
+		field,
+		inputKey{unit, field.ID},
+		value,
+		func(value int64) error { return entry.data.Set(unit, field.ID, value) },
+	)
+}
+
+func deploymentNumber(
+	c *ui.Context,
+	state *components.State,
+	entry *entryDraft,
+	field game.DeploymentField,
+	key inputKey,
+	value int64,
+	set func(int64) error,
+) {
 	if entry.inputs == nil {
 		entry.inputs = make(map[inputKey]*numberDraft)
 	}
-	key := inputKey{entry.selected, field.ID}
-	value, _ := entry.data.Value(entry.selected, field.ID)
 	input := entry.inputs[key]
 	if input == nil {
 		input = &numberDraft{text: strconv.FormatInt(value, 10), value: value}
@@ -133,11 +153,7 @@ func (v *View) number(
 					entry.preview = nil
 					return
 				}
-				if err := entry.data.Set(
-					entry.selected,
-					field.ID,
-					value,
-				); err != nil {
+				if err := set(value); err != nil {
 					state.Err = err
 					input.invalid = true
 					return

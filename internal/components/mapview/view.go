@@ -29,6 +29,7 @@ type Overlay struct {
 	Markers []Marker
 	Choose  func(image.Point)
 	Focus   *image.Point
+	Path    *Path
 }
 
 type View struct {
@@ -247,6 +248,7 @@ func (v *View) overlay(
 			p.Stroke(box, accent, 0, 1)
 		}
 	}
+	v.path(p, r, cell, accent, overlay.Path)
 	if v.selected {
 		selected := ui.Rect{
 			X: r.X + float32(v.selection.X)*cell,

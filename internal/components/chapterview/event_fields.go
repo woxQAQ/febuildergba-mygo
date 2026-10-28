@@ -18,7 +18,12 @@ func (v *View) eventNumber(
 	entry *eventState,
 	field game.Field,
 ) {
-	if field.ID == game.TurnPhase || field.ID == game.TurnRoute {
+	if field.ID == game.TalkInitiator || field.ID == game.TalkTarget {
+		v.talkCharacter(c, state, entry, field)
+		return
+	}
+	if field.ID == game.TurnPhase || field.ID == game.TurnRoute ||
+		field.ID == game.TalkMode {
 		v.eventChoice(c, state, entry, field)
 		return
 	}
@@ -46,7 +51,7 @@ func (v *View) eventNumber(
 			FontSize(13).
 			FontFeatures("tnum").
 			TextAlign(ui.End).
-			Label(labelsFor(entry.data.Table()).title+" / "+locales.Label(field.ID)).
+			Label(v.labelsFor(entry.data.Table()).title+" / "+locales.Label(field.ID)).
 			Disabled(state.Busy || !entry.data.Current(state.Session)).
 			OnChange(func() {
 				parsed, err := components.ParseInteger(input.text)
@@ -88,6 +93,19 @@ func (v *View) eventChoice(
 		locales.TurnPhaseAlly(),
 		locales.TurnPhaseEnemy(),
 	}
+	if field.ID == game.TalkMode {
+		values = []int64{0, 3}
+		labels = []string{locales.TalkModeNone(), locales.TalkModeFlag()}
+		if field.Width == 1 {
+			values = []int64{0, 1, 2, 3}
+			labels = []string{
+				locales.TalkModeNone(),
+				locales.TurnRouteEliwood(),
+				locales.TurnRouteHector(),
+				locales.TalkModeFlag(),
+			}
+		}
+	}
 	if field.ID == game.TurnRoute {
 		values = []int64{0, 1, 2, 3, 4, 5}
 		labels = []string{
@@ -119,7 +137,7 @@ func (v *View) eventChoice(
 	ui.Select(c.Key("value"), &input.text, labels).
 		Width(180).
 		MaxWidthPercent(100).
-		Label(labelsFor(entry.data.Table()).title + " / " + locales.Label(field.ID)).
+		Label(v.labelsFor(entry.data.Table()).title + " / " + locales.Label(field.ID)).
 		Disabled(state.Busy || !entry.data.Current(state.Session)).
 		OnChange(func() {
 			if index := slices.Index(labels, input.text); index >= 0 {

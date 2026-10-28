@@ -12,25 +12,31 @@ import (
 )
 
 const (
-	TurnStart = "turn_start"
-	TurnEnd   = "turn_end"
-	TurnPhase = "turn_phase"
-	EventFlag = "event_flag"
-	AreaX1    = "area_x1"
-	AreaY1    = "area_y1"
-	AreaX2    = "area_x2"
-	AreaY2    = "area_y2"
-	TurnRoute = "turn_route"
+	TurnStart     = "turn_start"
+	TurnEnd       = "turn_end"
+	TurnPhase     = "turn_phase"
+	EventFlag     = "event_flag"
+	EventTrigger  = "event_trigger_flag"
+	AreaX1        = "area_x1"
+	AreaY1        = "area_y1"
+	AreaX2        = "area_x2"
+	AreaY2        = "area_y2"
+	TurnRoute     = "turn_route"
+	TalkInitiator = "talk_initiator"
+	TalkTarget    = "talk_target"
+	TalkMode      = "talk_mode"
+	TalkFlag      = "talk_flag"
 )
 
 type eventRecord struct {
 	event      EventCondition
 	raw        []byte
 	deployment *DeploymentDraft
+	message    *uint16
 }
 
 // EventDraft edits a complete condition list. Native scripts remain untouched;
-// new reinforcement rows own a deployment and a generated minimal load script.
+// new rows own either a deployment or a text ID and their generated script.
 type EventDraft struct {
 	document *rom.Document
 	revision uint64
@@ -38,6 +44,7 @@ type EventDraft struct {
 	chapter  int
 	original ChapterEvents
 	records  []eventRecord
+	scripts  []EventScriptRef
 }
 
 func (s *Session) NewEventDraft(
@@ -61,6 +68,9 @@ func (s *Session) NewEventDraft(
 			eventRecord{event: event, raw: bytes.Clone(event.Raw)},
 		)
 	}
+	if table == AlwaysEvents {
+		d.scripts = s.objectiveScripts(resource, chapter)
+	}
 	return d, nil
 }
 
@@ -75,7 +85,7 @@ func (d *EventDraft) Modified() bool {
 		return true
 	}
 	for i, record := range d.records {
-		if record.deployment != nil ||
+		if record.deployment != nil || record.message != nil ||
 			!bytes.Equal(record.raw, d.original.Events[i].Raw) {
 			return true
 		}
@@ -89,16 +99,51 @@ func (d *EventDraft) Events() []EventCondition {
 	events := make([]EventCondition, len(d.records))
 	for i, record := range d.records {
 		event := record.event
-		event.decode(record.raw)
+		event.decode(record.raw, d.original.format)
+		event.Texts = slices.Clone(record.event.Texts)
+		if record.message != nil {
+			event.Texts = nil
+			if *record.message > 0 {
+				event.Texts = []uint16{*record.message}
+			}
+		}
 		events[i] = event
 	}
 	return events
 }
 
 func (d *EventDraft) Fields(index int) []Field {
-	if index < 0 || index >= len(d.records) ||
-		int(u16(d.records[index].raw, 0)) != d.original.Table.condition() {
+	if index < 0 || index >= len(d.records) {
 		return nil
+	}
+	if fields := d.objectiveFields(index); len(fields) > 0 {
+		return fields
+	}
+	if int(
+		u16(d.records[index].raw, 0),
+	) != d.original.format.condition(
+		d.original.Table,
+	) {
+		return nil
+	}
+	if d.original.Table == TalkEvents {
+		fields := []Field{
+			{ID: TalkInitiator, Offset: 8, Width: 1, Hex: true},
+			{ID: TalkTarget, Offset: 9, Width: 1, Hex: true},
+			{ID: EventFlag, Offset: 2, Width: 2, Hex: true},
+		}
+		if d.original.format.kind != eventFE6 {
+			width := 1
+			if d.original.format.kind == eventFE8 {
+				width = 2
+			}
+			fields = append(
+				fields,
+				Field{ID: TalkMode, Offset: 12, Width: width},
+				Field{ID: TalkFlag, Offset: 14, Width: 2, Hex: true},
+			)
+		}
+		return fields
 	}
 	if d.original.Table == AlwaysEvents {
 		return []Field{
@@ -164,11 +209,23 @@ func (d *EventDraft) Add(s *Session) error {
 	if len(d.records) >= maxEventConditions {
 		return ErrValue
 	}
-	kind := d.original.Table.condition()
+	kind := d.original.format.condition(d.original.Table)
 	raw := make([]byte, d.original.format.eventStride(d.original.Table, kind))
 	raw[0] = byte(
 		kind,
-	) // #nosec G115 -- Confirmed native condition kinds are 2 and 11.
+	) // #nosec G115 -- Confirmed native condition kinds fit in a byte.
+	if d.original.Table == TalkEvents {
+		raw[8], raw[9] = 1, 2
+		d.records = append(
+			d.records,
+			eventRecord{
+				event:   EventCondition{Kind: kind},
+				raw:     raw,
+				message: new(uint16),
+			},
+		)
+		return nil
+	}
 	if d.original.Table == TurnEvents {
 		raw[8], raw[10] = 3, 0x80
 	}
@@ -251,35 +308,56 @@ func (s *Session) PlanEventEdit(d *EventDraft) (result *EventEdit, err error) {
 	var content []byte
 	offsets := make([]int, len(d.records))
 	for i, record := range d.records {
+		if record.message != nil {
+			if _, readErr := s.DialogueText(*record.message); readErr != nil {
+				return nil, readErr
+			}
+			if record.raw[9] == 0 ||
+				(d.original.format.kind == eventFE6 && record.raw[8] == 0) {
+				return nil, ErrValue
+			}
+		}
 		offsets[i] = len(content)
 		content = append(content, record.raw...)
 	}
 	content = append(content, 0, 0, 0, 0)
 	for i, record := range d.records {
-		if record.deployment == nil {
+		if record.deployment == nil && record.message == nil {
 			continue
-		}
-		if !record.deployment.Current(s) {
-			return nil, rom.ErrStale
 		}
 		for len(content)%4 != 0 {
 			content = append(content, 0)
 		}
 		scriptOffset := len(content)
-		script := d.original.format.reinforcementScript()
-		content = append(content, script...)
-		for len(content)%4 != 0 {
-			content = append(content, 0)
+		if record.message != nil {
+			content = append(
+				content,
+				d.original.format.dialogueScript(*record.message)...)
+		} else {
+			if !record.deployment.Current(s) {
+				return nil, rom.ErrStale
+			}
+			if err = record.deployment.validatePaths(); err != nil {
+				return nil, err
+			}
+			content = append(
+				content,
+				d.original.format.reinforcementScript()...)
+			for len(content)%4 != 0 {
+				content = append(content, 0)
+			}
+			unitOffset := len(content)
+			content = append(
+				content,
+				record.deployment.payload(base+unitOffset)...)
+			binary.LittleEndian.PutUint32(
+				content[scriptOffset+4:],
+				uint32(0x08000000+base+unitOffset),
+			) // #nosec G115 -- PlanAppend bounds the complete resource before application.
 		}
-		unitOffset := len(content)
-		content = append(content, record.deployment.payload(base+unitOffset)...)
 		binary.LittleEndian.PutUint32(
 			content[offsets[i]+4:],
 			uint32(0x08000000+base+scriptOffset),
-		) // #nosec G115 -- PlanAppend bounds the complete resource before application.
-		binary.LittleEndian.PutUint32(
-			content[scriptOffset+4:],
-			uint32(0x08000000+base+unitOffset),
 		) // #nosec G115 -- PlanAppend bounds the complete resource before application.
 	}
 	plan, err := space.PlanAppend(len(s.image.Data), content)

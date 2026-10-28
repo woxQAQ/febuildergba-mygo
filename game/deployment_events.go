@@ -23,6 +23,7 @@ type deploymentScanner struct {
 	seen, active       map[int]bool
 	parsed             map[int]DeploymentGroup
 	remaining, chapter int
+	texts              *[]uint16
 }
 
 func (s *deploymentScanner) warn(at int) {
@@ -78,7 +79,7 @@ func (s *deploymentScanner) entries(base int) {
 			}
 		}
 	}
-	for _, table := range []EventTable{TurnEvents, AlwaysEvents} {
+	for _, table := range eventTables {
 		s.conditions(base, table)
 	}
 }
@@ -91,14 +92,17 @@ func (s *deploymentScanner) conditions(base int, table EventTable) {
 	}
 	s.result.ranges = append(s.result.ranges, conditions.ranges...)
 	for _, event := range conditions.Events {
-		if event.Kind != table.condition() {
+		if !s.format.editableCondition(table, event) {
+			continue
+		}
+		if event.Script == 1 {
 			continue
 		}
 		if event.Script < 0xC0 || event.Script%4 != 0 {
 			s.warn(event.Address + 4)
 			continue
 		}
-		source := table.source()
+		source := event.source(table)
 		if table == TurnEvents && event.Start <= 1 && event.Phase == 0 {
 			source = "deploy_turn_one"
 		}
@@ -134,42 +138,39 @@ func (s *deploymentScanner) fe8Instruction(
 	at int,
 	command deploymentInstruction,
 ) (deploymentInstruction, bool) {
-	if s.format.kind == eventFE8 {
-		header, op := s.data[at], s.data[at+1]
-		command.length = int(header>>4) * 2
-		if command.length < 4 || command.length%4 != 0 ||
-			!within(s.data, at, command.length) ||
-			op > 0xD0 {
+	header, op := s.data[at], s.data[at+1]
+	command.length = int(header>>4) * 2
+	if command.length < 4 || command.length%4 != 0 ||
+		!within(s.data, at, command.length) ||
+		op > 0xD0 {
+		return command, false
+	}
+	switch {
+	case op == 0x01 && command.length == 4:
+		command.end = true
+	case op == 0x08 && command.length == 4:
+		command.label = int(u16(s.data, at+2))
+	case (op == 0x09 && command.length == 4) || (op == 0x0C && command.length == 8):
+		command.branch = int(u16(s.data, at+2))
+		command.forgetSlots = true
+	case op == 0x05 && header == 0x40 && command.length == 8:
+		command.slot = int(u16(s.data, at+2))
+	case op == 0x06 || op == 0x07 || op == 0x0D:
+		command.forgetSlots = true
+	case op == 0x0A && header == 0x40 && command.length == 8:
+		command.call = at + 4
+	case op == 0x2C && command.length == 8 && header >= 0x40 && header <= 0x42:
+		command.loads = []int{at + 4}
+	case op == 0x25 && command.length == 4:
+		value := u16(s.data, at+2)
+		if value == 0xFFFF {
 			return command, false
 		}
-		switch {
-		case op == 0x01 && command.length == 4:
-			command.end = true
-		case op == 0x08 && command.length == 4:
-			command.label = int(u16(s.data, at+2))
-		case (op == 0x09 && command.length == 4) || (op == 0x0C && command.length == 8):
-			command.branch = int(u16(s.data, at+2))
-			command.forgetSlots = true
-		case op == 0x05 && header == 0x40 && command.length == 8:
-			command.slot = int(u16(s.data, at+2))
-		case op == 0x06 || op == 0x07:
-			command.forgetSlots = true
-		case op == 0x0A && header == 0x40 && command.length == 8:
-			command.call = at + 4
-		case op == 0x2C && command.length == 8 && header >= 0x40 && header <= 0x42:
-			command.loads = []int{at + 4}
-		case op == 0x25 && command.length == 4:
-			value := u16(s.data, at+2)
-			if value == 0xFFFF {
-				return command, false
-			}
-			command.mapID = int(value)
-		case op == 0x2A:
-			command.chapterEnd = true
-		}
-		return command, true
+		command.mapID = int(value)
+	case op == 0x2A:
+		command.chapterEnd = true
 	}
-	return command, false
+	return command, true
 }
 
 func (s *deploymentScanner) wordInstruction(
@@ -321,6 +322,7 @@ func (s *deploymentScanner) follow(
 	depth, mapID int,
 	source string,
 ) int {
+	s.collectTexts(at, slots)
 	if command.mapID >= 0 {
 		mapID = command.mapID
 	}

@@ -31,7 +31,7 @@ func (d *DeploymentDraft) payload(address int) []byte {
 	}
 	content = append(content, d.group.terminator...)
 	for i, record := range d.records {
-		if !record.movementEdited {
+		if !record.movementEdited || len(record.movement) == 0 {
 			continue
 		}
 		for len(content)%4 != 0 {

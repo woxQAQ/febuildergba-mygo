@@ -43,7 +43,6 @@ type DeploymentUnit struct {
 	Character, Class, Level, Faction int
 	Start, End                       image.Point
 	MovementCount                    int
-	RelativeEnd                      bool
 }
 
 type ChapterDeployments struct {
@@ -59,16 +58,19 @@ type deploymentSlot struct {
 
 type deploymentFormat struct {
 	root, stride, opening int
+	ending, defeat, rout  int
 	kind                  deploymentEventKind
 	loadHelper            int
 	slots                 []deploymentSlot
 }
 
-func fe8Deployments(root, helper int) deploymentFormat {
+func fe8Deployments(root, helper, defeat int) deploymentFormat {
 	return deploymentFormat{
 		root:       root,
 		stride:     20,
 		opening:    72,
+		ending:     76,
+		defeat:     defeat,
 		kind:       eventFE8,
 		loadHelper: helper,
 		slots: []deploymentSlot{
@@ -85,10 +87,17 @@ func fe8Deployments(root, helper int) deploymentFormat {
 }
 
 func fe7Deployments(root int, kind deploymentEventKind) deploymentFormat {
+	defeat, rout := 0xD6F71C, 0x0807AA5D
+	if kind == eventFE7U {
+		defeat, rout = 0xCA749C, 0x08079FE9
+	}
 	return deploymentFormat{
 		root:    root,
 		stride:  16,
 		opening: 56,
+		ending:  60,
+		defeat:  defeat,
+		rout:    rout,
 		kind:    kind,
 		slots: []deploymentSlot{
 			{"deploy_eliwood_enemy_normal", 24, 2},
@@ -108,6 +117,9 @@ func fe6Deployments(root int) deploymentFormat {
 		root:    root,
 		stride:  16,
 		opening: -1,
+		ending:  24,
+		defeat:  0x66AC6C,
+		rout:    0x0806C2F9,
 		kind:    eventFE6,
 		slots: []deploymentSlot{
 			{"deploy_enemy", 16, 2}, {"deploy_player", 20, 0},
@@ -246,7 +258,7 @@ func (f deploymentFormat) group(
 			path, valid := pointer(data, at+8)
 			if !valid || path < 0xC0 || path%4 != 0 ||
 				!within(data, path, count*8) {
-				ctx.Resource = "deploy_movement"
+				ctx.Resource = movementResource
 				ctx.RecordID = new(index)
 				return fail()
 			}

@@ -195,7 +195,6 @@ func (r deploymentRecord) unit() DeploymentUnit {
 			at := len(r.movement) - 8
 			word = u16(r.movement, at)
 			unit.End = image.Pt(int(word&63), int((word>>6)&63))
-			unit.RelativeEnd = r.movement[at+3] != 0
 		}
 	} else {
 		unit.Start = image.Pt(int(r.data[4]), int(r.data[5]))
@@ -250,7 +249,7 @@ func (s *Session) NewDeploymentDraft(
 		}
 		return s.deploymentDraft(chapter, group), nil
 	}
-	for _, kind := range []EventTable{TurnEvents, AlwaysEvents} {
+	for _, kind := range eventTables {
 		conditions, readErr := s.ChapterEvents(chapter, kind)
 		if readErr != nil {
 			continue
@@ -350,32 +349,32 @@ func (d *DeploymentDraft) Set(
 		data, at := record.data, field.offset
 		if field.movement {
 			if len(record.movement) == 0 {
-				record.movement = []byte{
-					record.data[4],
-					record.data[5] & 0x0F,
-					0,
-					0,
-					0xFF,
-					0xFF,
-					0,
-					0,
-				}
+				record.movement = movementStep(record.unit().Start)
 				record.data[7] = 1
 			}
 			data, at = record.movement, len(record.movement)-8
 			record.movementEdited = true
 		}
-		var word int64
-		for i := range field.width {
-			word |= int64(data[at+i]) << (8 * i)
-		}
-		word = (word & ^(field.Max << field.shift)) | value<<field.shift
-		for i := range field.width {
-			data[at+i] = byte((word >> (8 * i)) & 0xFF)
-		}
+		writeDeploymentValue(data, at, field, value)
 		return nil
 	}
 	return ErrField
+}
+
+func writeDeploymentValue(
+	data []byte,
+	at int,
+	field DeploymentField,
+	value int64,
+) {
+	var word int64
+	for i := range field.width {
+		word |= int64(data[at+i]) << (8 * i)
+	}
+	word = (word & ^(field.Max << field.shift)) | value<<field.shift
+	for i := range field.width {
+		data[at+i] = byte((word >> (8 * i)) & 0xFF)
+	}
 }
 
 func (d *DeploymentDraft) Add() error {
@@ -442,6 +441,9 @@ func (s *Session) PlanDeploymentEdit(
 	}
 	if !draft.Modified() {
 		return nil, ErrValue
+	}
+	if err = draft.validatePaths(); err != nil {
+		return nil, err
 	}
 	// The selected site is the only existing range changed. Reject a damaged
 	// event graph that aliases the header, known record tables, or their roots.

@@ -57,7 +57,7 @@ func fe8jFormat() gameFormat {
 			},
 		},
 		chapters:    fe8Chapters(0xBAB1C, 0x34534, 0xBA9EC, 0xBAD44, 0xBAEAC),
-		deployments: fe8Deployments(0x345E4, 0xA60380),
+		deployments: fe8Deployments(0x345E4, 0xA60380, 0x5B9EE8),
 		maps: mapFormat{
 			graphics: 0x19640,
 			palette:  0x19674,

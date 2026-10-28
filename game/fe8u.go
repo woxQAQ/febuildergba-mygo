@@ -61,7 +61,7 @@ func fe8uFormat() gameFormat {
 			0x3462C,
 			0xB5E68,
 		),
-		deployments: fe8Deployments(0x346DC, 0x9EE248),
+		deployments: fe8Deployments(0x346DC, 0x9EE248, 0x592104),
 		maps: mapFormat{
 			graphics: 0x19968,
 			palette:  0x1999C,
