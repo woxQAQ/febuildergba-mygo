@@ -4,156 +4,99 @@ package integration
 
 import (
 	"bytes"
-	"path/filepath"
 	"testing"
 
 	"github.com/woxQAQ/febuildergba-mygo/game"
 )
 
-func TestRealRecordEditing(t *testing.T) {
-	samples := map[string]struct {
-		address, class, sword, classHP, classSword int
-		estimatedHP                                int64
-	}{
-		"FE8U": {0x803D64, 2, 1, 23, 31, 2930},
-		"FE8J": {0x8582BC, 2, 1, 23, 31, 2930},
-		"FE7U": {0xBDCE4C, 1, 71, 18, 31, 3320},
-		"FE7J": {0xC4C158, 1, 71, 18, 31, 3320},
-		"FE6":  {0x6076D0, 1, 0, 15, 51, 3320},
-	}
-	for _, fixture := range realROMFixtures {
-		t.Run(fixture.id, func(t *testing.T) {
-			s := openRealROM(t, fixture.filename)
-			sample := samples[fixture.id]
-			if s.Table(game.Units).Rows[0].Address != sample.address {
-				t.Fatal("fixed character address")
+func editRecords(t *testing.T, s *game.Session) {
+	source := s.Document.Snapshot().Data
+	for _, kind := range game.Kinds {
+		t.Run(string(kind), func(t *testing.T) {
+			s := openCopy(t, source)
+			table := requireTable(t, s, kind)
+			var selected *game.Field
+			for _, field := range table.Fields {
+				if field.ID != "id" && field.Text == game.NoText &&
+					field.Reference == "" && field.Asset == "" && !field.Hex &&
+					field.Group != game.GroupAdvanced {
+					selected = &field
+					break
+				}
 			}
-			class, err := s.Value(game.Units, 1, "class_id")
-			if err != nil || int(class) != sample.class {
-				t.Fatal("fixed native class")
+			if selected == nil {
+				t.Skip("no scalar field in this table")
 			}
-			sword, err := s.Value(game.Units, 1, "weapon.sword")
-			if err != nil || int(sword) != sample.sword {
-				t.Fatal("fixed character weapon EXP")
-			}
-			hp, err := s.Value(game.Classes, 7, "base.hp")
-			if err != nil || int(hp) != sample.classHP {
-				t.Fatal("fixed native class base")
-			}
-			rank, err := s.Value(game.Classes, 7, "weapon.sword")
-			if err != nil || int(rank) != sample.classSword {
-				t.Fatal("fixed class weapon EXP")
-			}
-			portraitID, err := s.Value(game.Units, 1, "portrait_id")
+			field, row := *selected, table.Rows[0]
+			value, err := s.Value(kind, row.ID, field.ID)
 			if err != nil {
 				t.Fatal(err)
 			}
-			portrait, err := s.PortraitEntry(int(portraitID))
-			if err != nil || portrait.Empty || portrait.ClassCard {
-				t.Fatal("native portrait table reference", err)
-			}
-			cardID, err := s.Value(game.Classes, 7, "portrait_id")
-			if err != nil {
-				t.Fatal(err)
-			}
-			card, err := s.PortraitEntry(int(cardID))
-			if err != nil || card.Empty {
-				t.Fatal("native class image table reference", err)
-			}
+			t.Logf("record=%d, field=%s", row.ID, field.ID)
 			before := s.Document.Snapshot()
-			estimated, err := s.ReferenceAbilities(game.Units, 1, 20, true)
-			if err != nil ||
-				estimated.Values[0].Hundredths != sample.estimatedHP {
-				t.Fatal("fixed native growth reference", err)
-			}
-			if !bytes.Equal(s.Document.Snapshot().Data, before.Data) ||
-				s.Document.State().Dirty {
-				t.Fatal("reference modified ROM")
-			}
-			if err := s.SetRecordTrait(game.Units, 1, 1, true); err != nil {
-				t.Fatal(err)
-			}
-			expected := bytes.Clone(before.Data)
-			expected[sample.address+40] |= 2
-			if !bytes.Equal(expected, s.Document.Snapshot().Data) {
-				t.Fatal("trait changed adjacent data")
-			}
-			if !s.Document.Undo() ||
-				!bytes.Equal(before.Data, s.Document.Snapshot().Data) {
-				t.Fatal("trait undo")
-			}
-			s.Refresh()
-			if !s.Document.Redo() {
-				t.Fatal("trait redo")
-			}
-			s.Refresh()
 			if err := s.Set(
-				game.Classes,
-				[]int{7},
-				"base.power",
-				-1,
+				kind,
+				[]int{row.ID},
+				field.ID,
+				value^1,
 			); err != nil {
 				t.Fatal(err)
 			}
-			classAddress := s.Table(game.Classes).Rows[7].Address
-			if s.Document.Snapshot().Data[classAddress+12] != 0xFF {
-				t.Fatal("signed native class write")
+			// Flipping the low bit changes exactly one bit at the reported field
+			// position, irrespective of signedness or the input's original value.
+			expected := bytes.Clone(before.Data)
+			expected[row.Address+field.Offset] ^= 1
+			if !bytes.Equal(expected, s.Document.Snapshot().Data) {
+				t.Fatal("scalar edit changed unrelated bytes")
 			}
-			if err := s.SetWeaponRank(
-				game.Units,
-				1,
-				"weapon.sword",
-				"A",
+			reopened := historyAndReopen(t, s, before)
+			if got, err := reopened.Value(
+				kind,
+				row.ID,
+				field.ID,
+			); err != nil ||
+				got != value^1 {
+				t.Fatalf("edited value after reopening: %d, %v", got, err)
+			}
+			if err := reopened.Set(
+				kind,
+				[]int{row.ID},
+				field.ID,
+				value,
 			); err != nil {
 				t.Fatal(err)
 			}
-			minimum := int64(181)
-			if fixture.id == "FE6" {
-				minimum = 201
-			}
-			if value, _ := s.Value(
-				game.Units,
-				1,
-				"weapon.sword",
-			); value != minimum {
-				t.Fatal("native rank minimum")
-			}
-			links, err := s.RecordResources(game.Classes, 7)
-			if err != nil || len(links) < 5 || links[0].Err != nil ||
-				links[1].Err != nil {
-				t.Fatal("native resource navigation", err)
-			}
-			output := filepath.Join(t.TempDir(), "record-edit.gba")
-			if err := s.Document.SaveAs(output, false); err != nil {
+			saveAndReopen(t, reopened, before.Data)
+		})
+	}
+}
+
+func relocateRecords(t *testing.T, s *game.Session) {
+	source := s.Document.Snapshot().Data
+	for _, kind := range game.Kinds {
+		t.Run(string(kind), func(t *testing.T) {
+			s := openCopy(t, source)
+			table := requireTable(t, s, kind)
+			original := *table
+			before := s.Document.Snapshot()
+			move, err := s.PlanTableMove(kind, nil)
+			checkPlan(t, s, before, err)
+			if err := s.ApplyTableMove(move); err != nil {
 				t.Fatal(err)
 			}
-			reopened, err := game.Open(output)
-			if err != nil {
-				t.Fatal(err)
+			reopened := historyAndReopen(t, s, before)
+			moved := requireTable(t, reopened, kind)
+			if moved.Address != move.Destination()+original.Address-move.Source() ||
+				moved.Count != original.Count ||
+				len(moved.Rows) != len(original.Rows) {
+				t.Fatal("table location or record count was not preserved")
 			}
-			if value, _ := reopened.Value(
-				game.Classes,
-				7,
-				"base.power",
-			); value != -1 {
-				t.Fatal("signed field after save")
-			}
-			skills, err := reopened.WeaponSkills(game.Units, 1)
-			if err != nil || skills[0].Rank != "A" ||
-				skills[0].Value != minimum {
-				t.Fatal("weapon rank after save")
-			}
-			if err := reopened.SetWeaponRank(
-				game.Units,
-				1,
-				"weapon.sword",
-				"none",
-			); err != nil {
-				t.Fatal(err)
-			}
-			skills, err = reopened.WeaponSkills(game.Units, 1)
-			if err != nil || !skills[0].Inherited {
-				t.Fatal("continued inheritance editing")
+			for index, row := range original.Rows {
+				got := moved.Rows[index]
+				if got.ID != row.ID || got.NameID != row.NameID ||
+					got.Name != row.Name {
+					t.Fatal("relocation changed record identity or text")
+				}
 			}
 		})
 	}

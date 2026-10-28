@@ -20,7 +20,7 @@
 | [开发说明](development.md)                | 环境、命令、开发恢复、国际化和打包         |
 | [架构与代码导航](architecture.md)         | 当前模块职责、文档所有权、依赖和线程边界   |
 | [测试说明](../tests/README.md)            | 测试组织、证据类型与运行方式               |
-| [Fixture 约定](../testdata/fixtures.md)   | 合成样本构造和本地真实 ROM 数据            |
+| [Fixture 约定](../testdata/fixtures.md)   | 合成样本构造和固定预期                     |
 | [界面设计](../DESIGN.md)                  | 主题、布局、信息层级和通用交互             |
 | [人物与职业设计](record-editor-design.md) | 能力、武器继承、特性、关联数据和截图       |
 | [头像设计](portrait-editor-design.md)     | 部件、表情、定位、引用和截图               |

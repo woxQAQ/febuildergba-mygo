@@ -71,7 +71,7 @@ func (a *Form) profileClass(
 		if kind == game.Classes {
 			help = locales.RecordRelatedClassHelp()
 		}
-		ui.Text(c, locales.Label(id)).FontSize(12).Tooltip(help)
+		ui.Text(c, locales.Label(id)).Width(84).FontSize(12).Tooltip(help)
 		components.TextDraft(
 			a.state,
 			ui.Combobox(c, &draft.text, labels).

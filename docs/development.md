@@ -10,21 +10,21 @@
 git submodule update --init FEBuilderGBA
 ```
 
-| 任务                  | 命令                               |
-| --------------------- | ---------------------------------- |
-| 启动并打开 ROM        | `just run /path/to/FE8U.gba`       |
-| 开发模式与热重编译    | `just dev -lang zh-Hans`           |
-| 常规检查              | `just check`                       |
-| 运行相关测试          | `just test -run TestName -count=1` |
-| 数据竞争检查          | `just test-race`                   |
-| 本地真实 ROM 集成检查 | `just test-integration`            |
-| 格式化                | `just fmt`                         |
-| 生成翻译 API          | `just generate`                    |
-| 生成旧版来源索引      | `just inventory`                   |
-| 原生控件原型          | `just ui-probe`                    |
-| 构建应用和安装镜像    | `just build`                       |
+| 任务               | 命令                               |
+| ------------------ | ---------------------------------- |
+| 启动并打开 ROM     | `just run /path/to/FE8U.gba`       |
+| 开发模式与热重编译 | `just dev -lang zh-Hans`           |
+| 常规检查           | `just check`                       |
+| 运行相关测试       | `just test -run TestName -count=1` |
+| 可选 ROM 集成      | `just test-integration`            |
+| 数据竞争检查       | `just test-race`                   |
+| 格式化             | `just fmt`                         |
+| 生成翻译 API       | `just generate`                    |
+| 生成旧版来源索引   | `just inventory`                   |
+| 原生控件原型       | `just ui-probe`                    |
+| 构建应用和安装镜像 | `just build`                       |
 
-`just check` 包含 lint、Go/MyGo vet、翻译检查、默认测试，以及默认和 `CGO_ENABLED=0` 两种构建检查。race 和真实 ROM 检查按需单独执行。集成命令禁用缓存，缺少本地 ROM 时由测试明确报告跳过。
+`just check` 包含 lint、Go/MyGo vet、翻译检查、默认测试，以及默认和 `CGO_ENABLED=0` 两种构建检查。race 与集成检查按需单独执行。默认测试使用合成数据；集成测试动态发现 `.rom/` 中的 ROM，使用临时副本且禁用缓存，不要求固定文件或原版组合。
 
 `just lint` 使用项目配置的自动修复；`just fmt` 会格式化仓库并排除旧版子模块。执行后应检查 diff。仅格式化文档时可直接向 `oxfmt` 传入所改文件。
 

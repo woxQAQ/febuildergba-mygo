@@ -49,7 +49,7 @@ test-core *args:
 test-race *args:
     go test -race "$@" ./rom ./game ./space
 
-# 使用 .rom/ 中的真实 ROM；禁用缓存，缺少文件时由测试报告跳过。
+# 动态发现 .rom/ 中的 ROM，使用临时副本验证通用流程；禁用缓存。
 test-integration *args:
     go test -tags=integration -count=1 -v "$@" ./tests/integration
 
@@ -58,7 +58,7 @@ check-build:
     go build ./...
     CGO_ENABLED=0 go build ./...
 
-# 执行常规检查；真实 ROM 和 race 测试按需单独运行。
+# 执行常规检查；集成与 race 测试按需单独运行。
 check: lint vet i18n-check test check-build
 
 # 生成旧版来源索引，默认写入仓库根目录的 .cache/。

@@ -5,114 +5,124 @@ package integration
 import (
 	"bytes"
 	"image"
-	"path/filepath"
+	"image/color"
+	"image/png"
 	"testing"
 
 	"github.com/woxQAQ/febuildergba-mygo/game"
 )
 
-func TestRealPortraitEditing(t *testing.T) {
-	samples := map[string]struct{ address, mouthY, eyesY int }{
-		"FE8U": {0x8ACBFC, 6, 4}, "FE8J": {0x901154, 6, 4},
-		"FE7U": {0xC965BC, 5, 3}, "FE7J": {0xD5E274, 5, 3},
-		"FE6": {0x66076C, 6, 0},
+func editablePortrait(t *testing.T, s *game.Session) *game.Portrait {
+	t.Helper()
+	entries, err := s.PortraitEntries()
+	if err != nil {
+		t.Skipf("portrait table unavailable: %v", err)
 	}
-	for _, fixture := range realROMFixtures {
-		t.Run(fixture.id, func(t *testing.T) {
-			s := openRealROM(t, fixture.filename)
-			baseline := s.Document.Snapshot()
-			sample := samples[fixture.id]
-			p, err := s.Portrait(2)
-			if err != nil || p.Entry.Address != sample.address ||
-				p.Mouth != image.Pt(2, sample.mouthY) ||
-				p.Main == nil ||
-				p.Mini == nil ||
-				p.Sheet == nil ||
-				p.MainErr != nil ||
-				p.MiniErr != nil ||
-				p.SheetErr != nil {
-				t.Fatalf("native portrait: %+v %v", p, err)
-			}
-			if fixture.id != "FE6" &&
-				(p.Eyes != image.Pt(3, sample.eyesY) || p.Blink != 1) {
-				t.Fatal("native eye fields")
-			}
-			static, err := s.Preview(
-				game.AssetRef{Kind: game.PortraitAsset, ID: 2},
-			)
-			if err != nil {
-				t.Fatal(err)
-			}
-			original, err := p.Frame(-1, 0)
-			if err != nil || !bytes.Equal(original.Pix, static.Image.Pix) {
-				t.Fatal("native base rendering")
-			}
-			mouth, err := p.Frame(0, 2)
-			if err != nil || bytes.Equal(original.Pix, mouth.Pix) {
-				t.Fatal("native mouth frame")
-			}
-			fields := map[string]int64{
-				"portrait_mouth_x": 3,
-				"portrait_mouth_y": int64(sample.mouthY + 1),
-			}
-			expected := bytes.Clone(baseline.Data)
-			offset := 20
-			if fixture.id == "FE6" {
-				offset = 12
-			}
-			expected[sample.address+offset], expected[sample.address+offset+1] = 3, byte(
-				sample.mouthY+1,
-			)
-			if p.HasEyes {
-				fields["portrait_blink"] = 6
-				expected[sample.address+24] = 6
-			}
-			if err := s.SetPortrait(p, fields); err != nil {
-				t.Fatal(err)
-			}
-			if !bytes.Equal(expected, s.Document.Snapshot().Data) {
-				t.Fatal("native position edit changed other bytes")
-			}
-			if !s.Document.Undo() ||
-				!bytes.Equal(baseline.Data, s.Document.Snapshot().Data) {
-				t.Fatal("native portrait undo")
-			}
-			if !s.Document.Redo() {
-				t.Fatal("native portrait redo")
-			}
-			s.Refresh()
-			if err := s.Set(
-				game.Units,
-				[]int{1},
-				"mini_portrait",
-				1,
-			); err != nil {
-				t.Fatal(err)
-			}
-			r, err := s.RecordPortrait(game.Units, 1)
-			if err != nil || r.GenericMini != 1 || r.MiniErr != nil ||
-				r.Mini.Image == nil ||
-				len(r.MiniResources) != 2 {
-				t.Fatal("native generic miniature", err, r.MiniErr)
-			}
-			path := filepath.Join(t.TempDir(), "portrait-edit.gba")
-			if err := s.Document.SaveAs(path, false); err != nil {
-				t.Fatal(err)
-			}
-			reopened, err := game.Open(path)
-			if err != nil {
-				t.Fatal(err)
-			}
-			p, err = reopened.Portrait(2)
-			if err != nil || p.Mouth != image.Pt(3, sample.mouthY+1) {
-				t.Fatal("native portrait save/reopen")
-			}
-			if err := reopened.SetPortrait(
-				p,
-				map[string]int64{"portrait_mouth_x": 2},
-			); err != nil {
-				t.Fatal("continued portrait editing", err)
-			}
-		})
+	for _, entry := range entries {
+		if entry.Err != nil || entry.Empty || entry.ClassCard {
+			continue
+		}
+		portrait, err := s.Portrait(entry.ID)
+		if err == nil && len(portrait.Fields) > 0 && portrait.SheetErr == nil &&
+			portrait.Sheet != nil && len(sheetColors(portrait.Sheet)) == 2 {
+			t.Logf("portrait ID=%d", entry.ID)
+			return portrait
+		}
 	}
+	t.Skip("no editable native portrait")
+	return nil
+}
+
+func editPortrait(t *testing.T, s *game.Session) {
+	portrait := editablePortrait(t, s)
+	before := s.Document.Snapshot()
+	field := portrait.Fields[0]
+	value := field.Value(before.Data, portrait.Entry.Address)
+	if err := s.SetPortrait(
+		portrait,
+		map[string]int64{field.ID: value ^ 1},
+	); err != nil {
+		t.Fatal(err)
+	}
+	expected := bytes.Clone(before.Data)
+	expected[portrait.Entry.Address+field.Offset] ^= 1
+	if !bytes.Equal(s.Document.Snapshot().Data, expected) {
+		t.Fatal("portrait coordinate edit changed unrelated bytes")
+	}
+	reopened := historyAndReopen(t, s, before)
+	result, err := reopened.Portrait(portrait.Entry.ID)
+	if err != nil ||
+		field.Value(
+			reopened.Document.Snapshot().Data,
+			result.Entry.Address,
+		) != value^1 {
+		t.Fatalf("portrait coordinate after reopening: %v", err)
+	}
+}
+
+func replacePNG(t *testing.T, s *game.Session) {
+	portrait := editablePortrait(t, s)
+	ref := game.AssetRef{Kind: game.PortraitAsset, ID: portrait.Entry.ID}
+	bitmap := portrait.Sheet
+	colors := sheetColors(bitmap)
+	expected := image.NewRGBA(bitmap.Bounds())
+	copy(expected.Pix, bitmap.Pix)
+	for y := bitmap.Bounds().Min.Y; y < bitmap.Bounds().Max.Y; y++ {
+		for x := bitmap.Bounds().Min.X; x < bitmap.Bounds().Max.X; x++ {
+			switch bitmap.RGBAAt(x, y) {
+			case colors[0]:
+				expected.SetRGBA(x, y, colors[1])
+			case colors[1]:
+				expected.SetRGBA(x, y, colors[0])
+			}
+		}
+	}
+	var input bytes.Buffer
+	if err := png.Encode(&input, expected); err != nil {
+		t.Fatal(err)
+	}
+	before := s.Document.Snapshot()
+	edit, err := s.PlanAssetEdit(ref, input.Bytes())
+	checkPlan(t, s, before, err)
+	if err := s.ApplyAssetEdit(edit); err != nil {
+		t.Fatal(err)
+	}
+	reopened := historyAndReopen(t, s, before)
+	saved, err := reopened.AssetPNG(ref)
+	if err != nil {
+		t.Fatal(err)
+	}
+	decoded, err := png.Decode(bytes.NewReader(saved))
+	if err != nil || decoded.Bounds() != expected.Bounds() {
+		t.Fatalf("PNG dimensions after reopening: %v", err)
+	}
+	for y := expected.Bounds().Min.Y; y < expected.Bounds().Max.Y; y++ {
+		for x := expected.Bounds().Min.X; x < expected.Bounds().Max.X; x++ {
+			if color.RGBAModel.Convert(
+				decoded.At(x, y),
+			) != expected.RGBAAt(
+				x,
+				y,
+			) {
+				t.Fatalf("PNG pixel changed at (%d, %d)", x, y)
+			}
+		}
+	}
+}
+
+func sheetColors(bitmap *image.RGBA) []color.RGBA {
+	var colors []color.RGBA
+	for y := bitmap.Bounds().Min.Y; y < bitmap.Bounds().Max.Y; y++ {
+		for x := bitmap.Bounds().Min.X; x < bitmap.Bounds().Max.X; x++ {
+			pixel := bitmap.RGBAAt(x, y)
+			if pixel.A == 0 || len(colors) > 0 && pixel == colors[0] {
+				continue
+			}
+			colors = append(colors, pixel)
+			if len(colors) == 2 {
+				return colors
+			}
+		}
+	}
+	return colors
 }

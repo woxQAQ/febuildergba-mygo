@@ -215,7 +215,7 @@
 | turns.create     | 新增与删除回合增援           | 已接入   | 现有文档及章节布局               |
 | turns.discovery  | 回合脚本关联部署             | 已接入   | 静态引用；其他条件和指令待接入   |
 | turns.write      | 原子追加与共享影响           | 已接入   | 同一文档、修订和手动布局         |
-| turns.history    | 历史、重开、上下文与失败隔离 | 已接入   | 五版合成和固定原版章节           |
+| turns.history    | 历史、重开、上下文与失败隔离 | 已接入   | 五版合成样本与文档历史           |
 
 ## 五版区域触发事件
 
@@ -334,18 +334,18 @@
 
 ## 验证证据
 
-默认测试调用实际文档和领域操作；真实 ROM 集成测试只修改临时副本。当前这些证据不包含游戏内执行验证。临时 UI 复核属于当次交互观察，不作为永久可重复回归；规则见[测试说明](../tests/README.md)。
+默认测试使用独立构造的合成数据，调用实际文档和领域操作。可选[集成测试](../tests/integration/real_rom_test.go)动态发现 `.rom/` 中的输入，按可编辑入口验证通用流程，不绑定固定文件或内容；跳过项不计为通过。保存、重开等流程只操作临时副本。这些证据不包含游戏内执行验证。临时 UI 观察不作为永久回归，纯布局调整无需专门测试；规则见[测试说明](../tests/README.md)。
 
-| ID                    | 验证范围                                               | 可重复的证据入口                                                                                  |
-| --------------------- | ------------------------------------------------------ | ------------------------------------------------------------------------------------------------- |
-| maps.validation       | 原版章节 01；合成 ROM 固定像素；五版固定地图与文档流程 | [固定 ROM 流程](../tests/integration/maps_test.go)、[合成样本约定](../testdata/fixtures.md)       |
-| paths.validation      | 两版合成／原版路径，五版集成；固定字节与真实文件流程   | [固定 ROM 流程](../tests/integration/paths_test.go)、[合成样本约定](../testdata/fixtures.md)      |
-| areas.validation      | 五版合成和固定原版章节；文件及上下文流程               | [固定 ROM 流程](../tests/integration/areas_test.go)、[合成样本约定](../testdata/fixtures.md)      |
-| talks.validation      | 五版合成及固定原版章节；领域与文件流程                 | [固定 ROM 流程](../tests/integration/talks_test.go)、[合成样本约定](../testdata/fixtures.md)      |
-| objectives.validation | 五版合成和原版章节；领域与固定文件流程                 | [固定 ROM 流程](../tests/integration/objectives_test.go)、[合成样本约定](../testdata/fixtures.md) |
-| scripts.validation    | 五版原版与独立字节样本；合成与固定文件流程             | [固定 ROM 流程](../tests/integration/scripts_test.go)、[合成样本约定](../testdata/fixtures.md)    |
+| ID                    | 验证范围                             | 证据入口                                                                                |
+| --------------------- | ------------------------------------ | --------------------------------------------------------------------------------------- |
+| maps.validation       | 五版固定像素、地图资源与布局         | [地图流程](../game/maps_test.go)、[合成样本](../internal/testutil/maps.go)              |
+| paths.validation      | FE8 两版路径字节、文档历史与保存重开 | [路径流程](../game/deployment_paths_test.go)、[合成样本](../internal/testutil/paths.go) |
+| areas.validation      | 五版区域条件、事件写入与文件流程     | [区域流程](../game/area_events_test.go)、[合成样本](../internal/testutil/areas.go)      |
+| talks.validation      | 五版人物对话、独立引用与文件流程     | [对话流程](../game/talk_events_test.go)、[合成样本](../internal/testutil/talks.go)      |
+| objectives.validation | 五版胜败条件、脚本模板与文件流程     | [胜败流程](../game/objectives_test.go)、[合成样本](../internal/testutil/objectives.go)  |
+| scripts.validation    | 五版指令字节、结构编辑与文件流程     | [脚本流程](../game/scripts_test.go)、[合成样本](../internal/testutil/scripts.go)        |
 
-基础表、文本、PNG、章节、部署、回合事件及头像的固定样本分别位于 [records](../tests/integration/records_test.go)、[text](../tests/integration/text_test.go)、[assets](../tests/integration/assets_test.go)、[chapters](../tests/integration/chapters_test.go)、[deployments](../tests/integration/deployments_test.go)、[turns](../tests/integration/turns_test.go)、[portraits](../tests/integration/portraits_test.go)。领域测试与合成样本位于对应包，新增用例无需同步登记数量。
+其他领域测试位于对应包；样本构造规则见 [fixture 约定](../testdata/fixtures.md)，新增用例无需同步登记数量。
 
 ## 更新规则
 
