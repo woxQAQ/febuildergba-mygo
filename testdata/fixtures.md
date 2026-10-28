@@ -39,6 +39,8 @@
 
 [paths.go](../internal/testutil/paths.go) 的 `NewPathFixture` 为两个 FE8 单位共享同一三段 REDA，包含同步人物、等待段、有符号计时边界和非零保留位。固定字节验证字段掩码、绝对终点、快照与复制隔离、原顺序重排、未修改共享路径、最后一段清空和默认重建；另验证超长路径原样保留及编辑上限、路径空间保护、不可变计划、原子历史、新建增援的本地 generation 和保存后继续编辑。
 
+[scripts.go](../internal/testutil/scripts.go) 的 `NewScriptFixture` 在胜败样本旁定义共享脚本、独立调用、文本／标志／单位参数，以及早期结束之后的前向标签。字节独立于指令 schema，验证参数精确改写、未知 ASM 保留、稳定 ID 及内部调用重定位、独立指针别名、不可变计划、空入口创建、动态／部分脚本与资源／容量拒绝、文档及布局冲突、章节搬迁、原子历史和保存后继续编辑。五版真实 ROM 另固定等待指令：FE8U/J 为 0x9EEC38／0xA60D70，FE7U/J 为 0xCA7A8C／0xD6FD0C，FE6 为 0x66B5D4；不从编辑器 schema 动态生成原版期望。
+
 可通过 `GetPosition` 查询 `units`、`classes`、`items`、`chapters`（可见记录起点）、`*_base`（指针目标，包含隐藏记录）及 `*_pointer`（首个候选指针的位置）。`Bytes` 返回副本；`Save` 将数据写入测试临时目录。
 
 Fixture 的有效性由 [fixture_test.go](../internal/testutil/fixture_test.go) 通过真实游戏会话解析验证。改变游戏规则时，应对照旧版来源更新 fixture 和预期结果，避免从被测实现动态生成所有期望。

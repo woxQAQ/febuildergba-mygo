@@ -24,6 +24,7 @@ type Form struct {
 	sidebar               float32
 	openHex               func(int, int)
 	openText              func(uint16)
+	openScript            func(int, int)
 	jump                  func(game.Kind, int)
 	assets                AssetActions
 }
@@ -42,6 +43,14 @@ func New(
 		jump:     jump,
 		assets:   assets,
 	}
+}
+
+func (a *Form) SetScriptOpener(open func(int, int)) { a.openScript = open }
+
+func (a *Form) OpenDeployment(
+	chapter, site int,
+) {
+	a.chapter.OpenDeployment(a.state, chapter, site)
 }
 
 func (a *Form) Reset() {
@@ -96,6 +105,12 @@ func (a *Form) View(
 							ui.Checkbox(c, &a.largePreview, "2×").
 								Label(locales.PreviewZoom())
 						}
+						if kind == game.Chapters && a.openScript != nil {
+							ui.Button(c, locales.ScriptEditor()).
+								Label(locales.ScriptChapterOpen()).
+								Disabled(a.state.Busy).
+								OnClick(func() { a.openScript(row.ID, 0) })
+						}
 						ui.Checkbox(c, &a.showRaw, locales.Advanced())
 					})
 					a.assetEditor(c, preview)
@@ -130,6 +145,7 @@ func (a *Form) View(
 							a.jump,
 							a.openHex,
 							a.openText,
+							a.openScript,
 						)
 					} else {
 						a.descriptionEditors(c, kind, row, table)

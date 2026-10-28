@@ -8,6 +8,7 @@ import (
 
 	"github.com/woxQAQ/febuildergba-mygo/game"
 	"github.com/woxQAQ/febuildergba-mygo/internal/components"
+	inputparse "github.com/woxQAQ/febuildergba-mygo/internal/input"
 	"github.com/woxQAQ/febuildergba-mygo/internal/locales"
 )
 
@@ -147,7 +148,7 @@ func deploymentNumber(
 			Label(locales.Deployments()+" / "+locales.Label(field.ID)).
 			Disabled(state.Busy || !entry.data.Current(state.Session)).
 			OnChange(func() {
-				value, err := components.ParseInteger(input.text)
+				value, err := inputparse.ParseInteger(input.text)
 				if err != nil || value < field.Min || value > field.Max {
 					input.invalid = true
 					entry.preview = nil

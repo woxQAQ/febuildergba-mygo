@@ -36,6 +36,8 @@
 - 名称及描述的编码规则放在输入框帮助提示中；支持的控制指令可读且可修改。文本页将指令参考和 ROM 原始控制单元按需展开，保留跨记录草稿；描述与通用文本仅在有修改时显示操作栏，通用文本遇到原文冲突时保留重新读取入口。无文本 ID 的描述只显示状态与设置入口，有效 ID 的空正文仍可编辑。
 - 加减按钮集中在当前字段检查器。Tab 切换字段，上下键微调；无效输入和组合文字保留为草稿，不立即写入 ROM。
 
+- “事件脚本”作为独立页面，按章节及指针位置导航；条件页通过回调跳转。指令表保持固定视口，参数输入使用十进制或 0x 前缀，原始字节与只读指令就近展示。参数修改和结构追加分别说明共享后果，预览绑定文档与布局。指令使用稳定 ID，插入、复制和重排后明确选择目标行；其他行的非法输入保留，文本撤销留在输入框。
+
 ## 实现位置
 
-[components](internal/components) 定义标题栏、状态提示、文本草稿及 [recordform](internal/components/recordform) 字段布局；[pages](internal/pages) 组合记录导航、批量操作、通用文本和十六进制编辑。启动与构建命令统一维护在[README](README.md)。
+[pages](internal/pages) 拥有标签内容、导航和页面组合，包括记录、脚本、通用文本及十六进制编辑。[components](internal/components) 根包维护窗口 chrome、共享编辑状态及通用控件；[recordform](internal/components/recordform)、chapterview 和 mapview 属于记录页内部组件堆栈。应用层只通过 pages 引入界面；[input](internal/input) 独立承载纯数值及地址解析，导入边界由架构检查覆盖。启动与构建命令统一维护在[README](README.md)。

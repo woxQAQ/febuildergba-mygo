@@ -9,10 +9,14 @@ import (
 	"github.com/woxQAQ/febuildergba-mygo/internal/components"
 	"github.com/woxQAQ/febuildergba-mygo/internal/components/recordform"
 	"github.com/woxQAQ/febuildergba-mygo/internal/locales"
+	"github.com/woxQAQ/febuildergba-mygo/internal/pages/eventeditor"
 	"github.com/woxQAQ/febuildergba-mygo/internal/pages/hexeditor"
 	"github.com/woxQAQ/febuildergba-mygo/internal/pages/records"
 	"github.com/woxQAQ/febuildergba-mygo/internal/pages/texteditor"
 )
+
+// HeaderHeight is the desktop title-bar height exposed by the page composition.
+const HeaderHeight = components.HeaderHeight
 
 // Actions connects page intent to the owning desktop window.
 type Actions struct {
@@ -32,6 +36,7 @@ type Workspace struct {
 	records     *records.Page
 	hex         *hexeditor.Page
 	texts       *texteditor.Page
+	scripts     *eventeditor.Page
 	textHistory bool
 }
 
@@ -60,6 +65,13 @@ func New() *Workspace {
 			},
 		},
 	)
+	w.scripts = eventeditor.New(
+		w.Editor,
+		w.openHex,
+		w.openText,
+		w.openDeployment,
+	)
+	w.records.SetScriptOpener(w.OpenScript)
 	return w
 }
 
@@ -68,6 +80,7 @@ func (w *Workspace) SetSession(session *game.Session) {
 	w.records.Reset()
 	w.hex.Reset()
 	w.texts.Reset()
+	w.scripts.Reset()
 	w.tab = 0
 }
 
@@ -79,6 +92,16 @@ func (w *Workspace) openHex(address, length int) {
 func (w *Workspace) openText(id uint16) {
 	w.tab = len(game.Kinds)
 	w.texts.Open(id)
+}
+
+// OpenScript navigates to a chapter's physical script entry pointer.
+func (w *Workspace) OpenScript(chapter, site int) {
+	w.tab = len(game.Kinds) + 2
+	w.scripts.Open(chapter, site)
+}
+
+func (w *Workspace) openDeployment(chapter, site int) {
+	w.records.OpenDeployment(chapter, site)
 }
 
 // UsesTextHistory includes native dialogs, whose fields own their text history.
@@ -102,13 +125,20 @@ func (w *Workspace) View(c *ui.Context) {
 		for _, kind := range game.Kinds {
 			labels = append(labels, locales.Label(string(kind)))
 		}
-		labels = append(labels, locales.TextEditor(), locales.HexEditor())
+		labels = append(
+			labels,
+			locales.TextEditor(),
+			locales.HexEditor(),
+			locales.ScriptEditor(),
+		)
 		ui.Tabs(c, &w.tab, labels...)
 		switch w.tab {
 		case len(game.Kinds):
 			w.texts.View(c)
 		case len(game.Kinds) + 1:
 			w.hex.View(c)
+		case len(game.Kinds) + 2:
+			w.scripts.View(c)
 		default:
 			w.records.View(c, w.tab)
 		}

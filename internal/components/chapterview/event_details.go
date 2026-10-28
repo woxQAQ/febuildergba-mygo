@@ -57,6 +57,12 @@ func (v *View) eventDetails(
 			default:
 				v.eventScene(c, state, row, entry, events, advanced, jump)
 			}
+			if v.mode != 5 && v.openScript != nil && event.Address > 0 &&
+				event.Script >= 0xC0 {
+				ui.Button(c, locales.ScriptEditor()).
+					Disabled(state.Busy).
+					OnClick(func() { v.openScript(row.ID, event.Address+4) })
+			}
 			if advanced && event.Address > 0 {
 				ui.Row(c).Gap(8).Wrap().Children(func() {
 					ui.Button(c, locales.EditBytes()).

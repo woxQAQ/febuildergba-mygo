@@ -9,6 +9,7 @@ import (
 
 	"github.com/woxQAQ/febuildergba-mygo/game"
 	"github.com/woxQAQ/febuildergba-mygo/internal/components"
+	inputparse "github.com/woxQAQ/febuildergba-mygo/internal/input"
 	"github.com/woxQAQ/febuildergba-mygo/internal/locales"
 )
 
@@ -54,7 +55,7 @@ func (v *View) eventNumber(
 			Label(v.labelsFor(entry.data.Table()).title+" / "+locales.Label(field.ID)).
 			Disabled(state.Busy || !entry.data.Current(state.Session)).
 			OnChange(func() {
-				parsed, err := components.ParseInteger(input.text)
+				parsed, err := inputparse.ParseInteger(input.text)
 				entry.preview = nil
 				if err != nil || parsed < low || parsed > high {
 					input.invalid = true

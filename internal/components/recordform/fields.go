@@ -9,6 +9,7 @@ import (
 
 	"github.com/woxQAQ/febuildergba-mygo/game"
 	"github.com/woxQAQ/febuildergba-mygo/internal/components"
+	inputparse "github.com/woxQAQ/febuildergba-mygo/internal/input"
 	"github.com/woxQAQ/febuildergba-mygo/internal/locales"
 )
 
@@ -115,7 +116,7 @@ func (a *Form) numberField(
 		}
 		return true
 	}).OnChange(func() {
-		parsed, err := components.ParseInteger(draft.text)
+		parsed, err := inputparse.ParseInteger(draft.text)
 		if err != nil || parsed < low || parsed > high {
 			draft.invalid = true
 			return

@@ -111,12 +111,12 @@ func (s *deploymentScanner) conditions(base int, table EventTable) {
 }
 
 type deploymentInstruction struct {
-	length                     int
-	end                        bool
-	call                       int
-	loads                      []int
-	label, branch, mapID, slot int
-	forgetSlots, chapterEnd    bool
+	length                        int
+	end                           bool
+	call                          int
+	loads                         []int
+	label, branch, mapID, slot    int
+	forgetSlots, chapterEnd, jump bool
 }
 
 func (s *deploymentScanner) instruction(
@@ -210,6 +210,8 @@ func (s *deploymentScanner) fe6Instruction(
 			command.mapID = int(u32(s.data, at+4))
 		case 0x3D:
 			command.chapterEnd = true
+		case 0x25:
+			command.call, command.jump = at+4, true
 		}
 		return command, true
 	}
@@ -249,6 +251,8 @@ func (s *deploymentScanner) fe7Instruction(
 		0x45 + shift,
 		0x46 + shift,
 		0x47 + shift,
+		0x4A + shift,
+		0x4B + shift,
 		0x4D + shift,
 		0x4E + shift,
 		0x4F + shift,
@@ -308,6 +312,12 @@ func (s *deploymentScanner) walk(
 		}
 		if collect {
 			mapID = s.follow(at, command, &slots, depth, mapID, source)
+		}
+		if command.jump {
+			if len(pending) == 0 {
+				return mapID
+			}
+			collect = false
 		}
 		at += command.length
 	}

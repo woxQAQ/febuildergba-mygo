@@ -1,5 +1,6 @@
-// Package components builds the window's UI layer below pages: chrome,
-// per-window editing state, input parsing, and domain widgets.
+// Package components owns window chrome, per-window editing state and shared
+// UI widgets. Page content and navigation belong to pages; system interfaces
+// belong to app, and pure value parsing belongs to internal/input.
 package components
 
 import (

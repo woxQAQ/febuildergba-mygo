@@ -140,6 +140,17 @@ func (a *Page) records(c *ui.Context) {
 	})
 }
 
+func (a *Page) SetScriptOpener(
+	open func(int, int),
+) {
+	a.form.SetScriptOpener(open)
+}
+
+func (a *Page) OpenDeployment(chapter, site int) {
+	a.Open(game.Chapters, chapter)
+	a.form.OpenDeployment(chapter, site)
+}
+
 func (a *Page) Open(kind game.Kind, id int) {
 	for i, k := range game.Kinds {
 		if k != kind {

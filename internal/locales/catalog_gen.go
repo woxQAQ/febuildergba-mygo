@@ -244,6 +244,718 @@ func (msgs Messages) MoveLimit() string {
 	return Catalog.Format(msgs.locale, "move_limit", nil)
 }
 
+// ScriptEditor says "Event scripts"
+// in the language the app shows.
+func ScriptEditor() string { return In(i18n.Locale()).ScriptEditor() }
+
+// ScriptEditor says "Event scripts"
+// in the language of msgs.
+func (msgs Messages) ScriptEditor() string {
+	return Catalog.Format(msgs.locale, "script_editor", nil)
+}
+
+// ScriptChapter says "Script chapter"
+// in the language the app shows.
+func ScriptChapter() string { return In(i18n.Locale()).ScriptChapter() }
+
+// ScriptChapter says "Script chapter"
+// in the language of msgs.
+func (msgs Messages) ScriptChapter() string {
+	return Catalog.Format(msgs.locale, "script_chapter", nil)
+}
+
+// ScriptChapterOpen says "Browse chapter scripts"
+// in the language the app shows.
+func ScriptChapterOpen() string { return In(i18n.Locale()).ScriptChapterOpen() }
+
+// ScriptChapterOpen says "Browse chapter scripts"
+// in the language of msgs.
+func (msgs Messages) ScriptChapterOpen() string {
+	return Catalog.Format(msgs.locale, "script_chapter_open", nil)
+}
+
+// ScriptSearch says "Search source or address"
+// in the language the app shows.
+func ScriptSearch() string { return In(i18n.Locale()).ScriptSearch() }
+
+// ScriptSearch says "Search source or address"
+// in the language of msgs.
+func (msgs Messages) ScriptSearch() string {
+	return Catalog.Format(msgs.locale, "script_search", nil)
+}
+
+// ScriptSource says "Source"
+// in the language the app shows.
+func ScriptSource() string { return In(i18n.Locale()).ScriptSource() }
+
+// ScriptSource says "Source"
+// in the language of msgs.
+func (msgs Messages) ScriptSource() string {
+	return Catalog.Format(msgs.locale, "script_source", nil)
+}
+
+// ScriptAddress says "ROM address"
+// in the language the app shows.
+func ScriptAddress() string { return In(i18n.Locale()).ScriptAddress() }
+
+// ScriptAddress says "ROM address"
+// in the language of msgs.
+func (msgs Messages) ScriptAddress() string {
+	return Catalog.Format(msgs.locale, "script_address", nil)
+}
+
+// ScriptEntries says "Script entries"
+// in the language the app shows.
+func ScriptEntries() string { return In(i18n.Locale()).ScriptEntries() }
+
+// ScriptEntries says "Script entries"
+// in the language of msgs.
+func (msgs Messages) ScriptEntries() string {
+	return Catalog.Format(msgs.locale, "script_entries", nil)
+}
+
+// ScriptInstructions says "Instructions"
+// in the language the app shows.
+func ScriptInstructions() string { return In(i18n.Locale()).ScriptInstructions() }
+
+// ScriptInstructions says "Instructions"
+// in the language of msgs.
+func (msgs Messages) ScriptInstructions() string {
+	return Catalog.Format(msgs.locale, "script_instructions", nil)
+}
+
+// ScriptCommand says "Instruction"
+// in the language the app shows.
+func ScriptCommand() string { return In(i18n.Locale()).ScriptCommand() }
+
+// ScriptCommand says "Instruction"
+// in the language of msgs.
+func (msgs Messages) ScriptCommand() string {
+	return Catalog.Format(msgs.locale, "script_command", nil)
+}
+
+// ScriptOperands says "Operands"
+// in the language the app shows.
+func ScriptOperands() string { return In(i18n.Locale()).ScriptOperands() }
+
+// ScriptOperands says "Operands"
+// in the language of msgs.
+func (msgs Messages) ScriptOperands() string {
+	return Catalog.Format(msgs.locale, "script_operands", nil)
+}
+
+// ScriptScope says "Bounded static instruction listing; scripts, branches and ASM are not executed. Each entry identifies its pointer sit…"
+// in the language the app shows.
+func ScriptScope() string { return In(i18n.Locale()).ScriptScope() }
+
+// ScriptScope says "Bounded static instruction listing; scripts, branches and ASM are not executed. Each entry identifies its pointer sit…"
+// in the language of msgs.
+func (msgs Messages) ScriptScope() string {
+	return Catalog.Format(msgs.locale, "script_scope", nil)
+}
+
+// ScriptPartial says "The instruction boundary or ending could not be confirmed. This partial listing is read-only."
+// in the language the app shows.
+func ScriptPartial() string { return In(i18n.Locale()).ScriptPartial() }
+
+// ScriptPartial says "The instruction boundary or ending could not be confirmed. This partial listing is read-only."
+// in the language of msgs.
+func (msgs Messages) ScriptPartial() string {
+	return Catalog.Format(msgs.locale, "script_partial", nil)
+}
+
+// ScriptOpaque says "This script includes read-only instructions. Confirmed parameters can be patched at their original addresses; structu…"
+// in the language the app shows.
+func ScriptOpaque() string { return In(i18n.Locale()).ScriptOpaque() }
+
+// ScriptOpaque says "This script includes read-only instructions. Confirmed parameters can be patched at their original addresses; structu…"
+// in the language of msgs.
+func (msgs Messages) ScriptOpaque() string {
+	return Catalog.Format(msgs.locale, "script_opaque", nil)
+}
+
+// ScriptReadonlyInstruction says "Uninterpreted instruction: original bytes are retained and this row is read-only."
+// in the language the app shows.
+func ScriptReadonlyInstruction() string { return In(i18n.Locale()).ScriptReadonlyInstruction() }
+
+// ScriptReadonlyInstruction says "Uninterpreted instruction: original bytes are retained and this row is read-only."
+// in the language of msgs.
+func (msgs Messages) ScriptReadonlyInstruction() string {
+	return Catalog.Format(msgs.locale, "script_readonly_instruction", nil)
+}
+
+// ScriptNewCommand says "New instruction"
+// in the language the app shows.
+func ScriptNewCommand() string { return In(i18n.Locale()).ScriptNewCommand() }
+
+// ScriptNewCommand says "New instruction"
+// in the language of msgs.
+func (msgs Messages) ScriptNewCommand() string {
+	return Catalog.Format(msgs.locale, "script_new_command", nil)
+}
+
+// ScriptInsert says "Insert above"
+// in the language the app shows.
+func ScriptInsert() string { return In(i18n.Locale()).ScriptInsert() }
+
+// ScriptInsert says "Insert above"
+// in the language of msgs.
+func (msgs Messages) ScriptInsert() string {
+	return Catalog.Format(msgs.locale, "script_insert", nil)
+}
+
+// ScriptCopy says "Copy instruction"
+// in the language the app shows.
+func ScriptCopy() string { return In(i18n.Locale()).ScriptCopy() }
+
+// ScriptCopy says "Copy instruction"
+// in the language of msgs.
+func (msgs Messages) ScriptCopy() string {
+	return Catalog.Format(msgs.locale, "script_copy", nil)
+}
+
+// ScriptDelete says "Delete instruction"
+// in the language the app shows.
+func ScriptDelete() string { return In(i18n.Locale()).ScriptDelete() }
+
+// ScriptDelete says "Delete instruction"
+// in the language of msgs.
+func (msgs Messages) ScriptDelete() string {
+	return Catalog.Format(msgs.locale, "script_delete", nil)
+}
+
+// ScriptCreate says "Create empty script"
+// in the language the app shows.
+func ScriptCreate() string { return In(i18n.Locale()).ScriptCreate() }
+
+// ScriptCreate says "Create empty script"
+// in the language of msgs.
+func (msgs Messages) ScriptCreate() string {
+	return Catalog.Format(msgs.locale, "script_create", nil)
+}
+
+// ScriptOperandHelp says "Decimal and 0x-prefixed values are accepted. Pointer operands use native GBA addresses (0x08000000 plus the ROM offse…"
+// in the language the app shows.
+func ScriptOperandHelp() string { return In(i18n.Locale()).ScriptOperandHelp() }
+
+// ScriptOperandHelp says "Decimal and 0x-prefixed values are accepted. Pointer operands use native GBA addresses (0x08000000 plus the ROM offse…"
+// in the language of msgs.
+func (msgs Messages) ScriptOperandHelp() string {
+	return Catalog.Format(msgs.locale, "script_operand_help", nil)
+}
+
+// ScriptOpenCall says "Open linked script"
+// in the language the app shows.
+func ScriptOpenCall() string { return In(i18n.Locale()).ScriptOpenCall() }
+
+// ScriptOpenCall says "Open linked script"
+// in the language of msgs.
+func (msgs Messages) ScriptOpenCall() string {
+	return Catalog.Format(msgs.locale, "script_open_call", nil)
+}
+
+// ScriptChooseReference says "Choose existing reference"
+// in the language the app shows.
+func ScriptChooseReference() string { return In(i18n.Locale()).ScriptChooseReference() }
+
+// ScriptChooseReference says "Choose existing reference"
+// in the language of msgs.
+func (msgs Messages) ScriptChooseReference() string {
+	return Catalog.Format(msgs.locale, "script_choose_reference", nil)
+}
+
+// ScriptFindLabel says "Find label"
+// in the language the app shows.
+func ScriptFindLabel() string { return In(i18n.Locale()).ScriptFindLabel() }
+
+// ScriptFindLabel says "Find label"
+// in the language of msgs.
+func (msgs Messages) ScriptFindLabel() string {
+	return Catalog.Format(msgs.locale, "script_find_label", nil)
+}
+
+// ScriptReferenceHelp says "Follow a confirmed ROM reference. Apply pending script edits before opening its script or deployment pointer site."
+// in the language the app shows.
+func ScriptReferenceHelp() string { return In(i18n.Locale()).ScriptReferenceHelp() }
+
+// ScriptReferenceHelp says "Follow a confirmed ROM reference. Apply pending script edits before opening its script or deployment pointer site."
+// in the language of msgs.
+func (msgs Messages) ScriptReferenceHelp() string {
+	return Catalog.Format(msgs.locale, "script_reference_help", nil)
+}
+
+// ScriptPreview says "Preview script"
+// in the language the app shows.
+func ScriptPreview() string { return In(i18n.Locale()).ScriptPreview() }
+
+// ScriptPreview says "Preview script"
+// in the language of msgs.
+func (msgs Messages) ScriptPreview() string {
+	return Catalog.Format(msgs.locale, "script_preview", nil)
+}
+
+// ScriptReload says "Reload script"
+// in the language the app shows.
+func ScriptReload() string { return In(i18n.Locale()).ScriptReload() }
+
+// ScriptReload says "Reload script"
+// in the language of msgs.
+func (msgs Messages) ScriptReload() string {
+	return Catalog.Format(msgs.locale, "script_reload", nil)
+}
+
+// ScriptApply says "Apply script"
+// in the language the app shows.
+func ScriptApply() string { return In(i18n.Locale()).ScriptApply() }
+
+// ScriptApply says "Apply script"
+// in the language of msgs.
+func (msgs Messages) ScriptApply() string {
+	return Catalog.Format(msgs.locale, "script_apply", nil)
+}
+
+// ScriptPatchScope says "Patch confirmed parameters at their original addresses. All shared and interior entries observe these bytes; known af…"
+// in the language the app shows.
+func ScriptPatchScope() string { return In(i18n.Locale()).ScriptPatchScope() }
+
+// ScriptPatchScope says "Patch confirmed parameters at their original addresses. All shared and interior entries observe these bytes; known af…"
+// in the language of msgs.
+func (msgs Messages) ScriptPatchScope() string {
+	return Catalog.Format(msgs.locale, "script_patch_scope", nil)
+}
+
+// ScriptRelocateScope says "Append the complete known script and update this pointer site. Known internal calls are retargeted. Other pointer sit…"
+// in the language the app shows.
+func ScriptRelocateScope() string { return In(i18n.Locale()).ScriptRelocateScope() }
+
+// ScriptRelocateScope says "Append the complete known script and update this pointer site. Known internal calls are retargeted. Other pointer sit…"
+// in the language of msgs.
+func (msgs Messages) ScriptRelocateScope() string {
+	return Catalog.Format(msgs.locale, "script_relocate_scope", nil)
+}
+
+// ScriptOpening says "Chapter opening"
+// in the language the app shows.
+func ScriptOpening() string { return In(i18n.Locale()).ScriptOpening() }
+
+// ScriptOpening says "Chapter opening"
+// in the language of msgs.
+func (msgs Messages) ScriptOpening() string {
+	return Catalog.Format(msgs.locale, "script_opening", nil)
+}
+
+// ScriptEnding says "Chapter ending"
+// in the language the app shows.
+func ScriptEnding() string { return In(i18n.Locale()).ScriptEnding() }
+
+// ScriptEnding says "Chapter ending"
+// in the language of msgs.
+func (msgs Messages) ScriptEnding() string {
+	return Catalog.Format(msgs.locale, "script_ending", nil)
+}
+
+// ScriptCallEntry says "Script call or jump"
+// in the language the app shows.
+func ScriptCallEntry() string { return In(i18n.Locale()).ScriptCallEntry() }
+
+// ScriptCallEntry says "Script call or jump"
+// in the language of msgs.
+func (msgs Messages) ScriptCallEntry() string {
+	return Catalog.Format(msgs.locale, "script_call_entry", nil)
+}
+
+// GameInvalidScript says "Invalid script, label or reference. Check the instruction sequence and operands."
+// in the language the app shows.
+func GameInvalidScript() string { return In(i18n.Locale()).GameInvalidScript() }
+
+// GameInvalidScript says "Invalid script, label or reference. Check the instruction sequence and operands."
+// in the language of msgs.
+func (msgs Messages) GameInvalidScript() string {
+	return Catalog.Format(msgs.locale, "game_invalid_script", nil)
+}
+
+// GameUnsupportedScriptStructure says "This script cannot be structurally edited or relocated safely. Unknown, dynamic or incomplete instructions require pr…"
+// in the language the app shows.
+func GameUnsupportedScriptStructure() string {
+	return In(i18n.Locale()).GameUnsupportedScriptStructure()
+}
+
+// GameUnsupportedScriptStructure says "This script cannot be structurally edited or relocated safely. Unknown, dynamic or incomplete instructions require pr…"
+// in the language of msgs.
+func (msgs Messages) GameUnsupportedScriptStructure() string {
+	return Catalog.Format(msgs.locale, "game_unsupported_script_structure", nil)
+}
+
+// ScriptAsm says "Call ASM (read-only)"
+// in the language the app shows.
+func ScriptAsm() string { return In(i18n.Locale()).ScriptAsm() }
+
+// ScriptAsm says "Call ASM (read-only)"
+// in the language of msgs.
+func (msgs Messages) ScriptAsm() string {
+	return Catalog.Format(msgs.locale, "script_asm", nil)
+}
+
+// ScriptUnknown says "Uninterpreted instruction"
+// in the language the app shows.
+func ScriptUnknown() string { return In(i18n.Locale()).ScriptUnknown() }
+
+// ScriptUnknown says "Uninterpreted instruction"
+// in the language of msgs.
+func (msgs Messages) ScriptUnknown() string {
+	return Catalog.Format(msgs.locale, "script_unknown", nil)
+}
+
+// ScriptEnd says "End / return"
+// in the language the app shows.
+func ScriptEnd() string { return In(i18n.Locale()).ScriptEnd() }
+
+// ScriptEnd says "End / return"
+// in the language of msgs.
+func (msgs Messages) ScriptEnd() string {
+	return Catalog.Format(msgs.locale, "script_end", nil)
+}
+
+// ScriptWait says "Wait"
+// in the language the app shows.
+func ScriptWait() string { return In(i18n.Locale()).ScriptWait() }
+
+// ScriptWait says "Wait"
+// in the language of msgs.
+func (msgs Messages) ScriptWait() string {
+	return Catalog.Format(msgs.locale, "script_wait", nil)
+}
+
+// ScriptText says "Show text"
+// in the language the app shows.
+func ScriptText() string { return In(i18n.Locale()).ScriptText() }
+
+// ScriptText says "Show text"
+// in the language of msgs.
+func (msgs Messages) ScriptText() string {
+	return Catalog.Format(msgs.locale, "script_text", nil)
+}
+
+// ScriptMoreText says "Continue text"
+// in the language the app shows.
+func ScriptMoreText() string { return In(i18n.Locale()).ScriptMoreText() }
+
+// ScriptMoreText says "Continue text"
+// in the language of msgs.
+func (msgs Messages) ScriptMoreText() string {
+	return Catalog.Format(msgs.locale, "script_more_text", nil)
+}
+
+// ScriptTextStart says "Start text"
+// in the language the app shows.
+func ScriptTextStart() string { return In(i18n.Locale()).ScriptTextStart() }
+
+// ScriptTextStart says "Start text"
+// in the language of msgs.
+func (msgs Messages) ScriptTextStart() string {
+	return Catalog.Format(msgs.locale, "script_text_start", nil)
+}
+
+// ScriptTextWait says "Wait for text"
+// in the language the app shows.
+func ScriptTextWait() string { return In(i18n.Locale()).ScriptTextWait() }
+
+// ScriptTextWait says "Wait for text"
+// in the language of msgs.
+func (msgs Messages) ScriptTextWait() string {
+	return Catalog.Format(msgs.locale, "script_text_wait", nil)
+}
+
+// ScriptTextClear says "Clear text"
+// in the language the app shows.
+func ScriptTextClear() string { return In(i18n.Locale()).ScriptTextClear() }
+
+// ScriptTextClear says "Clear text"
+// in the language of msgs.
+func (msgs Messages) ScriptTextClear() string {
+	return Catalog.Format(msgs.locale, "script_text_clear", nil)
+}
+
+// ScriptLoadUnits says "Load units"
+// in the language the app shows.
+func ScriptLoadUnits() string { return In(i18n.Locale()).ScriptLoadUnits() }
+
+// ScriptLoadUnits says "Load units"
+// in the language of msgs.
+func (msgs Messages) ScriptLoadUnits() string {
+	return Catalog.Format(msgs.locale, "script_load_units", nil)
+}
+
+// ScriptWaitUnits says "Wait for units"
+// in the language the app shows.
+func ScriptWaitUnits() string { return In(i18n.Locale()).ScriptWaitUnits() }
+
+// ScriptWaitUnits says "Wait for units"
+// in the language of msgs.
+func (msgs Messages) ScriptWaitUnits() string {
+	return Catalog.Format(msgs.locale, "script_wait_units", nil)
+}
+
+// ScriptFlagOn says "Set flag"
+// in the language the app shows.
+func ScriptFlagOn() string { return In(i18n.Locale()).ScriptFlagOn() }
+
+// ScriptFlagOn says "Set flag"
+// in the language of msgs.
+func (msgs Messages) ScriptFlagOn() string {
+	return Catalog.Format(msgs.locale, "script_flag_on", nil)
+}
+
+// ScriptFlagOff says "Clear flag"
+// in the language the app shows.
+func ScriptFlagOff() string { return In(i18n.Locale()).ScriptFlagOff() }
+
+// ScriptFlagOff says "Clear flag"
+// in the language of msgs.
+func (msgs Messages) ScriptFlagOff() string {
+	return Catalog.Format(msgs.locale, "script_flag_off", nil)
+}
+
+// ScriptCheckFlag says "Read flag to slot C"
+// in the language the app shows.
+func ScriptCheckFlag() string { return In(i18n.Locale()).ScriptCheckFlag() }
+
+// ScriptCheckFlag says "Read flag to slot C"
+// in the language of msgs.
+func (msgs Messages) ScriptCheckFlag() string {
+	return Catalog.Format(msgs.locale, "script_check_flag", nil)
+}
+
+// ScriptLabel says "Label"
+// in the language the app shows.
+func ScriptLabel() string { return In(i18n.Locale()).ScriptLabel() }
+
+// ScriptLabel says "Label"
+// in the language of msgs.
+func (msgs Messages) ScriptLabel() string {
+	return Catalog.Format(msgs.locale, "script_label", nil)
+}
+
+// ScriptGoto says "Go to label"
+// in the language the app shows.
+func ScriptGoto() string { return In(i18n.Locale()).ScriptGoto() }
+
+// ScriptGoto says "Go to label"
+// in the language of msgs.
+func (msgs Messages) ScriptGoto() string {
+	return Catalog.Format(msgs.locale, "script_goto", nil)
+}
+
+// ScriptBranchFlagOn says "Branch if flag is set"
+// in the language the app shows.
+func ScriptBranchFlagOn() string { return In(i18n.Locale()).ScriptBranchFlagOn() }
+
+// ScriptBranchFlagOn says "Branch if flag is set"
+// in the language of msgs.
+func (msgs Messages) ScriptBranchFlagOn() string {
+	return Catalog.Format(msgs.locale, "script_branch_flag_on", nil)
+}
+
+// ScriptBranchFlagOff says "Branch if flag is clear"
+// in the language the app shows.
+func ScriptBranchFlagOff() string { return In(i18n.Locale()).ScriptBranchFlagOff() }
+
+// ScriptBranchFlagOff says "Branch if flag is clear"
+// in the language of msgs.
+func (msgs Messages) ScriptBranchFlagOff() string {
+	return Catalog.Format(msgs.locale, "script_branch_flag_off", nil)
+}
+
+// ScriptCall says "Call script"
+// in the language the app shows.
+func ScriptCall() string { return In(i18n.Locale()).ScriptCall() }
+
+// ScriptCall says "Call script"
+// in the language of msgs.
+func (msgs Messages) ScriptCall() string {
+	return Catalog.Format(msgs.locale, "script_call", nil)
+}
+
+// ScriptJump says "Jump to script"
+// in the language the app shows.
+func ScriptJump() string { return In(i18n.Locale()).ScriptJump() }
+
+// ScriptJump says "Jump to script"
+// in the language of msgs.
+func (msgs Messages) ScriptJump() string {
+	return Catalog.Format(msgs.locale, "script_jump", nil)
+}
+
+// ScriptSetSlot says "Set memory slot"
+// in the language the app shows.
+func ScriptSetSlot() string { return In(i18n.Locale()).ScriptSetSlot() }
+
+// ScriptSetSlot says "Set memory slot"
+// in the language of msgs.
+func (msgs Messages) ScriptSetSlot() string {
+	return Catalog.Format(msgs.locale, "script_set_slot", nil)
+}
+
+// ScriptBranchEq says "Branch: slots equal"
+// in the language the app shows.
+func ScriptBranchEq() string { return In(i18n.Locale()).ScriptBranchEq() }
+
+// ScriptBranchEq says "Branch: slots equal"
+// in the language of msgs.
+func (msgs Messages) ScriptBranchEq() string {
+	return Catalog.Format(msgs.locale, "script_branch_eq", nil)
+}
+
+// ScriptBranchNe says "Branch: slots differ"
+// in the language the app shows.
+func ScriptBranchNe() string { return In(i18n.Locale()).ScriptBranchNe() }
+
+// ScriptBranchNe says "Branch: slots differ"
+// in the language of msgs.
+func (msgs Messages) ScriptBranchNe() string {
+	return Catalog.Format(msgs.locale, "script_branch_ne", nil)
+}
+
+// ScriptBranchGe says "Branch: A ≥ B"
+// in the language the app shows.
+func ScriptBranchGe() string { return In(i18n.Locale()).ScriptBranchGe() }
+
+// ScriptBranchGe says "Branch: A ≥ B"
+// in the language of msgs.
+func (msgs Messages) ScriptBranchGe() string {
+	return Catalog.Format(msgs.locale, "script_branch_ge", nil)
+}
+
+// ScriptBranchGt says "Branch: A > B"
+// in the language the app shows.
+func ScriptBranchGt() string { return In(i18n.Locale()).ScriptBranchGt() }
+
+// ScriptBranchGt says "Branch: A > B"
+// in the language of msgs.
+func (msgs Messages) ScriptBranchGt() string {
+	return Catalog.Format(msgs.locale, "script_branch_gt", nil)
+}
+
+// ScriptBranchLe says "Branch: A ≤ B"
+// in the language the app shows.
+func ScriptBranchLe() string { return In(i18n.Locale()).ScriptBranchLe() }
+
+// ScriptBranchLe says "Branch: A ≤ B"
+// in the language of msgs.
+func (msgs Messages) ScriptBranchLe() string {
+	return Catalog.Format(msgs.locale, "script_branch_le", nil)
+}
+
+// ScriptBranchLt says "Branch: A < B"
+// in the language the app shows.
+func ScriptBranchLt() string { return In(i18n.Locale()).ScriptBranchLt() }
+
+// ScriptBranchLt says "Branch: A < B"
+// in the language of msgs.
+func (msgs Messages) ScriptBranchLt() string {
+	return Catalog.Format(msgs.locale, "script_branch_lt", nil)
+}
+
+// ScriptTextId says "Text ID"
+// in the language the app shows.
+func ScriptTextId() string { return In(i18n.Locale()).ScriptTextId() }
+
+// ScriptTextId says "Text ID"
+// in the language of msgs.
+func (msgs Messages) ScriptTextId() string {
+	return Catalog.Format(msgs.locale, "script_text_id", nil)
+}
+
+// ScriptFlagId says "Flag"
+// in the language the app shows.
+func ScriptFlagId() string { return In(i18n.Locale()).ScriptFlagId() }
+
+// ScriptFlagId says "Flag"
+// in the language of msgs.
+func (msgs Messages) ScriptFlagId() string {
+	return Catalog.Format(msgs.locale, "script_flag_id", nil)
+}
+
+// ScriptFrames says "Frames"
+// in the language the app shows.
+func ScriptFrames() string { return In(i18n.Locale()).ScriptFrames() }
+
+// ScriptFrames says "Frames"
+// in the language of msgs.
+func (msgs Messages) ScriptFrames() string {
+	return Catalog.Format(msgs.locale, "script_frames", nil)
+}
+
+// ScriptLabelId says "Label ID"
+// in the language the app shows.
+func ScriptLabelId() string { return In(i18n.Locale()).ScriptLabelId() }
+
+// ScriptLabelId says "Label ID"
+// in the language of msgs.
+func (msgs Messages) ScriptLabelId() string {
+	return Catalog.Format(msgs.locale, "script_label_id", nil)
+}
+
+// ScriptPointer says "Script pointer"
+// in the language the app shows.
+func ScriptPointer() string { return In(i18n.Locale()).ScriptPointer() }
+
+// ScriptPointer says "Script pointer"
+// in the language of msgs.
+func (msgs Messages) ScriptPointer() string {
+	return Catalog.Format(msgs.locale, "script_pointer", nil)
+}
+
+// ScriptUnitPointer says "Unit pointer"
+// in the language the app shows.
+func ScriptUnitPointer() string { return In(i18n.Locale()).ScriptUnitPointer() }
+
+// ScriptUnitPointer says "Unit pointer"
+// in the language of msgs.
+func (msgs Messages) ScriptUnitPointer() string {
+	return Catalog.Format(msgs.locale, "script_unit_pointer", nil)
+}
+
+// ScriptSlot says "Memory slot"
+// in the language the app shows.
+func ScriptSlot() string { return In(i18n.Locale()).ScriptSlot() }
+
+// ScriptSlot says "Memory slot"
+// in the language of msgs.
+func (msgs Messages) ScriptSlot() string {
+	return Catalog.Format(msgs.locale, "script_slot", nil)
+}
+
+// ScriptSlotValue says "Slot value"
+// in the language the app shows.
+func ScriptSlotValue() string { return In(i18n.Locale()).ScriptSlotValue() }
+
+// ScriptSlotValue says "Slot value"
+// in the language of msgs.
+func (msgs Messages) ScriptSlotValue() string {
+	return Catalog.Format(msgs.locale, "script_slot_value", nil)
+}
+
+// ScriptSlotA says "Slot A"
+// in the language the app shows.
+func ScriptSlotA() string { return In(i18n.Locale()).ScriptSlotA() }
+
+// ScriptSlotA says "Slot A"
+// in the language of msgs.
+func (msgs Messages) ScriptSlotA() string {
+	return Catalog.Format(msgs.locale, "script_slot_a", nil)
+}
+
+// ScriptSlotB says "Slot B"
+// in the language the app shows.
+func ScriptSlotB() string { return In(i18n.Locale()).ScriptSlotB() }
+
+// ScriptSlotB says "Slot B"
+// in the language of msgs.
+func (msgs Messages) ScriptSlotB() string {
+	return Catalog.Format(msgs.locale, "script_slot_b", nil)
+}
+
 // Deployments says "Deployments"
 // in the language the app shows.
 func Deployments() string { return In(i18n.Locale()).Deployments() }

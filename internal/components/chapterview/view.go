@@ -42,6 +42,24 @@ type View struct {
 	entries            map[int]*entryDraft
 	selections         map[int]*chapterSelection
 	events             map[eventKey]*eventState
+	openScript         func(int, int)
+}
+
+func (v *View) OpenDeployment(state *components.State, chapter, site int) {
+	table := state.Session.Table(game.Chapters)
+	if table == nil || table.Err != nil {
+		state.Err = game.ErrLayout
+		return
+	}
+	for _, row := range table.Rows {
+		if row.ID == chapter {
+			v.load(state, row)
+			v.mode = 1
+			v.selections[chapter] = &chapterSelection{pointer: site}
+			return
+		}
+	}
+	state.Err = game.ErrField
 }
 
 func (v *View) Configuration() bool { return v.mode == 0 }
@@ -164,8 +182,10 @@ func (v *View) Render(
 	jump func(game.Kind, int),
 	openHex func(int, int),
 	openText func(uint16),
+	openScript func(int, int),
 ) {
 	v.load(state, row)
+	v.openScript = openScript
 	ui.Tabs(c.Key("chapter-mode"), &v.mode, locales.DeployConfiguration(), locales.Deployments(), locales.TurnEvents(), locales.AreaEvents(), locales.TalkEvents(), locales.Objectives()).
 		Label(locales.Chapters())
 	if v.Configuration() {

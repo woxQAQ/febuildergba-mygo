@@ -1,4 +1,5 @@
-package components
+// Package input parses user-entered numeric values and ROM addresses.
+package input
 
 import (
 	"strconv"

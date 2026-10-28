@@ -6,6 +6,7 @@ import (
 
 	"github.com/woxQAQ/febuildergba-mygo/game"
 	"github.com/woxQAQ/febuildergba-mygo/internal/components"
+	inputparse "github.com/woxQAQ/febuildergba-mygo/internal/input"
 	"github.com/woxQAQ/febuildergba-mygo/internal/locales"
 )
 
@@ -45,7 +46,7 @@ func (a *Page) batchEditor(c *ui.Context, table *game.Table, ids []int) {
 		}
 		b.language = i18n.Locale()
 	}
-	value, parseErr := components.ParseInteger(b.value)
+	value, parseErr := inputparse.ParseInteger(b.value)
 	valid := selected != nil && parseErr == nil
 	if selected != nil {
 		low, high := selected.Bounds()
@@ -137,7 +138,7 @@ func (a *Page) applyBatch() {
 		p.batch.err = game.ErrField
 		return
 	}
-	value, err := components.ParseInteger(p.batch.value)
+	value, err := inputparse.ParseInteger(p.batch.value)
 	if err != nil {
 		p.batch.err = game.ErrValue
 		return

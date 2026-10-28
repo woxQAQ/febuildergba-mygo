@@ -12,6 +12,7 @@ import (
 	"github.com/woxQAQ/febuildergba-mygo/fault"
 	"github.com/woxQAQ/febuildergba-mygo/game"
 	"github.com/woxQAQ/febuildergba-mygo/internal/components"
+	inputparse "github.com/woxQAQ/febuildergba-mygo/internal/input"
 	"github.com/woxQAQ/febuildergba-mygo/internal/locales"
 )
 
@@ -74,11 +75,11 @@ func decodeHex(text string, length int) ([]byte, error) {
 }
 
 func (a *Page) rawRange() (int, int, error) {
-	address, err := components.ParseAddress(a.raw.address)
+	address, err := inputparse.ParseAddress(a.raw.address)
 	if err != nil {
 		return 0, 0, err
 	}
-	length, err := components.ParseInteger(a.raw.length)
+	length, err := inputparse.ParseInteger(a.raw.length)
 	if err != nil || length < 1 || length > rawViewLimit {
 		return 0, 0, fault.New(
 			errRawLength,

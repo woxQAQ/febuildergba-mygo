@@ -8,7 +8,6 @@ import (
 
 	"github.com/woxQAQ/febuildergba-mygo/fault"
 	"github.com/woxQAQ/febuildergba-mygo/game"
-	"github.com/woxQAQ/febuildergba-mygo/internal/components"
 	"github.com/woxQAQ/febuildergba-mygo/internal/locales"
 	"github.com/woxQAQ/febuildergba-mygo/internal/pages"
 )
@@ -27,10 +26,10 @@ func (m *application) newWindow(session *game.Session) *mygo.Window {
 		MinWidth:       880,
 		MinHeight:      560,
 		TitleBarStyle:  mygo.TitleBarHidden,
-		TitleBarHeight: components.HeaderHeight,
+		TitleBarHeight: pages.HeaderHeight,
 		TrafficLightPosition: &mygo.Point{
 			X: 16,
-			Y: (components.HeaderHeight - 14) / 2,
+			Y: (pages.HeaderHeight - 14) / 2,
 		},
 		Content: ui.View(a.View),
 	})

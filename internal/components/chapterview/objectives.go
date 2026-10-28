@@ -151,7 +151,13 @@ func (v *View) objectiveDetails(
 	ui.Row(c).Wrap().Gap(8).Children(func() {
 		if event.Script >= 0xC0 {
 			ui.Button(c, locales.ObjectiveOpenScript()).Disabled(state.Busy).
-				OnClick(func() { openHex(event.Script, 4) })
+				OnClick(func() {
+					if v.openScript != nil && event.Address > 0 {
+						v.openScript(v.chapter, event.Address+4)
+					} else {
+						openHex(event.Script, 4)
+					}
+				})
 		}
 		if event.Script == 1 {
 			ui.Text(c, locales.ObjectiveFlagOnly()).

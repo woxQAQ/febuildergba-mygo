@@ -8,6 +8,7 @@ import (
 
 	"github.com/woxQAQ/febuildergba-mygo/game"
 	"github.com/woxQAQ/febuildergba-mygo/internal/components"
+	inputparse "github.com/woxQAQ/febuildergba-mygo/internal/input"
 	"github.com/woxQAQ/febuildergba-mygo/internal/locales"
 	"github.com/woxQAQ/febuildergba-mygo/rom"
 )
@@ -66,13 +67,13 @@ func (a *Page) tableLayout(c *ui.Context) {
 		ui.Button(c, locales.UseLayout()).
 			Disabled(a.state.Busy).
 			OnClick(func() {
-				address, err := components.ParseAddress(p.layout.address)
+				address, err := inputparse.ParseAddress(p.layout.address)
 				if err != nil {
 					p.layout.err = err
 					return
 				}
-				stride, e1 := components.ParseInteger(p.layout.stride)
-				count, e2 := components.ParseInteger(p.layout.count)
+				stride, e1 := inputparse.ParseInteger(p.layout.stride)
+				count, e2 := inputparse.ParseInteger(p.layout.count)
 				if e1 != nil || e2 != nil || stride < 4 ||
 					stride > rom.MaxSize ||
 					count < 1 ||
