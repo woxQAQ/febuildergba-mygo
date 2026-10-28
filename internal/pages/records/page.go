@@ -14,12 +14,14 @@ import (
 )
 
 type pane struct {
-	query    string
-	selected int
-	list     ui.ListState
-	chosen   ui.Selection[int]
-	layout   layoutDraft
-	batch    batchDraft
+	query       string
+	sidebar     float32
+	selected    int
+	initialized bool
+	list        ui.ListState
+	chosen      ui.Selection[int]
+	layout      layoutDraft
+	batch       batchDraft
 }
 
 type Page struct {
@@ -36,7 +38,7 @@ func New(
 	openHex func(int, int),
 	openText func(uint16),
 	selectKind func(game.Kind),
-	assets recordform.AssetActions,
+	assets components.AssetActions,
 ) *Page {
 	a := &Page{
 		state:      state,
@@ -56,7 +58,15 @@ func (a *Page) Reset() {
 
 func (a *Page) View(c *ui.Context, tab int) {
 	a.tab = tab
-	ui.Split(c, &a.sidebar, func() { a.records(c) }, func() { a.details(c) }).
+	pane := &a.panes[tab]
+	if pane.sidebar == 0 {
+		pane.sidebar = 330
+		if game.Kinds[tab] == game.Units || game.Kinds[tab] == game.Classes {
+			pane.sidebar = 260
+		}
+	}
+	a.sidebar = pane.sidebar
+	ui.Split(c, &pane.sidebar, func() { a.records(c) }, func() { a.details(c) }).
 		Grow(1)
 }
 
@@ -114,12 +124,17 @@ func (a *Page) records(c *ui.Context) {
 			Changed() {
 			pane.selected = 0
 			pane.chosen.Clear()
+			pane.initialized = false
 			pane.list = ui.ListState{}
 		}
 		a.tableLayout(c)
 		rows := a.rows()
 		if pane.selected >= len(rows) {
 			pane.selected = 0
+		}
+		if !pane.initialized && len(rows) > 0 {
+			pane.chosen.Add(rows[pane.selected].ID)
+			pane.initialized = true
 		}
 		pane.list.Selected = &pane.selected
 		pane.list.Selection = &pane.chosen
@@ -138,6 +153,12 @@ func (a *Page) records(c *ui.Context) {
 		ui.Text(c, locales.RecordSummary(len(rows))).
 			TextColor(c.Theme().TextMuted)
 	})
+}
+
+func (a *Page) SetPortraitOpener(
+	open func(int),
+) {
+	a.form.SetPortraitOpener(open)
 }
 
 func (a *Page) SetScriptOpener(

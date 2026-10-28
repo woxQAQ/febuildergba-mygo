@@ -49,6 +49,7 @@ func (m *application) openDialog(win *mygo.Window, a *pages.Workspace) {
 			if a.Editor.Session == nil {
 				a.SetSession(session)
 				updateTitle(win, a)
+				m.rememberROMs()
 			} else {
 				m.newWindow(session)
 			}
@@ -56,7 +57,11 @@ func (m *application) openDialog(win *mygo.Window, a *pages.Workspace) {
 	}()
 }
 
-func saveDocument(win *mygo.Window, a *pages.Workspace, as bool) {
+func (m *application) saveDocument(
+	win *mygo.Window,
+	a *pages.Workspace,
+	as bool,
+) {
 	if a.Editor.Session == nil || a.Editor.Busy {
 		return
 	}
@@ -100,7 +105,7 @@ func saveDocument(win *mygo.Window, a *pages.Workspace, as bool) {
 			overwrite = true
 		}
 		return doc.SaveAs(path, overwrite)
-	})
+	}, m.rememberROMs)
 }
 
 func reloadDocument(win *mygo.Window, a *pages.Workspace) {

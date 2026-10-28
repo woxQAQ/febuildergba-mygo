@@ -205,6 +205,25 @@ func (a *Form) fieldInspector(
 		ui.Row(c).Gap(8).Children(func() {
 			ui.Text(c, a.fieldLabel(kind, f)).Grow(1).SingleLine().FontSize(13)
 			ui.Text(c, formatField(f, value)).FontFeatures("tnum").FontSize(13)
+			if (kind == game.Units || kind == game.Classes) &&
+				f.Group == game.GroupWeapon {
+				weapons, err := a.state.Session.WeaponSkills(kind, row.ID)
+				if err == nil {
+					for _, weapon := range weapons {
+						if weapon.Field == f.ID {
+							a.profileRank(
+								c,
+								kind,
+								row,
+								table,
+								a.profileFor(kind, row.ID),
+								weapon,
+							)
+							break
+						}
+					}
+				}
+			}
 			ui.Button(c, "−").Size(28, 26).Label(locales.DecreaseValue()).
 				Disabled(a.state.Busy || value <= low).
 				OnClick(func() { a.nudgeField(key, f, -1) })

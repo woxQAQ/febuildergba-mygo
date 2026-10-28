@@ -154,5 +154,5 @@ func (m *application) exportPNG(
 			"app.write_png",
 			fault.Context{Path: path},
 		)
-	})
+	}, nil)
 }

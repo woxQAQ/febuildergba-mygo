@@ -4,6 +4,8 @@ package app
 
 import (
 	"log/slog"
+	"os"
+	"path/filepath"
 
 	"github.com/egoist/mygo"
 
@@ -19,11 +21,33 @@ func logError(err error) {
 }
 
 type application struct {
-	windows map[*mygo.Window]*pages.Workspace
+	windows     map[*mygo.Window]*pages.Workspace
+	development *developmentSession
 }
 
 func Run(paths []string) error {
 	m := &application{windows: make(map[*mygo.Window]*pages.Workspace)}
+	if mygo.IsDev() {
+		directory, err := os.UserCacheDir()
+		if err != nil {
+			logError(err)
+		} else {
+			m.development = newDevelopmentSession(
+				filepath.Join(
+					directory,
+					"febuildergba-mygo",
+					"dev-session.json",
+				),
+				true,
+			)
+		}
+	}
+	defer m.development.close()
+	remembered, err := m.development.startupPaths(paths)
+	logError(err)
+	if err == nil {
+		paths = remembered
+	}
 	mygo.App.WhenReady(func() {
 		m.setMenu()
 		mygo.App.OnLocaleChanged(func(string) {

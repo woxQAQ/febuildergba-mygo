@@ -21,7 +21,7 @@ func (a *Form) nameEditor(
 			components.TextDraft(
 				a.state,
 				ui.TextInput(c, &draft.text).
-					Label(locales.Name()).
+					Label(locales.Label(string(kind))+" / "+locales.Name()).
 					Tooltip(locales.NameEditScope()).
 					FontSize(20).
 					Height(34).

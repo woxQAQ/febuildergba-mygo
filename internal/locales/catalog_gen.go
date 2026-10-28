@@ -2488,11 +2488,11 @@ func (msgs Messages) Abilities() string {
 	return Catalog.Format(msgs.locale, "abilities", nil)
 }
 
-// PersonalBase says "Personal"
+// PersonalBase says "Personal modifiers"
 // in the language the app shows.
 func PersonalBase() string { return In(i18n.Locale()).PersonalBase() }
 
-// PersonalBase says "Personal"
+// PersonalBase says "Personal modifiers"
 // in the language of msgs.
 func (msgs Messages) PersonalBase() string {
 	return Catalog.Format(msgs.locale, "personal_base", nil)
@@ -3712,21 +3712,21 @@ func (msgs Messages) UseDescriptionId() string {
 	return Catalog.Format(msgs.locale, "use_description_id", nil)
 }
 
-// ClassId says "Class ID"
+// ClassId says "Default class"
 // in the language the app shows.
 func ClassId() string { return In(i18n.Locale()).ClassId() }
 
-// ClassId says "Class ID"
+// ClassId says "Default class"
 // in the language of msgs.
 func (msgs Messages) ClassId() string {
 	return Catalog.Format(msgs.locale, "class_id", nil)
 }
 
-// PromotionId says "Promotion class ID"
+// PromotionId says "Related class"
 // in the language the app shows.
 func PromotionId() string { return In(i18n.Locale()).PromotionId() }
 
-// PromotionId says "Promotion class ID"
+// PromotionId says "Related class"
 // in the language of msgs.
 func (msgs Messages) PromotionId() string {
 	return Catalog.Format(msgs.locale, "promotion_id", nil)
@@ -3892,11 +3892,11 @@ func (msgs Messages) MapSprite() string {
 	return Catalog.Format(msgs.locale, "map_sprite", nil)
 }
 
-// Experience says "Experience modifier"
+// Experience says "Experience power"
 // in the language the app shows.
 func Experience() string { return In(i18n.Locale()).Experience() }
 
-// Experience says "Experience modifier"
+// Experience says "Experience power"
 // in the language of msgs.
 func (msgs Messages) Experience() string {
 	return Catalog.Format(msgs.locale, "experience", nil)
@@ -4320,6 +4320,1386 @@ func AppTitle() string { return In(i18n.Locale()).AppTitle() }
 // in the language of msgs.
 func (msgs Messages) AppTitle() string {
 	return Catalog.Format(msgs.locale, "app_title", nil)
+}
+
+// RecordAbilities says "Abilities and traits"
+// in the language the app shows.
+func RecordAbilities() string { return In(i18n.Locale()).RecordAbilities() }
+
+// RecordAbilities says "Abilities and traits"
+// in the language of msgs.
+func (msgs Messages) RecordAbilities() string {
+	return Catalog.Format(msgs.locale, "record_abilities", nil)
+}
+
+// RecordRelated says "Related data"
+// in the language the app shows.
+func RecordRelated() string { return In(i18n.Locale()).RecordRelated() }
+
+// RecordRelated says "Related data"
+// in the language of msgs.
+func (msgs Messages) RecordRelated() string {
+	return Catalog.Format(msgs.locale, "record_related", nil)
+}
+
+// RecordSections says "Record details"
+// in the language the app shows.
+func RecordSections() string { return In(i18n.Locale()).RecordSections() }
+
+// RecordSections says "Record details"
+// in the language of msgs.
+func (msgs Messages) RecordSections() string {
+	return Catalog.Format(msgs.locale, "record_sections", nil)
+}
+
+// RecordImageActions says "Image actions"
+// in the language the app shows.
+func RecordImageActions() string { return In(i18n.Locale()).RecordImageActions() }
+
+// RecordImageActions says "Image actions"
+// in the language of msgs.
+func (msgs Messages) RecordImageActions() string {
+	return Catalog.Format(msgs.locale, "record_image_actions", nil)
+}
+
+// RecordAbilityRow says "Source"
+// in the language the app shows.
+func RecordAbilityRow() string { return In(i18n.Locale()).RecordAbilityRow() }
+
+// RecordAbilityRow says "Source"
+// in the language of msgs.
+func (msgs Messages) RecordAbilityRow() string {
+	return Catalog.Format(msgs.locale, "record_ability_row", nil)
+}
+
+// RecordClassSource says "Class source"
+// in the language the app shows.
+func RecordClassSource() string { return In(i18n.Locale()).RecordClassSource() }
+
+// RecordClassSource says "Class source"
+// in the language of msgs.
+func (msgs Messages) RecordClassSource() string {
+	return Catalog.Format(msgs.locale, "record_class_source", nil)
+}
+
+// RecordClassBase says "Class base"
+// in the language the app shows.
+func RecordClassBase() string { return In(i18n.Locale()).RecordClassBase() }
+
+// RecordClassBase says "Class base"
+// in the language of msgs.
+func (msgs Messages) RecordClassBase() string {
+	return Catalog.Format(msgs.locale, "record_class_base", nil)
+}
+
+// RecordEstimate says "Linear estimate"
+// in the language the app shows.
+func RecordEstimate() string { return In(i18n.Locale()).RecordEstimate() }
+
+// RecordEstimate says "Linear estimate"
+// in the language of msgs.
+func (msgs Messages) RecordEstimate() string {
+	return Catalog.Format(msgs.locale, "record_estimate", nil)
+}
+
+// RecordInitialReference says "Initial reference"
+// in the language the app shows.
+func RecordInitialReference() string { return In(i18n.Locale()).RecordInitialReference() }
+
+// RecordInitialReference says "Initial reference"
+// in the language of msgs.
+func (msgs Messages) RecordInitialReference() string {
+	return Catalog.Format(msgs.locale, "record_initial_reference", nil)
+}
+
+// RecordTargetLevel says "Target level"
+// in the language the app shows.
+func RecordTargetLevel() string { return In(i18n.Locale()).RecordTargetLevel() }
+
+// RecordTargetLevel says "Target level"
+// in the language of msgs.
+func (msgs Messages) RecordTargetLevel() string {
+	return Catalog.Format(msgs.locale, "record_target_level", nil)
+}
+
+// RecordGrowthCount says "Growth count"
+// in the language the app shows.
+func RecordGrowthCount() string { return In(i18n.Locale()).RecordGrowthCount() }
+
+// RecordGrowthCount says "Growth count"
+// in the language of msgs.
+func (msgs Messages) RecordGrowthCount() string {
+	return Catalog.Format(msgs.locale, "record_growth_count", nil)
+}
+
+// RecordEstimateRange says "Use a valid level at or above the initial level, or 0–255 class growths."
+// in the language the app shows.
+func RecordEstimateRange() string { return In(i18n.Locale()).RecordEstimateRange() }
+
+// RecordEstimateRange says "Use a valid level at or above the initial level, or 0–255 class growths."
+// in the language of msgs.
+func (msgs Messages) RecordEstimateRange() string {
+	return Catalog.Format(msgs.locale, "record_estimate_range", nil)
+}
+
+// RecordReferenceUnavailable says "Reference unavailable"
+// in the language the app shows.
+func RecordReferenceUnavailable() string { return In(i18n.Locale()).RecordReferenceUnavailable() }
+
+// RecordReferenceUnavailable says "Reference unavailable"
+// in the language of msgs.
+func (msgs Messages) RecordReferenceUnavailable() string {
+	return Catalog.Format(msgs.locale, "record_reference_unavailable", nil)
+}
+
+// RecordPersonalRanks says "Character setting"
+// in the language the app shows.
+func RecordPersonalRanks() string { return In(i18n.Locale()).RecordPersonalRanks() }
+
+// RecordPersonalRanks says "Character setting"
+// in the language of msgs.
+func (msgs Messages) RecordPersonalRanks() string {
+	return Catalog.Format(msgs.locale, "record_personal_ranks", nil)
+}
+
+// RecordClassRanks says "Class base"
+// in the language the app shows.
+func RecordClassRanks() string { return In(i18n.Locale()).RecordClassRanks() }
+
+// RecordClassRanks says "Class base"
+// in the language of msgs.
+func (msgs Messages) RecordClassRanks() string {
+	return Catalog.Format(msgs.locale, "record_class_ranks", nil)
+}
+
+// RecordRawValue says "Raw value"
+// in the language the app shows.
+func RecordRawValue() string { return In(i18n.Locale()).RecordRawValue() }
+
+// RecordRawValue says "Raw value"
+// in the language of msgs.
+func (msgs Messages) RecordRawValue() string {
+	return Catalog.Format(msgs.locale, "record_raw_value", nil)
+}
+
+// RecordInherit says "Inherit"
+// in the language the app shows.
+func RecordInherit() string { return In(i18n.Locale()).RecordInherit() }
+
+// RecordInherit says "Inherit"
+// in the language of msgs.
+func (msgs Messages) RecordInherit() string {
+	return Catalog.Format(msgs.locale, "record_inherit", nil)
+}
+
+// RecordWeaponRank says "Weapon rank"
+// in the language the app shows.
+func RecordWeaponRank() string { return In(i18n.Locale()).RecordWeaponRank() }
+
+// RecordWeaponRank says "Weapon rank"
+// in the language of msgs.
+func (msgs Messages) RecordWeaponRank() string {
+	return Catalog.Format(msgs.locale, "record_weapon_rank", nil)
+}
+
+// RecordTraits says "Traits"
+// in the language the app shows.
+func RecordTraits() string { return In(i18n.Locale()).RecordTraits() }
+
+// RecordTraits says "Traits"
+// in the language of msgs.
+func (msgs Messages) RecordTraits() string {
+	return Catalog.Format(msgs.locale, "record_traits", nil)
+}
+
+// RecordUnknownBit says "Uninterpreted bit"
+// in the language the app shows.
+func RecordUnknownBit() string { return In(i18n.Locale()).RecordUnknownBit() }
+
+// RecordUnknownBit says "Uninterpreted bit"
+// in the language of msgs.
+func (msgs Messages) RecordUnknownBit() string {
+	return Catalog.Format(msgs.locale, "record_unknown_bit", nil)
+}
+
+// RecordUnknownReference says "Unknown reference"
+// in the language the app shows.
+func RecordUnknownReference() string { return In(i18n.Locale()).RecordUnknownReference() }
+
+// RecordUnknownReference says "Unknown reference"
+// in the language of msgs.
+func (msgs Messages) RecordUnknownReference() string {
+	return Catalog.Format(msgs.locale, "record_unknown_reference", nil)
+}
+
+// RecordResourceLinks says "Linked resources"
+// in the language the app shows.
+func RecordResourceLinks() string { return In(i18n.Locale()).RecordResourceLinks() }
+
+// RecordResourceLinks says "Linked resources"
+// in the language of msgs.
+func (msgs Messages) RecordResourceLinks() string {
+	return Catalog.Format(msgs.locale, "record_resource_links", nil)
+}
+
+// RecordNoResource says "None"
+// in the language the app shows.
+func RecordNoResource() string { return In(i18n.Locale()).RecordNoResource() }
+
+// RecordNoResource says "None"
+// in the language of msgs.
+func (msgs Messages) RecordNoResource() string {
+	return Catalog.Format(msgs.locale, "record_no_resource", nil)
+}
+
+// RecordSupport says "Support data"
+// in the language the app shows.
+func RecordSupport() string { return In(i18n.Locale()).RecordSupport() }
+
+// RecordSupport says "Support data"
+// in the language of msgs.
+func (msgs Messages) RecordSupport() string {
+	return Catalog.Format(msgs.locale, "record_support", nil)
+}
+
+// RecordBattleAnimation says "Battle animations"
+// in the language the app shows.
+func RecordBattleAnimation() string { return In(i18n.Locale()).RecordBattleAnimation() }
+
+// RecordBattleAnimation says "Battle animations"
+// in the language of msgs.
+func (msgs Messages) RecordBattleAnimation() string {
+	return Catalog.Format(msgs.locale, "record_battle_animation", nil)
+}
+
+// RecordMoveNormal says "Movement costs: normal"
+// in the language the app shows.
+func RecordMoveNormal() string { return In(i18n.Locale()).RecordMoveNormal() }
+
+// RecordMoveNormal says "Movement costs: normal"
+// in the language of msgs.
+func (msgs Messages) RecordMoveNormal() string {
+	return Catalog.Format(msgs.locale, "record_move_normal", nil)
+}
+
+// RecordMoveRain says "Movement costs: rain"
+// in the language the app shows.
+func RecordMoveRain() string { return In(i18n.Locale()).RecordMoveRain() }
+
+// RecordMoveRain says "Movement costs: rain"
+// in the language of msgs.
+func (msgs Messages) RecordMoveRain() string {
+	return Catalog.Format(msgs.locale, "record_move_rain", nil)
+}
+
+// RecordMoveSnow says "Movement costs: snow"
+// in the language the app shows.
+func RecordMoveSnow() string { return In(i18n.Locale()).RecordMoveSnow() }
+
+// RecordMoveSnow says "Movement costs: snow"
+// in the language of msgs.
+func (msgs Messages) RecordMoveSnow() string {
+	return Catalog.Format(msgs.locale, "record_move_snow", nil)
+}
+
+// RecordTerrainAvoid says "Terrain avoid"
+// in the language the app shows.
+func RecordTerrainAvoid() string { return In(i18n.Locale()).RecordTerrainAvoid() }
+
+// RecordTerrainAvoid says "Terrain avoid"
+// in the language of msgs.
+func (msgs Messages) RecordTerrainAvoid() string {
+	return Catalog.Format(msgs.locale, "record_terrain_avoid", nil)
+}
+
+// RecordTerrainDefense says "Terrain defense"
+// in the language the app shows.
+func RecordTerrainDefense() string { return In(i18n.Locale()).RecordTerrainDefense() }
+
+// RecordTerrainDefense says "Terrain defense"
+// in the language of msgs.
+func (msgs Messages) RecordTerrainDefense() string {
+	return Catalog.Format(msgs.locale, "record_terrain_defense", nil)
+}
+
+// RecordTerrainResistance says "Terrain resistance"
+// in the language the app shows.
+func RecordTerrainResistance() string { return In(i18n.Locale()).RecordTerrainResistance() }
+
+// RecordTerrainResistance says "Terrain resistance"
+// in the language of msgs.
+func (msgs Messages) RecordTerrainResistance() string {
+	return Catalog.Format(msgs.locale, "record_terrain_resistance", nil)
+}
+
+// RecordWalkStandard says "Standard"
+// in the language the app shows.
+func RecordWalkStandard() string { return In(i18n.Locale()).RecordWalkStandard() }
+
+// RecordWalkStandard says "Standard"
+// in the language of msgs.
+func (msgs Messages) RecordWalkStandard() string {
+	return Catalog.Format(msgs.locale, "record_walk_standard", nil)
+}
+
+// RecordWalkSlow says "Slow"
+// in the language the app shows.
+func RecordWalkSlow() string { return In(i18n.Locale()).RecordWalkSlow() }
+
+// RecordWalkSlow says "Slow"
+// in the language of msgs.
+func (msgs Messages) RecordWalkSlow() string {
+	return Catalog.Format(msgs.locale, "record_walk_slow", nil)
+}
+
+// RecordDefaultClassHelp says "Default and reference class. Chapter deployments can override it. Reference abilities use this class, rather than act…"
+// in the language the app shows.
+func RecordDefaultClassHelp() string { return In(i18n.Locale()).RecordDefaultClassHelp() }
+
+// RecordDefaultClassHelp says "Default and reference class. Chapter deployments can override it. Reference abilities use this class, rather than act…"
+// in the language of msgs.
+func (msgs Messages) RecordDefaultClassHelp() string {
+	return Catalog.Format(msgs.locale, "record_default_class_help", nil)
+}
+
+// RecordRelatedClassHelp says "Related class in this native record. In FE8, promoted autoleveling uses it as the lower-tier class reference; promoti…"
+// in the language the app shows.
+func RecordRelatedClassHelp() string { return In(i18n.Locale()).RecordRelatedClassHelp() }
+
+// RecordRelatedClassHelp says "Related class in this native record. In FE8, promoted autoleveling uses it as the lower-tier class reference; promoti…"
+// in the language of msgs.
+func (msgs Messages) RecordRelatedClassHelp() string {
+	return Catalog.Format(msgs.locale, "record_related_class_help", nil)
+}
+
+// RecordEstimateHelp says "Reference only: current class base plus character modifiers, then growth rate × growth count / 100. Class estimates …"
+// in the language the app shows.
+func RecordEstimateHelp() string { return In(i18n.Locale()).RecordEstimateHelp() }
+
+// RecordEstimateHelp says "Reference only: current class base plus character modifiers, then growth rate × growth count / 100. Class estimates …"
+// in the language of msgs.
+func (msgs Messages) RecordEstimateHelp() string {
+	return Catalog.Format(msgs.locale, "record_estimate_help", nil)
+}
+
+// RecordWeaponsHelp says "Exact stored weapon EXP is retained. Character zero inherits the referenced class; a nonzero value replaces it. A cha…"
+// in the language the app shows.
+func RecordWeaponsHelp() string { return In(i18n.Locale()).RecordWeaponsHelp() }
+
+// RecordWeaponsHelp says "Exact stored weapon EXP is retained. Character zero inherits the referenced class; a nonzero value replaces it. A cha…"
+// in the language of msgs.
+func (msgs Messages) RecordWeaponsHelp() string {
+	return Catalog.Format(msgs.locale, "record_weapons_help", nil)
+}
+
+// RecordTraitsHelp says "Each checkbox edits this record's bit only. Character and deployment-class traits combine in game. Unknown bits remai…"
+// in the language the app shows.
+func RecordTraitsHelp() string { return In(i18n.Locale()).RecordTraitsHelp() }
+
+// RecordTraitsHelp says "Each checkbox edits this record's bit only. Character and deployment-class traits combine in game. Unknown bits remai…"
+// in the language of msgs.
+func (msgs Messages) RecordTraitsHelp() string {
+	return Catalog.Format(msgs.locale, "record_traits_help", nil)
+}
+
+// AffinityNone says "None"
+// in the language the app shows.
+func AffinityNone() string { return In(i18n.Locale()).AffinityNone() }
+
+// AffinityNone says "None"
+// in the language of msgs.
+func (msgs Messages) AffinityNone() string {
+	return Catalog.Format(msgs.locale, "affinity_none", nil)
+}
+
+// AffinityFire says "Fire"
+// in the language the app shows.
+func AffinityFire() string { return In(i18n.Locale()).AffinityFire() }
+
+// AffinityFire says "Fire"
+// in the language of msgs.
+func (msgs Messages) AffinityFire() string {
+	return Catalog.Format(msgs.locale, "affinity_fire", nil)
+}
+
+// AffinityThunder says "Thunder"
+// in the language the app shows.
+func AffinityThunder() string { return In(i18n.Locale()).AffinityThunder() }
+
+// AffinityThunder says "Thunder"
+// in the language of msgs.
+func (msgs Messages) AffinityThunder() string {
+	return Catalog.Format(msgs.locale, "affinity_thunder", nil)
+}
+
+// AffinityWind says "Wind"
+// in the language the app shows.
+func AffinityWind() string { return In(i18n.Locale()).AffinityWind() }
+
+// AffinityWind says "Wind"
+// in the language of msgs.
+func (msgs Messages) AffinityWind() string {
+	return Catalog.Format(msgs.locale, "affinity_wind", nil)
+}
+
+// AffinityIce says "Ice"
+// in the language the app shows.
+func AffinityIce() string { return In(i18n.Locale()).AffinityIce() }
+
+// AffinityIce says "Ice"
+// in the language of msgs.
+func (msgs Messages) AffinityIce() string {
+	return Catalog.Format(msgs.locale, "affinity_ice", nil)
+}
+
+// AffinityDark says "Dark"
+// in the language the app shows.
+func AffinityDark() string { return In(i18n.Locale()).AffinityDark() }
+
+// AffinityDark says "Dark"
+// in the language of msgs.
+func (msgs Messages) AffinityDark() string {
+	return Catalog.Format(msgs.locale, "affinity_dark", nil)
+}
+
+// AffinityLight says "Light"
+// in the language the app shows.
+func AffinityLight() string { return In(i18n.Locale()).AffinityLight() }
+
+// AffinityLight says "Light"
+// in the language of msgs.
+func (msgs Messages) AffinityLight() string {
+	return Catalog.Format(msgs.locale, "affinity_light", nil)
+}
+
+// AffinityAnima says "Anima"
+// in the language the app shows.
+func AffinityAnima() string { return In(i18n.Locale()).AffinityAnima() }
+
+// AffinityAnima says "Anima"
+// in the language of msgs.
+func (msgs Messages) AffinityAnima() string {
+	return Catalog.Format(msgs.locale, "affinity_anima", nil)
+}
+
+// VisitGroup says "Visit group"
+// in the language the app shows.
+func VisitGroup() string { return In(i18n.Locale()).VisitGroup() }
+
+// VisitGroup says "Visit group"
+// in the language of msgs.
+func (msgs Messages) VisitGroup() string {
+	return Catalog.Format(msgs.locale, "visit_group", nil)
+}
+
+// TalkTone says "Dialogue tone"
+// in the language the app shows.
+func TalkTone() string { return In(i18n.Locale()).TalkTone() }
+
+// TalkTone says "Dialogue tone"
+// in the language of msgs.
+func (msgs Messages) TalkTone() string {
+	return Catalog.Format(msgs.locale, "talk_tone", nil)
+}
+
+// AnimationPaletteA says "Animation palette A"
+// in the language the app shows.
+func AnimationPaletteA() string { return In(i18n.Locale()).AnimationPaletteA() }
+
+// AnimationPaletteA says "Animation palette A"
+// in the language of msgs.
+func (msgs Messages) AnimationPaletteA() string {
+	return Catalog.Format(msgs.locale, "animation_palette_a", nil)
+}
+
+// AnimationPaletteB says "Animation palette B"
+// in the language the app shows.
+func AnimationPaletteB() string { return In(i18n.Locale()).AnimationPaletteB() }
+
+// AnimationPaletteB says "Animation palette B"
+// in the language of msgs.
+func (msgs Messages) AnimationPaletteB() string {
+	return Catalog.Format(msgs.locale, "animation_palette_b", nil)
+}
+
+// TraitMountedAid says "Mounted aid"
+// in the language the app shows.
+func TraitMountedAid() string { return In(i18n.Locale()).TraitMountedAid() }
+
+// TraitMountedAid says "Mounted aid"
+// in the language of msgs.
+func (msgs Messages) TraitMountedAid() string {
+	return Catalog.Format(msgs.locale, "trait_mounted_aid", nil)
+}
+
+// TraitMountedAidHelp says "Uses the mounted aid calculation for rescue."
+// in the language the app shows.
+func TraitMountedAidHelp() string { return In(i18n.Locale()).TraitMountedAidHelp() }
+
+// TraitMountedAidHelp says "Uses the mounted aid calculation for rescue."
+// in the language of msgs.
+func (msgs Messages) TraitMountedAidHelp() string {
+	return Catalog.Format(msgs.locale, "trait_mounted_aid_help", nil)
+}
+
+// TraitCanto says "Canto"
+// in the language the app shows.
+func TraitCanto() string { return In(i18n.Locale()).TraitCanto() }
+
+// TraitCanto says "Canto"
+// in the language of msgs.
+func (msgs Messages) TraitCanto() string {
+	return Catalog.Format(msgs.locale, "trait_canto", nil)
+}
+
+// TraitCantoHelp says "Allows unused movement after applicable non-attack actions."
+// in the language the app shows.
+func TraitCantoHelp() string { return In(i18n.Locale()).TraitCantoHelp() }
+
+// TraitCantoHelp says "Allows unused movement after applicable non-attack actions."
+// in the language of msgs.
+func (msgs Messages) TraitCantoHelp() string {
+	return Catalog.Format(msgs.locale, "trait_canto_help", nil)
+}
+
+// TraitSteal says "Steal"
+// in the language the app shows.
+func TraitSteal() string { return In(i18n.Locale()).TraitSteal() }
+
+// TraitSteal says "Steal"
+// in the language of msgs.
+func (msgs Messages) TraitSteal() string {
+	return Catalog.Format(msgs.locale, "trait_steal", nil)
+}
+
+// TraitStealHelp says "Enables the steal command."
+// in the language the app shows.
+func TraitStealHelp() string { return In(i18n.Locale()).TraitStealHelp() }
+
+// TraitStealHelp says "Enables the steal command."
+// in the language of msgs.
+func (msgs Messages) TraitStealHelp() string {
+	return Catalog.Format(msgs.locale, "trait_steal_help", nil)
+}
+
+// TraitThief says "Thief abilities"
+// in the language the app shows.
+func TraitThief() string { return In(i18n.Locale()).TraitThief() }
+
+// TraitThief says "Thief abilities"
+// in the language of msgs.
+func (msgs Messages) TraitThief() string {
+	return Catalog.Format(msgs.locale, "trait_thief", nil)
+}
+
+// TraitThiefHelp says "Enables thief-related rules such as fog vision and lockpick access."
+// in the language the app shows.
+func TraitThiefHelp() string { return In(i18n.Locale()).TraitThiefHelp() }
+
+// TraitThiefHelp says "Enables thief-related rules such as fog vision and lockpick access."
+// in the language of msgs.
+func (msgs Messages) TraitThiefHelp() string {
+	return Catalog.Format(msgs.locale, "trait_thief_help", nil)
+}
+
+// TraitDance says "Dance"
+// in the language the app shows.
+func TraitDance() string { return In(i18n.Locale()).TraitDance() }
+
+// TraitDance says "Dance"
+// in the language of msgs.
+func (msgs Messages) TraitDance() string {
+	return Catalog.Format(msgs.locale, "trait_dance", nil)
+}
+
+// TraitDanceHelp says "Enables Dance; animation and map sprite requirements still apply."
+// in the language the app shows.
+func TraitDanceHelp() string { return In(i18n.Locale()).TraitDanceHelp() }
+
+// TraitDanceHelp says "Enables Dance; animation and map sprite requirements still apply."
+// in the language of msgs.
+func (msgs Messages) TraitDanceHelp() string {
+	return Catalog.Format(msgs.locale, "trait_dance_help", nil)
+}
+
+// TraitPlay says "Play"
+// in the language the app shows.
+func TraitPlay() string { return In(i18n.Locale()).TraitPlay() }
+
+// TraitPlay says "Play"
+// in the language of msgs.
+func (msgs Messages) TraitPlay() string {
+	return Catalog.Format(msgs.locale, "trait_play", nil)
+}
+
+// TraitPlayHelp says "Enables Play; animation and map sprite requirements still apply."
+// in the language the app shows.
+func TraitPlayHelp() string { return In(i18n.Locale()).TraitPlayHelp() }
+
+// TraitPlayHelp says "Enables Play; animation and map sprite requirements still apply."
+// in the language of msgs.
+func (msgs Messages) TraitPlayHelp() string {
+	return Catalog.Format(msgs.locale, "trait_play_help", nil)
+}
+
+// TraitCritical says "Critical bonus"
+// in the language the app shows.
+func TraitCritical() string { return In(i18n.Locale()).TraitCritical() }
+
+// TraitCritical says "Critical bonus"
+// in the language of msgs.
+func (msgs Messages) TraitCritical() string {
+	return Catalog.Format(msgs.locale, "trait_critical", nil)
+}
+
+// TraitCriticalHelp says "Enables the native critical bonus (15% in FE7/FE8)."
+// in the language the app shows.
+func TraitCriticalHelp() string { return In(i18n.Locale()).TraitCriticalHelp() }
+
+// TraitCriticalHelp says "Enables the native critical bonus (15% in FE7/FE8)."
+// in the language of msgs.
+func (msgs Messages) TraitCriticalHelp() string {
+	return Catalog.Format(msgs.locale, "trait_critical_help", nil)
+}
+
+// TraitBallista says "Ballista access"
+// in the language the app shows.
+func TraitBallista() string { return In(i18n.Locale()).TraitBallista() }
+
+// TraitBallista says "Ballista access"
+// in the language of msgs.
+func (msgs Messages) TraitBallista() string {
+	return Catalog.Format(msgs.locale, "trait_ballista", nil)
+}
+
+// TraitBallistaHelp says "Permits use of ballistae."
+// in the language the app shows.
+func TraitBallistaHelp() string { return In(i18n.Locale()).TraitBallistaHelp() }
+
+// TraitBallistaHelp says "Permits use of ballistae."
+// in the language of msgs.
+func (msgs Messages) TraitBallistaHelp() string {
+	return Catalog.Format(msgs.locale, "trait_ballista_help", nil)
+}
+
+// TraitPromoted says "Promoted unit"
+// in the language the app shows.
+func TraitPromoted() string { return In(i18n.Locale()).TraitPromoted() }
+
+// TraitPromoted says "Promoted unit"
+// in the language of msgs.
+func (msgs Messages) TraitPromoted() string {
+	return Catalog.Format(msgs.locale, "trait_promoted", nil)
+}
+
+// TraitPromotedHelp says "Affects promoted experience and weapon-rank rules."
+// in the language the app shows.
+func TraitPromotedHelp() string { return In(i18n.Locale()).TraitPromotedHelp() }
+
+// TraitPromotedHelp says "Affects promoted experience and weapon-rank rules."
+// in the language of msgs.
+func (msgs Messages) TraitPromotedHelp() string {
+	return Catalog.Format(msgs.locale, "trait_promoted_help", nil)
+}
+
+// TraitSupply says "Supply flag"
+// in the language the app shows.
+func TraitSupply() string { return In(i18n.Locale()).TraitSupply() }
+
+// TraitSupply says "Supply flag"
+// in the language of msgs.
+func (msgs Messages) TraitSupply() string {
+	return Catalog.Format(msgs.locale, "trait_supply", nil)
+}
+
+// TraitSupplyHelp says "Transport behavior varies by version; FE8 retains an unused transport flag with preparation effects."
+// in the language the app shows.
+func TraitSupplyHelp() string { return In(i18n.Locale()).TraitSupplyHelp() }
+
+// TraitSupplyHelp says "Transport behavior varies by version; FE8 retains an unused transport flag with preparation effects."
+// in the language of msgs.
+func (msgs Messages) TraitSupplyHelp() string {
+	return Catalog.Format(msgs.locale, "trait_supply_help", nil)
+}
+
+// TraitCavalryIcon says "Cavalry icon"
+// in the language the app shows.
+func TraitCavalryIcon() string { return In(i18n.Locale()).TraitCavalryIcon() }
+
+// TraitCavalryIcon says "Cavalry icon"
+// in the language of msgs.
+func (msgs Messages) TraitCavalryIcon() string {
+	return Catalog.Format(msgs.locale, "trait_cavalry_icon", nil)
+}
+
+// TraitCavalryIconHelp says "Sets the cavalry classification/icon; this alone does not define a movement-cost table."
+// in the language the app shows.
+func TraitCavalryIconHelp() string { return In(i18n.Locale()).TraitCavalryIconHelp() }
+
+// TraitCavalryIconHelp says "Sets the cavalry classification/icon; this alone does not define a movement-cost table."
+// in the language of msgs.
+func (msgs Messages) TraitCavalryIconHelp() string {
+	return Catalog.Format(msgs.locale, "trait_cavalry_icon_help", nil)
+}
+
+// TraitWyvernIcon says "Wyvern icon"
+// in the language the app shows.
+func TraitWyvernIcon() string { return In(i18n.Locale()).TraitWyvernIcon() }
+
+// TraitWyvernIcon says "Wyvern icon"
+// in the language of msgs.
+func (msgs Messages) TraitWyvernIcon() string {
+	return Catalog.Format(msgs.locale, "trait_wyvern_icon", nil)
+}
+
+// TraitWyvernIconHelp says "Sets wyvern classification/icon; movement and other rules remain version-specific."
+// in the language the app shows.
+func TraitWyvernIconHelp() string { return In(i18n.Locale()).TraitWyvernIconHelp() }
+
+// TraitWyvernIconHelp says "Sets wyvern classification/icon; movement and other rules remain version-specific."
+// in the language of msgs.
+func (msgs Messages) TraitWyvernIconHelp() string {
+	return Catalog.Format(msgs.locale, "trait_wyvern_icon_help", nil)
+}
+
+// TraitPegasusIcon says "Pegasus icon"
+// in the language the app shows.
+func TraitPegasusIcon() string { return In(i18n.Locale()).TraitPegasusIcon() }
+
+// TraitPegasusIcon says "Pegasus icon"
+// in the language of msgs.
+func (msgs Messages) TraitPegasusIcon() string {
+	return Catalog.Format(msgs.locale, "trait_pegasus_icon", nil)
+}
+
+// TraitPegasusIconHelp says "Sets pegasus classification/icon; movement and other rules remain version-specific."
+// in the language the app shows.
+func TraitPegasusIconHelp() string { return In(i18n.Locale()).TraitPegasusIconHelp() }
+
+// TraitPegasusIconHelp says "Sets pegasus classification/icon; movement and other rules remain version-specific."
+// in the language of msgs.
+func (msgs Messages) TraitPegasusIconHelp() string {
+	return Catalog.Format(msgs.locale, "trait_pegasus_icon_help", nil)
+}
+
+// TraitLord says "Lord flag"
+// in the language the app shows.
+func TraitLord() string { return In(i18n.Locale()).TraitLord() }
+
+// TraitLord says "Lord flag"
+// in the language of msgs.
+func (msgs Messages) TraitLord() string {
+	return Catalog.Format(msgs.locale, "trait_lord", nil)
+}
+
+// TraitLordHelp says "Marks a lord; chapter and engine rules still determine available commands."
+// in the language the app shows.
+func TraitLordHelp() string { return In(i18n.Locale()).TraitLordHelp() }
+
+// TraitLordHelp says "Marks a lord; chapter and engine rules still determine available commands."
+// in the language of msgs.
+func (msgs Messages) TraitLordHelp() string {
+	return Catalog.Format(msgs.locale, "trait_lord_help", nil)
+}
+
+// TraitFemale says "Female"
+// in the language the app shows.
+func TraitFemale() string { return In(i18n.Locale()).TraitFemale() }
+
+// TraitFemale says "Female"
+// in the language of msgs.
+func (msgs Messages) TraitFemale() string {
+	return Catalog.Format(msgs.locale, "trait_female", nil)
+}
+
+// TraitFemaleHelp says "Sets the native female attribute, including its use in aid calculation."
+// in the language the app shows.
+func TraitFemaleHelp() string { return In(i18n.Locale()).TraitFemaleHelp() }
+
+// TraitFemaleHelp says "Sets the native female attribute, including its use in aid calculation."
+// in the language of msgs.
+func (msgs Messages) TraitFemaleHelp() string {
+	return Catalog.Format(msgs.locale, "trait_female_help", nil)
+}
+
+// TraitBoss says "Boss"
+// in the language the app shows.
+func TraitBoss() string { return In(i18n.Locale()).TraitBoss() }
+
+// TraitBoss says "Boss"
+// in the language of msgs.
+func (msgs Messages) TraitBoss() string {
+	return Catalog.Format(msgs.locale, "trait_boss", nil)
+}
+
+// TraitBossHelp says "Enables boss classification, marker and applicable experience rules."
+// in the language the app shows.
+func TraitBossHelp() string { return In(i18n.Locale()).TraitBossHelp() }
+
+// TraitBossHelp says "Enables boss classification, marker and applicable experience rules."
+// in the language of msgs.
+func (msgs Messages) TraitBossHelp() string {
+	return Catalog.Format(msgs.locale, "trait_boss_help", nil)
+}
+
+// TraitWeaponLock1 says "Weapon lock 1"
+// in the language the app shows.
+func TraitWeaponLock1() string { return In(i18n.Locale()).TraitWeaponLock1() }
+
+// TraitWeaponLock1 says "Weapon lock 1"
+// in the language of msgs.
+func (msgs Messages) TraitWeaponLock1() string {
+	return Catalog.Format(msgs.locale, "trait_weapon_lock_1", nil)
+}
+
+// TraitWeaponLock1Help says "Allows weapons assigned to native weapon lock 1."
+// in the language the app shows.
+func TraitWeaponLock1Help() string { return In(i18n.Locale()).TraitWeaponLock1Help() }
+
+// TraitWeaponLock1Help says "Allows weapons assigned to native weapon lock 1."
+// in the language of msgs.
+func (msgs Messages) TraitWeaponLock1Help() string {
+	return Catalog.Format(msgs.locale, "trait_weapon_lock_1_help", nil)
+}
+
+// TraitSwordLock says "Swordfighter weapons"
+// in the language the app shows.
+func TraitSwordLock() string { return In(i18n.Locale()).TraitSwordLock() }
+
+// TraitSwordLock says "Swordfighter weapons"
+// in the language of msgs.
+func (msgs Messages) TraitSwordLock() string {
+	return Catalog.Format(msgs.locale, "trait_sword_lock", nil)
+}
+
+// TraitSwordLockHelp says "Allows the version's swordfighter-locked weapons."
+// in the language the app shows.
+func TraitSwordLockHelp() string { return In(i18n.Locale()).TraitSwordLockHelp() }
+
+// TraitSwordLockHelp says "Allows the version's swordfighter-locked weapons."
+// in the language of msgs.
+func (msgs Messages) TraitSwordLockHelp() string {
+	return Catalog.Format(msgs.locale, "trait_sword_lock_help", nil)
+}
+
+// TraitMonsterLock says "Monster weapons"
+// in the language the app shows.
+func TraitMonsterLock() string { return In(i18n.Locale()).TraitMonsterLock() }
+
+// TraitMonsterLock says "Monster weapons"
+// in the language of msgs.
+func (msgs Messages) TraitMonsterLock() string {
+	return Catalog.Format(msgs.locale, "trait_monster_lock", nil)
+}
+
+// TraitMonsterLockHelp says "Allows the native monster weapon lock."
+// in the language the app shows.
+func TraitMonsterLockHelp() string { return In(i18n.Locale()).TraitMonsterLockHelp() }
+
+// TraitMonsterLockHelp says "Allows the native monster weapon lock."
+// in the language of msgs.
+func (msgs Messages) TraitMonsterLockHelp() string {
+	return Catalog.Format(msgs.locale, "trait_monster_lock_help", nil)
+}
+
+// TraitDragonLock says "Dragonstone lock"
+// in the language the app shows.
+func TraitDragonLock() string { return In(i18n.Locale()).TraitDragonLock() }
+
+// TraitDragonLock says "Dragonstone lock"
+// in the language of msgs.
+func (msgs Messages) TraitDragonLock() string {
+	return Catalog.Format(msgs.locale, "trait_dragon_lock", nil)
+}
+
+// TraitDragonLockHelp says "Allows the native dragonstone weapon lock."
+// in the language the app shows.
+func TraitDragonLockHelp() string { return In(i18n.Locale()).TraitDragonLockHelp() }
+
+// TraitDragonLockHelp says "Allows the native dragonstone weapon lock."
+// in the language of msgs.
+func (msgs Messages) TraitDragonLockHelp() string {
+	return Catalog.Format(msgs.locale, "trait_dragon_lock_help", nil)
+}
+
+// TraitMaxLevel10 says "Maximum level 10"
+// in the language the app shows.
+func TraitMaxLevel10() string { return In(i18n.Locale()).TraitMaxLevel10() }
+
+// TraitMaxLevel10 says "Maximum level 10"
+// in the language of msgs.
+func (msgs Messages) TraitMaxLevel10() string {
+	return Catalog.Format(msgs.locale, "trait_max_level_10", nil)
+}
+
+// TraitMaxLevel10Help says "FE8 native level-cap flag used by trainee classes."
+// in the language the app shows.
+func TraitMaxLevel10Help() string { return In(i18n.Locale()).TraitMaxLevel10Help() }
+
+// TraitMaxLevel10Help says "FE8 native level-cap flag used by trainee classes."
+// in the language of msgs.
+func (msgs Messages) TraitMaxLevel10Help() string {
+	return Catalog.Format(msgs.locale, "trait_max_level_10_help", nil)
+}
+
+// TraitUnselectable says "Disable selection"
+// in the language the app shows.
+func TraitUnselectable() string { return In(i18n.Locale()).TraitUnselectable() }
+
+// TraitUnselectable says "Disable selection"
+// in the language of msgs.
+func (msgs Messages) TraitUnselectable() string {
+	return Catalog.Format(msgs.locale, "trait_unselectable", nil)
+}
+
+// TraitUnselectableHelp says "Prevents unit selection where the native rule applies."
+// in the language the app shows.
+func TraitUnselectableHelp() string { return In(i18n.Locale()).TraitUnselectableHelp() }
+
+// TraitUnselectableHelp says "Prevents unit selection where the native rule applies."
+// in the language of msgs.
+func (msgs Messages) TraitUnselectableHelp() string {
+	return Catalog.Format(msgs.locale, "trait_unselectable_help", nil)
+}
+
+// TraitTrianglePegasus says "Triangle attack 1"
+// in the language the app shows.
+func TraitTrianglePegasus() string { return In(i18n.Locale()).TraitTrianglePegasus() }
+
+// TraitTrianglePegasus says "Triangle attack 1"
+// in the language of msgs.
+func (msgs Messages) TraitTrianglePegasus() string {
+	return Catalog.Format(msgs.locale, "trait_triangle_pegasus", nil)
+}
+
+// TraitTrianglePegasusHelp says "Enables participation in the first native triangle attack."
+// in the language the app shows.
+func TraitTrianglePegasusHelp() string { return In(i18n.Locale()).TraitTrianglePegasusHelp() }
+
+// TraitTrianglePegasusHelp says "Enables participation in the first native triangle attack."
+// in the language of msgs.
+func (msgs Messages) TraitTrianglePegasusHelp() string {
+	return Catalog.Format(msgs.locale, "trait_triangle_pegasus_help", nil)
+}
+
+// TraitTriangleArmor says "Triangle attack 2"
+// in the language the app shows.
+func TraitTriangleArmor() string { return In(i18n.Locale()).TraitTriangleArmor() }
+
+// TraitTriangleArmor says "Triangle attack 2"
+// in the language of msgs.
+func (msgs Messages) TraitTriangleArmor() string {
+	return Catalog.Format(msgs.locale, "trait_triangle_armor", nil)
+}
+
+// TraitTriangleArmorHelp says "Enables participation in the second native triangle attack."
+// in the language the app shows.
+func TraitTriangleArmorHelp() string { return In(i18n.Locale()).TraitTriangleArmorHelp() }
+
+// TraitTriangleArmorHelp says "Enables participation in the second native triangle attack."
+// in the language of msgs.
+func (msgs Messages) TraitTriangleArmorHelp() string {
+	return Catalog.Format(msgs.locale, "trait_triangle_armor_help", nil)
+}
+
+// TraitUnknown says "Uninterpreted bit"
+// in the language the app shows.
+func TraitUnknown() string { return In(i18n.Locale()).TraitUnknown() }
+
+// TraitUnknown says "Uninterpreted bit"
+// in the language of msgs.
+func (msgs Messages) TraitUnknown() string {
+	return Catalog.Format(msgs.locale, "trait_unknown", nil)
+}
+
+// TraitUnknownHelp says "The version's meaning is not confirmed; preserved during structured edits."
+// in the language the app shows.
+func TraitUnknownHelp() string { return In(i18n.Locale()).TraitUnknownHelp() }
+
+// TraitUnknownHelp says "The version's meaning is not confirmed; preserved during structured edits."
+// in the language of msgs.
+func (msgs Messages) TraitUnknownHelp() string {
+	return Catalog.Format(msgs.locale, "trait_unknown_help", nil)
+}
+
+// TraitNoExperience says "No experience reward"
+// in the language the app shows.
+func TraitNoExperience() string { return In(i18n.Locale()).TraitNoExperience() }
+
+// TraitNoExperience says "No experience reward"
+// in the language of msgs.
+func (msgs Messages) TraitNoExperience() string {
+	return Catalog.Format(msgs.locale, "trait_no_experience", nil)
+}
+
+// TraitNoExperienceHelp says "Applies native experience suppression and related version-specific combat rules."
+// in the language the app shows.
+func TraitNoExperienceHelp() string { return In(i18n.Locale()).TraitNoExperienceHelp() }
+
+// TraitNoExperienceHelp says "Applies native experience suppression and related version-specific combat rules."
+// in the language of msgs.
+func (msgs Messages) TraitNoExperienceHelp() string {
+	return Catalog.Format(msgs.locale, "trait_no_experience_help", nil)
+}
+
+// TraitLethality says "Lethality"
+// in the language the app shows.
+func TraitLethality() string { return In(i18n.Locale()).TraitLethality() }
+
+// TraitLethality says "Lethality"
+// in the language of msgs.
+func (msgs Messages) TraitLethality() string {
+	return Catalog.Format(msgs.locale, "trait_lethality", nil)
+}
+
+// TraitLethalityHelp says "Enables the native lethality behavior where supported."
+// in the language the app shows.
+func TraitLethalityHelp() string { return In(i18n.Locale()).TraitLethalityHelp() }
+
+// TraitLethalityHelp says "Enables the native lethality behavior where supported."
+// in the language of msgs.
+func (msgs Messages) TraitLethalityHelp() string {
+	return Catalog.Format(msgs.locale, "trait_lethality_help", nil)
+}
+
+// TraitMagicSeal says "Magic seal"
+// in the language the app shows.
+func TraitMagicSeal() string { return In(i18n.Locale()).TraitMagicSeal() }
+
+// TraitMagicSeal says "Magic seal"
+// in the language of msgs.
+func (msgs Messages) TraitMagicSeal() string {
+	return Catalog.Format(msgs.locale, "trait_magic_seal", nil)
+}
+
+// TraitMagicSealHelp says "Enables the native enemy magic-seal effect."
+// in the language the app shows.
+func TraitMagicSealHelp() string { return In(i18n.Locale()).TraitMagicSealHelp() }
+
+// TraitMagicSealHelp says "Enables the native enemy magic-seal effect."
+// in the language of msgs.
+func (msgs Messages) TraitMagicSealHelp() string {
+	return Catalog.Format(msgs.locale, "trait_magic_seal_help", nil)
+}
+
+// TraitSummon says "Summon"
+// in the language the app shows.
+func TraitSummon() string { return In(i18n.Locale()).TraitSummon() }
+
+// TraitSummon says "Summon"
+// in the language of msgs.
+func (msgs Messages) TraitSummon() string {
+	return Catalog.Format(msgs.locale, "trait_summon", nil)
+}
+
+// TraitSummonHelp says "FE8 Summon also requires matching summon data."
+// in the language the app shows.
+func TraitSummonHelp() string { return In(i18n.Locale()).TraitSummonHelp() }
+
+// TraitSummonHelp says "FE8 Summon also requires matching summon data."
+// in the language of msgs.
+func (msgs Messages) TraitSummonHelp() string {
+	return Catalog.Format(msgs.locale, "trait_summon_help", nil)
+}
+
+// TraitDropItem says "Drop item"
+// in the language the app shows.
+func TraitDropItem() string { return In(i18n.Locale()).TraitDropItem() }
+
+// TraitDropItem says "Drop item"
+// in the language of msgs.
+func (msgs Messages) TraitDropItem() string {
+	return Catalog.Format(msgs.locale, "trait_drop_item", nil)
+}
+
+// TraitDropItemHelp says "FE7 marks the appropriate inventory item for dropping on defeat."
+// in the language the app shows.
+func TraitDropItemHelp() string { return In(i18n.Locale()).TraitDropItemHelp() }
+
+// TraitDropItemHelp says "FE7 marks the appropriate inventory item for dropping on defeat."
+// in the language of msgs.
+func (msgs Messages) TraitDropItemHelp() string {
+	return Catalog.Format(msgs.locale, "trait_drop_item_help", nil)
+}
+
+// TraitMorph says "Morph"
+// in the language the app shows.
+func TraitMorph() string { return In(i18n.Locale()).TraitMorph() }
+
+// TraitMorph says "Morph"
+// in the language of msgs.
+func (msgs Messages) TraitMorph() string {
+	return Catalog.Format(msgs.locale, "trait_morph", nil)
+}
+
+// TraitMorphHelp says "FE7 native morph classification; effect depends on engine context."
+// in the language the app shows.
+func TraitMorphHelp() string { return In(i18n.Locale()).TraitMorphHelp() }
+
+// TraitMorphHelp says "FE7 native morph classification; effect depends on engine context."
+// in the language of msgs.
+func (msgs Messages) TraitMorphHelp() string {
+	return Catalog.Format(msgs.locale, "trait_morph_help", nil)
+}
+
+// TraitRoyLock says "Roy lock"
+// in the language the app shows.
+func TraitRoyLock() string { return In(i18n.Locale()).TraitRoyLock() }
+
+// TraitRoyLock says "Roy lock"
+// in the language of msgs.
+func (msgs Messages) TraitRoyLock() string {
+	return Catalog.Format(msgs.locale, "trait_roy_lock", nil)
+}
+
+// TraitRoyLockHelp says "Allows weapons assigned to Roy's native lock."
+// in the language the app shows.
+func TraitRoyLockHelp() string { return In(i18n.Locale()).TraitRoyLockHelp() }
+
+// TraitRoyLockHelp says "Allows weapons assigned to Roy's native lock."
+// in the language of msgs.
+func (msgs Messages) TraitRoyLockHelp() string {
+	return Catalog.Format(msgs.locale, "trait_roy_lock_help", nil)
+}
+
+// TraitZephielLock says "Zephiel lock"
+// in the language the app shows.
+func TraitZephielLock() string { return In(i18n.Locale()).TraitZephielLock() }
+
+// TraitZephielLock says "Zephiel lock"
+// in the language of msgs.
+func (msgs Messages) TraitZephielLock() string {
+	return Catalog.Format(msgs.locale, "trait_zephiel_lock", nil)
+}
+
+// TraitZephielLockHelp says "Allows weapons assigned to Zephiel's native lock."
+// in the language the app shows.
+func TraitZephielLockHelp() string { return In(i18n.Locale()).TraitZephielLockHelp() }
+
+// TraitZephielLockHelp says "Allows weapons assigned to Zephiel's native lock."
+// in the language of msgs.
+func (msgs Messages) TraitZephielLockHelp() string {
+	return Catalog.Format(msgs.locale, "trait_zephiel_lock_help", nil)
+}
+
+// TraitEirikaLock says "Eirika lock"
+// in the language the app shows.
+func TraitEirikaLock() string { return In(i18n.Locale()).TraitEirikaLock() }
+
+// TraitEirikaLock says "Eirika lock"
+// in the language of msgs.
+func (msgs Messages) TraitEirikaLock() string {
+	return Catalog.Format(msgs.locale, "trait_eirika_lock", nil)
+}
+
+// TraitEirikaLockHelp says "Allows weapons assigned to Eirika's native lock."
+// in the language the app shows.
+func TraitEirikaLockHelp() string { return In(i18n.Locale()).TraitEirikaLockHelp() }
+
+// TraitEirikaLockHelp says "Allows weapons assigned to Eirika's native lock."
+// in the language of msgs.
+func (msgs Messages) TraitEirikaLockHelp() string {
+	return Catalog.Format(msgs.locale, "trait_eirika_lock_help", nil)
+}
+
+// TraitEphraimLock says "Ephraim lock"
+// in the language the app shows.
+func TraitEphraimLock() string { return In(i18n.Locale()).TraitEphraimLock() }
+
+// TraitEphraimLock says "Ephraim lock"
+// in the language of msgs.
+func (msgs Messages) TraitEphraimLock() string {
+	return Catalog.Format(msgs.locale, "trait_ephraim_lock", nil)
+}
+
+// TraitEphraimLockHelp says "Allows weapons assigned to Ephraim's native lock."
+// in the language the app shows.
+func TraitEphraimLockHelp() string { return In(i18n.Locale()).TraitEphraimLockHelp() }
+
+// TraitEphraimLockHelp says "Allows weapons assigned to Ephraim's native lock."
+// in the language of msgs.
+func (msgs Messages) TraitEphraimLockHelp() string {
+	return Catalog.Format(msgs.locale, "trait_ephraim_lock_help", nil)
+}
+
+// TraitEliwoodLock says "Eliwood lock"
+// in the language the app shows.
+func TraitEliwoodLock() string { return In(i18n.Locale()).TraitEliwoodLock() }
+
+// TraitEliwoodLock says "Eliwood lock"
+// in the language of msgs.
+func (msgs Messages) TraitEliwoodLock() string {
+	return Catalog.Format(msgs.locale, "trait_eliwood_lock", nil)
+}
+
+// TraitEliwoodLockHelp says "Allows weapons assigned to Eliwood's native lock."
+// in the language the app shows.
+func TraitEliwoodLockHelp() string { return In(i18n.Locale()).TraitEliwoodLockHelp() }
+
+// TraitEliwoodLockHelp says "Allows weapons assigned to Eliwood's native lock."
+// in the language of msgs.
+func (msgs Messages) TraitEliwoodLockHelp() string {
+	return Catalog.Format(msgs.locale, "trait_eliwood_lock_help", nil)
+}
+
+// TraitHectorLock says "Hector lock"
+// in the language the app shows.
+func TraitHectorLock() string { return In(i18n.Locale()).TraitHectorLock() }
+
+// TraitHectorLock says "Hector lock"
+// in the language of msgs.
+func (msgs Messages) TraitHectorLock() string {
+	return Catalog.Format(msgs.locale, "trait_hector_lock", nil)
+}
+
+// TraitHectorLockHelp says "Allows weapons assigned to Hector's native lock."
+// in the language the app shows.
+func TraitHectorLockHelp() string { return In(i18n.Locale()).TraitHectorLockHelp() }
+
+// TraitHectorLockHelp says "Allows weapons assigned to Hector's native lock."
+// in the language of msgs.
+func (msgs Messages) TraitHectorLockHelp() string {
+	return Catalog.Format(msgs.locale, "trait_hector_lock_help", nil)
+}
+
+// TraitLynLock says "Lyn lock"
+// in the language the app shows.
+func TraitLynLock() string { return In(i18n.Locale()).TraitLynLock() }
+
+// TraitLynLock says "Lyn lock"
+// in the language of msgs.
+func (msgs Messages) TraitLynLock() string {
+	return Catalog.Format(msgs.locale, "trait_lyn_lock", nil)
+}
+
+// TraitLynLockHelp says "Allows the Lyn lock; unused by default in FE8."
+// in the language the app shows.
+func TraitLynLockHelp() string { return In(i18n.Locale()).TraitLynLockHelp() }
+
+// TraitLynLockHelp says "Allows the Lyn lock; unused by default in FE8."
+// in the language of msgs.
+func (msgs Messages) TraitLynLockHelp() string {
+	return Catalog.Format(msgs.locale, "trait_lyn_lock_help", nil)
+}
+
+// TraitAthosLock says "Athos lock"
+// in the language the app shows.
+func TraitAthosLock() string { return In(i18n.Locale()).TraitAthosLock() }
+
+// TraitAthosLock says "Athos lock"
+// in the language of msgs.
+func (msgs Messages) TraitAthosLock() string {
+	return Catalog.Format(msgs.locale, "trait_athos_lock", nil)
+}
+
+// TraitAthosLockHelp says "Allows the Athos lock; unused by default in FE8."
+// in the language the app shows.
+func TraitAthosLockHelp() string { return In(i18n.Locale()).TraitAthosLockHelp() }
+
+// TraitAthosLockHelp says "Allows the Athos lock; unused by default in FE8."
+// in the language of msgs.
+func (msgs Messages) TraitAthosLockHelp() string {
+	return Catalog.Format(msgs.locale, "trait_athos_lock_help", nil)
+}
+
+// TraitCriticalFe6Help says "Enables FE6's native 30% critical bonus."
+// in the language the app shows.
+func TraitCriticalFe6Help() string { return In(i18n.Locale()).TraitCriticalFe6Help() }
+
+// TraitCriticalFe6Help says "Enables FE6's native 30% critical bonus."
+// in the language of msgs.
+func (msgs Messages) TraitCriticalFe6Help() string {
+	return Catalog.Format(msgs.locale, "trait_critical_fe6_help", nil)
+}
+
+// PortraitTable says "Portraits"
+// in the language the app shows.
+func PortraitTable() string { return In(i18n.Locale()).PortraitTable() }
+
+// PortraitTable says "Portraits"
+// in the language of msgs.
+func (msgs Messages) PortraitTable() string {
+	return Catalog.Format(msgs.locale, "portrait_table", nil)
+}
+
+// OpenPortraitTable says "Open portrait table"
+// in the language the app shows.
+func OpenPortraitTable() string { return In(i18n.Locale()).OpenPortraitTable() }
+
+// OpenPortraitTable says "Open portrait table"
+// in the language of msgs.
+func (msgs Messages) OpenPortraitTable() string {
+	return Catalog.Format(msgs.locale, "open_portrait_table", nil)
+}
+
+// PortraitSearch says "Search portrait ID or record name"
+// in the language the app shows.
+func PortraitSearch() string { return In(i18n.Locale()).PortraitSearch() }
+
+// PortraitSearch says "Search portrait ID or record name"
+// in the language of msgs.
+func (msgs Messages) PortraitSearch() string {
+	return Catalog.Format(msgs.locale, "portrait_search", nil)
+}
+
+// PortraitUses says "Known uses"
+// in the language the app shows.
+func PortraitUses() string { return In(i18n.Locale()).PortraitUses() }
+
+// PortraitUses says "Known uses"
+// in the language of msgs.
+func (msgs Messages) PortraitUses() string {
+	return Catalog.Format(msgs.locale, "portrait_uses", nil)
+}
+
+// PortraitEmpty says "Unused entry"
+// in the language the app shows.
+func PortraitEmpty() string { return In(i18n.Locale()).PortraitEmpty() }
+
+// PortraitEmpty says "Unused entry"
+// in the language of msgs.
+func (msgs Messages) PortraitEmpty() string {
+	return Catalog.Format(msgs.locale, "portrait_empty", nil)
+}
+
+// PortraitClassCard says "Class card"
+// in the language the app shows.
+func PortraitClassCard() string { return In(i18n.Locale()).PortraitClassCard() }
+
+// PortraitClassCard says "Class card"
+// in the language of msgs.
+func (msgs Messages) PortraitClassCard() string {
+	return Catalog.Format(msgs.locale, "portrait_class_card", nil)
+}
+
+// PortraitFace says "Portrait"
+// in the language the app shows.
+func PortraitFace() string { return In(i18n.Locale()).PortraitFace() }
+
+// PortraitFace says "Portrait"
+// in the language of msgs.
+func (msgs Messages) PortraitFace() string {
+	return Catalog.Format(msgs.locale, "portrait_face", nil)
+}
+
+// PortraitNoKnownUses says "No known character or class references"
+// in the language the app shows.
+func PortraitNoKnownUses() string { return In(i18n.Locale()).PortraitNoKnownUses() }
+
+// PortraitNoKnownUses says "No known character or class references"
+// in the language of msgs.
+func (msgs Messages) PortraitNoKnownUses() string {
+	return Catalog.Format(msgs.locale, "portrait_no_known_uses", nil)
+}
+
+// RecordWeaponField says "Weapon field"
+// in the language the app shows.
+func RecordWeaponField() string { return In(i18n.Locale()).RecordWeaponField() }
+
+// RecordWeaponField says "Weapon field"
+// in the language of msgs.
+func (msgs Messages) RecordWeaponField() string {
+	return Catalog.Format(msgs.locale, "record_weapon_field", nil)
 }
 
 // RecordSummary says "{count, plural, one {# record} other {# records}}"
@@ -5360,4 +6740,404 @@ func ObjectiveScriptHelp() string { return In(i18n.Locale()).ObjectiveScriptHelp
 // in the language of msgs.
 func (msgs Messages) ObjectiveScriptHelp() string {
 	return Catalog.Format(msgs.locale, "objective_script_help", nil)
+}
+
+// PortraitMain says "Portrait"
+// in the language the app shows.
+func PortraitMain() string { return In(i18n.Locale()).PortraitMain() }
+
+// PortraitMain says "Portrait"
+// in the language of msgs.
+func (msgs Messages) PortraitMain() string {
+	return Catalog.Format(msgs.locale, "portrait_main", nil)
+}
+
+// PortraitMini says "Miniature"
+// in the language the app shows.
+func PortraitMini() string { return In(i18n.Locale()).PortraitMini() }
+
+// PortraitMini says "Miniature"
+// in the language of msgs.
+func (msgs Messages) PortraitMini() string {
+	return Catalog.Format(msgs.locale, "portrait_mini", nil)
+}
+
+// PortraitMouth says "Mouth"
+// in the language the app shows.
+func PortraitMouth() string { return In(i18n.Locale()).PortraitMouth() }
+
+// PortraitMouth says "Mouth"
+// in the language of msgs.
+func (msgs Messages) PortraitMouth() string {
+	return Catalog.Format(msgs.locale, "portrait_mouth", nil)
+}
+
+// PortraitEyes says "Eyes"
+// in the language the app shows.
+func PortraitEyes() string { return In(i18n.Locale()).PortraitEyes() }
+
+// PortraitEyes says "Eyes"
+// in the language of msgs.
+func (msgs Messages) PortraitEyes() string {
+	return Catalog.Format(msgs.locale, "portrait_eyes", nil)
+}
+
+// PortraitCard says "Class card"
+// in the language the app shows.
+func PortraitCard() string { return In(i18n.Locale()).PortraitCard() }
+
+// PortraitCard says "Class card"
+// in the language of msgs.
+func (msgs Messages) PortraitCard() string {
+	return Catalog.Format(msgs.locale, "portrait_card", nil)
+}
+
+// PortraitPalette says "Palette"
+// in the language the app shows.
+func PortraitPalette() string { return In(i18n.Locale()).PortraitPalette() }
+
+// PortraitPalette says "Palette"
+// in the language of msgs.
+func (msgs Messages) PortraitPalette() string {
+	return Catalog.Format(msgs.locale, "portrait_palette", nil)
+}
+
+// PortraitEffect says "Appearance"
+// in the language the app shows.
+func PortraitEffect() string { return In(i18n.Locale()).PortraitEffect() }
+
+// PortraitEffect says "Appearance"
+// in the language of msgs.
+func (msgs Messages) PortraitEffect() string {
+	return Catalog.Format(msgs.locale, "portrait_effect", nil)
+}
+
+// PortraitSheet says "Sprite sheet"
+// in the language the app shows.
+func PortraitSheet() string { return In(i18n.Locale()).PortraitSheet() }
+
+// PortraitSheet says "Sprite sheet"
+// in the language of msgs.
+func (msgs Messages) PortraitSheet() string {
+	return Catalog.Format(msgs.locale, "portrait_sheet", nil)
+}
+
+// PortraitView says "Preview mode"
+// in the language the app shows.
+func PortraitView() string { return In(i18n.Locale()).PortraitView() }
+
+// PortraitView says "Preview mode"
+// in the language of msgs.
+func (msgs Messages) PortraitView() string {
+	return Catalog.Format(msgs.locale, "portrait_view", nil)
+}
+
+// PortraitMarkers says "Position outline"
+// in the language the app shows.
+func PortraitMarkers() string { return In(i18n.Locale()).PortraitMarkers() }
+
+// PortraitMarkers says "Position outline"
+// in the language of msgs.
+func (msgs Messages) PortraitMarkers() string {
+	return Catalog.Format(msgs.locale, "portrait_markers", nil)
+}
+
+// PortraitPart says "Positioned part"
+// in the language the app shows.
+func PortraitPart() string { return In(i18n.Locale()).PortraitPart() }
+
+// PortraitPart says "Positioned part"
+// in the language of msgs.
+func (msgs Messages) PortraitPart() string {
+	return Catalog.Format(msgs.locale, "portrait_part", nil)
+}
+
+// PortraitExpression says "Expression check"
+// in the language the app shows.
+func PortraitExpression() string { return In(i18n.Locale()).PortraitExpression() }
+
+// PortraitExpression says "Expression check"
+// in the language of msgs.
+func (msgs Messages) PortraitExpression() string {
+	return Catalog.Format(msgs.locale, "portrait_expression", nil)
+}
+
+// PortraitClosedMouth says "Closed eyes and mouth"
+// in the language the app shows.
+func PortraitClosedMouth() string { return In(i18n.Locale()).PortraitClosedMouth() }
+
+// PortraitClosedMouth says "Closed eyes and mouth"
+// in the language of msgs.
+func (msgs Messages) PortraitClosedMouth() string {
+	return Catalog.Format(msgs.locale, "portrait_closed_mouth", nil)
+}
+
+// PortraitDefault says "Default"
+// in the language the app shows.
+func PortraitDefault() string { return In(i18n.Locale()).PortraitDefault() }
+
+// PortraitDefault says "Default"
+// in the language of msgs.
+func (msgs Messages) PortraitDefault() string {
+	return Catalog.Format(msgs.locale, "portrait_default", nil)
+}
+
+// PortraitOpen says "Open"
+// in the language the app shows.
+func PortraitOpen() string { return In(i18n.Locale()).PortraitOpen() }
+
+// PortraitOpen says "Open"
+// in the language of msgs.
+func (msgs Messages) PortraitOpen() string {
+	return Catalog.Format(msgs.locale, "portrait_open", nil)
+}
+
+// PortraitHalf says "Half closed"
+// in the language the app shows.
+func PortraitHalf() string { return In(i18n.Locale()).PortraitHalf() }
+
+// PortraitHalf says "Half closed"
+// in the language of msgs.
+func (msgs Messages) PortraitHalf() string {
+	return Catalog.Format(msgs.locale, "portrait_half", nil)
+}
+
+// PortraitClosed says "Closed"
+// in the language the app shows.
+func PortraitClosed() string { return In(i18n.Locale()).PortraitClosed() }
+
+// PortraitClosed says "Closed"
+// in the language of msgs.
+func (msgs Messages) PortraitClosed() string {
+	return Catalog.Format(msgs.locale, "portrait_closed", nil)
+}
+
+// PortraitOriginal says "Original"
+// in the language the app shows.
+func PortraitOriginal() string { return In(i18n.Locale()).PortraitOriginal() }
+
+// PortraitOriginal says "Original"
+// in the language of msgs.
+func (msgs Messages) PortraitOriginal() string {
+	return Catalog.Format(msgs.locale, "portrait_original", nil)
+}
+
+// PortraitEyeFrame says "Eye frame"
+// in the language the app shows.
+func PortraitEyeFrame() string { return In(i18n.Locale()).PortraitEyeFrame() }
+
+// PortraitEyeFrame says "Eye frame"
+// in the language of msgs.
+func (msgs Messages) PortraitEyeFrame() string {
+	return Catalog.Format(msgs.locale, "portrait_eye_frame", nil)
+}
+
+// PortraitMouthFrame says "Mouth frame"
+// in the language the app shows.
+func PortraitMouthFrame() string { return In(i18n.Locale()).PortraitMouthFrame() }
+
+// PortraitMouthFrame says "Mouth frame"
+// in the language of msgs.
+func (msgs Messages) PortraitMouthFrame() string {
+	return Catalog.Format(msgs.locale, "portrait_mouth_frame", nil)
+}
+
+// PortraitTransparent says "Color 0: transparent"
+// in the language the app shows.
+func PortraitTransparent() string { return In(i18n.Locale()).PortraitTransparent() }
+
+// PortraitTransparent says "Color 0: transparent"
+// in the language of msgs.
+func (msgs Messages) PortraitTransparent() string {
+	return Catalog.Format(msgs.locale, "portrait_transparent", nil)
+}
+
+// PortraitMouthX says "Mouth X"
+// in the language the app shows.
+func PortraitMouthX() string { return In(i18n.Locale()).PortraitMouthX() }
+
+// PortraitMouthX says "Mouth X"
+// in the language of msgs.
+func (msgs Messages) PortraitMouthX() string {
+	return Catalog.Format(msgs.locale, "portrait_mouth_x", nil)
+}
+
+// PortraitMouthY says "Mouth Y"
+// in the language the app shows.
+func PortraitMouthY() string { return In(i18n.Locale()).PortraitMouthY() }
+
+// PortraitMouthY says "Mouth Y"
+// in the language of msgs.
+func (msgs Messages) PortraitMouthY() string {
+	return Catalog.Format(msgs.locale, "portrait_mouth_y", nil)
+}
+
+// PortraitEyeX says "Eyes X"
+// in the language the app shows.
+func PortraitEyeX() string { return In(i18n.Locale()).PortraitEyeX() }
+
+// PortraitEyeX says "Eyes X"
+// in the language of msgs.
+func (msgs Messages) PortraitEyeX() string {
+	return Catalog.Format(msgs.locale, "portrait_eye_x", nil)
+}
+
+// PortraitEyeY says "Eyes Y"
+// in the language the app shows.
+func PortraitEyeY() string { return In(i18n.Locale()).PortraitEyeY() }
+
+// PortraitEyeY says "Eyes Y"
+// in the language of msgs.
+func (msgs Messages) PortraitEyeY() string {
+	return Catalog.Format(msgs.locale, "portrait_eye_y", nil)
+}
+
+// PortraitBlink says "Default blinking"
+// in the language the app shows.
+func PortraitBlink() string { return In(i18n.Locale()).PortraitBlink() }
+
+// PortraitBlink says "Default blinking"
+// in the language of msgs.
+func (msgs Messages) PortraitBlink() string {
+	return Catalog.Format(msgs.locale, "portrait_blink", nil)
+}
+
+// PortraitBlinkNormal says "Normal (1)"
+// in the language the app shows.
+func PortraitBlinkNormal() string { return In(i18n.Locale()).PortraitBlinkNormal() }
+
+// PortraitBlinkNormal says "Normal (1)"
+// in the language of msgs.
+func (msgs Messages) PortraitBlinkNormal() string {
+	return Catalog.Format(msgs.locale, "portrait_blink_normal", nil)
+}
+
+// PortraitBlinkClosed says "Closed (6)"
+// in the language the app shows.
+func PortraitBlinkClosed() string { return In(i18n.Locale()).PortraitBlinkClosed() }
+
+// PortraitBlinkClosed says "Closed (6)"
+// in the language of msgs.
+func (msgs Messages) PortraitBlinkClosed() string {
+	return Catalog.Format(msgs.locale, "portrait_blink_closed", nil)
+}
+
+// PortraitPosition says "Position"
+// in the language the app shows.
+func PortraitPosition() string { return In(i18n.Locale()).PortraitPosition() }
+
+// PortraitPosition says "Position"
+// in the language of msgs.
+func (msgs Messages) PortraitPosition() string {
+	return Catalog.Format(msgs.locale, "portrait_position", nil)
+}
+
+// PortraitGridHelp says "8 pixels per step; drag the outline to position"
+// in the language the app shows.
+func PortraitGridHelp() string { return In(i18n.Locale()).PortraitGridHelp() }
+
+// PortraitGridHelp says "8 pixels per step; drag the outline to position"
+// in the language of msgs.
+func (msgs Messages) PortraitGridHelp() string {
+	return Catalog.Format(msgs.locale, "portrait_grid_help", nil)
+}
+
+// PortraitParts says "Image parts"
+// in the language the app shows.
+func PortraitParts() string { return In(i18n.Locale()).PortraitParts() }
+
+// PortraitParts says "Image parts"
+// in the language of msgs.
+func (msgs Messages) PortraitParts() string {
+	return Catalog.Format(msgs.locale, "portrait_parts", nil)
+}
+
+// PortraitInherit says "Use class portrait"
+// in the language the app shows.
+func PortraitInherit() string { return In(i18n.Locale()).PortraitInherit() }
+
+// PortraitInherit says "Use class portrait"
+// in the language of msgs.
+func (msgs Messages) PortraitInherit() string {
+	return Catalog.Format(msgs.locale, "portrait_inherit", nil)
+}
+
+// PortraitMiniInherit says "Use portrait miniature"
+// in the language the app shows.
+func PortraitMiniInherit() string { return In(i18n.Locale()).PortraitMiniInherit() }
+
+// PortraitMiniInherit says "Use portrait miniature"
+// in the language of msgs.
+func (msgs Messages) PortraitMiniInherit() string {
+	return Catalog.Format(msgs.locale, "portrait_mini_inherit", nil)
+}
+
+// PortraitMiniGeneric says "Generic miniature"
+// in the language the app shows.
+func PortraitMiniGeneric() string { return In(i18n.Locale()).PortraitMiniGeneric() }
+
+// PortraitMiniGeneric says "Generic miniature"
+// in the language of msgs.
+func (msgs Messages) PortraitMiniGeneric() string {
+	return Catalog.Format(msgs.locale, "portrait_mini_generic", nil)
+}
+
+// PortraitMiniSource says "Miniature source"
+// in the language the app shows.
+func PortraitMiniSource() string { return In(i18n.Locale()).PortraitMiniSource() }
+
+// PortraitMiniSource says "Miniature source"
+// in the language of msgs.
+func (msgs Messages) PortraitMiniSource() string {
+	return Catalog.Format(msgs.locale, "portrait_mini_source", nil)
+}
+
+// PortraitGenericBytes says "View miniature resources"
+// in the language the app shows.
+func PortraitGenericBytes() string { return In(i18n.Locale()).PortraitGenericBytes() }
+
+// PortraitGenericBytes says "View miniature resources"
+// in the language of msgs.
+func (msgs Messages) PortraitGenericBytes() string {
+	return Catalog.Format(msgs.locale, "portrait_generic_bytes", nil)
+}
+
+// PortraitMouthTiles says "Mouth frames"
+// in the language the app shows.
+func PortraitMouthTiles() string { return In(i18n.Locale()).PortraitMouthTiles() }
+
+// PortraitMouthTiles says "Mouth frames"
+// in the language of msgs.
+func (msgs Messages) PortraitMouthTiles() string {
+	return Catalog.Format(msgs.locale, "portrait_mouth_tiles", nil)
+}
+
+// PortraitCopyAddress says "Copy address"
+// in the language the app shows.
+func PortraitCopyAddress() string { return In(i18n.Locale()).PortraitCopyAddress() }
+
+// PortraitCopyAddress says "Copy address"
+// in the language of msgs.
+func (msgs Messages) PortraitCopyAddress() string {
+	return Catalog.Format(msgs.locale, "portrait_copy_address", nil)
+}
+
+// PortraitEyeLabel says "Eyes"
+// in the language the app shows.
+func PortraitEyeLabel() string { return In(i18n.Locale()).PortraitEyeLabel() }
+
+// PortraitEyeLabel says "Eyes"
+// in the language of msgs.
+func (msgs Messages) PortraitEyeLabel() string {
+	return Catalog.Format(msgs.locale, "portrait_eye_label", nil)
+}
+
+// PortraitMouthLabel says "Mouth"
+// in the language the app shows.
+func PortraitMouthLabel() string { return In(i18n.Locale()).PortraitMouthLabel() }
+
+// PortraitMouthLabel says "Mouth"
+// in the language of msgs.
+func (msgs Messages) PortraitMouthLabel() string {
+	return Catalog.Format(msgs.locale, "portrait_mouth_label", nil)
 }

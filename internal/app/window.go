@@ -36,7 +36,7 @@ func (m *application) newWindow(session *game.Session) *mygo.Window {
 	m.windows[win] = a
 	a.Actions.HistoryContextChanged = m.setMenu
 	a.Actions.Open = func() { m.openDialog(win, a) }
-	a.Actions.Save = func(as bool) { saveDocument(win, a, as) }
+	a.Actions.Save = func(as bool) { m.saveDocument(win, a, as) }
 	a.Actions.Reload = func() { reloadDocument(win, a) }
 	a.Actions.ImportPNG = func(done func([]byte, error)) { importPNG(win, a, done) }
 	a.Actions.ExportPNG = func(ref game.AssetRef) { m.exportPNG(win, a, ref) }
@@ -54,6 +54,7 @@ func (m *application) newWindow(session *game.Session) *mygo.Window {
 			a,
 			"app.launch_emulator",
 			func() error { return launchEmulator(path) },
+			nil,
 		)
 	}
 	win.OnClose(func(e *mygo.CloseEvent) {
@@ -125,6 +126,7 @@ func (m *application) newWindow(session *game.Session) *mygo.Window {
 	})
 	updateTitle(win, a)
 	m.setMenu()
+	m.rememberROMs()
 	return win
 }
 
@@ -143,6 +145,7 @@ func background(
 	a *pages.Workspace,
 	operation string,
 	work func() error,
+	completed func(),
 ) {
 	if a.Editor.Busy {
 		return
@@ -159,7 +162,15 @@ func background(
 		changed, checkErr := doc.ExternalChanged()
 		logError(checkErr)
 		win.Update(
-			func() { a.Editor.Busy = false; a.Editor.Err = err; a.Editor.External = changed; updateTitle(win, a) },
+			func() {
+				a.Editor.Busy = false
+				a.Editor.Err = err
+				a.Editor.External = changed
+				updateTitle(win, a)
+				if err == nil && completed != nil {
+					completed()
+				}
+			},
 		)
 	}()
 	win.Invalidate()

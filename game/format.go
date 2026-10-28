@@ -1,5 +1,13 @@
 package game
 
+const (
+	fe6ID  = "FE6"
+	fe7UID = "FE7U"
+	fe7JID = "FE7J"
+	fe8UID = "FE8U"
+	fe8JID = "FE8J"
+)
+
 // gameFormat groups the locations and encodings consumed by the shared editors.
 type gameFormat struct {
 	id, header  string

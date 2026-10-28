@@ -30,6 +30,12 @@ func field(id, group string, offset, width int) Field {
 	return Field{ID: id, Group: group, Offset: offset, Width: width}
 }
 
+func signedField(id, group string, offset int) Field {
+	f := field(id, group, offset, 1)
+	f.Signed = true
+	return f
+}
+
 func assetField(id string, offset, width int, kind AssetKind) Field {
 	f := field(id, GroupGeneral, offset, width)
 	f.Asset = kind
@@ -79,7 +85,7 @@ var weaponNames = []string{
 	"dark",
 }
 
-func unitFields() []Field {
+func unitFields(version string) []Field {
 	f := append(
 		common(),
 		field("id", GroupGeneral, 4, 1),
@@ -88,7 +94,7 @@ func unitFields() []Field {
 		field("mini_portrait", GroupGeneral, 8, 1),
 		field("affinity", GroupGeneral, 9, 1),
 		field("sort_order", GroupGeneral, 10, 1),
-		field("level", GroupBase, 11, 1),
+		signedField("level", GroupBase, 11),
 	)
 	f = append(
 		f,
@@ -124,6 +130,19 @@ func unitFields() []Field {
 			},
 			false,
 		)...)
+	if version == fe8UID || version == fe8JID {
+		f = append(f, field("visit_group", GroupGeneral, 48, 1))
+	}
+	if version == fe7UID || version == fe7JID {
+		f = append(f, field("talk_tone", GroupGeneral, 48, 1))
+	}
+	if version == fe6ID || version == fe7UID || version == fe7JID {
+		f = append(
+			f,
+			field("animation_palette_a", GroupGeneral, 35, 1),
+			field("animation_palette_b", GroupGeneral, 36, 1),
+		)
+	}
 	return append(f, flags(40))
 }
 
@@ -152,7 +171,7 @@ func classBaseFields() []Field {
 				StatConstitution,
 				StatMovement,
 			},
-			false,
+			true,
 		)...)
 	f = append(
 		f,
@@ -168,9 +187,9 @@ func classBaseFields() []Field {
 				StatResistance,
 				StatConstitution,
 			},
-			false,
+			true,
 		)...)
-	f = append(f, field("experience", GroupGeneral, 26, 1))
+	f = append(f, signedField("experience", GroupGeneral, 26))
 	return append(
 		f,
 		stats(
@@ -185,7 +204,7 @@ func classBaseFields() []Field {
 				StatResistance,
 				StatLuck,
 			},
-			false,
+			true,
 		)...)
 }
 
@@ -204,7 +223,7 @@ func classFields() []Field {
 				StatDefense,
 				StatResistance,
 			},
-			true,
+			false,
 		)...)
 	f = append(f, stats(GroupWeapon, 44, weaponNames, false)...)
 	return append(f, flags(40))

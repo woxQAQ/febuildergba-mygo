@@ -146,14 +146,15 @@ type Adapter interface {
 // Session combines a document with a game adapter. The UI sees schema and
 // records, not ROM offsets.
 type Session struct {
-	Document      *rom.Document
-	Adapter       Adapter
-	Tables        []Table
-	Patches       []string
-	image         rom.Snapshot
-	layouts       map[Kind]Layout
-	texts         []TextEntry
-	scriptIndexes map[int]scriptIndex
+	Document        *rom.Document
+	Adapter         Adapter
+	Tables          []Table
+	Patches         []string
+	image           rom.Snapshot
+	layouts         map[Kind]Layout
+	texts           []TextEntry
+	scriptIndexes   map[int]scriptIndex
+	portraitEntries []PortraitEntry
 }
 
 func Open(path string) (session *Session, err error) {
@@ -183,6 +184,7 @@ func (s *Session) refresh(image rom.Snapshot) {
 	s.image = image
 	s.texts = nil
 	s.scriptIndexes = nil
+	s.portraitEntries = nil
 	inspection := s.Adapter.Inspect(image.Data, s.layouts)
 	s.Tables, s.Patches = inspection.Tables, inspection.Patches
 	if !s.Adapter.Match(image.Data) {

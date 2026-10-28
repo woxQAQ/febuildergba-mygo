@@ -3,7 +3,7 @@ package game
 // Locations follow ROMFE8JP; field layouts are shared with FE8U.
 func fe8jFormat() gameFormat {
 	return gameFormat{
-		id:      "FE8J",
+		id:      fe8JID,
 		header:  "BE8J01",
 		minimum: 16 << 20,
 		tables: []tableRule{
@@ -30,7 +30,7 @@ func fe8jFormat() gameFormat {
 				firstID: 1,
 				count:   255,
 				probe:   0x2C,
-				fields:  unitFields(),
+				fields:  unitFields(fe8JID),
 			},
 			{
 				kind:     Classes,

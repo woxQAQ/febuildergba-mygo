@@ -4,7 +4,7 @@ package game
 // glyphs.
 func fe7jFormat() gameFormat {
 	return gameFormat{
-		id:      "FE7J",
+		id:      fe7JID,
 		header:  "AE7J01",
 		minimum: 16 << 20,
 		tables: []tableRule{
@@ -15,7 +15,7 @@ func fe7jFormat() gameFormat {
 				firstID:  1,
 				count:    253,
 				probe:    0x2C,
-				fields:   unitFields(),
+				fields:   unitFields(fe7JID),
 			},
 			{
 				kind:     Classes,

@@ -20,13 +20,16 @@ type Form struct {
 	activeField           fieldKey
 	preview               assetPreview
 	chapter               chapterview.View
+	profiles              map[fieldKey]*profileState
 	largePreview, showRaw bool
 	sidebar               float32
 	openHex               func(int, int)
 	openText              func(uint16)
 	openScript            func(int, int)
+	openPortrait          func(int)
+	imageEditor           components.AssetEditor
 	jump                  func(game.Kind, int)
-	assets                AssetActions
+	assets                components.AssetActions
 }
 
 func New(
@@ -34,7 +37,7 @@ func New(
 	openHex func(int, int),
 	openText func(uint16),
 	jump func(game.Kind, int),
-	assets AssetActions,
+	assets components.AssetActions,
 ) *Form {
 	return &Form{
 		state:    state,
@@ -44,6 +47,8 @@ func New(
 		assets:   assets,
 	}
 }
+
+func (a *Form) SetPortraitOpener(open func(int)) { a.openPortrait = open }
 
 func (a *Form) SetScriptOpener(open func(int, int)) { a.openScript = open }
 
@@ -56,6 +61,7 @@ func (a *Form) OpenDeployment(
 func (a *Form) Reset() {
 	a.ClearDrafts()
 	a.preview = assetPreview{}
+	a.imageEditor = components.AssetEditor{}
 	a.chapter = chapterview.View{}
 }
 
@@ -63,6 +69,7 @@ func (a *Form) ClearDrafts() {
 	a.drafts = nil
 	a.texts = nil
 	a.activeField = fieldKey{}
+	a.profiles = nil
 }
 
 func (a *Form) View(
@@ -73,6 +80,10 @@ func (a *Form) View(
 	sidebar float32,
 ) {
 	a.sidebar = sidebar
+	if kind == game.Units || kind == game.Classes {
+		a.profile(c, kind, row, table)
+		return
+	}
 	preview := a.previewFor(kind, row.ID)
 	ui.Column(c.Key(fmt.Sprintf("%s-%d", kind, row.ID))).
 		Fill().

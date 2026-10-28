@@ -5,7 +5,7 @@ package game
 // byte.
 func fe6Format() gameFormat {
 	return gameFormat{
-		id:      "FE6",
+		id:      fe6ID,
 		header:  "AFEJ01",
 		minimum: 8 << 20,
 		tables: []tableRule{
@@ -17,7 +17,7 @@ func fe6Format() gameFormat {
 				count:    226,
 				probe:    0x2C,
 				skip:     48,
-				fields:   unitFields(),
+				fields:   unitFields(fe6ID),
 			},
 			{
 				kind:     Classes,

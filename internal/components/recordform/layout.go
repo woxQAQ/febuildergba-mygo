@@ -1,8 +1,6 @@
 package recordform
 
 import (
-	"strings"
-
 	"github.com/egoist/mygo/ui"
 
 	"github.com/woxQAQ/febuildergba-mygo/game"
@@ -10,63 +8,16 @@ import (
 	"github.com/woxQAQ/febuildergba-mygo/internal/locales"
 )
 
-type statMatrix struct {
-	columns, rows []string
-	fields        map[string]game.Field
-}
-
-func arrangeStats(fields []game.Field) statMatrix {
-	matrix := statMatrix{fields: make(map[string]game.Field)}
-	var order []string
-	present := make(map[string]bool)
-	for _, group := range []string{game.GroupBase, game.GroupGrowth, game.GroupMaximum, game.GroupPromotion} {
-		found := false
-		for _, f := range fields {
-			prefix, stat, ok := strings.Cut(f.ID, ".")
-			if f.Group != group || !ok || prefix != group || stat == "" {
-				continue
-			}
-			matrix.fields[f.ID] = f
-			found = true
-			if !present[stat] {
-				present[stat] = true
-				order = append(order, stat)
-			}
-		}
-		if found {
-			matrix.columns = append(matrix.columns, group)
-		}
-	}
-	for _, stat := range []string{game.StatHP, game.StatPower, game.StatMagic, game.StatSkill, game.StatSpeed, game.StatLuck, game.StatDefense, game.StatResistance, game.StatConstitution, game.StatMovement} {
-		if present[stat] {
-			matrix.rows = append(matrix.rows, stat)
-			delete(present, stat)
-		}
-	}
-	// Additional adapter fields retain their schema order after the common
-	// abilities.
-	for _, stat := range order {
-		if present[stat] {
-			matrix.rows = append(matrix.rows, stat)
-		}
-	}
-	return matrix
-}
-
 func (a *Form) recordFields(
 	c *ui.Context,
 	kind game.Kind,
 	row game.Row,
 	table *game.Table,
 ) {
-	matrix := arrangeStats(table.Fields)
 	sections := make(map[string][]game.Field)
 	var extra []string
-	for _, f := range table.Fields {
-		if _, inMatrix := matrix.fields[f.ID]; inMatrix {
-			continue
-		}
-		group := f.Group
+	for _, field := range table.Fields {
+		group := field.Group
 		if group == game.GroupBase {
 			group = game.GroupGeneral
 		}
@@ -76,59 +27,28 @@ func (a *Form) recordFields(
 			sections[group] == nil {
 			extra = append(extra, group)
 		}
-		sections[group] = append(sections[group], f)
+		sections[group] = append(sections[group], field)
 	}
+	groups := append(
+		[]string{game.GroupCombat, game.GroupWeapon, game.GroupGeneral},
+		extra...)
+	groups = append(groups, game.GroupAdvanced)
 	width, _ := c.Size()
-	available := max(float32(240), width-a.sidebar-40)
-	matrixWidth := float32(124 + len(matrix.columns)*94)
-	withWeapons := len(matrix.columns) > 0 &&
-		len(sections[game.GroupWeapon]) > 0
 	ui.Column(c.Key("field-groups")).Gap(24).Children(func() {
-		if withWeapons {
-			weaponWidth := available
-			if available >= matrixWidth+248 {
-				weaponWidth = available - matrixWidth - 24
-			}
-			columns := 4
-			if weaponWidth < 440 {
-				columns = 2
-			}
-			ui.Row(c.Key("abilities-and-weapons")).
-				Wrap().
-				Gap(24).
-				AlignItems(ui.Start).
-				Children(func() {
-					a.abilityMatrix(c, kind, row, matrix).
-						Width(matrixWidth).
-						MaxWidthPercent(100).
-						Shrink(0)
-					a.inlineSection(c, kind, row, game.GroupWeapon, sections[game.GroupWeapon], columns).
-						Width(weaponWidth).
-						MaxWidth(600).
-						Shrink(0)
-				})
-		} else if len(matrix.columns) > 0 {
-			a.abilityMatrix(c, kind, row, matrix)
-		}
-		groups := append(
-			[]string{game.GroupCombat, game.GroupWeapon, game.GroupGeneral},
-			extra...)
-		groups = append(groups, game.GroupAdvanced)
 		for _, group := range groups {
-			fields := sections[group]
-			if len(fields) == 0 ||
-				(group == game.GroupAdvanced && !a.showRaw) ||
-				(group == game.GroupWeapon && withWeapons) {
+			if len(sections[group]) == 0 ||
+				group == game.GroupAdvanced && !a.showRaw {
 				continue
 			}
 			columns := 2
 			if group == game.GroupWeapon {
 				columns = 4
 			}
-			if available < 440 {
+			if width-a.sidebar-40 < 440 {
 				columns = max(1, columns/2)
 			}
-			a.inlineSection(c, kind, row, group, fields, columns).MaxWidth(600)
+			a.inlineSection(c, kind, row, group, sections[group], columns).
+				MaxWidth(600)
 		}
 	})
 }
@@ -161,76 +81,6 @@ func (a *Form) inlineSection(
 			}
 		})
 	})
-}
-
-func (a *Form) abilityMatrix(
-	c *ui.Context,
-	kind game.Kind,
-	row game.Row,
-	matrix statMatrix,
-) ui.Element {
-	tracks := []ui.Track{ui.Fixed(124)}
-	for range matrix.columns {
-		tracks = append(tracks, ui.Fr(1))
-	}
-	return ui.Column(c.Key("abilities")).
-		MaxWidth(float32(124 + len(matrix.columns)*94)).
-		Gap(4).
-		Children(func() {
-			ui.Grid(c.Key("head")).ColumnTracks(tracks...).GapX(6).
-				Padding(0, 0, 6, 0).
-				BorderWidth(0, 0, 1, 0).
-				BorderColor(c.Theme().Border).Children(func() {
-				ui.Text(c, locales.Abilities()).FontSize(13).Bold()
-				for _, group := range matrix.columns {
-					label := "matrix_" + group
-					if group == game.GroupBase && kind == game.Units {
-						label = "personal_base"
-					}
-					ui.Text(c, locales.Label(label)).
-						FontSize(12).
-						TextAlign(ui.End).
-						PaddingX(6).
-						SingleLine().
-						Tooltip(locales.Label(label))
-				}
-			})
-			ui.Grid(c.Key("values")).
-				ColumnTracks(tracks...).
-				GapX(6).
-				GapY(2).
-				AlignItems(ui.Center).
-				Children(func() {
-					for _, stat := range matrix.rows {
-						ui.Text(c.Key(stat), locales.Label(stat)).
-							FontSize(13).
-							SingleLine()
-						for _, group := range matrix.columns {
-							id := group + "." + stat
-							f, exists := matrix.fields[id]
-							if !exists {
-								ui.Text(c.Key(id), "—").
-									TextAlign(ui.End).
-									PaddingX(6).
-									Height(26).
-									TextColor(c.Theme().TextMuted).
-									Label(locales.Label(stat) + ": " + locales.NotApplicable())
-								continue
-							}
-							value, err := a.state.Session.Value(
-								kind,
-								row.ID,
-								f.ID,
-							)
-							if err != nil {
-								ui.Text(c.Key(id), components.ErrorText(err))
-								continue
-							}
-							a.numberField(c, kind, row, f, value)
-						}
-					}
-				})
-		})
 }
 
 func (a *Form) inlineField(
@@ -281,6 +131,11 @@ func (a *Form) inlineField(
 						a.openText(uint16(value))
 					}
 				})
+		case f.Asset == game.PortraitAsset && a.openPortrait != nil:
+			ui.Button(c, locales.Jump()).
+				Height(26).
+				Disabled(a.state.Busy).
+				OnClick(func() { a.openPortrait(int(value)) })
 		case actionWidth > 0:
 			ui.Box(c).Width(actionWidth).Shrink(0)
 		}

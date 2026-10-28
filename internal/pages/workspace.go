@@ -7,10 +7,10 @@ import (
 
 	"github.com/woxQAQ/febuildergba-mygo/game"
 	"github.com/woxQAQ/febuildergba-mygo/internal/components"
-	"github.com/woxQAQ/febuildergba-mygo/internal/components/recordform"
 	"github.com/woxQAQ/febuildergba-mygo/internal/locales"
 	"github.com/woxQAQ/febuildergba-mygo/internal/pages/eventeditor"
 	"github.com/woxQAQ/febuildergba-mygo/internal/pages/hexeditor"
+	"github.com/woxQAQ/febuildergba-mygo/internal/pages/portraits"
 	"github.com/woxQAQ/febuildergba-mygo/internal/pages/records"
 	"github.com/woxQAQ/febuildergba-mygo/internal/pages/texteditor"
 )
@@ -37,6 +37,7 @@ type Workspace struct {
 	hex         *hexeditor.Page
 	texts       *texteditor.Page
 	scripts     *eventeditor.Page
+	portraits   *portraits.Page
 	textHistory bool
 }
 
@@ -47,24 +48,27 @@ func New() *Workspace {
 		w.Editor,
 		func(kind game.Kind, id int) { w.records.Open(kind, id) },
 	)
+	assets := components.AssetActions{
+		Import: func(done func([]byte, error)) {
+			if w.Actions.ImportPNG != nil {
+				w.Actions.ImportPNG(done)
+			}
+		},
+		Export: func(ref game.AssetRef) {
+			if w.Actions.ExportPNG != nil {
+				w.Actions.ExportPNG(ref)
+			}
+		},
+	}
 	w.records = records.New(
 		w.Editor,
 		w.openHex,
 		w.openText,
 		func(kind game.Kind) { w.tab = slices.Index(game.Kinds, kind) },
-		recordform.AssetActions{
-			Import: func(done func([]byte, error)) {
-				if w.Actions.ImportPNG != nil {
-					w.Actions.ImportPNG(done)
-				}
-			},
-			Export: func(ref game.AssetRef) {
-				if w.Actions.ExportPNG != nil {
-					w.Actions.ExportPNG(ref)
-				}
-			},
-		},
+		assets,
 	)
+	w.portraits = portraits.New(w.Editor, assets, w.records.Open, w.openHex)
+	w.records.SetPortraitOpener(w.OpenPortrait)
 	w.scripts = eventeditor.New(
 		w.Editor,
 		w.openHex,
@@ -81,6 +85,7 @@ func (w *Workspace) SetSession(session *game.Session) {
 	w.hex.Reset()
 	w.texts.Reset()
 	w.scripts.Reset()
+	w.portraits.Reset()
 	w.tab = 0
 }
 
@@ -98,6 +103,14 @@ func (w *Workspace) openText(id uint16) {
 func (w *Workspace) OpenScript(chapter, site int) {
 	w.tab = len(game.Kinds) + 2
 	w.scripts.Open(chapter, site)
+}
+
+// OpenPortrait navigates to the resource table referenced by a record.
+func (w *Workspace) OpenPortrait(
+	id int,
+) {
+	w.tab = len(game.Kinds) + 3
+	w.portraits.Open(id)
 }
 
 func (w *Workspace) openDeployment(chapter, site int) {
@@ -130,6 +143,7 @@ func (w *Workspace) View(c *ui.Context) {
 			locales.TextEditor(),
 			locales.HexEditor(),
 			locales.ScriptEditor(),
+			locales.PortraitTable(),
 		)
 		ui.Tabs(c, &w.tab, labels...)
 		switch w.tab {
@@ -139,6 +153,8 @@ func (w *Workspace) View(c *ui.Context) {
 			w.hex.View(c)
 		case len(game.Kinds) + 2:
 			w.scripts.View(c)
+		case len(game.Kinds) + 3:
+			w.portraits.View(c)
 		default:
 			w.records.View(c, w.tab)
 		}

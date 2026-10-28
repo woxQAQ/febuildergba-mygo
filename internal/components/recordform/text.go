@@ -88,6 +88,16 @@ func (a *Form) descriptionEditors(
 	row game.Row,
 	table *game.Table,
 ) {
+	a.descriptions(c, kind, row, table, 112)
+}
+
+func (a *Form) descriptions(
+	c *ui.Context,
+	kind game.Kind,
+	row game.Row,
+	table *game.Table,
+	height float32,
+) {
 	for _, field := range table.Fields {
 		if field.Text != game.DescriptionText {
 			continue
@@ -105,16 +115,23 @@ func (a *Form) descriptionEditors(
 						Grow(1)
 					ui.Button(c, locales.ChooseTextId()).
 						Disabled(a.state.Busy).
-						OnClick(func() { a.focusField(key) })
+						OnClick(func() {
+							if kind == game.Units || kind == game.Classes {
+								a.profileFor(kind, row.ID).section = 1
+							}
+							a.focusField(key)
+						})
 				})
 				return
 			}
-			ui.Text(c, label).Bold()
+			if height > 64 {
+				ui.Text(c, label).Bold()
+			}
 			unavailable := err != nil || !value.Editable
 			components.TextDraft(
 				a.state,
 				ui.TextArea(c, &draft.text).
-					Height(112).
+					Height(height).
 					Label(label).
 					Tooltip(locales.DescriptionEditScope()).
 					ReadOnly(unavailable).

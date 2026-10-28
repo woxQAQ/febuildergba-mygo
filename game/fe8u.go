@@ -6,7 +6,7 @@ import "bytes"
 // source.
 func fe8uFormat() gameFormat {
 	return gameFormat{
-		id:      "FE8U",
+		id:      fe8UID,
 		header:  "BE8E01",
 		minimum: 16 << 20,
 		tables: []tableRule{
@@ -24,7 +24,7 @@ func fe8uFormat() gameFormat {
 				firstID: 1,
 				count:   255,
 				probe:   0x2C,
-				fields:  unitFields(),
+				fields:  unitFields(fe8UID),
 			},
 			{
 				kind:     Classes,
