@@ -1,6 +1,6 @@
 # 界面设计
 
-面向 FE8U、FE8J、FE7U、FE7J 和 FE6 基础数据编辑。以字段比较、键盘操作和密集数据阅读为主；功能范围见[README](README.md)。
+面向 FE8U、FE8J、FE7U、FE7J 和 FE6 基础数据编辑。以字段比较、键盘操作和密集数据阅读为主；功能范围见[覆盖矩阵](docs/coverage.md)，操作步骤见[使用指南](docs/user-guide.md)。
 
 ## 主题与状态
 
@@ -44,4 +44,4 @@
 
 ## 实现位置
 
-[pages](internal/pages) 拥有标签内容、导航和页面组合，包括记录、脚本、通用文本及十六进制编辑。[components](internal/components) 根包维护窗口 chrome、共享编辑状态及通用控件；[recordform](internal/components/recordform)、chapterview 和 mapview 属于记录页内部组件堆栈。应用层只通过 pages 引入界面；[input](internal/input) 独立承载纯数值及地址解析，导入边界由架构检查覆盖。启动与构建命令统一维护在[README](README.md)。
+[pages](internal/pages) 拥有标签内容、导航和页面组合，包括记录、脚本、通用文本及十六进制编辑。[components](internal/components) 根包维护窗口 chrome、共享编辑状态及通用控件；[recordform](internal/components/recordform)、chapterview 和 mapview 属于记录页内部组件堆栈。应用层只通过 pages 引入界面；[input](internal/input) 独立承载纯数值及地址解析，导入边界由架构检查覆盖。依赖与所有权见[架构说明](docs/architecture.md)，启动与构建见[开发说明](docs/development.md)。
