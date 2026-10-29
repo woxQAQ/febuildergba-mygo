@@ -63,10 +63,14 @@ func fe8uFormat() gameFormat {
 		),
 		deployments: fe8Deployments(0x346DC, 0x9EE248, 0x592104),
 		maps: mapFormat{
-			graphics: 0x19968,
-			palette:  0x1999C,
-			config:   0x19900,
-			layout:   0x34680,
+			graphics:    0x19968,
+			palette:     0x1999C,
+			config:      0x19900,
+			layout:      0x34680,
+			animation:   0x30134,
+			animation2:  0x30C78,
+			changes:     0x346AC,
+			worldEvents: 0,
 		},
 		text: textFormat{
 			pointer:     0xA2A0,

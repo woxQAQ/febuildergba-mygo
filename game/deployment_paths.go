@@ -52,7 +52,10 @@ func (d *DeploymentDraft) Path(unit int) []MovementStep {
 	if !d.SupportsPaths() || unit < 0 || unit >= len(d.records) {
 		return nil
 	}
-	raw := d.records[unit].movement
+	return movementSteps(d.records[unit].movement)
+}
+
+func movementSteps(raw []byte) []MovementStep {
 	result := make([]MovementStep, len(raw)/8)
 	for index := range result {
 		data := raw[index*8 : index*8+8]

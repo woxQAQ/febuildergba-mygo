@@ -30,6 +30,7 @@ type Overlay struct {
 	Choose  func(image.Point)
 	Focus   *image.Point
 	Path    *Path
+	Drawing *Drawing
 }
 
 type View struct {
@@ -46,6 +47,8 @@ type View struct {
 	selection        image.Point
 	selected         bool
 	panning          bool
+	stroke           []image.Point
+	strokeTool       Tool
 }
 
 func (v *View) load(session *game.Session, row game.Row) {
@@ -94,6 +97,32 @@ func (v *View) Render(
 	overlay Overlay,
 ) {
 	v.load(session, row)
+	v.render(c, overlay)
+}
+
+// RenderPreview uses a domain draft's snapshot while retaining viewport state.
+func (v *View) RenderPreview(
+	c *ui.Context,
+	preview game.MapPreview,
+	overlay Overlay,
+) {
+	if !v.loaded {
+		v.loaded, v.zoom, v.grid = true, 1, true
+	}
+	if v.resource.Image != preview.Image {
+		if v.resource.Width != preview.Width ||
+			v.resource.Height != preview.Height {
+			v.selected, v.panning = false, false
+			v.stroke = nil
+			v.scroll = ui.ScrollState{}
+		}
+		v.resource, v.err = preview, nil
+		v.bitmap = ui.NewBitmap(preview.Image).Pixelated()
+	}
+	v.render(c, overlay)
+}
+
+func (v *View) render(c *ui.Context, overlay Overlay) {
 	if overlay.Focus != nil {
 		v.focus(*overlay.Focus)
 	}
@@ -151,31 +180,10 @@ func (v *View) Render(
 					Size(width, height).
 					Shrink(0).
 					Label(locales.MapCanvas()).Cursor(ui.CursorCrosshair)
-				if dx, dy, dragging := canvas.Dragged(); dragging {
-					v.scroll.X -= dx
-					v.scroll.Y -= dy
-					if dx != 0 || dy != 0 {
-						v.panning = true
-						canvas.Cursor(ui.CursorGrabbing)
-					}
-				}
-				if canvas.Clicked() && !v.panning {
-					if x, y, over := canvas.PointerPosition(); over {
-						v.selection = image.Pt(
-							int(x/(16*scale)),
-							int(y/(16*scale)),
-						)
-						_, v.selected = v.resource.Cell(
-							v.selection.X,
-							v.selection.Y,
-						)
-						if v.selected && overlay.Choose != nil {
-							overlay.Choose(v.selection)
-						}
-					}
-				}
-				if _, _, ended := canvas.DragEnded(); ended {
-					v.panning = false
+				if overlay.Drawing != nil && overlay.Drawing.Tool != Pan {
+					v.drawInput(canvas, scale, overlay.Drawing)
+				} else {
+					v.inspectInput(canvas, scale, overlay.Choose)
 				}
 				accent := c.Theme().Accent
 				canvas.DrawOver(
@@ -188,7 +196,7 @@ func (v *View) Render(
 				Label(locales.MapSelection()).
 				FontFeatures("tnum").
 				Selectable()
-		} else {
+		} else if overlay.Drawing == nil {
 			ui.Text(c, locales.MapChooseCell()).TextColor(c.Theme().TextMuted)
 		}
 	})
@@ -249,6 +257,7 @@ func (v *View) overlay(
 		}
 	}
 	v.path(p, r, cell, accent, overlay.Path)
+	v.drawStroke(p, r, cell, accent, overlay.Drawing)
 	if v.selected {
 		selected := ui.Rect{
 			X: r.X + float32(v.selection.X)*cell,

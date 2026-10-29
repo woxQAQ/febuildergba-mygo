@@ -3772,6 +3772,616 @@ func (msgs Messages) FaultCanceled() string {
 	return Catalog.Format(msgs.locale, "fault_canceled", nil)
 }
 
+// MapResizeOptions says "Resize map"
+// in the language the app shows.
+func MapResizeOptions() string { return In(i18n.Locale()).MapResizeOptions() }
+
+// MapResizeOptions says "Resize map"
+// in the language of msgs.
+func (msgs Messages) MapResizeOptions() string {
+	return Catalog.Format(msgs.locale, "map_resize_options", nil)
+}
+
+// MapResize says "Resize draft"
+// in the language the app shows.
+func MapResize() string { return In(i18n.Locale()).MapResize() }
+
+// MapResize says "Resize draft"
+// in the language of msgs.
+func (msgs Messages) MapResize() string {
+	return Catalog.Format(msgs.locale, "map_resize", nil)
+}
+
+// MapWidth says "New width"
+// in the language the app shows.
+func MapWidth() string { return In(i18n.Locale()).MapWidth() }
+
+// MapWidth says "New width"
+// in the language of msgs.
+func (msgs Messages) MapWidth() string {
+	return Catalog.Format(msgs.locale, "map_width", nil)
+}
+
+// MapHeight says "New height"
+// in the language the app shows.
+func MapHeight() string { return In(i18n.Locale()).MapHeight() }
+
+// MapHeight says "New height"
+// in the language of msgs.
+func (msgs Messages) MapHeight() string {
+	return Catalog.Format(msgs.locale, "map_height", nil)
+}
+
+// MapAnchor says "Anchor"
+// in the language the app shows.
+func MapAnchor() string { return In(i18n.Locale()).MapAnchor() }
+
+// MapAnchor says "Anchor"
+// in the language of msgs.
+func (msgs Messages) MapAnchor() string {
+	return Catalog.Format(msgs.locale, "map_anchor", nil)
+}
+
+// MapAnchorTopLeft says "Top left"
+// in the language the app shows.
+func MapAnchorTopLeft() string { return In(i18n.Locale()).MapAnchorTopLeft() }
+
+// MapAnchorTopLeft says "Top left"
+// in the language of msgs.
+func (msgs Messages) MapAnchorTopLeft() string {
+	return Catalog.Format(msgs.locale, "map_anchor_top_left", nil)
+}
+
+// MapAnchorTop says "Top"
+// in the language the app shows.
+func MapAnchorTop() string { return In(i18n.Locale()).MapAnchorTop() }
+
+// MapAnchorTop says "Top"
+// in the language of msgs.
+func (msgs Messages) MapAnchorTop() string {
+	return Catalog.Format(msgs.locale, "map_anchor_top", nil)
+}
+
+// MapAnchorTopRight says "Top right"
+// in the language the app shows.
+func MapAnchorTopRight() string { return In(i18n.Locale()).MapAnchorTopRight() }
+
+// MapAnchorTopRight says "Top right"
+// in the language of msgs.
+func (msgs Messages) MapAnchorTopRight() string {
+	return Catalog.Format(msgs.locale, "map_anchor_top_right", nil)
+}
+
+// MapAnchorLeft says "Left"
+// in the language the app shows.
+func MapAnchorLeft() string { return In(i18n.Locale()).MapAnchorLeft() }
+
+// MapAnchorLeft says "Left"
+// in the language of msgs.
+func (msgs Messages) MapAnchorLeft() string {
+	return Catalog.Format(msgs.locale, "map_anchor_left", nil)
+}
+
+// MapAnchorCenter says "Center"
+// in the language the app shows.
+func MapAnchorCenter() string { return In(i18n.Locale()).MapAnchorCenter() }
+
+// MapAnchorCenter says "Center"
+// in the language of msgs.
+func (msgs Messages) MapAnchorCenter() string {
+	return Catalog.Format(msgs.locale, "map_anchor_center", nil)
+}
+
+// MapAnchorRight says "Right"
+// in the language the app shows.
+func MapAnchorRight() string { return In(i18n.Locale()).MapAnchorRight() }
+
+// MapAnchorRight says "Right"
+// in the language of msgs.
+func (msgs Messages) MapAnchorRight() string {
+	return Catalog.Format(msgs.locale, "map_anchor_right", nil)
+}
+
+// MapAnchorBottomLeft says "Bottom left"
+// in the language the app shows.
+func MapAnchorBottomLeft() string { return In(i18n.Locale()).MapAnchorBottomLeft() }
+
+// MapAnchorBottomLeft says "Bottom left"
+// in the language of msgs.
+func (msgs Messages) MapAnchorBottomLeft() string {
+	return Catalog.Format(msgs.locale, "map_anchor_bottom_left", nil)
+}
+
+// MapAnchorBottom says "Bottom"
+// in the language the app shows.
+func MapAnchorBottom() string { return In(i18n.Locale()).MapAnchorBottom() }
+
+// MapAnchorBottom says "Bottom"
+// in the language of msgs.
+func (msgs Messages) MapAnchorBottom() string {
+	return Catalog.Format(msgs.locale, "map_anchor_bottom", nil)
+}
+
+// MapAnchorBottomRight says "Bottom right"
+// in the language the app shows.
+func MapAnchorBottomRight() string { return In(i18n.Locale()).MapAnchorBottomRight() }
+
+// MapAnchorBottomRight says "Bottom right"
+// in the language of msgs.
+func (msgs Messages) MapAnchorBottomRight() string {
+	return Catalog.Format(msgs.locale, "map_anchor_bottom_right", nil)
+}
+
+// MapAnchorHelp says "The anchor aligns existing tiles. Center alignment puts an odd extra row or column on the bottom or right."
+// in the language the app shows.
+func MapAnchorHelp() string { return In(i18n.Locale()).MapAnchorHelp() }
+
+// MapAnchorHelp says "The anchor aligns existing tiles. Center alignment puts an odd extra row or column on the bottom or right."
+// in the language of msgs.
+func (msgs Messages) MapAnchorHelp() string {
+	return Catalog.Format(msgs.locale, "map_anchor_help", nil)
+}
+
+// MapResizeHelp says "New cells use the current brush; deployment, event and path coordinates stay unchanged."
+// in the language the app shows.
+func MapResizeHelp() string { return In(i18n.Locale()).MapResizeHelp() }
+
+// MapResizeHelp says "New cells use the current brush; deployment, event and path coordinates stay unchanged."
+// in the language of msgs.
+func (msgs Messages) MapResizeHelp() string {
+	return Catalog.Format(msgs.locale, "map_resize_help", nil)
+}
+
+// MapResizePending says "Apply the size change to the draft, or restore the current dimensions before previewing."
+// in the language the app shows.
+func MapResizePending() string { return In(i18n.Locale()).MapResizePending() }
+
+// MapResizePending says "Apply the size change to the draft, or restore the current dimensions before previewing."
+// in the language of msgs.
+func (msgs Messages) MapResizePending() string {
+	return Catalog.Format(msgs.locale, "map_resize_pending", nil)
+}
+
+// MapLimits says "Width 1–%d · height 1–%d · at most %d cells"
+// in the language the app shows.
+func MapLimits() string { return In(i18n.Locale()).MapLimits() }
+
+// MapLimits says "Width 1–%d · height 1–%d · at most %d cells"
+// in the language of msgs.
+func (msgs Messages) MapLimits() string {
+	return Catalog.Format(msgs.locale, "map_limits", nil)
+}
+
+// MapImpactTitle says "Coordinate impact"
+// in the language the app shows.
+func MapImpactTitle() string { return In(i18n.Locale()).MapImpactTitle() }
+
+// MapImpactTitle says "Coordinate impact"
+// in the language of msgs.
+func (msgs Messages) MapImpactTitle() string {
+	return Catalog.Format(msgs.locale, "map_impact_title", nil)
+}
+
+// MapImpactScope says "Checks deployment positions, REDA nodes, area triggers, map-change bounds and confirmed script coordinates without mo…"
+// in the language the app shows.
+func MapImpactScope() string { return In(i18n.Locale()).MapImpactScope() }
+
+// MapImpactScope says "Checks deployment positions, REDA nodes, area triggers, map-change bounds and confirmed script coordinates without mo…"
+// in the language of msgs.
+func (msgs Messages) MapImpactScope() string {
+	return Catalog.Format(msgs.locale, "map_impact_scope", nil)
+}
+
+// MapImpactNew says "Newly excluded cells: %d"
+// in the language the app shows.
+func MapImpactNew() string { return In(i18n.Locale()).MapImpactNew() }
+
+// MapImpactNew says "Newly excluded cells: %d"
+// in the language of msgs.
+func (msgs Messages) MapImpactNew() string {
+	return Catalog.Format(msgs.locale, "map_impact_new", nil)
+}
+
+// MapImpactExisting says "Already outside"
+// in the language the app shows.
+func MapImpactExisting() string { return In(i18n.Locale()).MapImpactExisting() }
+
+// MapImpactExisting says "Already outside"
+// in the language of msgs.
+func (msgs Messages) MapImpactExisting() string {
+	return Catalog.Format(msgs.locale, "map_impact_existing", nil)
+}
+
+// MapImpactResolved says "Now inside"
+// in the language the app shows.
+func MapImpactResolved() string { return In(i18n.Locale()).MapImpactResolved() }
+
+// MapImpactResolved says "Now inside"
+// in the language of msgs.
+func (msgs Messages) MapImpactResolved() string {
+	return Catalog.Format(msgs.locale, "map_impact_resolved", nil)
+}
+
+// MapImpactPartial says "Still partly outside"
+// in the language the app shows.
+func MapImpactPartial() string { return In(i18n.Locale()).MapImpactPartial() }
+
+// MapImpactPartial says "Still partly outside"
+// in the language of msgs.
+func (msgs Messages) MapImpactPartial() string {
+	return Catalog.Format(msgs.locale, "map_impact_partial", nil)
+}
+
+// MapImpactNone says "No out-of-bounds coordinates found in the inspected resources."
+// in the language the app shows.
+func MapImpactNone() string { return In(i18n.Locale()).MapImpactNone() }
+
+// MapImpactNone says "No out-of-bounds coordinates found in the inspected resources."
+// in the language of msgs.
+func (msgs Messages) MapImpactNone() string {
+	return Catalog.Format(msgs.locale, "map_impact_none", nil)
+}
+
+// MapImpactWarnings says "Incomplete inspection"
+// in the language the app shows.
+func MapImpactWarnings() string { return In(i18n.Locale()).MapImpactWarnings() }
+
+// MapImpactWarnings says "Incomplete inspection"
+// in the language of msgs.
+func (msgs Messages) MapImpactWarnings() string {
+	return Catalog.Format(msgs.locale, "map_impact_warnings", nil)
+}
+
+// MapImpactIndex says "Record / node"
+// in the language the app shows.
+func MapImpactIndex() string { return In(i18n.Locale()).MapImpactIndex() }
+
+// MapImpactIndex says "Record / node"
+// in the language of msgs.
+func (msgs Messages) MapImpactIndex() string {
+	return Catalog.Format(msgs.locale, "map_impact_index", nil)
+}
+
+// MapImpactBounds says "Coordinates / area"
+// in the language the app shows.
+func MapImpactBounds() string { return In(i18n.Locale()).MapImpactBounds() }
+
+// MapImpactBounds says "Coordinates / area"
+// in the language of msgs.
+func (msgs Messages) MapImpactBounds() string {
+	return Catalog.Format(msgs.locale, "map_impact_bounds", nil)
+}
+
+// MapImpactKind says "Resource"
+// in the language the app shows.
+func MapImpactKind() string { return In(i18n.Locale()).MapImpactKind() }
+
+// MapImpactKind says "Resource"
+// in the language of msgs.
+func (msgs Messages) MapImpactKind() string {
+	return Catalog.Format(msgs.locale, "map_impact_kind", nil)
+}
+
+// MapImpactStatus says "Impact"
+// in the language the app shows.
+func MapImpactStatus() string { return In(i18n.Locale()).MapImpactStatus() }
+
+// MapImpactStatus says "Impact"
+// in the language of msgs.
+func (msgs Messages) MapImpactStatus() string {
+	return Catalog.Format(msgs.locale, "map_impact_status", nil)
+}
+
+// MapImpactUnitStart says "Deployment start"
+// in the language the app shows.
+func MapImpactUnitStart() string { return In(i18n.Locale()).MapImpactUnitStart() }
+
+// MapImpactUnitStart says "Deployment start"
+// in the language of msgs.
+func (msgs Messages) MapImpactUnitStart() string {
+	return Catalog.Format(msgs.locale, "map_impact_unit_start", nil)
+}
+
+// MapImpactUnitEnd says "Deployment destination"
+// in the language the app shows.
+func MapImpactUnitEnd() string { return In(i18n.Locale()).MapImpactUnitEnd() }
+
+// MapImpactUnitEnd says "Deployment destination"
+// in the language of msgs.
+func (msgs Messages) MapImpactUnitEnd() string {
+	return Catalog.Format(msgs.locale, "map_impact_unit_end", nil)
+}
+
+// MapImpactMovement says "REDA node"
+// in the language the app shows.
+func MapImpactMovement() string { return In(i18n.Locale()).MapImpactMovement() }
+
+// MapImpactMovement says "REDA node"
+// in the language of msgs.
+func (msgs Messages) MapImpactMovement() string {
+	return Catalog.Format(msgs.locale, "map_impact_movement", nil)
+}
+
+// MapImpactArea says "Area trigger"
+// in the language the app shows.
+func MapImpactArea() string { return In(i18n.Locale()).MapImpactArea() }
+
+// MapImpactArea says "Area trigger"
+// in the language of msgs.
+func (msgs Messages) MapImpactArea() string {
+	return Catalog.Format(msgs.locale, "map_impact_area", nil)
+}
+
+// MapImpactChange says "Map change"
+// in the language the app shows.
+func MapImpactChange() string { return In(i18n.Locale()).MapImpactChange() }
+
+// MapImpactChange says "Map change"
+// in the language of msgs.
+func (msgs Messages) MapImpactChange() string {
+	return Catalog.Format(msgs.locale, "map_impact_change", nil)
+}
+
+// MapImpactScript says "Script coordinate"
+// in the language the app shows.
+func MapImpactScript() string { return In(i18n.Locale()).MapImpactScript() }
+
+// MapImpactScript says "Script coordinate"
+// in the language of msgs.
+func (msgs Messages) MapImpactScript() string {
+	return Catalog.Format(msgs.locale, "map_impact_script", nil)
+}
+
+// MapImpactScriptPath says "Script movement step"
+// in the language the app shows.
+func MapImpactScriptPath() string { return In(i18n.Locale()).MapImpactScriptPath() }
+
+// MapImpactScriptPath says "Script movement step"
+// in the language of msgs.
+func (msgs Messages) MapImpactScriptPath() string {
+	return Catalog.Format(msgs.locale, "map_impact_script_path", nil)
+}
+
+// GameMapImpactContext says "The relationship between these coordinates and the map cannot be confirmed statically."
+// in the language the app shows.
+func GameMapImpactContext() string { return In(i18n.Locale()).GameMapImpactContext() }
+
+// GameMapImpactContext says "The relationship between these coordinates and the map cannot be confirmed statically."
+// in the language of msgs.
+func (msgs Messages) GameMapImpactContext() string {
+	return Catalog.Format(msgs.locale, "game_map_impact_context", nil)
+}
+
+// GameMapImpactLimit says "Coordinate inspection reached its limit; additional references may be unlisted."
+// in the language the app shows.
+func GameMapImpactLimit() string { return In(i18n.Locale()).GameMapImpactLimit() }
+
+// GameMapImpactLimit says "Coordinate inspection reached its limit; additional references may be unlisted."
+// in the language of msgs.
+func (msgs Messages) GameMapImpactLimit() string {
+	return Catalog.Format(msgs.locale, "game_map_impact_limit", nil)
+}
+
+// MapEditor says "Map editor"
+// in the language the app shows.
+func MapEditor() string { return In(i18n.Locale()).MapEditor() }
+
+// MapEditor says "Map editor"
+// in the language of msgs.
+func (msgs Messages) MapEditor() string {
+	return Catalog.Format(msgs.locale, "map_editor", nil)
+}
+
+// MapTools says "Painting tool"
+// in the language the app shows.
+func MapTools() string { return In(i18n.Locale()).MapTools() }
+
+// MapTools says "Painting tool"
+// in the language of msgs.
+func (msgs Messages) MapTools() string {
+	return Catalog.Format(msgs.locale, "map_tools", nil)
+}
+
+// MapBrush says "Brush"
+// in the language the app shows.
+func MapBrush() string { return In(i18n.Locale()).MapBrush() }
+
+// MapBrush says "Brush"
+// in the language of msgs.
+func (msgs Messages) MapBrush() string {
+	return Catalog.Format(msgs.locale, "map_brush", nil)
+}
+
+// MapRectangle says "Rectangle"
+// in the language the app shows.
+func MapRectangle() string { return In(i18n.Locale()).MapRectangle() }
+
+// MapRectangle says "Rectangle"
+// in the language of msgs.
+func (msgs Messages) MapRectangle() string {
+	return Catalog.Format(msgs.locale, "map_rectangle", nil)
+}
+
+// MapEyedropper says "Eyedropper"
+// in the language the app shows.
+func MapEyedropper() string { return In(i18n.Locale()).MapEyedropper() }
+
+// MapEyedropper says "Eyedropper"
+// in the language of msgs.
+func (msgs Messages) MapEyedropper() string {
+	return Catalog.Format(msgs.locale, "map_eyedropper", nil)
+}
+
+// MapPan says "Pan"
+// in the language the app shows.
+func MapPan() string { return In(i18n.Locale()).MapPan() }
+
+// MapPan says "Pan"
+// in the language of msgs.
+func (msgs Messages) MapPan() string {
+	return Catalog.Format(msgs.locale, "map_pan", nil)
+}
+
+// MapTileset says "Tileset"
+// in the language the app shows.
+func MapTileset() string { return In(i18n.Locale()).MapTileset() }
+
+// MapTileset says "Tileset"
+// in the language of msgs.
+func (msgs Messages) MapTileset() string {
+	return Catalog.Format(msgs.locale, "map_tileset", nil)
+}
+
+// MapTilesetCanvas says "Tileset tiles"
+// in the language the app shows.
+func MapTilesetCanvas() string { return In(i18n.Locale()).MapTilesetCanvas() }
+
+// MapTilesetCanvas says "Tileset tiles"
+// in the language of msgs.
+func (msgs Messages) MapTilesetCanvas() string {
+	return Catalog.Format(msgs.locale, "map_tileset_canvas", nil)
+}
+
+// MapDraft says "Unapplied map draft"
+// in the language the app shows.
+func MapDraft() string { return In(i18n.Locale()).MapDraft() }
+
+// MapDraft says "Unapplied map draft"
+// in the language of msgs.
+func (msgs Messages) MapDraft() string {
+	return Catalog.Format(msgs.locale, "map_draft", nil)
+}
+
+// MapUndo says "Undo draft"
+// in the language the app shows.
+func MapUndo() string { return In(i18n.Locale()).MapUndo() }
+
+// MapUndo says "Undo draft"
+// in the language of msgs.
+func (msgs Messages) MapUndo() string {
+	return Catalog.Format(msgs.locale, "map_undo", nil)
+}
+
+// MapRedo says "Redo draft"
+// in the language the app shows.
+func MapRedo() string { return In(i18n.Locale()).MapRedo() }
+
+// MapRedo says "Redo draft"
+// in the language of msgs.
+func (msgs Messages) MapRedo() string {
+	return Catalog.Format(msgs.locale, "map_redo", nil)
+}
+
+// MapPreviewEdit says "Preview map changes"
+// in the language the app shows.
+func MapPreviewEdit() string { return In(i18n.Locale()).MapPreviewEdit() }
+
+// MapPreviewEdit says "Preview map changes"
+// in the language of msgs.
+func (msgs Messages) MapPreviewEdit() string {
+	return Catalog.Format(msgs.locale, "map_preview_edit", nil)
+}
+
+// MapBackToEdit says "Back to editing"
+// in the language the app shows.
+func MapBackToEdit() string { return In(i18n.Locale()).MapBackToEdit() }
+
+// MapBackToEdit says "Back to editing"
+// in the language of msgs.
+func (msgs Messages) MapBackToEdit() string {
+	return Catalog.Format(msgs.locale, "map_back_to_edit", nil)
+}
+
+// MapReviewDetails says "Write details and inspection scope"
+// in the language the app shows.
+func MapReviewDetails() string { return In(i18n.Locale()).MapReviewDetails() }
+
+// MapReviewDetails says "Write details and inspection scope"
+// in the language of msgs.
+func (msgs Messages) MapReviewDetails() string {
+	return Catalog.Format(msgs.locale, "map_review_details", nil)
+}
+
+// MapApply says "Apply map"
+// in the language the app shows.
+func MapApply() string { return In(i18n.Locale()).MapApply() }
+
+// MapApply says "Apply map"
+// in the language of msgs.
+func (msgs Messages) MapApply() string {
+	return Catalog.Format(msgs.locale, "map_apply", nil)
+}
+
+// MapReload says "Discard map draft and reload"
+// in the language the app shows.
+func MapReload() string { return In(i18n.Locale()).MapReload() }
+
+// MapReload says "Discard map draft and reload"
+// in the language of msgs.
+func (msgs Messages) MapReload() string {
+	return Catalog.Format(msgs.locale, "map_reload", nil)
+}
+
+// MapChangedCells says "Changed cells"
+// in the language the app shows.
+func MapChangedCells() string { return In(i18n.Locale()).MapChangedCells() }
+
+// MapChangedCells says "Changed cells"
+// in the language of msgs.
+func (msgs Messages) MapChangedCells() string {
+	return Catalog.Format(msgs.locale, "map_changed_cells", nil)
+}
+
+// MapEditHelp says "Choose a tile, then drag to paint or fill a rectangle. Eyedropper selects a cell’s tile. Pan moves the view. Terrai…"
+// in the language the app shows.
+func MapEditHelp() string { return In(i18n.Locale()).MapEditHelp() }
+
+// MapEditHelp says "Choose a tile, then drag to paint or fill a rectangle. Eyedropper selects a cell’s tile. Pan moves the view. Terrai…"
+// in the language of msgs.
+func (msgs Messages) MapEditHelp() string {
+	return Catalog.Format(msgs.locale, "map_edit_help", nil)
+}
+
+// MapEditScope says "Apply can be undone; save writes the ROM file."
+// in the language the app shows.
+func MapEditScope() string { return In(i18n.Locale()).MapEditScope() }
+
+// MapEditScope says "Apply can be undone; save writes the ROM file."
+// in the language of msgs.
+func (msgs Messages) MapEditScope() string {
+	return Catalog.Format(msgs.locale, "map_edit_scope", nil)
+}
+
+// MapCommitScope says "Chapters sharing the selected entry change together; independent entries retain the old map. Only confirmed uses in t…"
+// in the language the app shows.
+func MapCommitScope() string { return In(i18n.Locale()).MapCommitScope() }
+
+// MapCommitScope says "Chapters sharing the selected entry change together; independent entries retain the old map. Only confirmed uses in t…"
+// in the language of msgs.
+func (msgs Messages) MapCommitScope() string {
+	return Catalog.Format(msgs.locale, "map_commit_scope", nil)
+}
+
+// MapUsesChanged says "Chapters updated together"
+// in the language the app shows.
+func MapUsesChanged() string { return In(i18n.Locale()).MapUsesChanged() }
+
+// MapUsesChanged says "Chapters updated together"
+// in the language of msgs.
+func (msgs Messages) MapUsesChanged() string {
+	return Catalog.Format(msgs.locale, "map_uses_changed", nil)
+}
+
+// MapUsesRetained says "Independent entries kept"
+// in the language the app shows.
+func MapUsesRetained() string { return In(i18n.Locale()).MapUsesRetained() }
+
+// MapUsesRetained says "Independent entries kept"
+// in the language of msgs.
+func (msgs Messages) MapUsesRetained() string {
+	return Catalog.Format(msgs.locale, "map_uses_retained", nil)
+}
+
 // MapPreview says "Base map"
 // in the language the app shows.
 func MapPreview() string { return In(i18n.Locale()).MapPreview() }

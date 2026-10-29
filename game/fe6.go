@@ -40,10 +40,14 @@ func fe6Format() gameFormat {
 		chapters:    fe6Chapters(),
 		deployments: fe6Deployments(0x2BBCC),
 		maps: mapFormat{
-			graphics: 0x18AE4,
-			palette:  0x18B18,
-			config:   0x18A7C,
-			layout:   0x2BB70,
+			graphics:    0x18AE4,
+			palette:     0x18B18,
+			config:      0x18A7C,
+			layout:      0x2BB70,
+			animation:   0x28344,
+			animation2:  0x28E7C,
+			changes:     0x2BB9C,
+			worldEvents: 0x9310C,
 		},
 		text: textFormat{
 			pointer:     0x13B10,

@@ -37,10 +37,14 @@ func fe7uFormat() gameFormat {
 		chapters:    fe7Chapters(0x31580, true),
 		deployments: fe7Deployments(0x315D4, eventFE7U),
 		maps: mapFormat{
-			graphics: 0x19230,
-			palette:  0x19264,
-			config:   0x191C8,
-			layout:   0x3159C,
+			graphics:    0x19230,
+			palette:     0x19264,
+			config:      0x191C8,
+			layout:      0x3159C,
+			animation:   0x2D364,
+			animation2:  0x2DEA4,
+			changes:     0x315B8,
+			worldEvents: 0,
 		},
 		text: textFormat{
 			pointer:     0x12CB8,

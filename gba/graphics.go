@@ -18,24 +18,31 @@ var ErrGraphics = fault.Code{
 // size.
 // Back-references may overlap the output being produced.
 func DecompressLZ77(data []byte, limit int) ([]byte, error) {
+	decoded, _, err := DecompressLZ77Stream(data, limit)
+	return decoded, err
+}
+
+// DecompressLZ77Stream also returns the number of source bytes consumed. Trailing
+// alignment bytes are not part of the stream and are left uninterpreted.
+func DecompressLZ77Stream(data []byte, limit int) ([]byte, int, error) {
 	if len(data) < 4 || data[0] != 0x10 {
-		return nil, ErrGraphics
+		return nil, 0, ErrGraphics
 	}
 	length := int(data[1]) | int(data[2])<<8 | int(data[3])<<16
 	if length < 1 || length > limit {
-		return nil, ErrGraphics
+		return nil, 0, ErrGraphics
 	}
 	out := make([]byte, 0, length)
 	at := 4
 	for len(out) < length {
 		if at >= len(data) {
-			return nil, ErrGraphics
+			return nil, 0, ErrGraphics
 		}
 		flags := data[at]
 		at++
 		for mask := byte(0x80); mask != 0 && len(out) < length; mask >>= 1 {
 			if at >= len(data) {
-				return nil, ErrGraphics
+				return nil, 0, ErrGraphics
 			}
 			if flags&mask == 0 {
 				out = append(out, data[at])
@@ -43,20 +50,20 @@ func DecompressLZ77(data []byte, limit int) ([]byte, error) {
 				continue
 			}
 			if at+1 >= len(data) {
-				return nil, ErrGraphics
+				return nil, 0, ErrGraphics
 			}
 			count := int(data[at]>>4) + 3
 			distance := (int(data[at]&15)<<8 | int(data[at+1])) + 1
 			at += 2
 			if distance > len(out) {
-				return nil, ErrGraphics
+				return nil, 0, ErrGraphics
 			}
 			for range min(count, length-len(out)) {
 				out = append(out, out[len(out)-distance])
 			}
 		}
 	}
-	return out, nil
+	return out, at, nil
 }
 
 // Tiles4BPP renders row-major 8x8 tiles with a BGR555 palette. Index zero is

@@ -7,6 +7,17 @@ import (
 	"github.com/woxQAQ/febuildergba-mygo/gba"
 )
 
+// Native base-map limits include the engine's row and cell buffers.
+const (
+	MaxMapWidth  = 60
+	MaxMapHeight = 63
+	MaxMapCells  = 1536
+	maxMapBytes  = 2 + MaxMapCells*2
+
+	chapterMapField  = "map_id"
+	mapGraphicsField = "map_object_id"
+)
+
 var ErrMap = fault.Code{ID: "game.invalid_map", Kind: fault.InvalidData}
 
 type MapCell struct {
@@ -43,7 +54,7 @@ func (s *Session) ChapterMap(id int) (preview MapPreview, err error) {
 	if !s.Adapter.Match(s.image.Data) {
 		return MapPreview{}, ErrVersion
 	}
-	_, row, _, err := s.locate(Chapters, id, "map_id")
+	_, row, _, err := s.locate(Chapters, id, chapterMapField)
 	if err != nil {
 		return MapPreview{}, err
 	}
@@ -51,7 +62,8 @@ func (s *Session) ChapterMap(id int) (preview MapPreview, err error) {
 }
 
 type mapFormat struct {
-	graphics, palette, config, layout int
+	graphics, palette, config, layout           int
+	animation, animation2, changes, worldEvents int
 }
 
 func (g gameFormat) ChapterMap(data []byte, address int) (MapPreview, error) {
@@ -130,26 +142,39 @@ func mapCompressed(
 	return decoded, nil
 }
 
+type mapResources struct {
+	graphics, palette, config, layout []byte
+	objectID, configID, layoutID      int
+}
+
 func (f mapFormat) read(data []byte, address int) (MapPreview, error) {
+	resources, err := f.resources(data, address)
+	if err != nil {
+		return MapPreview{}, err
+	}
+	return resources.preview(resources.layout)
+}
+
+func (f mapFormat) resources(data []byte, address int) (mapResources, error) {
 	if !within(data, address, 9) {
-		return MapPreview{}, ErrLayout
+		return mapResources{}, ErrLayout
 	}
 	graphics, err := mapCompressed(
 		data,
 		f.graphics,
 		data[address+4],
-		"map_object_id",
+		mapGraphicsField,
 		0x8000,
 	)
 	if err != nil {
-		return MapPreview{}, err
+		return mapResources{}, err
 	}
 	if len(graphics)%32 != 0 {
-		return MapPreview{}, fault.New(
+		return mapResources{}, fault.New(
 			ErrMap,
 			"game.map_graphics",
 			fault.Context{
-				Resource:   "map_object_id",
+				Resource:   mapGraphicsField,
 				ResourceID: new(int(data[address+4])),
 			},
 			nil,
@@ -164,10 +189,10 @@ func (f mapFormat) read(data []byte, address int) (MapPreview, error) {
 			0x8000-len(graphics),
 		)
 		if secondErr != nil {
-			return MapPreview{}, secondErr
+			return mapResources{}, secondErr
 		}
 		if len(second)%32 != 0 {
-			return MapPreview{}, fault.New(
+			return mapResources{}, fault.New(
 				ErrMap,
 				"game.map_graphics",
 				fault.Context{
@@ -186,10 +211,10 @@ func (f mapFormat) read(data []byte, address int) (MapPreview, error) {
 		"map_palette_id",
 	)
 	if err != nil {
-		return MapPreview{}, err
+		return mapResources{}, err
 	}
 	if !within(data, paletteAt, 512) {
-		return MapPreview{}, fault.New(
+		return mapResources{}, fault.New(
 			ErrMap,
 			"game.map_palette",
 			fault.Context{
@@ -212,39 +237,52 @@ func (f mapFormat) read(data []byte, address int) (MapPreview, error) {
 		0x2400,
 	)
 	if err != nil {
-		return MapPreview{}, err
+		return mapResources{}, err
 	}
 	layout, err := mapCompressed(
 		data,
 		f.layout,
 		data[address+8],
-		"map_id",
-		2+1536*2,
+		chapterMapField,
+		maxMapBytes,
 	)
 	if err != nil {
-		return MapPreview{}, err
+		return mapResources{}, err
 	}
+	return mapResources{
+		graphics: graphics,
+		palette:  data[paletteAt : paletteAt+512],
+		config:   config,
+		layout:   layout,
+		objectID: int(data[address+4]),
+		configID: int(data[address+7]),
+		layoutID: int(data[address+8]),
+	}, nil
+}
+
+func (r mapResources) preview(layout []byte) (MapPreview, error) {
 	if len(layout) < 2 {
 		return MapPreview{}, fault.New(
 			ErrMap,
 			"game.map_dimensions",
 			fault.Context{
-				Resource:   "map_id",
-				ResourceID: new(int(data[address+8])),
+				Resource:   chapterMapField,
+				ResourceID: new(r.layoutID),
 			},
 			nil,
 		)
 	}
 	width, height := int(layout[0]), int(layout[1])
-	if width < 1 || height < 1 || width > 60 || height > 63 ||
-		width*height > 1536 ||
+	if width < 1 || height < 1 || width > MaxMapWidth ||
+		height > MaxMapHeight ||
+		width*height > MaxMapCells ||
 		len(layout) < 2+width*height*2 {
 		return MapPreview{}, fault.New(
 			ErrMap,
 			"game.map_dimensions",
 			fault.Context{
-				Resource:   "map_id",
-				ResourceID: new(int(data[address+8])),
+				Resource:   chapterMapField,
+				ResourceID: new(r.layoutID),
 				Range: &fault.Range{
 					Length: 2 + width*height*2,
 					Size:   len(layout),
@@ -262,31 +300,32 @@ func (f mapFormat) read(data []byte, address int) (MapPreview, error) {
 	for i := range result.Cells {
 		tile := u16(layout, 2+i*2)
 		at, terrain := int(tile)*2, 0x2000+int(tile>>2)
-		if at+8 > min(len(config), 0x2000) || terrain >= len(config) {
+		if at+8 > min(len(r.config), 0x2000) || terrain >= len(r.config) {
 			return MapPreview{}, fault.New(
 				ErrMap,
 				"game.map_tileset",
 				fault.Context{
 					Resource:   "map_tileset_id",
-					ResourceID: new(int(data[address+7])),
+					ResourceID: new(r.configID),
 					Range: &fault.Range{
 						Offset: at,
 						Length: 8,
-						Size:   len(config),
+						Size:   len(r.config),
 					},
 				},
 				nil,
 			)
 		}
-		result.Cells[i] = MapCell{Tile: tile, Terrain: config[terrain]}
+		result.Cells[i] = MapCell{Tile: tile, Terrain: r.config[terrain]}
 		for part := range 4 {
 			x, y := (i%width)*2+part%2, (i/width)*2+part/2
-			tiles[y*width*2+x] = u16(config, at+part*2)
+			tiles[y*width*2+x] = u16(r.config, at+part*2)
 		}
 	}
+	var err error
 	result.Image, err = gba.Background4BPP(
-		graphics,
-		data[paletteAt:paletteAt+512],
+		r.graphics,
+		r.palette,
 		tiles,
 		width*2,
 		height*2,
@@ -296,8 +335,8 @@ func (f mapFormat) read(data []byte, address int) (MapPreview, error) {
 			ErrMap,
 			"game.render_map",
 			fault.Context{
-				Resource:   "map_object_id",
-				ResourceID: new(int(data[address+4])),
+				Resource:   mapGraphicsField,
+				ResourceID: new(r.objectID),
 			},
 			err,
 		)

@@ -59,10 +59,14 @@ func fe8jFormat() gameFormat {
 		chapters:    fe8Chapters(0xBAB1C, 0x34534, 0xBA9EC, 0xBAD44, 0xBAEAC),
 		deployments: fe8Deployments(0x345E4, 0xA60380, 0x5B9EE8),
 		maps: mapFormat{
-			graphics: 0x19640,
-			palette:  0x19674,
-			config:   0x195D8,
-			layout:   0x34588,
+			graphics:    0x19640,
+			palette:     0x19674,
+			config:      0x195D8,
+			layout:      0x34588,
+			animation:   0x30084,
+			animation2:  0x30BC8,
+			changes:     0x345B4,
+			worldEvents: 0,
 		},
 		text: textFormat{
 			pointer:     0xA000,

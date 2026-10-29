@@ -48,6 +48,8 @@ func TestROMWorkflows(t *testing.T) {
 				{"text", editText},
 				{"portraits", editPortrait},
 				{"png", replacePNG},
+				{"maps", editMap},
+				{"map-resize", resizeMap},
 				{"deployments", editDeployment},
 				{
 					"turns",

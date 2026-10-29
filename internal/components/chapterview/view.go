@@ -43,6 +43,7 @@ type View struct {
 	selections         map[int]*chapterSelection
 	events             map[eventKey]*eventState
 	openScript         func(int, int)
+	mapDrafts          map[int]*mapState
 }
 
 func (v *View) OpenDeployment(state *components.State, chapter, site int) {
@@ -72,6 +73,7 @@ func (v *View) load(state *components.State, row game.Row) {
 			entries:    make(map[int]*entryDraft),
 			selections: make(map[int]*chapterSelection),
 			events:     make(map[eventKey]*eventState),
+			mapDrafts:  make(map[int]*mapState),
 		}
 	}
 	s.Refresh()
@@ -186,8 +188,13 @@ func (v *View) Render(
 ) {
 	v.load(state, row)
 	v.openScript = openScript
-	ui.Tabs(c.Key("chapter-mode"), &v.mode, locales.DeployConfiguration(), locales.Deployments(), locales.TurnEvents(), locales.AreaEvents(), locales.TalkEvents(), locales.Objectives()).
-		Label(locales.Chapters())
+	ui.Tabs(c.Key("chapter-mode"), &v.mode, locales.DeployConfiguration(), locales.Deployments(), locales.TurnEvents(), locales.AreaEvents(), locales.TalkEvents(), locales.Objectives(), locales.MapEditor()).
+		Label(locales.Chapters()).
+		Wrap()
+	if v.mode == 6 {
+		v.mapEditor(c, state, row, jump, openHex)
+		return
+	}
 	if v.Configuration() {
 		v.mapView.Render(c, state.Session, row, mapview.Overlay{})
 		return

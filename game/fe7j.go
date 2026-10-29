@@ -38,10 +38,14 @@ func fe7jFormat() gameFormat {
 		chapters:    fe7Chapters(0x31A6C, false),
 		deployments: fe7Deployments(0x31B18, eventFE7J),
 		maps: mapFormat{
-			graphics: 0x19618,
-			palette:  0x1964C,
-			config:   0x195B0,
-			layout:   0x31ABC,
+			graphics:    0x19618,
+			palette:     0x1964C,
+			config:      0x195B0,
+			layout:      0x31ABC,
+			animation:   0x2D824,
+			animation2:  0x2E364,
+			changes:     0x31AE8,
+			worldEvents: 0,
 		},
 		text: textFormat{
 			pointer:     0x13370,
