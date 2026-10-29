@@ -54,7 +54,11 @@ func (s *Session) PlanMapEdit(draft *MapDraft) (result *MapEdit, err error) {
 	if !ok || !format.Match(s.image.Data) {
 		return nil, ErrVersion
 	}
-	if err = s.mapWriteSite(format, draft.pointer); err != nil {
+	if err = s.mapWriteSite(
+		format,
+		draft.pointer,
+		chapterMapField,
+	); err != nil {
 		return nil, err
 	}
 	uses, err := s.mapUses(format, draft)
@@ -160,7 +164,11 @@ func (g gameFormat) mapBindings() []mapBinding {
 	return bindings
 }
 
-func (s *Session) mapWriteSite(format gameFormat, site int) error {
+func (s *Session) mapWriteSite(
+	format gameFormat,
+	site int,
+	field string,
+) error {
 	if err := s.resourcePointer(site); err != nil {
 		return fault.New(
 			ErrLayout,
@@ -208,12 +216,16 @@ func (s *Session) mapWriteSite(format gameFormat, site int) error {
 				continue
 			}
 			entry := list + int(id)*4
-			if binding.field != chapterMapField && overlap(entry, 4) {
+			if binding.field != field && overlap(entry, 4) {
 				return ErrLayout
 			}
 			address, valid := pointer(s.image.Data, entry)
 			if !valid {
 				continue
+			}
+			if binding.field == mapChangesField &&
+				mapChangesOverlap(s.image.Data, binding.root, id, overlap) {
+				return ErrLayout
 			}
 			key := [2]int{address, binding.compressedLimit}
 			length := binding.length
@@ -237,6 +249,28 @@ func (s *Session) mapWriteSite(format gameFormat, site int) error {
 		}
 	}
 	return nil
+}
+
+func mapChangesOverlap(
+	data []byte,
+	root int,
+	id int64,
+	overlap func(int, int) bool,
+) bool {
+	table, err := readMapChanges(data, root, id)
+	if err != nil {
+		return false
+	}
+	if overlap(table.address, len(table.rows)*12+len(table.terminator)) {
+		return true
+	}
+	for _, change := range table.rows {
+		payload := int(u32(change.header[:], 8) & 0x01FFFFFF)
+		if overlap(payload, len(change.tiles)) {
+			return true
+		}
+	}
+	return false
 }
 
 func (s *Session) mapUses(

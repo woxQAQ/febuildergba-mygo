@@ -52,6 +52,10 @@ func (a *Form) SetPortraitOpener(open func(int)) { a.openPortrait = open }
 
 func (a *Form) SetScriptOpener(open func(int, int)) { a.openScript = open }
 
+func (a *Form) OpenMapChange(chapter, id int) {
+	a.chapter.OpenMapChange(a.state, chapter, id)
+}
+
 func (a *Form) OpenDeployment(
 	chapter, site int,
 ) {

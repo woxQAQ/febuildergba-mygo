@@ -84,6 +84,7 @@ type Page struct {
 	openHex        func(int, int)
 	openText       func(uint16)
 	openDeployment func(int, int)
+	openMapChange  func(int, int)
 	chapter        int
 	chapterChoice  string
 	site           int
@@ -113,10 +114,18 @@ func New(
 	}
 }
 
+func (page *Page) SetMapChangeOpener(
+	open func(int, int),
+) {
+	page.openMapChange = open
+}
+
 func (page *Page) Reset() {
+	mapChange := page.openMapChange
 	state, hex, text, units, sidebar := page.state, page.openHex, page.openText, page.openDeployment, page.sidebar
 	*page = *New(state, hex, text, units)
 	page.sidebar = sidebar
+	page.openMapChange = mapChange
 }
 
 func (page *Page) refresh() {

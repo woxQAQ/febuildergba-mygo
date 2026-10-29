@@ -30,7 +30,12 @@ func resizeMap(t *testing.T, s *game.Session) {
 		}
 		fill, _ := draft.Cell(0, 0)
 		before := s.Document.Snapshot()
-		if err = draft.Resize(size.X, size.Y, game.MapBottomRight, fill.Tile); err != nil {
+		if err = draft.Resize(
+			size.X,
+			size.Y,
+			game.MapBottomRight,
+			fill.Tile,
+		); err != nil {
 			t.Fatal(err)
 		}
 		if !draft.Undo() || draft.Modified() || !draft.Redo() {
@@ -39,18 +44,32 @@ func resizeMap(t *testing.T, s *game.Session) {
 		started := time.Now()
 		plan, err := s.PlanMapEdit(draft)
 		checkPlan(t, s, before, err)
-		if !plan.Resized() || plan.BeforeSize() != old || plan.AfterSize() != size {
+		if !plan.Resized() || plan.BeforeSize() != old ||
+			plan.AfterSize() != size {
 			t.Fatal("resize summary")
 		}
-		t.Logf("chapter=%02X, size=%v→%v, impacts=%d, incomplete=%d, planning=%s", row.ID, old, size, len(plan.Impacts()), len(plan.ImpactWarnings()), time.Since(started))
+		t.Logf(
+			"chapter=%02X, size=%v→%v, impacts=%d, incomplete=%d, planning=%s",
+			row.ID,
+			old,
+			size,
+			len(plan.Impacts()),
+			len(plan.ImpactWarnings()),
+			time.Since(started),
+		)
 		if err = s.ApplyMapEdit(plan); err != nil {
 			t.Fatal(err)
 		}
 		after := s.Document.Snapshot()
 		preserved := bytes.Clone(after.Data[:len(before.Data)])
-		copy(preserved[plan.Pointer():plan.Pointer()+4], before.Data[plan.Pointer():plan.Pointer()+4])
+		copy(
+			preserved[plan.Pointer():plan.Pointer()+4],
+			before.Data[plan.Pointer():plan.Pointer()+4],
+		)
 		if !bytes.Equal(preserved, before.Data) {
-			t.Fatal("resize modified coordinate resources or independent references")
+			t.Fatal(
+				"resize modified coordinate resources or independent references",
+			)
 		}
 		for _, use := range plan.Uses() {
 			view, readErr := s.ChapterMap(use.Chapter)
@@ -62,7 +81,13 @@ func resizeMap(t *testing.T, s *game.Session) {
 				want = size
 			}
 			if image.Pt(view.Width, view.Height) != want {
-				t.Fatal("shared resize ownership", use, want, view.Width, view.Height)
+				t.Fatal(
+					"shared resize ownership",
+					use,
+					want,
+					view.Width,
+					view.Height,
+				)
 			}
 		}
 		reopened := historyAndReopen(t, s, before)
@@ -70,7 +95,12 @@ func resizeMap(t *testing.T, s *game.Session) {
 		if err != nil || image.Pt(next.Width(), next.Height()) != size {
 			t.Fatal("reopened map size", err)
 		}
-		if err = next.Resize(old.X, old.Y, game.MapTopLeft, fill.Tile); err != nil {
+		if err = next.Resize(
+			old.X,
+			old.Y,
+			game.MapTopLeft,
+			fill.Tile,
+		); err != nil {
 			t.Fatal(err)
 		}
 		expand, err := reopened.PlanMapEdit(next)

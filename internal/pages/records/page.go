@@ -167,6 +167,11 @@ func (a *Page) SetScriptOpener(
 	a.form.SetScriptOpener(open)
 }
 
+func (a *Page) OpenMapChange(chapter, id int) {
+	a.Open(game.Chapters, chapter)
+	a.form.OpenMapChange(chapter, id)
+}
+
 func (a *Page) OpenDeployment(chapter, site int) {
 	a.Open(game.Chapters, chapter)
 	a.form.OpenDeployment(chapter, site)

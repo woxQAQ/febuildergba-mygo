@@ -164,6 +164,10 @@ func (d *MapDraft) Stroke(samples []image.Point, tile uint16) error {
 			return ErrValue
 		}
 	}
+	return d.paint(mapStrokePoints(samples), tile)
+}
+
+func mapStrokePoints(samples []image.Point) []image.Point {
 	points := []image.Point{samples[0]}
 	for i := 1; i < len(samples); i++ {
 		p, end := samples[i-1], samples[i]
@@ -189,7 +193,7 @@ func (d *MapDraft) Stroke(samples []image.Point, tile uint16) error {
 			points = append(points, p)
 		}
 	}
-	return d.paint(points, tile)
+	return points
 }
 
 // Fill uses a half-open rectangle, matching image.Rectangle.

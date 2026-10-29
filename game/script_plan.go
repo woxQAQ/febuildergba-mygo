@@ -119,6 +119,16 @@ func (s *Session) PlanScriptEdit(
 		edit:        edit,
 	}
 	result.uses = s.scriptUses(entry, structural, draft.originalLength())
+	if err = s.validateSharedMapChangeScript(
+		draft,
+		result.uses,
+		structural,
+	); err != nil {
+		return nil, err
+	}
+	if !draft.Current(s) {
+		return nil, rom.ErrStale
+	}
 	return result, nil
 }
 
@@ -233,7 +243,10 @@ func (s *Session) validateScriptEdit(
 			}
 		}
 	}
-	return s.validateSlotUnitLoads(draft, data, positions)
+	if err := s.validateSlotUnitLoads(draft, data, positions); err != nil {
+		return err
+	}
+	return nil
 }
 
 func (s *Session) validateScriptOperand(

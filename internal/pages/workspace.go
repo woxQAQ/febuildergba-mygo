@@ -75,6 +75,7 @@ func New() *Workspace {
 		w.openText,
 		w.openDeployment,
 	)
+	w.scripts.SetMapChangeOpener(w.openMapChange)
 	w.records.SetScriptOpener(w.OpenScript)
 	return w
 }
@@ -111,6 +112,10 @@ func (w *Workspace) OpenPortrait(
 ) {
 	w.tab = len(game.Kinds) + 3
 	w.portraits.Open(id)
+}
+
+func (w *Workspace) openMapChange(chapter, id int) {
+	w.records.OpenMapChange(chapter, id)
 }
 
 func (w *Workspace) openDeployment(chapter, site int) {

@@ -13,15 +13,19 @@ import (
 	"github.com/woxQAQ/febuildergba-mygo/internal/locales"
 )
 
+type mapPainter struct {
+	image, tileset game.MapPreview
+	bitmap, brush  *ui.Bitmap
+	view           mapview.View
+	scroll         ui.ScrollState
+	tool           int
+	tile           game.MapCell
+}
+
 type mapState struct {
+	mapPainter
 	data                                    *game.MapDraft
 	preview                                 *game.MapEdit
-	image, tileset                          game.MapPreview
-	bitmap, brush                           *ui.Bitmap
-	view                                    mapview.View
-	scroll                                  ui.ScrollState
-	tool                                    int
-	tile                                    game.MapCell
 	revision                                uint64
 	address                                 int
 	err                                     error
@@ -78,7 +82,7 @@ func (entry *mapState) refresh() {
 	entry.impactList = ui.ListState{}
 }
 
-func (entry *mapState) choose(preview game.MapPreview, point image.Point) {
+func (entry *mapPainter) choose(preview game.MapPreview, point image.Point) {
 	cell, valid := preview.Cell(point.X, point.Y)
 	if !valid {
 		return
@@ -192,7 +196,7 @@ func (entry *mapState) drawing(
 	)
 }
 
-func (entry *mapState) palette(c *ui.Context, disabled bool) {
+func (entry *mapPainter) palette(c *ui.Context, disabled bool) {
 	ui.Text(c, locales.MapTileset()).Bold()
 	ui.ScrollBoth(c.Key("map-tileset-scroll")).
 		Width(514).
@@ -317,7 +321,7 @@ func (v *View) mapPreview(
 					FontFeatures("tnum")
 			})
 		})
-		mapUses(c, state, preview, jump)
+		mapUses(c, state, preview.Uses(), locales.MapCommitScope(), jump)
 		if preview.Resized() {
 			ui.Column(c.Key("coordinate-impact")).Gap(6).Children(func() {
 				v.mapImpacts(c, state, entry, jump, openHex)
@@ -364,10 +368,10 @@ func (v *View) mapPreview(
 func mapUses(
 	c *ui.Context,
 	state *components.State,
-	preview *game.MapEdit,
+	uses []game.MapUse,
+	scope string,
 	jump func(game.Kind, int),
 ) {
-	uses := preview.Uses()
 	for _, updated := range []bool{true, false} {
 		label := locales.MapUsesChanged()
 		if !updated {
@@ -383,7 +387,7 @@ func mapUses(
 			continue
 		}
 		ui.Column(c.Key(updated)).Gap(6).Children(func() {
-			ui.Text(c, label).Bold().Tooltip(locales.MapCommitScope())
+			ui.Text(c, label).Bold().Tooltip(scope)
 			ui.Row(c).Wrap().Gap(8).Children(func() {
 				for _, use := range uses {
 					if use.Updated != updated {

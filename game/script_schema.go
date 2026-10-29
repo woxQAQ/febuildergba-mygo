@@ -55,6 +55,7 @@ const (
 	ScriptEventTarget
 	ScriptDeploymentTarget
 	ScriptMovementTarget
+	ScriptMapChangeTarget
 )
 
 // ScriptField describes a confirmed operand; the opcode and unrelated bytes
@@ -145,6 +146,7 @@ func (f deploymentFormat) scriptDefinitions() []scriptDefinition {
 	result = append(result, f.wordVariantDefinitions()...)
 	result = append(result, f.movementDefinitions()...)
 	result = append(result, f.wordConditionDefinitions()...)
+	result = append(result, f.mapChangeDefinitions()...)
 	add := func(op ScriptOp, raw []byte, fields ...ScriptField) {
 		result = append(
 			result,

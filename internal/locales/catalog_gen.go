@@ -3772,6 +3772,636 @@ func (msgs Messages) FaultCanceled() string {
 	return Catalog.Format(msgs.locale, "fault_canceled", nil)
 }
 
+// MapChangesEditor says "Map changes"
+// in the language the app shows.
+func MapChangesEditor() string { return In(i18n.Locale()).MapChangesEditor() }
+
+// MapChangesEditor says "Map changes"
+// in the language of msgs.
+func (msgs Messages) MapChangesEditor() string {
+	return Catalog.Format(msgs.locale, "map_changes_editor", nil)
+}
+
+// MapChangeList says "Map change list"
+// in the language the app shows.
+func MapChangeList() string { return In(i18n.Locale()).MapChangeList() }
+
+// MapChangeList says "Map change list"
+// in the language of msgs.
+func (msgs Messages) MapChangeList() string {
+	return Catalog.Format(msgs.locale, "map_change_list", nil)
+}
+
+// MapChangeId says "Change ID"
+// in the language the app shows.
+func MapChangeId() string { return In(i18n.Locale()).MapChangeId() }
+
+// MapChangeId says "Change ID"
+// in the language of msgs.
+func (msgs Messages) MapChangeId() string {
+	return Catalog.Format(msgs.locale, "map_change_id", nil)
+}
+
+// MapChangeX says "X"
+// in the language the app shows.
+func MapChangeX() string { return In(i18n.Locale()).MapChangeX() }
+
+// MapChangeX says "X"
+// in the language of msgs.
+func (msgs Messages) MapChangeX() string {
+	return Catalog.Format(msgs.locale, "map_change_x", nil)
+}
+
+// MapChangeY says "Y"
+// in the language the app shows.
+func MapChangeY() string { return In(i18n.Locale()).MapChangeY() }
+
+// MapChangeY says "Y"
+// in the language of msgs.
+func (msgs Messages) MapChangeY() string {
+	return Catalog.Format(msgs.locale, "map_change_y", nil)
+}
+
+// MapChangeWidth says "Width"
+// in the language the app shows.
+func MapChangeWidth() string { return In(i18n.Locale()).MapChangeWidth() }
+
+// MapChangeWidth says "Width"
+// in the language of msgs.
+func (msgs Messages) MapChangeWidth() string {
+	return Catalog.Format(msgs.locale, "map_change_width", nil)
+}
+
+// MapChangeHeight says "Height"
+// in the language the app shows.
+func MapChangeHeight() string { return In(i18n.Locale()).MapChangeHeight() }
+
+// MapChangeHeight says "Height"
+// in the language of msgs.
+func (msgs Messages) MapChangeHeight() string {
+	return Catalog.Format(msgs.locale, "map_change_height", nil)
+}
+
+// MapChangeAdd says "Add change"
+// in the language the app shows.
+func MapChangeAdd() string { return In(i18n.Locale()).MapChangeAdd() }
+
+// MapChangeAdd says "Add change"
+// in the language of msgs.
+func (msgs Messages) MapChangeAdd() string {
+	return Catalog.Format(msgs.locale, "map_change_add", nil)
+}
+
+// MapChangeCopy says "Copy change"
+// in the language the app shows.
+func MapChangeCopy() string { return In(i18n.Locale()).MapChangeCopy() }
+
+// MapChangeCopy says "Copy change"
+// in the language of msgs.
+func (msgs Messages) MapChangeCopy() string {
+	return Catalog.Format(msgs.locale, "map_change_copy", nil)
+}
+
+// MapChangeDelete says "Delete change"
+// in the language the app shows.
+func MapChangeDelete() string { return In(i18n.Locale()).MapChangeDelete() }
+
+// MapChangeDelete says "Delete change"
+// in the language of msgs.
+func (msgs Messages) MapChangeDelete() string {
+	return Catalog.Format(msgs.locale, "map_change_delete", nil)
+}
+
+// MapChangeUpdate says "Update draft properties"
+// in the language the app shows.
+func MapChangeUpdate() string { return In(i18n.Locale()).MapChangeUpdate() }
+
+// MapChangeUpdate says "Update draft properties"
+// in the language of msgs.
+func (msgs Messages) MapChangeUpdate() string {
+	return Catalog.Format(msgs.locale, "map_change_update", nil)
+}
+
+// MapChangeReset says "Reset property inputs"
+// in the language the app shows.
+func MapChangeReset() string { return In(i18n.Locale()).MapChangeReset() }
+
+// MapChangeReset says "Reset property inputs"
+// in the language of msgs.
+func (msgs Messages) MapChangeReset() string {
+	return Catalog.Format(msgs.locale, "map_change_reset", nil)
+}
+
+// MapChangeKeepCell says "Keep cell (0)"
+// in the language the app shows.
+func MapChangeKeepCell() string { return In(i18n.Locale()).MapChangeKeepCell() }
+
+// MapChangeKeepCell says "Keep cell (0)"
+// in the language of msgs.
+func (msgs Messages) MapChangeKeepCell() string {
+	return Catalog.Format(msgs.locale, "map_change_keep_cell", nil)
+}
+
+// MapChangeShowBase says "Show base map"
+// in the language the app shows.
+func MapChangeShowBase() string { return In(i18n.Locale()).MapChangeShowBase() }
+
+// MapChangeShowBase says "Show base map"
+// in the language of msgs.
+func (msgs Messages) MapChangeShowBase() string {
+	return Catalog.Format(msgs.locale, "map_change_show_base", nil)
+}
+
+// MapChangePreview says "Change preview"
+// in the language the app shows.
+func MapChangePreview() string { return In(i18n.Locale()).MapChangePreview() }
+
+// MapChangePreview says "Change preview"
+// in the language of msgs.
+func (msgs Messages) MapChangePreview() string {
+	return Catalog.Format(msgs.locale, "map_change_preview", nil)
+}
+
+// MapChangeZero says "Tile 0 leaves the existing cell unchanged."
+// in the language the app shows.
+func MapChangeZero() string { return In(i18n.Locale()).MapChangeZero() }
+
+// MapChangeZero says "Tile 0 leaves the existing cell unchanged."
+// in the language of msgs.
+func (msgs Messages) MapChangeZero() string {
+	return Catalog.Format(msgs.locale, "map_change_zero", nil)
+}
+
+// MapChangePaintHelp says "Paint inside the selected rectangle. Zero leaves the cell unchanged. The preview overlays this change on the base map…"
+// in the language the app shows.
+func MapChangePaintHelp() string { return In(i18n.Locale()).MapChangePaintHelp() }
+
+// MapChangePaintHelp says "Paint inside the selected rectangle. Zero leaves the cell unchanged. The preview overlays this change on the base map…"
+// in the language of msgs.
+func (msgs Messages) MapChangePaintHelp() string {
+	return Catalog.Format(msgs.locale, "map_change_paint_help", nil)
+}
+
+// MapChangeGeometryHelp says "IDs range from 0 to 127 and are independent of list position. Bounds must fit shared chapter maps. Resizing keeps the…"
+// in the language the app shows.
+func MapChangeGeometryHelp() string { return In(i18n.Locale()).MapChangeGeometryHelp() }
+
+// MapChangeGeometryHelp says "IDs range from 0 to 127 and are independent of list position. Bounds must fit shared chapter maps. Resizing keeps the…"
+// in the language of msgs.
+func (msgs Messages) MapChangeGeometryHelp() string {
+	return Catalog.Format(msgs.locale, "map_change_geometry_help", nil)
+}
+
+// MapChangesDraft says "Unapplied map changes"
+// in the language the app shows.
+func MapChangesDraft() string { return In(i18n.Locale()).MapChangesDraft() }
+
+// MapChangesDraft says "Unapplied map changes"
+// in the language of msgs.
+func (msgs Messages) MapChangesDraft() string {
+	return Catalog.Format(msgs.locale, "map_changes_draft", nil)
+}
+
+// MapChangesReview says "Review map change edits"
+// in the language the app shows.
+func MapChangesReview() string { return In(i18n.Locale()).MapChangesReview() }
+
+// MapChangesReview says "Review map change edits"
+// in the language of msgs.
+func (msgs Messages) MapChangesReview() string {
+	return Catalog.Format(msgs.locale, "map_changes_review", nil)
+}
+
+// MapChangesApply says "Apply map changes"
+// in the language the app shows.
+func MapChangesApply() string { return In(i18n.Locale()).MapChangesApply() }
+
+// MapChangesApply says "Apply map changes"
+// in the language of msgs.
+func (msgs Messages) MapChangesApply() string {
+	return Catalog.Format(msgs.locale, "map_changes_apply", nil)
+}
+
+// MapChangesReload says "Discard changes draft and reload"
+// in the language the app shows.
+func MapChangesReload() string { return In(i18n.Locale()).MapChangesReload() }
+
+// MapChangesReload says "Discard changes draft and reload"
+// in the language of msgs.
+func (msgs Messages) MapChangesReload() string {
+	return Catalog.Format(msgs.locale, "map_changes_reload", nil)
+}
+
+// MapChangesEmpty says "No map changes. Add a change to begin."
+// in the language the app shows.
+func MapChangesEmpty() string { return In(i18n.Locale()).MapChangesEmpty() }
+
+// MapChangesEmpty says "No map changes. Add a change to begin."
+// in the language of msgs.
+func (msgs Messages) MapChangesEmpty() string {
+	return Catalog.Format(msgs.locale, "map_changes_empty", nil)
+}
+
+// MapChangesCount says "Changes: %d → %d"
+// in the language the app shows.
+func MapChangesCount() string { return In(i18n.Locale()).MapChangesCount() }
+
+// MapChangesCount says "Changes: %d → %d"
+// in the language of msgs.
+func (msgs Messages) MapChangesCount() string {
+	return Catalog.Format(msgs.locale, "map_changes_count", nil)
+}
+
+// MapChangesPayloads says "Appended tile payloads: %d"
+// in the language the app shows.
+func MapChangesPayloads() string { return In(i18n.Locale()).MapChangesPayloads() }
+
+// MapChangesPayloads says "Appended tile payloads: %d"
+// in the language of msgs.
+func (msgs Messages) MapChangesPayloads() string {
+	return Catalog.Format(msgs.locale, "map_changes_payloads", nil)
+}
+
+// MapChangesScope says "Chapters sharing this change entry update together. Independent entries and unchanged tile payloads are retained. Scr…"
+// in the language the app shows.
+func MapChangesScope() string { return In(i18n.Locale()).MapChangesScope() }
+
+// MapChangesScope says "Chapters sharing this change entry update together. Independent entries and unchanged tile payloads are retained. Scr…"
+// in the language of msgs.
+func (msgs Messages) MapChangesScope() string {
+	return Catalog.Format(msgs.locale, "map_changes_scope", nil)
+}
+
+// MapChangesReferences says "Confirmed script references"
+// in the language the app shows.
+func MapChangesReferences() string { return In(i18n.Locale()).MapChangesReferences() }
+
+// MapChangesReferences says "Confirmed script references"
+// in the language of msgs.
+func (msgs Messages) MapChangesReferences() string {
+	return Catalog.Format(msgs.locale, "map_changes_references", nil)
+}
+
+// MapChangesNoReferences says "No confirmed script references found in this inspection."
+// in the language the app shows.
+func MapChangesNoReferences() string { return In(i18n.Locale()).MapChangesNoReferences() }
+
+// MapChangesNoReferences says "No confirmed script references found in this inspection."
+// in the language of msgs.
+func (msgs Messages) MapChangesNoReferences() string {
+	return Catalog.Format(msgs.locale, "map_changes_no_references", nil)
+}
+
+// MapChangesReferencesScope says "Inspects scripts from chapters sharing this entry and their confirmed linear context. Calls, branches, unknown instru…"
+// in the language the app shows.
+func MapChangesReferencesScope() string { return In(i18n.Locale()).MapChangesReferencesScope() }
+
+// MapChangesReferencesScope says "Inspects scripts from chapters sharing this entry and their confirmed linear context. Calls, branches, unknown instru…"
+// in the language of msgs.
+func (msgs Messages) MapChangesReferencesScope() string {
+	return Catalog.Format(msgs.locale, "map_changes_references_scope", nil)
+}
+
+// MapChangeSelector says "Selector"
+// in the language the app shows.
+func MapChangeSelector() string { return In(i18n.Locale()).MapChangeSelector() }
+
+// MapChangeSelector says "Selector"
+// in the language of msgs.
+func (msgs Messages) MapChangeSelector() string {
+	return Catalog.Format(msgs.locale, "map_change_selector", nil)
+}
+
+// MapChangeTarget says "Target change"
+// in the language the app shows.
+func MapChangeTarget() string { return In(i18n.Locale()).MapChangeTarget() }
+
+// MapChangeTarget says "Target change"
+// in the language of msgs.
+func (msgs Messages) MapChangeTarget() string {
+	return Catalog.Format(msgs.locale, "map_change_target", nil)
+}
+
+// MapChangeRetargeted says "Record changed"
+// in the language the app shows.
+func MapChangeRetargeted() string { return In(i18n.Locale()).MapChangeRetargeted() }
+
+// MapChangeRetargeted says "Record changed"
+// in the language of msgs.
+func (msgs Messages) MapChangeRetargeted() string {
+	return Catalog.Format(msgs.locale, "map_change_retargeted", nil)
+}
+
+// MapChangeMissing says "Missing"
+// in the language the app shows.
+func MapChangeMissing() string { return In(i18n.Locale()).MapChangeMissing() }
+
+// MapChangeMissing says "Missing"
+// in the language of msgs.
+func (msgs Messages) MapChangeMissing() string {
+	return Catalog.Format(msgs.locale, "map_change_missing", nil)
+}
+
+// MapChangeOpenScript says "Open referencing script"
+// in the language the app shows.
+func MapChangeOpenScript() string { return In(i18n.Locale()).MapChangeOpenScript() }
+
+// MapChangeOpenScript says "Open referencing script"
+// in the language of msgs.
+func (msgs Messages) MapChangeOpenScript() string {
+	return Catalog.Format(msgs.locale, "map_change_open_script", nil)
+}
+
+// MapChangeChoose says "Choose map change"
+// in the language the app shows.
+func MapChangeChoose() string { return In(i18n.Locale()).MapChangeChoose() }
+
+// MapChangeChoose says "Choose map change"
+// in the language of msgs.
+func (msgs Messages) MapChangeChoose() string {
+	return Catalog.Format(msgs.locale, "map_change_choose", nil)
+}
+
+// GameInvalidMapChanges says "The map change table, tile payload or target could not be confirmed. Check bounds, pointers and change IDs."
+// in the language the app shows.
+func GameInvalidMapChanges() string { return In(i18n.Locale()).GameInvalidMapChanges() }
+
+// GameInvalidMapChanges says "The map change table, tile payload or target could not be confirmed. Check bounds, pointers and change IDs."
+// in the language of msgs.
+func (msgs Messages) GameInvalidMapChanges() string {
+	return Catalog.Format(msgs.locale, "game_invalid_map_changes", nil)
+}
+
+// GameMapChangeReference says "This edit removes a confirmed script target. Correct its reference before applying the table edit."
+// in the language the app shows.
+func GameMapChangeReference() string { return In(i18n.Locale()).GameMapChangeReference() }
+
+// GameMapChangeReference says "This edit removes a confirmed script target. Correct its reference before applying the table edit."
+// in the language of msgs.
+func (msgs Messages) GameMapChangeReference() string {
+	return Catalog.Format(msgs.locale, "game_map_change_reference", nil)
+}
+
+// GameMapChangeContext says "The map context or change target cannot be confirmed statically."
+// in the language the app shows.
+func GameMapChangeContext() string { return In(i18n.Locale()).GameMapChangeContext() }
+
+// GameMapChangeContext says "The map context or change target cannot be confirmed statically."
+// in the language of msgs.
+func (msgs Messages) GameMapChangeContext() string {
+	return Catalog.Format(msgs.locale, "game_map_change_context", nil)
+}
+
+// GameMapChangeLimit says "Reference inspection reached its limit; additional uses may be unlisted."
+// in the language the app shows.
+func GameMapChangeLimit() string { return In(i18n.Locale()).GameMapChangeLimit() }
+
+// GameMapChangeLimit says "Reference inspection reached its limit; additional uses may be unlisted."
+// in the language of msgs.
+func (msgs Messages) GameMapChangeLimit() string {
+	return Catalog.Format(msgs.locale, "game_map_change_limit", nil)
+}
+
+// ScriptMapChange says "Apply map change"
+// in the language the app shows.
+func ScriptMapChange() string { return In(i18n.Locale()).ScriptMapChange() }
+
+// ScriptMapChange says "Apply map change"
+// in the language of msgs.
+func (msgs Messages) ScriptMapChange() string {
+	return Catalog.Format(msgs.locale, "script_map_change", nil)
+}
+
+// ScriptMapRevert says "Revert map change area"
+// in the language the app shows.
+func ScriptMapRevert() string { return In(i18n.Locale()).ScriptMapRevert() }
+
+// ScriptMapRevert says "Revert map change area"
+// in the language of msgs.
+func (msgs Messages) ScriptMapRevert() string {
+	return Catalog.Format(msgs.locale, "script_map_revert", nil)
+}
+
+// ScriptMapChangePosition says "Apply map change at coordinates"
+// in the language the app shows.
+func ScriptMapChangePosition() string { return In(i18n.Locale()).ScriptMapChangePosition() }
+
+// ScriptMapChangePosition says "Apply map change at coordinates"
+// in the language of msgs.
+func (msgs Messages) ScriptMapChangePosition() string {
+	return Catalog.Format(msgs.locale, "script_map_change_position", nil)
+}
+
+// ScriptMapChangeInstant says "Apply map change immediately"
+// in the language the app shows.
+func ScriptMapChangeInstant() string { return In(i18n.Locale()).ScriptMapChangeInstant() }
+
+// ScriptMapChangeInstant says "Apply map change immediately"
+// in the language of msgs.
+func (msgs Messages) ScriptMapChangeInstant() string {
+	return Catalog.Format(msgs.locale, "script_map_change_instant", nil)
+}
+
+// ScriptMapChangeQuiet says "Change base tiles without redrawing"
+// in the language the app shows.
+func ScriptMapChangeQuiet() string { return In(i18n.Locale()).ScriptMapChangeQuiet() }
+
+// ScriptMapChangeQuiet says "Change base tiles without redrawing"
+// in the language of msgs.
+func (msgs Messages) ScriptMapChangeQuiet() string {
+	return Catalog.Format(msgs.locale, "script_map_change_quiet", nil)
+}
+
+// ScriptMapChangeWater says "Apply change and update water shadows"
+// in the language the app shows.
+func ScriptMapChangeWater() string { return In(i18n.Locale()).ScriptMapChangeWater() }
+
+// ScriptMapChangeWater says "Apply change and update water shadows"
+// in the language of msgs.
+func (msgs Messages) ScriptMapChangeWater() string {
+	return Catalog.Format(msgs.locale, "script_map_change_water", nil)
+}
+
+// ScriptMapChangeParameter says "Apply change from event parameter"
+// in the language the app shows.
+func ScriptMapChangeParameter() string { return In(i18n.Locale()).ScriptMapChangeParameter() }
+
+// ScriptMapChangeParameter says "Apply change from event parameter"
+// in the language of msgs.
+func (msgs Messages) ScriptMapChangeParameter() string {
+	return Catalog.Format(msgs.locale, "script_map_change_parameter", nil)
+}
+
+// ScriptMapInstantParameter says "Immediately apply event-parameter change"
+// in the language the app shows.
+func ScriptMapInstantParameter() string { return In(i18n.Locale()).ScriptMapInstantParameter() }
+
+// ScriptMapInstantParameter says "Immediately apply event-parameter change"
+// in the language of msgs.
+func (msgs Messages) ScriptMapInstantParameter() string {
+	return Catalog.Format(msgs.locale, "script_map_instant_parameter", nil)
+}
+
+// ScriptMapQuietParameter says "Apply event-parameter change without redrawing"
+// in the language the app shows.
+func ScriptMapQuietParameter() string { return In(i18n.Locale()).ScriptMapQuietParameter() }
+
+// ScriptMapQuietParameter says "Apply event-parameter change without redrawing"
+// in the language of msgs.
+func (msgs Messages) ScriptMapQuietParameter() string {
+	return Catalog.Format(msgs.locale, "script_map_quiet_parameter", nil)
+}
+
+// ScriptMapWaterParameter says "Apply event-parameter change with water shadows"
+// in the language the app shows.
+func ScriptMapWaterParameter() string { return In(i18n.Locale()).ScriptMapWaterParameter() }
+
+// ScriptMapWaterParameter says "Apply event-parameter change with water shadows"
+// in the language of msgs.
+func (msgs Messages) ScriptMapWaterParameter() string {
+	return Catalog.Format(msgs.locale, "script_map_water_parameter", nil)
+}
+
+// ScriptMapRefresh says "Refresh terrain and redraw map"
+// in the language the app shows.
+func ScriptMapRefresh() string { return In(i18n.Locale()).ScriptMapRefresh() }
+
+// ScriptMapRefresh says "Refresh terrain and redraw map"
+// in the language of msgs.
+func (msgs Messages) ScriptMapRefresh() string {
+	return Catalog.Format(msgs.locale, "script_map_refresh", nil)
+}
+
+// ScriptMapChangeId says "Map change ID"
+// in the language the app shows.
+func ScriptMapChangeId() string { return In(i18n.Locale()).ScriptMapChangeId() }
+
+// ScriptMapChangeId says "Map change ID"
+// in the language of msgs.
+func (msgs Messages) ScriptMapChangeId() string {
+	return Catalog.Format(msgs.locale, "script_map_change_id", nil)
+}
+
+// ScriptMapRemovePrevious says "Disable preceding change ID"
+// in the language the app shows.
+func ScriptMapRemovePrevious() string { return In(i18n.Locale()).ScriptMapRemovePrevious() }
+
+// ScriptMapRemovePrevious says "Disable preceding change ID"
+// in the language of msgs.
+func (msgs Messages) ScriptMapRemovePrevious() string {
+	return Catalog.Format(msgs.locale, "script_map_remove_previous", nil)
+}
+
+// ScriptMapWaterShadows says "Refresh water shadows"
+// in the language the app shows.
+func ScriptMapWaterShadows() string { return In(i18n.Locale()).ScriptMapWaterShadows() }
+
+// ScriptMapWaterShadows says "Refresh water shadows"
+// in the language of msgs.
+func (msgs Messages) ScriptMapWaterShadows() string {
+	return Catalog.Format(msgs.locale, "script_map_water_shadows", nil)
+}
+
+// ScriptFe8MapChangeHelp says "IDs 0–127 select a change; -1 looks up X/Y in slot B, -2 uses the active unit position, and -3 uses queued IDs. Pre…"
+// in the language the app shows.
+func ScriptFe8MapChangeHelp() string { return In(i18n.Locale()).ScriptFe8MapChangeHelp() }
+
+// ScriptFe8MapChangeHelp says "IDs 0–127 select a change; -1 looks up X/Y in slot B, -2 uses the active unit position, and -3 uses queued IDs. Pre…"
+// in the language of msgs.
+func (msgs Messages) ScriptFe8MapChangeHelp() string {
+	return Catalog.Format(msgs.locale, "script_fe8_map_change_help", nil)
+}
+
+// ScriptFe8MapRevertHelp says "Only an enabled change is reverted: its entire rectangle is restored from the base map and the change is disabled. Th…"
+// in the language the app shows.
+func ScriptFe8MapRevertHelp() string { return In(i18n.Locale()).ScriptFe8MapRevertHelp() }
+
+// ScriptFe8MapRevertHelp says "Only an enabled change is reverted: its entire rectangle is restored from the base map and the change is disabled. Th…"
+// in the language of msgs.
+func (msgs Messages) ScriptFe8MapRevertHelp() string {
+	return Catalog.Format(msgs.locale, "script_fe8_map_revert_help", nil)
+}
+
+// ScriptFe6MapChangeHelp says "IDs 0–127 select a change; -1 uses the event’s change parameter. Applies tiles, records the enabled state and ref…"
+// in the language the app shows.
+func ScriptFe6MapChangeHelp() string { return In(i18n.Locale()).ScriptFe6MapChangeHelp() }
+
+// ScriptFe6MapChangeHelp says "IDs 0–127 select a change; -1 uses the event’s change parameter. Applies tiles, records the enabled state and ref…"
+// in the language of msgs.
+func (msgs Messages) ScriptFe6MapChangeHelp() string {
+	return Catalog.Format(msgs.locale, "script_fe6_map_change_help", nil)
+}
+
+// ScriptWordMapPositionHelp says "Uses the ID of the last change rectangle covering these coordinates, falling back to the event’s change parameter i…"
+// in the language the app shows.
+func ScriptWordMapPositionHelp() string { return In(i18n.Locale()).ScriptWordMapPositionHelp() }
+
+// ScriptWordMapPositionHelp says "Uses the ID of the last change rectangle covering these coordinates, falling back to the event’s change parameter i…"
+// in the language of msgs.
+func (msgs Messages) ScriptWordMapPositionHelp() string {
+	return Catalog.Format(msgs.locale, "script_word_map_position_help", nil)
+}
+
+// ScriptFe7MapChangeHelp says "Applies and enables this change. The high-bit flag disables ID−1; it does not restore the base map. Fades when the …"
+// in the language the app shows.
+func ScriptFe7MapChangeHelp() string { return In(i18n.Locale()).ScriptFe7MapChangeHelp() }
+
+// ScriptFe7MapChangeHelp says "Applies and enables this change. The high-bit flag disables ID−1; it does not restore the base map. Fades when the …"
+// in the language of msgs.
+func (msgs Messages) ScriptFe7MapChangeHelp() string {
+	return Catalog.Format(msgs.locale, "script_fe7_map_change_help", nil)
+}
+
+// ScriptFe7MapInstantHelp says "Immediately applies and enables the change, refreshing terrain and the map. This command has no high-bit flag for dis…"
+// in the language the app shows.
+func ScriptFe7MapInstantHelp() string { return In(i18n.Locale()).ScriptFe7MapInstantHelp() }
+
+// ScriptFe7MapInstantHelp says "Immediately applies and enables the change, refreshing terrain and the map. This command has no high-bit flag for dis…"
+// in the language of msgs.
+func (msgs Messages) ScriptFe7MapInstantHelp() string {
+	return Catalog.Format(msgs.locale, "script_fe7_map_instant_help", nil)
+}
+
+// ScriptFe7MapQuietHelp says "Changes base tiles without refreshing terrain or redrawing. A clear high bit enables this ID; a set high bit only dis…"
+// in the language the app shows.
+func ScriptFe7MapQuietHelp() string { return In(i18n.Locale()).ScriptFe7MapQuietHelp() }
+
+// ScriptFe7MapQuietHelp says "Changes base tiles without refreshing terrain or redrawing. A clear high bit enables this ID; a set high bit only dis…"
+// in the language of msgs.
+func (msgs Messages) ScriptFe7MapQuietHelp() string {
+	return Catalog.Format(msgs.locale, "script_fe7_map_quiet_help", nil)
+}
+
+// ScriptFe7MapWaterHelp says "Applies the change, refreshes water shadows and enables this ID; the high bit disables ID−1. Plays a fade and the c…"
+// in the language the app shows.
+func ScriptFe7MapWaterHelp() string { return In(i18n.Locale()).ScriptFe7MapWaterHelp() }
+
+// ScriptFe7MapWaterHelp says "Applies the change, refreshes water shadows and enables this ID; the high bit disables ID−1. Plays a fade and the c…"
+// in the language of msgs.
+func (msgs Messages) ScriptFe7MapWaterHelp() string {
+	return Catalog.Format(msgs.locale, "script_fe7_map_water_help", nil)
+}
+
+// ScriptMapParameterHelp says "Uses the change ID passed to the event. Its value depends on the caller and cannot be rewritten as a fixed resource r…"
+// in the language the app shows.
+func ScriptMapParameterHelp() string { return In(i18n.Locale()).ScriptMapParameterHelp() }
+
+// ScriptMapParameterHelp says "Uses the change ID passed to the event. Its value depends on the caller and cannot be rewritten as a fixed resource r…"
+// in the language of msgs.
+func (msgs Messages) ScriptMapParameterHelp() string {
+	return Catalog.Format(msgs.locale, "script_map_parameter_help", nil)
+}
+
+// ScriptMapRefreshHelp says "Refreshes terrain and roof visibility, then redraws; optionally refreshes water shadows."
+// in the language the app shows.
+func ScriptMapRefreshHelp() string { return In(i18n.Locale()).ScriptMapRefreshHelp() }
+
+// ScriptMapRefreshHelp says "Refreshes terrain and roof visibility, then redraws; optionally refreshes water shadows."
+// in the language of msgs.
+func (msgs Messages) ScriptMapRefreshHelp() string {
+	return Catalog.Format(msgs.locale, "script_map_refresh_help", nil)
+}
+
 // MapResizeOptions says "Resize map"
 // in the language the app shows.
 func MapResizeOptions() string { return In(i18n.Locale()).MapResizeOptions() }

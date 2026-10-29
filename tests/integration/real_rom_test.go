@@ -50,6 +50,7 @@ func TestROMWorkflows(t *testing.T) {
 				{"png", replacePNG},
 				{"maps", editMap},
 				{"map-resize", resizeMap},
+				{"map-changes", editMapChanges},
 				{"deployments", editDeployment},
 				{
 					"turns",
@@ -71,6 +72,7 @@ func TestROMWorkflows(t *testing.T) {
 				{"script-presentation", editScriptPresentation},
 				{"script-routes", editScriptRoutes},
 				{"script-movement", editScriptMovement},
+				{"script-map-changes", linkMapChange},
 				{"script-unit-conditions", editScriptUnitConditions},
 			}
 			// Identify the input once, so an unsupported header has one explicit skip.

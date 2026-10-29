@@ -25,12 +25,13 @@ type Region struct {
 }
 
 type Overlay struct {
-	Regions []Region
-	Markers []Marker
-	Choose  func(image.Point)
-	Focus   *image.Point
-	Path    *Path
-	Drawing *Drawing
+	Title, Help string
+	Regions     []Region
+	Markers     []Marker
+	Choose      func(image.Point)
+	Focus       *image.Point
+	Path        *Path
+	Drawing     *Drawing
 }
 
 type View struct {
@@ -126,11 +127,18 @@ func (v *View) render(c *ui.Context, overlay Overlay) {
 	if overlay.Focus != nil {
 		v.focus(*overlay.Focus)
 	}
+	title, help := overlay.Title, overlay.Help
+	if title == "" {
+		title = locales.MapPreview()
+	}
+	if help == "" {
+		help = locales.MapPreviewScope()
+	}
 	ui.Column(c.Key("chapter-map")).Gap(8).Children(func() {
 		ui.Row(c).Wrap().Gap(12).AlignItems(ui.Center).Children(func() {
-			ui.Text(c, locales.MapPreview()).
+			ui.Text(c, title).
 				Bold().
-				Tooltip(locales.MapPreviewScope())
+				Tooltip(help)
 			if v.err == nil {
 				ui.Textf(c, "%d × %d", v.resource.Width, v.resource.Height).
 					FontFeatures("tnum").

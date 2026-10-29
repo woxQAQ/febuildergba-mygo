@@ -113,6 +113,7 @@ func (page *Page) operands(
 		page.referenceChoice(c, draft, row, field, len(references) > 1)
 	}
 	page.operandLinks(c, draft, row, fields)
+	page.mapChanges(c, draft, row)
 	if page.showRaw || !row.Editable {
 		ui.Textf(c, "% X", row.Raw).Font("monospace").Selectable()
 	}
