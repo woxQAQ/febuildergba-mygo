@@ -73,7 +73,7 @@ func (s *deploymentScanner) entries(base int) {
 		at := base + s.format.opening
 		if within(s.data, at, 4) && u32(s.data, at) != 0 {
 			if start, valid := pointer(s.data, at); valid {
-				s.walk(start, [16]int{}, 0, s.chapter, "deploy_opening")
+				s.walk(start, eventSlotState{}, 0, s.chapter, "deploy_opening")
 			} else {
 				s.warn(at)
 			}
@@ -106,23 +106,23 @@ func (s *deploymentScanner) conditions(base int, table EventTable) {
 		if table == TurnEvents && event.Start <= 1 && event.Phase == 0 {
 			source = "deploy_turn_one"
 		}
-		s.walk(event.Script, [16]int{}, 0, s.chapter, source)
+		s.walk(event.Script, eventSlotState{}, 0, s.chapter, source)
 	}
 }
 
 type deploymentInstruction struct {
-	length                        int
-	end                           bool
-	call                          int
-	loads                         []int
-	label, branch, mapID, slot    int
-	forgetSlots, chapterEnd, jump bool
+	length               int
+	end                  bool
+	call                 int
+	loads                []int
+	label, branch, mapID int
+	chapterEnd, jump     bool
 }
 
 func (s *deploymentScanner) instruction(
 	at int,
 ) (command deploymentInstruction, ok bool) {
-	command.call, command.label, command.branch, command.mapID, command.slot = -1, -1, -1, -1, -1
+	command.call, command.label, command.branch, command.mapID = -1, -1, -1, -1
 	if !within(s.data, at, 4) {
 		return command, false
 	}
@@ -152,11 +152,6 @@ func (s *deploymentScanner) fe8Instruction(
 		command.label = int(u16(s.data, at+2))
 	case (op == 0x09 && command.length == 4) || (op == 0x0C && command.length == 8):
 		command.branch = int(u16(s.data, at+2))
-		command.forgetSlots = true
-	case op == 0x05 && header == 0x40 && command.length == 8:
-		command.slot = int(u16(s.data, at+2))
-	case op == 0x06 || op == 0x07 || op == 0x0D:
-		command.forgetSlots = true
 	case op == 0x0A && header == 0x40 && command.length == 8:
 		command.call = at + 4
 	case op == 0x2C && command.length == 8 && header >= 0x40 && header <= 0x42:
@@ -198,13 +193,13 @@ func (s *deploymentScanner) fe6Instruction(
 	op := s.data[at]
 	if s.format.kind == eventFE6 {
 		switch op {
-		case 0x06:
+		case 0x00, 0x01:
 			command.end = true
 		case 0x12, 0x13:
 			command.loads = []int{at + 4}
 		case 0x1B:
 			command.label = int(u32(s.data, at+4))
-		case 0x1C, 0x1F, 0x20, 0x22, 0x23, 0x24:
+		case 0x1C, 0x1D, 0x1E, 0x1F, 0x20, 0x21, 0x22, 0x23, 0x24:
 			command.branch = int(u32(s.data, at+4))
 		case 0x3F:
 			command.mapID = int(u32(s.data, at+4))
@@ -229,18 +224,14 @@ func (s *deploymentScanner) fe7Instruction(
 		shift, call = 2, 0xCB
 	}
 	switch op {
-	case 0x0A:
+	case 0x00, 0x01:
 		command.end = true
 	case call:
 		command.call = at + 4
 	case 0x30 + shift, 0x31 + shift, 0x34 + shift:
 		command.loads = []int{at + 4}
 	case 0x32 + shift:
-		offset := 4
-		if u32(s.data, at+4) <= 3 && within(s.data, at, 12) {
-			offset, command.length = 8, 12
-		}
-		command.loads = []int{at + offset}
+		command.loads = []int{at + 8}
 	case 0x35 + shift:
 		command.loads = []int{at + 8}
 	case 0x33 + shift, 0x36 + shift:
@@ -248,17 +239,22 @@ func (s *deploymentScanner) fe7Instruction(
 	case 0x42 + shift:
 		command.label = int(u32(s.data, at+4))
 	case 0x43 + shift,
+		0x44 + shift,
 		0x45 + shift,
 		0x46 + shift,
 		0x47 + shift,
+		0x48 + shift,
+		0x49 + shift,
 		0x4A + shift,
 		0x4B + shift,
+		0x4C + shift,
 		0x4D + shift,
 		0x4E + shift,
 		0x4F + shift,
 		0x50 + shift,
 		0x51 + shift,
 		0x52 + shift,
+		0x53 + shift,
 		0x54 + shift,
 		0x55 + shift:
 		command.branch = int(u32(s.data, at+4))
@@ -270,7 +266,7 @@ func (s *deploymentScanner) fe7Instruction(
 
 func (s *deploymentScanner) walk(
 	at int,
-	slots [16]int,
+	slots eventSlotState,
 	depth, mapID int,
 	source string,
 ) int {
@@ -305,7 +301,8 @@ func (s *deploymentScanner) walk(
 			pending[command.branch] = true
 		}
 		if command.end || command.chapterEnd {
-			if len(pending) == 0 {
+			if len(pending) == 0 ||
+				s.format.labelSearchEnd(s.data[at:at+command.length]) {
 				return mapID
 			}
 			collect = false
@@ -328,7 +325,7 @@ func (s *deploymentScanner) walk(
 func (s *deploymentScanner) follow(
 	at int,
 	command deploymentInstruction,
-	slots *[16]int,
+	slots *eventSlotState,
 	depth, mapID int,
 	source string,
 ) int {
@@ -336,18 +333,12 @@ func (s *deploymentScanner) follow(
 	if command.mapID >= 0 {
 		mapID = command.mapID
 	}
-	if command.slot >= 0 && command.slot < len(slots) {
-		slots[command.slot] = at + 4
-	}
-	if command.forgetSlots {
-		*slots = [16]int{}
-	}
 	for _, site := range command.loads {
 		if mapID != s.chapter {
 			continue
 		}
-		if u32(s.data, site) == 0xFFFFFFFF && s.format.kind == eventFE8 {
-			site = slots[2]
+		if u32(s.data, site)&0x80000000 != 0 && s.format.kind == eventFE8 {
+			site = slots.slots[2]
 		}
 		if site > 0 && within(s.data, site, 4) && u32(s.data, site) != 0 {
 			s.add(site, source)
@@ -355,22 +346,26 @@ func (s *deploymentScanner) follow(
 			s.warn(at)
 		}
 	}
-	if command.call >= 0 {
-		if target, valid := pointer(s.data, command.call); valid {
-			if !s.loadHelper(target, *slots, mapID, source) {
-				mapID = s.walk(target, *slots, depth+1, mapID, source)
-			}
-		} else {
-			s.warn(at)
+	if command.call < 0 {
+		if s.format.kind == eventFE8 {
+			slots.observe(s.data[at:at+command.length], at+4)
 		}
-		*slots = [16]int{}
+		return mapID
 	}
+	if target, valid := pointer(s.data, command.call); valid {
+		if !s.loadHelper(target, *slots, mapID, source) {
+			mapID = s.walk(target, *slots, depth+1, mapID, source)
+		}
+	} else {
+		s.warn(at)
+	}
+	*slots = eventSlotState{}
 	return mapID
 }
 
 func (s *deploymentScanner) loadHelper(
 	target int,
-	slots [16]int,
+	slots eventSlotState,
 	mapID int,
 	source string,
 ) bool {
@@ -383,7 +378,7 @@ func (s *deploymentScanner) loadHelper(
 	// 1 means to reuse an existing group and is not a pointer site to rewrite.
 	if mapID == s.chapter {
 		for _, slot := range []int{2, 3} {
-			if site := slots[slot]; site != 0 {
+			if site := slots.slots[slot]; site != 0 {
 				if _, valid := pointer(s.data, site); valid {
 					s.add(site, source)
 				}

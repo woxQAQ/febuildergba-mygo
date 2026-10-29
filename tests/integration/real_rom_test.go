@@ -62,6 +62,14 @@ func TestROMWorkflows(t *testing.T) {
 					func(t *testing.T, s *game.Session) { editEvents(t, s, game.TalkEvents) },
 				},
 				{"scripts", editScript},
+				{"script-scenes", editScriptScene},
+				{"script-focus", editScriptFocus},
+				{"script-loads", editScriptLoads},
+				{"script-control", editScriptControl},
+				{"script-presentation", editScriptPresentation},
+				{"script-routes", editScriptRoutes},
+				{"script-movement", editScriptMovement},
+				{"script-unit-conditions", editScriptUnitConditions},
 			}
 			// Identify the input once, so an unsupported header has one explicit skip.
 			probe := openCopy(t, source)

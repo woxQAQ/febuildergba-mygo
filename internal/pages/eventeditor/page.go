@@ -35,6 +35,7 @@ type (
 		preview    *game.ScriptEdit
 		command    string
 		references map[operandKey]*referenceDraft
+		movements  map[operandKey]*movementDraft
 	}
 )
 
@@ -52,6 +53,11 @@ func (draft *draftState) structuralChanged(selected int) {
 			delete(draft.inputs, key)
 		}
 	}
+	for key := range draft.movements {
+		if !live[key.instruction] {
+			delete(draft.movements, key)
+		}
+	}
 	for key := range draft.references {
 		if !live[key.instruction] {
 			delete(draft.references, key)
@@ -60,6 +66,11 @@ func (draft *draftState) structuralChanged(selected int) {
 }
 
 func (draft *draftState) invalid() bool {
+	for _, movement := range draft.movements {
+		if movement.invalid {
+			return true
+		}
+	}
 	for _, input := range draft.inputs {
 		if input.invalid {
 			return true

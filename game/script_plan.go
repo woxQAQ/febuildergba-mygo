@@ -25,16 +25,18 @@ type ScriptEdit struct {
 	relocated                   bool
 	before, after               int
 	uses                        []ScriptUse
+	movements                   int
 	edit                        rom.Edit
 }
 
-func (edit *ScriptEdit) Source() int       { return edit.source }
-func (edit *ScriptEdit) Destination() int  { return edit.destination }
-func (edit *ScriptEdit) Length() int       { return edit.length }
-func (edit *ScriptEdit) Relocated() bool   { return edit.relocated }
-func (edit *ScriptEdit) Before() int       { return edit.before }
-func (edit *ScriptEdit) After() int        { return edit.after }
-func (edit *ScriptEdit) Uses() []ScriptUse { return slices.Clone(edit.uses) }
+func (edit *ScriptEdit) MovementCount() int { return edit.movements }
+func (edit *ScriptEdit) Source() int        { return edit.source }
+func (edit *ScriptEdit) Destination() int   { return edit.destination }
+func (edit *ScriptEdit) Length() int        { return edit.length }
+func (edit *ScriptEdit) Relocated() bool    { return edit.relocated }
+func (edit *ScriptEdit) Before() int        { return edit.before }
+func (edit *ScriptEdit) After() int         { return edit.after }
+func (edit *ScriptEdit) Uses() []ScriptUse  { return slices.Clone(edit.uses) }
 
 func (s *Session) PlanScriptEdit(
 	draft *ScriptDraft,
@@ -58,6 +60,10 @@ func (s *Session) PlanScriptEdit(
 	if current.Entry.Address != entry.Address {
 		return nil, rom.ErrStale
 	}
+	draft, resources, err := draft.prepareMovements(len(s.image.Data))
+	if err != nil {
+		return nil, err
+	}
 	structural := draft.structural()
 	if structural && !draft.Relocatable() {
 		return nil, ErrScriptStructure
@@ -69,16 +75,23 @@ func (s *Session) PlanScriptEdit(
 	}
 	destination := entry.Address
 	if structural {
-		destination = (len(s.image.Data) + 3) &^ 3
+		destination = (resources.Size + 3) &^ 3
 	}
 	content, positions, err := draft.scriptContent(destination, structural)
 	if err != nil {
 		return nil, err
 	}
-	edit, err := s.scriptWritePlan(draft, destination, content, structural)
+	edit, err := s.scriptWritePlan(
+		draft,
+		destination,
+		content,
+		structural,
+		resources.Size,
+	)
 	if err != nil {
 		return nil, err
 	}
+	edit.Changes = append(resources.Changes, edit.Changes...)
 	prospective := bytes.Repeat([]byte{0xFF}, edit.Size)
 	copy(prospective, s.image.Data)
 	for _, change := range edit.Changes {
@@ -99,6 +112,7 @@ func (s *Session) PlanScriptEdit(
 		source:      entry.Address,
 		destination: destination,
 		length:      len(content),
+		movements:   len(resources.Changes),
 		relocated:   structural,
 		before:      len(draft.original.rows),
 		after:       len(draft.rows),
@@ -130,13 +144,14 @@ func (s *Session) scriptWritePlan(
 	destination int,
 	content []byte,
 	structural bool,
+	baseSize int,
 ) (rom.Edit, error) {
 	entry := draft.Entry()
 	if structural {
 		if err := s.resourcePointer(entry.Pointer); err != nil {
 			return rom.Edit{}, err
 		}
-		plan, err := space.PlanAppend(len(s.image.Data), content)
+		plan, err := space.PlanAppend(baseSize, content)
 		if err != nil {
 			return rom.Edit{}, err
 		}
@@ -158,7 +173,7 @@ func (s *Session) scriptWritePlan(
 	); err != nil {
 		return rom.Edit{}, err
 	}
-	edit := rom.Edit{Size: len(s.image.Data)}
+	edit := rom.Edit{Size: baseSize}
 	for index, row := range draft.rows {
 		if !bytes.Equal(
 			row.instruction.Raw,
@@ -189,6 +204,7 @@ func (s *Session) validateScriptEdit(
 	if !decoded.Complete || len(decoded.rows) != len(draft.rows) {
 		return ErrScript
 	}
+	structural := draft.structural()
 	originals := make(map[uint64]scriptRow)
 	for _, row := range draft.original.rows {
 		originals[row.instruction.ID] = row
@@ -199,7 +215,7 @@ func (s *Session) validateScriptEdit(
 		}
 		for _, field := range row.definition.fields {
 			old, found := originals[row.instruction.ID]
-			if found &&
+			if found && (!structural || field.Target != ScriptMovementTarget) &&
 				field.value(
 					old.instruction.Raw,
 				) == field.value(
@@ -217,7 +233,7 @@ func (s *Session) validateScriptEdit(
 			}
 		}
 	}
-	return nil
+	return s.validateSlotUnitLoads(draft, data, positions)
 }
 
 func (s *Session) validateScriptOperand(
@@ -227,16 +243,25 @@ func (s *Session) validateScriptOperand(
 	format deploymentFormat,
 ) error {
 	value := field.value(data[address:])
-	switch field.ID {
-	case ScriptTextID:
-		if format.kind == eventFE8 && value >= 0x8000 {
+	if value == 0 && field.Optional {
+		return nil
+	}
+	switch field.Target {
+	case ScriptMovementTarget:
+		if value < 0x080000C0 || value >= 0x0A000000 {
+			return ErrScriptStructure
+		}
+		_, err := readScriptMovement(data, int(value)-0x08000000)
+		return err
+	case ScriptTextTarget:
+		if format.kind == eventFE8 && (value < 0 || value >= 0x8000) {
 			return nil
 		}
 		_, err := s.DialogueText(
 			uint16(value),
 		) // #nosec G115 -- Text operands are at most 16 bits.
 		return err
-	case ScriptPointer:
+	case ScriptEventTarget:
 		if format.kind == eventFE8 && value == 0xFFFFFFFF {
 			return nil
 		}
@@ -247,8 +272,8 @@ func (s *Session) validateScriptOperand(
 		if !format.readScript(data, ScriptEntry{Address: target}).Complete {
 			return ErrScript
 		}
-	case ScriptUnitPointer:
-		if format.kind == eventFE8 && value == 0xFFFFFFFF {
+	case ScriptDeploymentTarget:
+		if format.kind == eventFE8 && value >= 0x80000000 {
 			return nil
 		}
 		if value == 0 {

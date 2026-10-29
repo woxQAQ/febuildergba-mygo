@@ -616,6 +616,1258 @@ func (msgs Messages) ScriptEnd() string {
 	return Catalog.Format(msgs.locale, "script_end", nil)
 }
 
+// ScriptSlotAdd says "Add slots (SADD)"
+// in the language the app shows.
+func ScriptSlotAdd() string { return In(i18n.Locale()).ScriptSlotAdd() }
+
+// ScriptSlotAdd says "Add slots (SADD)"
+// in the language of msgs.
+func (msgs Messages) ScriptSlotAdd() string {
+	return Catalog.Format(msgs.locale, "script_slot_add", nil)
+}
+
+// ScriptSlotSubtract says "Subtract slots (SSUB)"
+// in the language the app shows.
+func ScriptSlotSubtract() string { return In(i18n.Locale()).ScriptSlotSubtract() }
+
+// ScriptSlotSubtract says "Subtract slots (SSUB)"
+// in the language of msgs.
+func (msgs Messages) ScriptSlotSubtract() string {
+	return Catalog.Format(msgs.locale, "script_slot_subtract", nil)
+}
+
+// ScriptSlotMultiply says "Multiply slots (SMUL)"
+// in the language the app shows.
+func ScriptSlotMultiply() string { return In(i18n.Locale()).ScriptSlotMultiply() }
+
+// ScriptSlotMultiply says "Multiply slots (SMUL)"
+// in the language of msgs.
+func (msgs Messages) ScriptSlotMultiply() string {
+	return Catalog.Format(msgs.locale, "script_slot_multiply", nil)
+}
+
+// ScriptSlotDivide says "Divide slots (SDIV)"
+// in the language the app shows.
+func ScriptSlotDivide() string { return In(i18n.Locale()).ScriptSlotDivide() }
+
+// ScriptSlotDivide says "Divide slots (SDIV)"
+// in the language of msgs.
+func (msgs Messages) ScriptSlotDivide() string {
+	return Catalog.Format(msgs.locale, "script_slot_divide", nil)
+}
+
+// ScriptSlotRemainder says "Slot remainder (SMOD)"
+// in the language the app shows.
+func ScriptSlotRemainder() string { return In(i18n.Locale()).ScriptSlotRemainder() }
+
+// ScriptSlotRemainder says "Slot remainder (SMOD)"
+// in the language of msgs.
+func (msgs Messages) ScriptSlotRemainder() string {
+	return Catalog.Format(msgs.locale, "script_slot_remainder", nil)
+}
+
+// ScriptSlotAnd says "Slot bitwise AND (SAND)"
+// in the language the app shows.
+func ScriptSlotAnd() string { return In(i18n.Locale()).ScriptSlotAnd() }
+
+// ScriptSlotAnd says "Slot bitwise AND (SAND)"
+// in the language of msgs.
+func (msgs Messages) ScriptSlotAnd() string {
+	return Catalog.Format(msgs.locale, "script_slot_and", nil)
+}
+
+// ScriptSlotOr says "Slot bitwise OR (SORR)"
+// in the language the app shows.
+func ScriptSlotOr() string { return In(i18n.Locale()).ScriptSlotOr() }
+
+// ScriptSlotOr says "Slot bitwise OR (SORR)"
+// in the language of msgs.
+func (msgs Messages) ScriptSlotOr() string {
+	return Catalog.Format(msgs.locale, "script_slot_or", nil)
+}
+
+// ScriptSlotXor says "Slot bitwise XOR (SXOR)"
+// in the language the app shows.
+func ScriptSlotXor() string { return In(i18n.Locale()).ScriptSlotXor() }
+
+// ScriptSlotXor says "Slot bitwise XOR (SXOR)"
+// in the language of msgs.
+func (msgs Messages) ScriptSlotXor() string {
+	return Catalog.Format(msgs.locale, "script_slot_xor", nil)
+}
+
+// ScriptSlotShiftLeft says "Shift slot left (SLSL)"
+// in the language the app shows.
+func ScriptSlotShiftLeft() string { return In(i18n.Locale()).ScriptSlotShiftLeft() }
+
+// ScriptSlotShiftLeft says "Shift slot left (SLSL)"
+// in the language of msgs.
+func (msgs Messages) ScriptSlotShiftLeft() string {
+	return Catalog.Format(msgs.locale, "script_slot_shift_left", nil)
+}
+
+// ScriptSlotShiftRight says "Shift slot right (SLSR)"
+// in the language the app shows.
+func ScriptSlotShiftRight() string { return In(i18n.Locale()).ScriptSlotShiftRight() }
+
+// ScriptSlotShiftRight says "Shift slot right (SLSR)"
+// in the language of msgs.
+func (msgs Messages) ScriptSlotShiftRight() string {
+	return Catalog.Format(msgs.locale, "script_slot_shift_right", nil)
+}
+
+// ScriptSlotOperationHelp says "Read slots A and B as unsigned 32-bit values and write the result to the destination slot. Division/remainder require…"
+// in the language the app shows.
+func ScriptSlotOperationHelp() string { return In(i18n.Locale()).ScriptSlotOperationHelp() }
+
+// ScriptSlotOperationHelp says "Read slots A and B as unsigned 32-bit values and write the result to the destination slot. Division/remainder require…"
+// in the language of msgs.
+func (msgs Messages) ScriptSlotOperationHelp() string {
+	return Catalog.Format(msgs.locale, "script_slot_operation_help", nil)
+}
+
+// ScriptEndAll says "End event chain (ENDB)"
+// in the language the app shows.
+func ScriptEndAll() string { return In(i18n.Locale()).ScriptEndAll() }
+
+// ScriptEndAll says "End event chain (ENDB)"
+// in the language of msgs.
+func (msgs Messages) ScriptEndAll() string {
+	return Catalog.Format(msgs.locale, "script_end_all", nil)
+}
+
+// ScriptEndAllHelp says "Clear the pending event continuation queue and end this event chain, including its CALL return destinations."
+// in the language the app shows.
+func ScriptEndAllHelp() string { return In(i18n.Locale()).ScriptEndAllHelp() }
+
+// ScriptEndAllHelp says "Clear the pending event continuation queue and end this event chain, including its CALL return destinations."
+// in the language of msgs.
+func (msgs Messages) ScriptEndAllHelp() string {
+	return Catalog.Format(msgs.locale, "script_end_all_help", nil)
+}
+
+// ScriptWaitSkippable says "Wait, skippable with B"
+// in the language the app shows.
+func ScriptWaitSkippable() string { return In(i18n.Locale()).ScriptWaitSkippable() }
+
+// ScriptWaitSkippable says "Wait, skippable with B"
+// in the language of msgs.
+func (msgs Messages) ScriptWaitSkippable() string {
+	return Catalog.Format(msgs.locale, "script_wait_skippable", nil)
+}
+
+// ScriptWaitFast says "Wait, speed-up allowed"
+// in the language the app shows.
+func ScriptWaitFast() string { return In(i18n.Locale()).ScriptWaitFast() }
+
+// ScriptWaitFast says "Wait, speed-up allowed"
+// in the language of msgs.
+func (msgs Messages) ScriptWaitFast() string {
+	return Catalog.Format(msgs.locale, "script_wait_fast", nil)
+}
+
+// ScriptWaitSkippableFast says "Wait, skippable and faster"
+// in the language the app shows.
+func ScriptWaitSkippableFast() string { return In(i18n.Locale()).ScriptWaitSkippableFast() }
+
+// ScriptWaitSkippableFast says "Wait, skippable and faster"
+// in the language of msgs.
+func (msgs Messages) ScriptWaitSkippableFast() string {
+	return Catalog.Format(msgs.locale, "script_wait_skippable_fast", nil)
+}
+
+// ScriptWaitOptionsHelp says "Duration is 1–32767 frames. Skippable waits accept B or dialogue skip; faster waits use four frames per update when…"
+// in the language the app shows.
+func ScriptWaitOptionsHelp() string { return In(i18n.Locale()).ScriptWaitOptionsHelp() }
+
+// ScriptWaitOptionsHelp says "Duration is 1–32767 frames. Skippable waits accept B or dialogue skip; faster waits use four frames per update when…"
+// in the language of msgs.
+func (msgs Messages) ScriptWaitOptionsHelp() string {
+	return Catalog.Format(msgs.locale, "script_wait_options_help", nil)
+}
+
+// ScriptCheckEventBit says "Check execution bit"
+// in the language the app shows.
+func ScriptCheckEventBit() string { return In(i18n.Locale()).ScriptCheckEventBit() }
+
+// ScriptCheckEventBit says "Check execution bit"
+// in the language of msgs.
+func (msgs Messages) ScriptCheckEventBit() string {
+	return Catalog.Format(msgs.locale, "script_check_event_bit", nil)
+}
+
+// ScriptCheckEventBitHelp says "Write 0 or 1 to slot C. Use bit 0–15, or -1 to read the bit number from slot 2."
+// in the language the app shows.
+func ScriptCheckEventBitHelp() string { return In(i18n.Locale()).ScriptCheckEventBitHelp() }
+
+// ScriptCheckEventBitHelp says "Write 0 or 1 to slot C. Use bit 0–15, or -1 to read the bit number from slot 2."
+// in the language of msgs.
+func (msgs Messages) ScriptCheckEventBitHelp() string {
+	return Catalog.Format(msgs.locale, "script_check_event_bit_help", nil)
+}
+
+// ScriptRandom says "Random number into slot C"
+// in the language the app shows.
+func ScriptRandom() string { return In(i18n.Locale()).ScriptRandom() }
+
+// ScriptRandom says "Random number into slot C"
+// in the language of msgs.
+func (msgs Messages) ScriptRandom() string {
+	return Catalog.Format(msgs.locale, "script_random", nil)
+}
+
+// ScriptRandomHelp says "Write a random integer from zero through the inclusive maximum to slot C. Maximum zero writes zero."
+// in the language the app shows.
+func ScriptRandomHelp() string { return In(i18n.Locale()).ScriptRandomHelp() }
+
+// ScriptRandomHelp says "Write a random integer from zero through the inclusive maximum to slot C. Maximum zero writes zero."
+// in the language of msgs.
+func (msgs Messages) ScriptRandomHelp() string {
+	return Catalog.Format(msgs.locale, "script_random_help", nil)
+}
+
+// ScriptCounterRead says "Read event counter"
+// in the language the app shows.
+func ScriptCounterRead() string { return In(i18n.Locale()).ScriptCounterRead() }
+
+// ScriptCounterRead says "Read event counter"
+// in the language of msgs.
+func (msgs Messages) ScriptCounterRead() string {
+	return Catalog.Format(msgs.locale, "script_counter_read", nil)
+}
+
+// ScriptCounterSet says "Set event counter"
+// in the language the app shows.
+func ScriptCounterSet() string { return In(i18n.Locale()).ScriptCounterSet() }
+
+// ScriptCounterSet says "Set event counter"
+// in the language of msgs.
+func (msgs Messages) ScriptCounterSet() string {
+	return Catalog.Format(msgs.locale, "script_counter_set", nil)
+}
+
+// ScriptCounterIncrement says "Increment event counter"
+// in the language the app shows.
+func ScriptCounterIncrement() string { return In(i18n.Locale()).ScriptCounterIncrement() }
+
+// ScriptCounterIncrement says "Increment event counter"
+// in the language of msgs.
+func (msgs Messages) ScriptCounterIncrement() string {
+	return Catalog.Format(msgs.locale, "script_counter_increment", nil)
+}
+
+// ScriptCounterDecrement says "Decrement event counter"
+// in the language the app shows.
+func ScriptCounterDecrement() string { return In(i18n.Locale()).ScriptCounterDecrement() }
+
+// ScriptCounterDecrement says "Decrement event counter"
+// in the language of msgs.
+func (msgs Messages) ScriptCounterDecrement() string {
+	return Catalog.Format(msgs.locale, "script_counter_decrement", nil)
+}
+
+// ScriptCounterHelp says "There are eight independent four-bit counters (0–7), each holding 0–15. Increment/decrement saturate at the limit…"
+// in the language the app shows.
+func ScriptCounterHelp() string { return In(i18n.Locale()).ScriptCounterHelp() }
+
+// ScriptCounterHelp says "There are eight independent four-bit counters (0–7), each holding 0–15. Increment/decrement saturate at the limit…"
+// in the language of msgs.
+func (msgs Messages) ScriptCounterHelp() string {
+	return Catalog.Format(msgs.locale, "script_counter_help", nil)
+}
+
+// ScriptCounterId says "Counter"
+// in the language the app shows.
+func ScriptCounterId() string { return In(i18n.Locale()).ScriptCounterId() }
+
+// ScriptCounterId says "Counter"
+// in the language of msgs.
+func (msgs Messages) ScriptCounterId() string {
+	return Catalog.Format(msgs.locale, "script_counter_id", nil)
+}
+
+// ScriptCounterValue says "Counter value"
+// in the language the app shows.
+func ScriptCounterValue() string { return In(i18n.Locale()).ScriptCounterValue() }
+
+// ScriptCounterValue says "Counter value"
+// in the language of msgs.
+func (msgs Messages) ScriptCounterValue() string {
+	return Catalog.Format(msgs.locale, "script_counter_value", nil)
+}
+
+// ScriptMaximum says "Inclusive maximum"
+// in the language the app shows.
+func ScriptMaximum() string { return In(i18n.Locale()).ScriptMaximum() }
+
+// ScriptMaximum says "Inclusive maximum"
+// in the language of msgs.
+func (msgs Messages) ScriptMaximum() string {
+	return Catalog.Format(msgs.locale, "script_maximum", nil)
+}
+
+// ScriptExecutionMode says "Set event execution mode"
+// in the language the app shows.
+func ScriptExecutionMode() string { return In(i18n.Locale()).ScriptExecutionMode() }
+
+// ScriptExecutionMode says "Set event execution mode"
+// in the language of msgs.
+func (msgs Messages) ScriptExecutionMode() string {
+	return Catalog.Format(msgs.locale, "script_execution_mode", nil)
+}
+
+// ScriptExecutionModeHelp says "0: allow event/text skip and acceleration. 1: disable all three. 2: allow skipping but disable acceleration. 3: disab…"
+// in the language the app shows.
+func ScriptExecutionModeHelp() string { return In(i18n.Locale()).ScriptExecutionModeHelp() }
+
+// ScriptExecutionModeHelp says "0: allow event/text skip and acceleration. 1: disable all three. 2: allow skipping but disable acceleration. 3: disab…"
+// in the language of msgs.
+func (msgs Messages) ScriptExecutionModeHelp() string {
+	return Catalog.Format(msgs.locale, "script_execution_mode_help", nil)
+}
+
+// ScriptMode says "Mode"
+// in the language the app shows.
+func ScriptMode() string { return In(i18n.Locale()).ScriptMode() }
+
+// ScriptMode says "Mode"
+// in the language of msgs.
+func (msgs Messages) ScriptMode() string {
+	return Catalog.Format(msgs.locale, "script_mode", nil)
+}
+
+// ScriptIgnoreKeys says "Set ignored keys"
+// in the language the app shows.
+func ScriptIgnoreKeys() string { return In(i18n.Locale()).ScriptIgnoreKeys() }
+
+// ScriptIgnoreKeys says "Set ignored keys"
+// in the language of msgs.
+func (msgs Messages) ScriptIgnoreKeys() string {
+	return Catalog.Format(msgs.locale, "script_ignore_keys", nil)
+}
+
+// ScriptIgnoreKeysHelp says "Native key mask: A=1, B=2, Select=4, Start=8, Right=10, Left=20, Up=40, Down=80, R=100, L=200 (hex). Zero restores al…"
+// in the language the app shows.
+func ScriptIgnoreKeysHelp() string { return In(i18n.Locale()).ScriptIgnoreKeysHelp() }
+
+// ScriptIgnoreKeysHelp says "Native key mask: A=1, B=2, Select=4, Start=8, Right=10, Left=20, Up=40, Down=80, R=100, L=200 (hex). Zero restores al…"
+// in the language of msgs.
+func (msgs Messages) ScriptIgnoreKeysHelp() string {
+	return Catalog.Format(msgs.locale, "script_ignore_keys_help", nil)
+}
+
+// ScriptKeyMask says "Ignored-key mask"
+// in the language the app shows.
+func ScriptKeyMask() string { return In(i18n.Locale()).ScriptKeyMask() }
+
+// ScriptKeyMask says "Ignored-key mask"
+// in the language of msgs.
+func (msgs Messages) ScriptKeyMask() string {
+	return Catalog.Format(msgs.locale, "script_key_mask", nil)
+}
+
+// ScriptCheckMode says "Check story route"
+// in the language the app shows.
+func ScriptCheckMode() string { return In(i18n.Locale()).ScriptCheckMode() }
+
+// ScriptCheckMode says "Check story route"
+// in the language of msgs.
+func (msgs Messages) ScriptCheckMode() string {
+	return Catalog.Format(msgs.locale, "script_check_mode", nil)
+}
+
+// ScriptCheckChapter says "Check event chapter"
+// in the language the app shows.
+func ScriptCheckChapter() string { return In(i18n.Locale()).ScriptCheckChapter() }
+
+// ScriptCheckChapter says "Check event chapter"
+// in the language of msgs.
+func (msgs Messages) ScriptCheckChapter() string {
+	return Catalog.Format(msgs.locale, "script_check_chapter", nil)
+}
+
+// ScriptCheckHardMode says "Check hard mode"
+// in the language the app shows.
+func ScriptCheckHardMode() string { return In(i18n.Locale()).ScriptCheckHardMode() }
+
+// ScriptCheckHardMode says "Check hard mode"
+// in the language of msgs.
+func (msgs Messages) ScriptCheckHardMode() string {
+	return Catalog.Format(msgs.locale, "script_check_hard_mode", nil)
+}
+
+// ScriptCheckTurn says "Check turn number"
+// in the language the app shows.
+func ScriptCheckTurn() string { return In(i18n.Locale()).ScriptCheckTurn() }
+
+// ScriptCheckTurn says "Check turn number"
+// in the language of msgs.
+func (msgs Messages) ScriptCheckTurn() string {
+	return Catalog.Format(msgs.locale, "script_check_turn", nil)
+}
+
+// ScriptCheckEnemies says "Count enemy units"
+// in the language the app shows.
+func ScriptCheckEnemies() string { return In(i18n.Locale()).ScriptCheckEnemies() }
+
+// ScriptCheckEnemies says "Count enemy units"
+// in the language of msgs.
+func (msgs Messages) ScriptCheckEnemies() string {
+	return Catalog.Format(msgs.locale, "script_check_enemies", nil)
+}
+
+// ScriptCheckNpcs says "Count NPC units"
+// in the language the app shows.
+func ScriptCheckNpcs() string { return In(i18n.Locale()).ScriptCheckNpcs() }
+
+// ScriptCheckNpcs says "Count NPC units"
+// in the language of msgs.
+func (msgs Messages) ScriptCheckNpcs() string {
+	return Catalog.Format(msgs.locale, "script_check_npcs", nil)
+}
+
+// ScriptCheckMapKind says "Check map kind"
+// in the language the app shows.
+func ScriptCheckMapKind() string { return In(i18n.Locale()).ScriptCheckMapKind() }
+
+// ScriptCheckMapKind says "Check map kind"
+// in the language of msgs.
+func (msgs Messages) ScriptCheckMapKind() string {
+	return Catalog.Format(msgs.locale, "script_check_map_kind", nil)
+}
+
+// ScriptCheckTutorial says "Check tutorial mode"
+// in the language the app shows.
+func ScriptCheckTutorial() string { return In(i18n.Locale()).ScriptCheckTutorial() }
+
+// ScriptCheckTutorial says "Check tutorial mode"
+// in the language of msgs.
+func (msgs Messages) ScriptCheckTutorial() string {
+	return Catalog.Format(msgs.locale, "script_check_tutorial", nil)
+}
+
+// ScriptCheckGold says "Check party gold"
+// in the language the app shows.
+func ScriptCheckGold() string { return In(i18n.Locale()).ScriptCheckGold() }
+
+// ScriptCheckGold says "Check party gold"
+// in the language of msgs.
+func (msgs Messages) ScriptCheckGold() string {
+	return Catalog.Format(msgs.locale, "script_check_gold", nil)
+}
+
+// ScriptCheckTrigger says "Check event trigger ID"
+// in the language the app shows.
+func ScriptCheckTrigger() string { return In(i18n.Locale()).ScriptCheckTrigger() }
+
+// ScriptCheckTrigger says "Check event trigger ID"
+// in the language of msgs.
+func (msgs Messages) ScriptCheckTrigger() string {
+	return Catalog.Format(msgs.locale, "script_check_trigger", nil)
+}
+
+// ScriptCheckPostgame says "Check postgame state"
+// in the language the app shows.
+func ScriptCheckPostgame() string { return In(i18n.Locale()).ScriptCheckPostgame() }
+
+// ScriptCheckPostgame says "Check postgame state"
+// in the language of msgs.
+func (msgs Messages) ScriptCheckPostgame() string {
+	return Catalog.Format(msgs.locale, "script_check_postgame", nil)
+}
+
+// ScriptGameCheckHelp says "Write the queried runtime value to slot C. Follow with an explicit slot comparison and branch; the editor does not as…"
+// in the language the app shows.
+func ScriptGameCheckHelp() string { return In(i18n.Locale()).ScriptGameCheckHelp() }
+
+// ScriptGameCheckHelp says "Write the queried runtime value to slot C. Follow with an explicit slot comparison and branch; the editor does not as…"
+// in the language of msgs.
+func (msgs Messages) ScriptGameCheckHelp() string {
+	return Catalog.Format(msgs.locale, "script_game_check_help", nil)
+}
+
+// ScriptHideUnit says "Hide unit"
+// in the language the app shows.
+func ScriptHideUnit() string { return In(i18n.Locale()).ScriptHideUnit() }
+
+// ScriptHideUnit says "Hide unit"
+// in the language of msgs.
+func (msgs Messages) ScriptHideUnit() string {
+	return Catalog.Format(msgs.locale, "script_hide_unit", nil)
+}
+
+// ScriptRevealUnit says "Reveal unit"
+// in the language the app shows.
+func ScriptRevealUnit() string { return In(i18n.Locale()).ScriptRevealUnit() }
+
+// ScriptRevealUnit says "Reveal unit"
+// in the language of msgs.
+func (msgs Messages) ScriptRevealUnit() string {
+	return Catalog.Format(msgs.locale, "script_reveal_unit", nil)
+}
+
+// ScriptSetUnitHp says "Set unit HP from slot 1"
+// in the language the app shows.
+func ScriptSetUnitHp() string { return In(i18n.Locale()).ScriptSetUnitHp() }
+
+// ScriptSetUnitHp says "Set unit HP from slot 1"
+// in the language of msgs.
+func (msgs Messages) ScriptSetUnitHp() string {
+	return Catalog.Format(msgs.locale, "script_set_unit_hp", nil)
+}
+
+// ScriptEndUnitTurn says "End unit turn"
+// in the language the app shows.
+func ScriptEndUnitTurn() string { return In(i18n.Locale()).ScriptEndUnitTurn() }
+
+// ScriptEndUnitTurn says "End unit turn"
+// in the language of msgs.
+func (msgs Messages) ScriptEndUnitTurn() string {
+	return Catalog.Format(msgs.locale, "script_end_unit_turn", nil)
+}
+
+// ScriptMarkUnitMoved says "Mark unit as moved"
+// in the language the app shows.
+func ScriptMarkUnitMoved() string { return In(i18n.Locale()).ScriptMarkUnitMoved() }
+
+// ScriptMarkUnitMoved says "Mark unit as moved"
+// in the language of msgs.
+func (msgs Messages) ScriptMarkUnitMoved() string {
+	return Catalog.Format(msgs.locale, "script_mark_unit_moved", nil)
+}
+
+// ScriptSetUnitDeployment says "Set deployment state from slot 1"
+// in the language the app shows.
+func ScriptSetUnitDeployment() string { return In(i18n.Locale()).ScriptSetUnitDeployment() }
+
+// ScriptSetUnitDeployment says "Set deployment state from slot 1"
+// in the language of msgs.
+func (msgs Messages) ScriptSetUnitDeployment() string {
+	return Catalog.Format(msgs.locale, "script_set_unit_deployment", nil)
+}
+
+// ScriptRefreshUnit says "Refresh unit display"
+// in the language the app shows.
+func ScriptRefreshUnit() string { return In(i18n.Locale()).ScriptRefreshUnit() }
+
+// ScriptRefreshUnit says "Refresh unit display"
+// in the language of msgs.
+func (msgs Messages) ScriptRefreshUnit() string {
+	return Catalog.Format(msgs.locale, "script_refresh_unit", nil)
+}
+
+// ScriptHidePlayerUnits says "Hide player units and clear cutscene units"
+// in the language the app shows.
+func ScriptHidePlayerUnits() string { return In(i18n.Locale()).ScriptHidePlayerUnits() }
+
+// ScriptHidePlayerUnits says "Hide player units and clear cutscene units"
+// in the language of msgs.
+func (msgs Messages) ScriptHidePlayerUnits() string {
+	return Catalog.Format(msgs.locale, "script_hide_player_units", nil)
+}
+
+// ScriptClearNpcUnits says "Clear all NPC units"
+// in the language the app shows.
+func ScriptClearNpcUnits() string { return In(i18n.Locale()).ScriptClearNpcUnits() }
+
+// ScriptClearNpcUnits says "Clear all NPC units"
+// in the language of msgs.
+func (msgs Messages) ScriptClearNpcUnits() string {
+	return Catalog.Format(msgs.locale, "script_clear_npc_units", nil)
+}
+
+// ScriptClearEnemyUnits says "Clear all enemy units"
+// in the language the app shows.
+func ScriptClearEnemyUnits() string { return In(i18n.Locale()).ScriptClearEnemyUnits() }
+
+// ScriptClearEnemyUnits says "Clear all enemy units"
+// in the language of msgs.
+func (msgs Messages) ScriptClearEnemyUnits() string {
+	return Catalog.Format(msgs.locale, "script_clear_enemy_units", nil)
+}
+
+// ScriptUnitDeathFade says "Play unit death fade"
+// in the language the app shows.
+func ScriptUnitDeathFade() string { return In(i18n.Locale()).ScriptUnitDeathFade() }
+
+// ScriptUnitDeathFade says "Play unit death fade"
+// in the language of msgs.
+func (msgs Messages) ScriptUnitDeathFade() string {
+	return Catalog.Format(msgs.locale, "script_unit_death_fade", nil)
+}
+
+// ScriptRemoveUnitAfterFade says "Wait for death fade and remove unit"
+// in the language the app shows.
+func ScriptRemoveUnitAfterFade() string { return In(i18n.Locale()).ScriptRemoveUnitAfterFade() }
+
+// ScriptRemoveUnitAfterFade says "Wait for death fade and remove unit"
+// in the language of msgs.
+func (msgs Messages) ScriptRemoveUnitAfterFade() string {
+	return Catalog.Format(msgs.locale, "script_remove_unit_after_fade", nil)
+}
+
+// ScriptRemoveUnit says "Remove unit"
+// in the language the app shows.
+func ScriptRemoveUnit() string { return In(i18n.Locale()).ScriptRemoveUnit() }
+
+// ScriptRemoveUnit says "Remove unit"
+// in the language of msgs.
+func (msgs Messages) ScriptRemoveUnit() string {
+	return Catalog.Format(msgs.locale, "script_remove_unit", nil)
+}
+
+// ScriptHideUnitHelp says "Hide the selected unit and set the native temporary visibility flags. Unit data remains present."
+// in the language the app shows.
+func ScriptHideUnitHelp() string { return In(i18n.Locale()).ScriptHideUnitHelp() }
+
+// ScriptHideUnitHelp says "Hide the selected unit and set the native temporary visibility flags. Unit data remains present."
+// in the language of msgs.
+func (msgs Messages) ScriptHideUnitHelp() string {
+	return Catalog.Format(msgs.locale, "script_hide_unit_help", nil)
+}
+
+// ScriptRevealUnitHelp says "Clear the hidden and temporary visibility flags of the selected existing unit."
+// in the language the app shows.
+func ScriptRevealUnitHelp() string { return In(i18n.Locale()).ScriptRevealUnitHelp() }
+
+// ScriptRevealUnitHelp says "Clear the hidden and temporary visibility flags of the selected existing unit."
+// in the language of msgs.
+func (msgs Messages) ScriptRevealUnitHelp() string {
+	return Catalog.Format(msgs.locale, "script_reveal_unit_help", nil)
+}
+
+// ScriptSetUnitHpHelp says "Read HP from slot 1. The native setter caps HP at the unit maximum; a zero slot value also marks the unit dead. This …"
+// in the language the app shows.
+func ScriptSetUnitHpHelp() string { return In(i18n.Locale()).ScriptSetUnitHpHelp() }
+
+// ScriptSetUnitHpHelp says "Read HP from slot 1. The native setter caps HP at the unit maximum; a zero slot value also marks the unit dead. This …"
+// in the language of msgs.
+func (msgs Messages) ScriptSetUnitHpHelp() string {
+	return Catalog.Format(msgs.locale, "script_set_unit_hp_help", nil)
+}
+
+// ScriptEndUnitTurnHelp says "Mark the unit as unable to act this turn."
+// in the language the app shows.
+func ScriptEndUnitTurnHelp() string { return In(i18n.Locale()).ScriptEndUnitTurnHelp() }
+
+// ScriptEndUnitTurnHelp says "Mark the unit as unable to act this turn."
+// in the language of msgs.
+func (msgs Messages) ScriptEndUnitTurnHelp() string {
+	return Catalog.Format(msgs.locale, "script_end_unit_turn_help", nil)
+}
+
+// ScriptMarkUnitMovedHelp says "Set the native has-moved flag; this is separate from ending the unit turn."
+// in the language the app shows.
+func ScriptMarkUnitMovedHelp() string { return In(i18n.Locale()).ScriptMarkUnitMovedHelp() }
+
+// ScriptMarkUnitMovedHelp says "Set the native has-moved flag; this is separate from ending the unit turn."
+// in the language of msgs.
+func (msgs Messages) ScriptMarkUnitMovedHelp() string {
+	return Catalog.Format(msgs.locale, "script_mark_unit_moved_help", nil)
+}
+
+// ScriptSetUnitDeploymentHelp says "Slot 1: 1 clears not-deployed, 0 sets not-deployed, -1 restores it from the native saved deployment flag. Other value…"
+// in the language the app shows.
+func ScriptSetUnitDeploymentHelp() string { return In(i18n.Locale()).ScriptSetUnitDeploymentHelp() }
+
+// ScriptSetUnitDeploymentHelp says "Slot 1: 1 clears not-deployed, 0 sets not-deployed, -1 restores it from the native saved deployment flag. Other value…"
+// in the language of msgs.
+func (msgs Messages) ScriptSetUnitDeploymentHelp() string {
+	return Catalog.Format(msgs.locale, "script_set_unit_deployment_help", nil)
+}
+
+// ScriptRefreshUnitHelp says "Require the selected unit to exist, then refresh map occupancy, unit sprites and map rendering."
+// in the language the app shows.
+func ScriptRefreshUnitHelp() string { return In(i18n.Locale()).ScriptRefreshUnitHelp() }
+
+// ScriptRefreshUnitHelp says "Require the selected unit to exist, then refresh map occupancy, unit sprites and map rendering."
+// in the language of msgs.
+func (msgs Messages) ScriptRefreshUnitHelp() string {
+	return Catalog.Format(msgs.locale, "script_refresh_unit_help", nil)
+}
+
+// ScriptHidePlayerUnitsHelp says "Stop unit movement, hide player units, clear acted/rescue flags, and run native cutscene-unit cleanup. Living tempora…"
+// in the language the app shows.
+func ScriptHidePlayerUnitsHelp() string { return In(i18n.Locale()).ScriptHidePlayerUnitsHelp() }
+
+// ScriptHidePlayerUnitsHelp says "Stop unit movement, hide player units, clear acted/rescue flags, and run native cutscene-unit cleanup. Living tempora…"
+// in the language of msgs.
+func (msgs Messages) ScriptHidePlayerUnitsHelp() string {
+	return Catalog.Format(msgs.locale, "script_hide_player_units_help", nil)
+}
+
+// ScriptClearUnitsHelp says "Stop unit movement and clear all unit records in the selected faction."
+// in the language the app shows.
+func ScriptClearUnitsHelp() string { return In(i18n.Locale()).ScriptClearUnitsHelp() }
+
+// ScriptClearUnitsHelp says "Stop unit movement and clear all unit records in the selected faction."
+// in the language of msgs.
+func (msgs Messages) ScriptClearUnitsHelp() string {
+	return Catalog.Format(msgs.locale, "script_clear_units_help", nil)
+}
+
+// ScriptUnitDeathFadeHelp says "Play the death-fade animation when events are not being skipped. This does not set the death flag or remove the unit …"
+// in the language the app shows.
+func ScriptUnitDeathFadeHelp() string { return In(i18n.Locale()).ScriptUnitDeathFadeHelp() }
+
+// ScriptUnitDeathFadeHelp says "Play the death-fade animation when events are not being skipped. This does not set the death flag or remove the unit …"
+// in the language of msgs.
+func (msgs Messages) ScriptUnitDeathFadeHelp() string {
+	return Catalog.Format(msgs.locale, "script_unit_death_fade_help", nil)
+}
+
+// ScriptRemoveUnitAfterFadeHelp says "Wait until death-fade effects finish, then clear the selected unit record."
+// in the language the app shows.
+func ScriptRemoveUnitAfterFadeHelp() string { return In(i18n.Locale()).ScriptRemoveUnitAfterFadeHelp() }
+
+// ScriptRemoveUnitAfterFadeHelp says "Wait until death-fade effects finish, then clear the selected unit record."
+// in the language of msgs.
+func (msgs Messages) ScriptRemoveUnitAfterFadeHelp() string {
+	return Catalog.Format(msgs.locale, "script_remove_unit_after_fade_help", nil)
+}
+
+// ScriptRemoveUnitHelp says "Clear the selected unit record. A missing unit is accepted."
+// in the language the app shows.
+func ScriptRemoveUnitHelp() string { return In(i18n.Locale()).ScriptRemoveUnitHelp() }
+
+// ScriptRemoveUnitHelp says "Clear the selected unit record. A missing unit is accepted."
+// in the language of msgs.
+func (msgs Messages) ScriptRemoveUnitHelp() string {
+	return Catalog.Format(msgs.locale, "script_remove_unit_help", nil)
+}
+
+// ScriptCheckUnitVisitGroup says "Check unit visit group"
+// in the language the app shows.
+func ScriptCheckUnitVisitGroup() string { return In(i18n.Locale()).ScriptCheckUnitVisitGroup() }
+
+// ScriptCheckUnitVisitGroup says "Check unit visit group"
+// in the language of msgs.
+func (msgs Messages) ScriptCheckUnitVisitGroup() string {
+	return Catalog.Format(msgs.locale, "script_check_unit_visit_group", nil)
+}
+
+// ScriptCheckUnitActive says "Check active character ID"
+// in the language the app shows.
+func ScriptCheckUnitActive() string { return In(i18n.Locale()).ScriptCheckUnitActive() }
+
+// ScriptCheckUnitActive says "Check active character ID"
+// in the language of msgs.
+func (msgs Messages) ScriptCheckUnitActive() string {
+	return Catalog.Format(msgs.locale, "script_check_unit_active", nil)
+}
+
+// ScriptCheckUnitCoordinates says "Read unit coordinates"
+// in the language the app shows.
+func ScriptCheckUnitCoordinates() string { return In(i18n.Locale()).ScriptCheckUnitCoordinates() }
+
+// ScriptCheckUnitCoordinates says "Read unit coordinates"
+// in the language of msgs.
+func (msgs Messages) ScriptCheckUnitCoordinates() string {
+	return Catalog.Format(msgs.locale, "script_check_unit_coordinates", nil)
+}
+
+// ScriptCheckUnitClass says "Read unit class"
+// in the language the app shows.
+func ScriptCheckUnitClass() string { return In(i18n.Locale()).ScriptCheckUnitClass() }
+
+// ScriptCheckUnitClass says "Read unit class"
+// in the language of msgs.
+func (msgs Messages) ScriptCheckUnitClass() string {
+	return Catalog.Format(msgs.locale, "script_check_unit_class", nil)
+}
+
+// ScriptCheckUnitLuck says "Read unit luck"
+// in the language the app shows.
+func ScriptCheckUnitLuck() string { return In(i18n.Locale()).ScriptCheckUnitLuck() }
+
+// ScriptCheckUnitLuck says "Read unit luck"
+// in the language of msgs.
+func (msgs Messages) ScriptCheckUnitLuck() string {
+	return Catalog.Format(msgs.locale, "script_check_unit_luck", nil)
+}
+
+// ScriptCheckUnitVisitGroupHelp says "Write the character visit-group value to slot C. The unit must exist; this is not a status-condition query."
+// in the language the app shows.
+func ScriptCheckUnitVisitGroupHelp() string { return In(i18n.Locale()).ScriptCheckUnitVisitGroupHelp() }
+
+// ScriptCheckUnitVisitGroupHelp says "Write the character visit-group value to slot C. The unit must exist; this is not a status-condition query."
+// in the language of msgs.
+func (msgs Messages) ScriptCheckUnitVisitGroupHelp() string {
+	return Catalog.Format(msgs.locale, "script_check_unit_visit_group_help", nil)
+}
+
+// ScriptCheckUnitActiveHelp says "Write 1 to slot C if the active unit has this literal character ID, otherwise 0. Both the queried character and activ…"
+// in the language the app shows.
+func ScriptCheckUnitActiveHelp() string { return In(i18n.Locale()).ScriptCheckUnitActiveHelp() }
+
+// ScriptCheckUnitActiveHelp says "Write 1 to slot C if the active unit has this literal character ID, otherwise 0. Both the queried character and activ…"
+// in the language of msgs.
+func (msgs Messages) ScriptCheckUnitActiveHelp() string {
+	return Catalog.Format(msgs.locale, "script_check_unit_active_help", nil)
+}
+
+// ScriptCheckUnitCoordinatesHelp says "Write X to the low 16 bits and Y to the high 16 bits of slot C. The unit must exist."
+// in the language the app shows.
+func ScriptCheckUnitCoordinatesHelp() string {
+	return In(i18n.Locale()).ScriptCheckUnitCoordinatesHelp()
+}
+
+// ScriptCheckUnitCoordinatesHelp says "Write X to the low 16 bits and Y to the high 16 bits of slot C. The unit must exist."
+// in the language of msgs.
+func (msgs Messages) ScriptCheckUnitCoordinatesHelp() string {
+	return Catalog.Format(msgs.locale, "script_check_unit_coordinates_help", nil)
+}
+
+// ScriptCheckUnitClassHelp says "Write the existing unit class ID to slot C."
+// in the language the app shows.
+func ScriptCheckUnitClassHelp() string { return In(i18n.Locale()).ScriptCheckUnitClassHelp() }
+
+// ScriptCheckUnitClassHelp says "Write the existing unit class ID to slot C."
+// in the language of msgs.
+func (msgs Messages) ScriptCheckUnitClassHelp() string {
+	return Catalog.Format(msgs.locale, "script_check_unit_class_help", nil)
+}
+
+// ScriptCheckUnitLuckHelp says "Write the existing unit effective luck to slot C."
+// in the language the app shows.
+func ScriptCheckUnitLuckHelp() string { return In(i18n.Locale()).ScriptCheckUnitLuckHelp() }
+
+// ScriptCheckUnitLuckHelp says "Write the existing unit effective luck to slot C."
+// in the language of msgs.
+func (msgs Messages) ScriptCheckUnitLuckHelp() string {
+	return Catalog.Format(msgs.locale, "script_check_unit_luck_help", nil)
+}
+
+// ScriptMusicFade says "Fade music in/out"
+// in the language the app shows.
+func ScriptMusicFade() string { return In(i18n.Locale()).ScriptMusicFade() }
+
+// ScriptMusicFade says "Fade music in/out"
+// in the language of msgs.
+func (msgs Messages) ScriptMusicFade() string {
+	return Catalog.Format(msgs.locale, "script_music_fade", nil)
+}
+
+// ScriptMusicQuieter says "Lower music volume"
+// in the language the app shows.
+func ScriptMusicQuieter() string { return In(i18n.Locale()).ScriptMusicQuieter() }
+
+// ScriptMusicQuieter says "Lower music volume"
+// in the language of msgs.
+func (msgs Messages) ScriptMusicQuieter() string {
+	return Catalog.Format(msgs.locale, "script_music_quieter", nil)
+}
+
+// ScriptMusicNormalVolume says "Restore music volume"
+// in the language the app shows.
+func ScriptMusicNormalVolume() string { return In(i18n.Locale()).ScriptMusicNormalVolume() }
+
+// ScriptMusicNormalVolume says "Restore music volume"
+// in the language of msgs.
+func (msgs Messages) ScriptMusicNormalVolume() string {
+	return Catalog.Format(msgs.locale, "script_music_normal_volume", nil)
+}
+
+// ScriptMusicFadeHelp says "The four-bit speed is part of the native command header (0–15). A song value of 32767 fades out the current music; …"
+// in the language the app shows.
+func ScriptMusicFadeHelp() string { return In(i18n.Locale()).ScriptMusicFadeHelp() }
+
+// ScriptMusicFadeHelp says "The four-bit speed is part of the native command header (0–15). A song value of 32767 fades out the current music; …"
+// in the language of msgs.
+func (msgs Messages) ScriptMusicFadeHelp() string {
+	return Catalog.Format(msgs.locale, "script_music_fade_help", nil)
+}
+
+// ScriptMusicVolumeHelp says "Lower music from full volume to 0x90/0x100, or restore full volume, over 10 updates. Native event-skip behavior is re…"
+// in the language the app shows.
+func ScriptMusicVolumeHelp() string { return In(i18n.Locale()).ScriptMusicVolumeHelp() }
+
+// ScriptMusicVolumeHelp says "Lower music from full volume to 0x90/0x100, or restore full volume, over 10 updates. Native event-skip behavior is re…"
+// in the language of msgs.
+func (msgs Messages) ScriptMusicVolumeHelp() string {
+	return Catalog.Format(msgs.locale, "script_music_volume_help", nil)
+}
+
+// ScriptTextBackgroundMode says "Start background dialogue"
+// in the language the app shows.
+func ScriptTextBackgroundMode() string { return In(i18n.Locale()).ScriptTextBackgroundMode() }
+
+// ScriptTextBackgroundMode says "Start background dialogue"
+// in the language of msgs.
+func (msgs Messages) ScriptTextBackgroundMode() string {
+	return Catalog.Format(msgs.locale, "script_text_background_mode", nil)
+}
+
+// ScriptTextCgMode says "Start CG dialogue"
+// in the language the app shows.
+func ScriptTextCgMode() string { return In(i18n.Locale()).ScriptTextCgMode() }
+
+// ScriptTextCgMode says "Start CG dialogue"
+// in the language of msgs.
+func (msgs Messages) ScriptTextCgMode() string {
+	return Catalog.Format(msgs.locale, "script_text_cg_mode", nil)
+}
+
+// ScriptTextTutorialMode says "Start tutorial text box"
+// in the language the app shows.
+func ScriptTextTutorialMode() string { return In(i18n.Locale()).ScriptTextTutorialMode() }
+
+// ScriptTextTutorialMode says "Start tutorial text box"
+// in the language of msgs.
+func (msgs Messages) ScriptTextTutorialMode() string {
+	return Catalog.Format(msgs.locale, "script_text_tutorial_mode", nil)
+}
+
+// ScriptTextBoxMode says "Start standalone text box"
+// in the language the app shows.
+func ScriptTextBoxMode() string { return In(i18n.Locale()).ScriptTextBoxMode() }
+
+// ScriptTextBoxMode says "Start standalone text box"
+// in the language of msgs.
+func (msgs Messages) ScriptTextBoxMode() string {
+	return Catalog.Format(msgs.locale, "script_text_box_mode", nil)
+}
+
+// ScriptTextShortTutorialMode says "Start short tutorial text box"
+// in the language the app shows.
+func ScriptTextShortTutorialMode() string { return In(i18n.Locale()).ScriptTextShortTutorialMode() }
+
+// ScriptTextShortTutorialMode says "Start short tutorial text box"
+// in the language of msgs.
+func (msgs Messages) ScriptTextShortTutorialMode() string {
+	return Catalog.Format(msgs.locale, "script_text_short_tutorial_mode", nil)
+}
+
+// ScriptTextContinue says "Continue paused dialogue"
+// in the language the app shows.
+func ScriptTextContinue() string { return In(i18n.Locale()).ScriptTextContinue() }
+
+// ScriptTextContinue says "Continue paused dialogue"
+// in the language of msgs.
+func (msgs Messages) ScriptTextContinue() string {
+	return Catalog.Format(msgs.locale, "script_text_continue", nil)
+}
+
+// ScriptTextBubbleClear says "Clear dialogue bubble"
+// in the language the app shows.
+func ScriptTextBubbleClear() string { return In(i18n.Locale()).ScriptTextBubbleClear() }
+
+// ScriptTextBubbleClear says "Clear dialogue bubble"
+// in the language of msgs.
+func (msgs Messages) ScriptTextBubbleClear() string {
+	return Catalog.Format(msgs.locale, "script_text_bubble_clear", nil)
+}
+
+// ScriptRestoreMapScene says "Clear dialogue and restore map"
+// in the language the app shows.
+func ScriptRestoreMapScene() string { return In(i18n.Locale()).ScriptRestoreMapScene() }
+
+// ScriptRestoreMapScene says "Clear dialogue and restore map"
+// in the language of msgs.
+func (msgs Messages) ScriptRestoreMapScene() string {
+	return Catalog.Format(msgs.locale, "script_restore_map_scene", nil)
+}
+
+// ScriptTextBackgroundModeHelp says "Select background-dialogue mode and suspend map display. Follow with the background and text commands, then restore t…"
+// in the language the app shows.
+func ScriptTextBackgroundModeHelp() string { return In(i18n.Locale()).ScriptTextBackgroundModeHelp() }
+
+// ScriptTextBackgroundModeHelp says "Select background-dialogue mode and suspend map display. Follow with the background and text commands, then restore t…"
+// in the language of msgs.
+func (msgs Messages) ScriptTextBackgroundModeHelp() string {
+	return Catalog.Format(msgs.locale, "script_text_background_mode_help", nil)
+}
+
+// ScriptTextCgModeHelp says "Select CG-dialogue mode and suspend map display. The background command now selects CG data rather than a regular con…"
+// in the language the app shows.
+func ScriptTextCgModeHelp() string { return In(i18n.Locale()).ScriptTextCgModeHelp() }
+
+// ScriptTextCgModeHelp says "Select CG-dialogue mode and suspend map display. The background command now selects CG data rather than a regular con…"
+// in the language of msgs.
+func (msgs Messages) ScriptTextCgModeHelp() string {
+	return Catalog.Format(msgs.locale, "script_text_cg_mode_help", nil)
+}
+
+// ScriptTextBoxPositionHelp says "Select the text-box style. Position comes from slot B (low 16 bits X, high 16 bits Y), using the low byte of each coo…"
+// in the language the app shows.
+func ScriptTextBoxPositionHelp() string { return In(i18n.Locale()).ScriptTextBoxPositionHelp() }
+
+// ScriptTextBoxPositionHelp says "Select the text-box style. Position comes from slot B (low 16 bits X, high 16 bits Y), using the low byte of each coo…"
+// in the language of msgs.
+func (msgs Messages) ScriptTextBoxPositionHelp() string {
+	return Catalog.Format(msgs.locale, "script_text_box_position_help", nil)
+}
+
+// ScriptTextShortTutorialHelp says "Use the yellow tutorial box with three text lines instead of the five-line tutorial layout. Position comes from slot B."
+// in the language the app shows.
+func ScriptTextShortTutorialHelp() string { return In(i18n.Locale()).ScriptTextShortTutorialHelp() }
+
+// ScriptTextShortTutorialHelp says "Use the yellow tutorial box with three text lines instead of the five-line tutorial layout. Position comes from slot B."
+// in the language of msgs.
+func (msgs Messages) ScriptTextShortTutorialHelp() string {
+	return Catalog.Format(msgs.locale, "script_text_short_tutorial_help", nil)
+}
+
+// ScriptTextContinueHelp says "Resume dialogue paused by a text control command. During event skipping, native dialogue cleanup runs instead."
+// in the language the app shows.
+func ScriptTextContinueHelp() string { return In(i18n.Locale()).ScriptTextContinueHelp() }
+
+// ScriptTextContinueHelp says "Resume dialogue paused by a text control command. During event skipping, native dialogue cleanup runs instead."
+// in the language of msgs.
+func (msgs Messages) ScriptTextContinueHelp() string {
+	return Catalog.Format(msgs.locale, "script_text_continue_help", nil)
+}
+
+// ScriptTextBubbleClearHelp says "Clear the current speech bubble without changing the selected text mode."
+// in the language the app shows.
+func ScriptTextBubbleClearHelp() string { return In(i18n.Locale()).ScriptTextBubbleClearHelp() }
+
+// ScriptTextBubbleClearHelp says "Clear the current speech bubble without changing the selected text mode."
+// in the language of msgs.
+func (msgs Messages) ScriptTextBubbleClearHelp() string {
+	return Catalog.Format(msgs.locale, "script_text_bubble_clear_help", nil)
+}
+
+// ScriptRestoreMapSceneHelp says "Refresh map graphics, clear text layers and faces, then resume map display and moving units."
+// in the language the app shows.
+func ScriptRestoreMapSceneHelp() string { return In(i18n.Locale()).ScriptRestoreMapSceneHelp() }
+
+// ScriptRestoreMapSceneHelp says "Refresh map graphics, clear text layers and faces, then resume map display and moving units."
+// in the language of msgs.
+func (msgs Messages) ScriptRestoreMapSceneHelp() string {
+	return Catalog.Format(msgs.locale, "script_restore_map_scene_help", nil)
+}
+
+// ScriptLoadUnitsAlive says "Load surviving units"
+// in the language the app shows.
+func ScriptLoadUnitsAlive() string { return In(i18n.Locale()).ScriptLoadUnitsAlive() }
+
+// ScriptLoadUnitsAlive says "Load surviving units"
+// in the language of msgs.
+func (msgs Messages) ScriptLoadUnitsAlive() string {
+	return Catalog.Format(msgs.locale, "script_load_units_alive", nil)
+}
+
+// ScriptLoadUnitsParty says "Load current party into template"
+// in the language the app shows.
+func ScriptLoadUnitsParty() string { return In(i18n.Locale()).ScriptLoadUnitsParty() }
+
+// ScriptLoadUnitsParty says "Load current party into template"
+// in the language of msgs.
+func (msgs Messages) ScriptLoadUnitsParty() string {
+	return Catalog.Format(msgs.locale, "script_load_units_party", nil)
+}
+
+// ScriptLoadUnitsFiltered says "Load units for route/difficulty"
+// in the language the app shows.
+func ScriptLoadUnitsFiltered() string { return In(i18n.Locale()).ScriptLoadUnitsFiltered() }
+
+// ScriptLoadUnitsFiltered says "Load units for route/difficulty"
+// in the language of msgs.
+func (msgs Messages) ScriptLoadUnitsFiltered() string {
+	return Catalog.Format(msgs.locale, "script_load_units_filtered", nil)
+}
+
+// ScriptLoadUnitsByRoute says "Load route-specific deployment"
+// in the language the app shows.
+func ScriptLoadUnitsByRoute() string { return In(i18n.Locale()).ScriptLoadUnitsByRoute() }
+
+// ScriptLoadUnitsByRoute says "Load route-specific deployment"
+// in the language of msgs.
+func (msgs Messages) ScriptLoadUnitsByRoute() string {
+	return Catalog.Format(msgs.locale, "script_load_units_by_route", nil)
+}
+
+// ScriptLoadPartyFiltered says "Load party for selected route"
+// in the language the app shows.
+func ScriptLoadPartyFiltered() string { return In(i18n.Locale()).ScriptLoadPartyFiltered() }
+
+// ScriptLoadPartyFiltered says "Load party for selected route"
+// in the language of msgs.
+func (msgs Messages) ScriptLoadPartyFiltered() string {
+	return Catalog.Format(msgs.locale, "script_load_party_filtered", nil)
+}
+
+// ScriptLoadPartyByRoute says "Load party with route-specific template"
+// in the language the app shows.
+func ScriptLoadPartyByRoute() string { return In(i18n.Locale()).ScriptLoadPartyByRoute() }
+
+// ScriptLoadPartyByRoute says "Load party with route-specific template"
+// in the language of msgs.
+func (msgs Messages) ScriptLoadPartyByRoute() string {
+	return Catalog.Format(msgs.locale, "script_load_party_by_route", nil)
+}
+
+// ScriptTextByRoute says "Show route-specific dialogue"
+// in the language the app shows.
+func ScriptTextByRoute() string { return In(i18n.Locale()).ScriptTextByRoute() }
+
+// ScriptTextByRoute says "Show route-specific dialogue"
+// in the language of msgs.
+func (msgs Messages) ScriptTextByRoute() string {
+	return Catalog.Format(msgs.locale, "script_text_by_route", nil)
+}
+
+// ScriptMoreTextByRoute says "Continue route-specific dialogue"
+// in the language the app shows.
+func ScriptMoreTextByRoute() string { return In(i18n.Locale()).ScriptMoreTextByRoute() }
+
+// ScriptMoreTextByRoute says "Continue route-specific dialogue"
+// in the language of msgs.
+func (msgs Messages) ScriptMoreTextByRoute() string {
+	return Catalog.Format(msgs.locale, "script_more_text_by_route", nil)
+}
+
+// ScriptTextOpaque says "Show opaque dialogue"
+// in the language the app shows.
+func ScriptTextOpaque() string { return In(i18n.Locale()).ScriptTextOpaque() }
+
+// ScriptTextOpaque says "Show opaque dialogue"
+// in the language of msgs.
+func (msgs Messages) ScriptTextOpaque() string {
+	return Catalog.Format(msgs.locale, "script_text_opaque", nil)
+}
+
+// ScriptRoute says "Story route"
+// in the language the app shows.
+func ScriptRoute() string { return In(i18n.Locale()).ScriptRoute() }
+
+// ScriptRoute says "Story route"
+// in the language of msgs.
+func (msgs Messages) ScriptRoute() string {
+	return Catalog.Format(msgs.locale, "script_route", nil)
+}
+
+// ScriptHardOnly says "Hard mode only (0/1)"
+// in the language the app shows.
+func ScriptHardOnly() string { return In(i18n.Locale()).ScriptHardOnly() }
+
+// ScriptHardOnly says "Hard mode only (0/1)"
+// in the language of msgs.
+func (msgs Messages) ScriptHardOnly() string {
+	return Catalog.Format(msgs.locale, "script_hard_only", nil)
+}
+
+// ScriptUnitsPrimaryNormal says "Non-Hector / Normal deployment"
+// in the language the app shows.
+func ScriptUnitsPrimaryNormal() string { return In(i18n.Locale()).ScriptUnitsPrimaryNormal() }
+
+// ScriptUnitsPrimaryNormal says "Non-Hector / Normal deployment"
+// in the language of msgs.
+func (msgs Messages) ScriptUnitsPrimaryNormal() string {
+	return Catalog.Format(msgs.locale, "script_units_primary_normal", nil)
+}
+
+// ScriptUnitsPrimaryHard says "Non-Hector / Hard deployment"
+// in the language the app shows.
+func ScriptUnitsPrimaryHard() string { return In(i18n.Locale()).ScriptUnitsPrimaryHard() }
+
+// ScriptUnitsPrimaryHard says "Non-Hector / Hard deployment"
+// in the language of msgs.
+func (msgs Messages) ScriptUnitsPrimaryHard() string {
+	return Catalog.Format(msgs.locale, "script_units_primary_hard", nil)
+}
+
+// ScriptUnitsHectorNormal says "Hector / Normal deployment"
+// in the language the app shows.
+func ScriptUnitsHectorNormal() string { return In(i18n.Locale()).ScriptUnitsHectorNormal() }
+
+// ScriptUnitsHectorNormal says "Hector / Normal deployment"
+// in the language of msgs.
+func (msgs Messages) ScriptUnitsHectorNormal() string {
+	return Catalog.Format(msgs.locale, "script_units_hector_normal", nil)
+}
+
+// ScriptUnitsHectorHard says "Hector / Hard deployment"
+// in the language the app shows.
+func ScriptUnitsHectorHard() string { return In(i18n.Locale()).ScriptUnitsHectorHard() }
+
+// ScriptUnitsHectorHard says "Hector / Hard deployment"
+// in the language of msgs.
+func (msgs Messages) ScriptUnitsHectorHard() string {
+	return Catalog.Format(msgs.locale, "script_units_hector_hard", nil)
+}
+
+// ScriptTextPrimary says "Non-Hector dialogue"
+// in the language the app shows.
+func ScriptTextPrimary() string { return In(i18n.Locale()).ScriptTextPrimary() }
+
+// ScriptTextPrimary says "Non-Hector dialogue"
+// in the language of msgs.
+func (msgs Messages) ScriptTextPrimary() string {
+	return Catalog.Format(msgs.locale, "script_text_primary", nil)
+}
+
+// ScriptTextHector says "Hector dialogue"
+// in the language the app shows.
+func ScriptTextHector() string { return In(i18n.Locale()).ScriptTextHector() }
+
+// ScriptTextHector says "Hector dialogue"
+// in the language of msgs.
+func (msgs Messages) ScriptTextHector() string {
+	return Catalog.Format(msgs.locale, "script_text_hector", nil)
+}
+
+// ScriptLoadPartyHelp says "Load the current eligible player roster using the deployment as a scene template. Its character list is not the runti…"
+// in the language the app shows.
+func ScriptLoadPartyHelp() string { return In(i18n.Locale()).ScriptLoadPartyHelp() }
+
+// ScriptLoadPartyHelp says "Load the current eligible player roster using the deployment as a scene template. Its character list is not the runti…"
+// in the language of msgs.
+func (msgs Messages) ScriptLoadPartyHelp() string {
+	return Catalog.Format(msgs.locale, "script_load_party_help", nil)
+}
+
+// ScriptLoadAliveHelp says "Use the native surviving-unit loader, retaining its dead-unit and existing-unit rules."
+// in the language the app shows.
+func ScriptLoadAliveHelp() string { return In(i18n.Locale()).ScriptLoadAliveHelp() }
+
+// ScriptLoadAliveHelp says "Use the native surviving-unit loader, retaining its dead-unit and existing-unit rules."
+// in the language of msgs.
+func (msgs Messages) ScriptLoadAliveHelp() string {
+	return Catalog.Format(msgs.locale, "script_load_alive_help", nil)
+}
+
+// ScriptLoadRouteFilterHelp says "Compare the selected route with the current story route (1 Lyn, 2 Eliwood, 3 Hector). The ordinary loader can also re…"
+// in the language the app shows.
+func ScriptLoadRouteFilterHelp() string { return In(i18n.Locale()).ScriptLoadRouteFilterHelp() }
+
+// ScriptLoadRouteFilterHelp says "Compare the selected route with the current story route (1 Lyn, 2 Eliwood, 3 Hector). The ordinary loader can also re…"
+// in the language of msgs.
+func (msgs Messages) ScriptLoadRouteFilterHelp() string {
+	return Catalog.Format(msgs.locale, "script_load_route_filter_help", nil)
+}
+
+// ScriptLoadRouteChoicesHelp says "Choose one of four deployments using the current route and difficulty. In the ordinary loader, zero means skip loadin…"
+// in the language the app shows.
+func ScriptLoadRouteChoicesHelp() string { return In(i18n.Locale()).ScriptLoadRouteChoicesHelp() }
+
+// ScriptLoadRouteChoicesHelp says "Choose one of four deployments using the current route and difficulty. In the ordinary loader, zero means skip loadin…"
+// in the language of msgs.
+func (msgs Messages) ScriptLoadRouteChoicesHelp() string {
+	return Catalog.Format(msgs.locale, "script_load_route_choices_help", nil)
+}
+
+// ScriptTextRouteHelp says "Use the second text on Hector route and the first text on other routes. Each text ID is independently validated and n…"
+// in the language the app shows.
+func ScriptTextRouteHelp() string { return In(i18n.Locale()).ScriptTextRouteHelp() }
+
+// ScriptTextRouteHelp says "Use the second text on Hector route and the first text on other routes. Each text ID is independently validated and n…"
+// in the language of msgs.
+func (msgs Messages) ScriptTextRouteHelp() string {
+	return Catalog.Format(msgs.locale, "script_text_route_help", nil)
+}
+
+// ScriptTextOpaqueHelp says "Start ordinary dialogue with the native opaque-background flag."
+// in the language the app shows.
+func ScriptTextOpaqueHelp() string { return In(i18n.Locale()).ScriptTextOpaqueHelp() }
+
+// ScriptTextOpaqueHelp says "Start ordinary dialogue with the native opaque-background flag."
+// in the language of msgs.
+func (msgs Messages) ScriptTextOpaqueHelp() string {
+	return Catalog.Format(msgs.locale, "script_text_opaque_help", nil)
+}
+
 // ScriptWait says "Wait"
 // in the language the app shows.
 func ScriptWait() string { return In(i18n.Locale()).ScriptWait() }
@@ -684,6 +1936,156 @@ func ScriptLoadUnits() string { return In(i18n.Locale()).ScriptLoadUnits() }
 // in the language of msgs.
 func (msgs Messages) ScriptLoadUnits() string {
 	return Catalog.Format(msgs.locale, "script_load_units", nil)
+}
+
+// ScriptLoadUnits2 says "Load units (LOAD2)"
+// in the language the app shows.
+func ScriptLoadUnits2() string { return In(i18n.Locale()).ScriptLoadUnits2() }
+
+// ScriptLoadUnits2 says "Load units (LOAD2)"
+// in the language of msgs.
+func (msgs Messages) ScriptLoadUnits2() string {
+	return Catalog.Format(msgs.locale, "script_load_units_2", nil)
+}
+
+// ScriptLoadUnits3 says "Load current party into scene (LOAD3)"
+// in the language the app shows.
+func ScriptLoadUnits3() string { return In(i18n.Locale()).ScriptLoadUnits3() }
+
+// ScriptLoadUnits3 says "Load current party into scene (LOAD3)"
+// in the language of msgs.
+func (msgs Messages) ScriptLoadUnits3() string {
+	return Catalog.Format(msgs.locale, "script_load_units_3", nil)
+}
+
+// ScriptLoadPolicy says "Load parameter"
+// in the language the app shows.
+func ScriptLoadPolicy() string { return In(i18n.Locale()).ScriptLoadPolicy() }
+
+// ScriptLoadPolicy says "Load parameter"
+// in the language of msgs.
+func (msgs Messages) ScriptLoadPolicy() string {
+	return Catalog.Format(msgs.locale, "script_load_policy", nil)
+}
+
+// ScriptEnqueueSlot says "Enqueue a slot value"
+// in the language the app shows.
+func ScriptEnqueueSlot() string { return In(i18n.Locale()).ScriptEnqueueSlot() }
+
+// ScriptEnqueueSlot says "Enqueue a slot value"
+// in the language of msgs.
+func (msgs Messages) ScriptEnqueueSlot() string {
+	return Catalog.Format(msgs.locale, "script_enqueue_slot", nil)
+}
+
+// ScriptEnqueueSlot1 says "Enqueue slot 1 (SAVETOQUEUE)"
+// in the language the app shows.
+func ScriptEnqueueSlot1() string { return In(i18n.Locale()).ScriptEnqueueSlot1() }
+
+// ScriptEnqueueSlot1 says "Enqueue slot 1 (SAVETOQUEUE)"
+// in the language of msgs.
+func (msgs Messages) ScriptEnqueueSlot1() string {
+	return Catalog.Format(msgs.locale, "script_enqueue_slot_1", nil)
+}
+
+// ScriptDequeueSlot says "Dequeue into a slot"
+// in the language the app shows.
+func ScriptDequeueSlot() string { return In(i18n.Locale()).ScriptDequeueSlot() }
+
+// ScriptDequeueSlot says "Dequeue into a slot"
+// in the language of msgs.
+func (msgs Messages) ScriptDequeueSlot() string {
+	return Catalog.Format(msgs.locale, "script_dequeue_slot", nil)
+}
+
+// ScriptLoad1Help says "LOAD1 loads the selected deployment. Parameter 0 skips dead player units; 1 allows them; 2 keeps the native Seth/L…"
+// in the language the app shows.
+func ScriptLoad1Help() string { return In(i18n.Locale()).ScriptLoad1Help() }
+
+// ScriptLoad1Help says "LOAD1 loads the selected deployment. Parameter 0 skips dead player units; 1 allows them; 2 keeps the native Seth/L…"
+// in the language of msgs.
+func (msgs Messages) ScriptLoad1Help() string {
+	return Catalog.Format(msgs.locale, "script_load1_help", nil)
+}
+
+// ScriptLoad2Help says "LOAD2 always uses parameter 2, regardless of the encoded parameter shown here. It keeps the native exceptions for dea…"
+// in the language the app shows.
+func ScriptLoad2Help() string { return In(i18n.Locale()).ScriptLoad2Help() }
+
+// ScriptLoad2Help says "LOAD2 always uses parameter 2, regardless of the encoded parameter shown here. It keeps the native exceptions for dea…"
+// in the language of msgs.
+func (msgs Messages) ScriptLoad2Help() string {
+	return Catalog.Format(msgs.locale, "script_load2_help", nil)
+}
+
+// ScriptLoad3Help says "LOAD3 uses deployment positions and other template data, replacing characters/classes with the current player roster.…"
+// in the language the app shows.
+func ScriptLoad3Help() string { return In(i18n.Locale()).ScriptLoad3Help() }
+
+// ScriptLoad3Help says "LOAD3 uses deployment positions and other template data, replacing characters/classes with the current player roster.…"
+// in the language of msgs.
+func (msgs Messages) ScriptLoad3Help() string {
+	return Catalog.Format(msgs.locale, "script_load3_help", nil)
+}
+
+// ScriptLoadPointerHelp says "Use a ROM deployment address, or 0xFFFFFFFF to read slot 2. A proven assignment or queue transfer enables deployment …"
+// in the language the app shows.
+func ScriptLoadPointerHelp() string { return In(i18n.Locale()).ScriptLoadPointerHelp() }
+
+// ScriptLoadPointerHelp says "Use a ROM deployment address, or 0xFFFFFFFF to read slot 2. A proven assignment or queue transfer enables deployment …"
+// in the language of msgs.
+func (msgs Messages) ScriptLoadPointerHelp() string {
+	return Catalog.Format(msgs.locale, "script_load_pointer_help", nil)
+}
+
+// ScriptQueuePushHelp says "Append the selected slot value to the FIFO queue. Slot D is its length. To start an empty queue, set slot D to 0 firs…"
+// in the language the app shows.
+func ScriptQueuePushHelp() string { return In(i18n.Locale()).ScriptQueuePushHelp() }
+
+// ScriptQueuePushHelp says "Append the selected slot value to the FIFO queue. Slot D is its length. To start an empty queue, set slot D to 0 firs…"
+// in the language of msgs.
+func (msgs Messages) ScriptQueuePushHelp() string {
+	return Catalog.Format(msgs.locale, "script_queue_push_help", nil)
+}
+
+// ScriptQueuePush1Help says "Append slot 1 to the FIFO queue. To start an empty queue, set slot D to 0 first. A queued value retains its original …"
+// in the language the app shows.
+func ScriptQueuePush1Help() string { return In(i18n.Locale()).ScriptQueuePush1Help() }
+
+// ScriptQueuePush1Help says "Append slot 1 to the FIFO queue. To start an empty queue, set slot D to 0 first. A queued value retains its original …"
+// in the language of msgs.
+func (msgs Messages) ScriptQueuePush1Help() string {
+	return Catalog.Format(msgs.locale, "script_queue_push1_help", nil)
+}
+
+// ScriptQueuePopHelp says "Remove the first queued value and store it in the selected slot. The queue must contain a value. Slot D holds the que…"
+// in the language the app shows.
+func ScriptQueuePopHelp() string { return In(i18n.Locale()).ScriptQueuePopHelp() }
+
+// ScriptQueuePopHelp says "Remove the first queued value and store it in the selected slot. The queue must contain a value. Slot D holds the que…"
+// in the language of msgs.
+func (msgs Messages) ScriptQueuePopHelp() string {
+	return Catalog.Format(msgs.locale, "script_queue_pop_help", nil)
+}
+
+// ScriptSlotAssignmentHelp says "Native slots are 0 through D. Slot 0 resets before each instruction; setting slot D to 0 clears the queue length. Oth…"
+// in the language the app shows.
+func ScriptSlotAssignmentHelp() string { return In(i18n.Locale()).ScriptSlotAssignmentHelp() }
+
+// ScriptSlotAssignmentHelp says "Native slots are 0 through D. Slot 0 resets before each instruction; setting slot D to 0 clears the queue length. Oth…"
+// in the language of msgs.
+func (msgs Messages) ScriptSlotAssignmentHelp() string {
+	return Catalog.Format(msgs.locale, "script_slot_assignment_help", nil)
+}
+
+// ScriptIndirectUnitsReference says "Slot 2 → 0x%08X · assignment at 0x%08X (shared by loads using this value)"
+// in the language the app shows.
+func ScriptIndirectUnitsReference() string { return In(i18n.Locale()).ScriptIndirectUnitsReference() }
+
+// ScriptIndirectUnitsReference says "Slot 2 → 0x%08X · assignment at 0x%08X (shared by loads using this value)"
+// in the language of msgs.
+func (msgs Messages) ScriptIndirectUnitsReference() string {
+	return Catalog.Format(msgs.locale, "script_indirect_units_reference", nil)
 }
 
 // ScriptWaitUnits says "Wait for units"
@@ -954,6 +2356,688 @@ func ScriptSlotB() string { return In(i18n.Locale()).ScriptSlotB() }
 // in the language of msgs.
 func (msgs Messages) ScriptSlotB() string {
 	return Catalog.Format(msgs.locale, "script_slot_b", nil)
+}
+
+// ScriptMoveUnit says "Move unit"
+// in the language the app shows.
+func ScriptMoveUnit() string { return In(i18n.Locale()).ScriptMoveUnit() }
+
+// ScriptMoveUnit says "Move unit"
+// in the language of msgs.
+func (msgs Messages) ScriptMoveUnit() string {
+	return Catalog.Format(msgs.locale, "script_move_unit", nil)
+}
+
+// ScriptMoveUnitSpeed says "Move unit at speed"
+// in the language the app shows.
+func ScriptMoveUnitSpeed() string { return In(i18n.Locale()).ScriptMoveUnitSpeed() }
+
+// ScriptMoveUnitSpeed says "Move unit at speed"
+// in the language of msgs.
+func (msgs Messages) ScriptMoveUnitSpeed() string {
+	return Catalog.Format(msgs.locale, "script_move_unit_speed", nil)
+}
+
+// ScriptJoinPlayer says "Join player faction"
+// in the language the app shows.
+func ScriptJoinPlayer() string { return In(i18n.Locale()).ScriptJoinPlayer() }
+
+// ScriptJoinPlayer says "Join player faction"
+// in the language of msgs.
+func (msgs Messages) ScriptJoinPlayer() string {
+	return Catalog.Format(msgs.locale, "script_join_player", nil)
+}
+
+// ScriptJoinNpc says "Join NPC faction"
+// in the language the app shows.
+func ScriptJoinNpc() string { return In(i18n.Locale()).ScriptJoinNpc() }
+
+// ScriptJoinNpc says "Join NPC faction"
+// in the language of msgs.
+func (msgs Messages) ScriptJoinNpc() string {
+	return Catalog.Format(msgs.locale, "script_join_npc", nil)
+}
+
+// ScriptJoinEnemy says "Join enemy faction"
+// in the language the app shows.
+func ScriptJoinEnemy() string { return In(i18n.Locale()).ScriptJoinEnemy() }
+
+// ScriptJoinEnemy says "Join enemy faction"
+// in the language of msgs.
+func (msgs Messages) ScriptJoinEnemy() string {
+	return Catalog.Format(msgs.locale, "script_join_enemy", nil)
+}
+
+// ScriptGiveItem says "Give item to character"
+// in the language the app shows.
+func ScriptGiveItem() string { return In(i18n.Locale()).ScriptGiveItem() }
+
+// ScriptGiveItem says "Give item to character"
+// in the language of msgs.
+func (msgs Messages) ScriptGiveItem() string {
+	return Catalog.Format(msgs.locale, "script_give_item", nil)
+}
+
+// ScriptGiveActiveItem says "Give item to active unit"
+// in the language the app shows.
+func ScriptGiveActiveItem() string { return In(i18n.Locale()).ScriptGiveActiveItem() }
+
+// ScriptGiveActiveItem says "Give item to active unit"
+// in the language of msgs.
+func (msgs Messages) ScriptGiveActiveItem() string {
+	return Catalog.Format(msgs.locale, "script_give_active_item", nil)
+}
+
+// ScriptGiveItemSlot says "Give item from slot 3"
+// in the language the app shows.
+func ScriptGiveItemSlot() string { return In(i18n.Locale()).ScriptGiveItemSlot() }
+
+// ScriptGiveItemSlot says "Give item from slot 3"
+// in the language of msgs.
+func (msgs Messages) ScriptGiveItemSlot() string {
+	return Catalog.Format(msgs.locale, "script_give_item_slot", nil)
+}
+
+// ScriptGiveGoldSlot says "Give gold from slot 3"
+// in the language the app shows.
+func ScriptGiveGoldSlot() string { return In(i18n.Locale()).ScriptGiveGoldSlot() }
+
+// ScriptGiveGoldSlot says "Give gold from slot 3"
+// in the language of msgs.
+func (msgs Messages) ScriptGiveGoldSlot() string {
+	return Catalog.Format(msgs.locale, "script_give_gold_slot", nil)
+}
+
+// ScriptMusic says "Play music"
+// in the language the app shows.
+func ScriptMusic() string { return In(i18n.Locale()).ScriptMusic() }
+
+// ScriptMusic says "Play music"
+// in the language of msgs.
+func (msgs Messages) ScriptMusic() string {
+	return Catalog.Format(msgs.locale, "script_music", nil)
+}
+
+// ScriptMusicOverride says "Override and remember music"
+// in the language the app shows.
+func ScriptMusicOverride() string { return In(i18n.Locale()).ScriptMusicOverride() }
+
+// ScriptMusicOverride says "Override and remember music"
+// in the language of msgs.
+func (msgs Messages) ScriptMusicOverride() string {
+	return Catalog.Format(msgs.locale, "script_music_override", nil)
+}
+
+// ScriptMusicRestore says "Restore previous music"
+// in the language the app shows.
+func ScriptMusicRestore() string { return In(i18n.Locale()).ScriptMusicRestore() }
+
+// ScriptMusicRestore says "Restore previous music"
+// in the language of msgs.
+func (msgs Messages) ScriptMusicRestore() string {
+	return Catalog.Format(msgs.locale, "script_music_restore", nil)
+}
+
+// ScriptMusicFadeOut says "Fade out music"
+// in the language the app shows.
+func ScriptMusicFadeOut() string { return In(i18n.Locale()).ScriptMusicFadeOut() }
+
+// ScriptMusicFadeOut says "Fade out music"
+// in the language of msgs.
+func (msgs Messages) ScriptMusicFadeOut() string {
+	return Catalog.Format(msgs.locale, "script_music_fade_out", nil)
+}
+
+// ScriptSound says "Play sound effect"
+// in the language the app shows.
+func ScriptSound() string { return In(i18n.Locale()).ScriptSound() }
+
+// ScriptSound says "Play sound effect"
+// in the language of msgs.
+func (msgs Messages) ScriptSound() string {
+	return Catalog.Format(msgs.locale, "script_sound", nil)
+}
+
+// ScriptFadeToBlack says "Fade to black"
+// in the language the app shows.
+func ScriptFadeToBlack() string { return In(i18n.Locale()).ScriptFadeToBlack() }
+
+// ScriptFadeToBlack says "Fade to black"
+// in the language of msgs.
+func (msgs Messages) ScriptFadeToBlack() string {
+	return Catalog.Format(msgs.locale, "script_fade_to_black", nil)
+}
+
+// ScriptFadeFromBlack says "Fade from black"
+// in the language the app shows.
+func ScriptFadeFromBlack() string { return In(i18n.Locale()).ScriptFadeFromBlack() }
+
+// ScriptFadeFromBlack says "Fade from black"
+// in the language of msgs.
+func (msgs Messages) ScriptFadeFromBlack() string {
+	return Catalog.Format(msgs.locale, "script_fade_from_black", nil)
+}
+
+// ScriptFadeToWhite says "Fade to white"
+// in the language the app shows.
+func ScriptFadeToWhite() string { return In(i18n.Locale()).ScriptFadeToWhite() }
+
+// ScriptFadeToWhite says "Fade to white"
+// in the language of msgs.
+func (msgs Messages) ScriptFadeToWhite() string {
+	return Catalog.Format(msgs.locale, "script_fade_to_white", nil)
+}
+
+// ScriptFadeFromWhite says "Fade from white"
+// in the language the app shows.
+func ScriptFadeFromWhite() string { return In(i18n.Locale()).ScriptFadeFromWhite() }
+
+// ScriptFadeFromWhite says "Fade from white"
+// in the language of msgs.
+func (msgs Messages) ScriptFadeFromWhite() string {
+	return Catalog.Format(msgs.locale, "script_fade_from_white", nil)
+}
+
+// ScriptBackground says "Set dialogue background"
+// in the language the app shows.
+func ScriptBackground() string { return In(i18n.Locale()).ScriptBackground() }
+
+// ScriptBackground says "Set dialogue background"
+// in the language of msgs.
+func (msgs Messages) ScriptBackground() string {
+	return Catalog.Format(msgs.locale, "script_background", nil)
+}
+
+// ScriptHideMap says "Hide map view"
+// in the language the app shows.
+func ScriptHideMap() string { return In(i18n.Locale()).ScriptHideMap() }
+
+// ScriptHideMap says "Hide map view"
+// in the language of msgs.
+func (msgs Messages) ScriptHideMap() string {
+	return Catalog.Format(msgs.locale, "script_hide_map", nil)
+}
+
+// ScriptShowMap says "Restore map view"
+// in the language the app shows.
+func ScriptShowMap() string { return In(i18n.Locale()).ScriptShowMap() }
+
+// ScriptShowMap says "Restore map view"
+// in the language of msgs.
+func (msgs Messages) ScriptShowMap() string {
+	return Catalog.Format(msgs.locale, "script_show_map", nil)
+}
+
+// ScriptEventBitOn says "Set event execution bit"
+// in the language the app shows.
+func ScriptEventBitOn() string { return In(i18n.Locale()).ScriptEventBitOn() }
+
+// ScriptEventBitOn says "Set event execution bit"
+// in the language of msgs.
+func (msgs Messages) ScriptEventBitOn() string {
+	return Catalog.Format(msgs.locale, "script_event_bit_on", nil)
+}
+
+// ScriptEventBitOff says "Clear event execution bit"
+// in the language the app shows.
+func ScriptEventBitOff() string { return In(i18n.Locale()).ScriptEventBitOff() }
+
+// ScriptEventBitOff says "Clear event execution bit"
+// in the language of msgs.
+func (msgs Messages) ScriptEventBitOff() string {
+	return Catalog.Format(msgs.locale, "script_event_bit_off", nil)
+}
+
+// ScriptCharacter says "Character / selector"
+// in the language the app shows.
+func ScriptCharacter() string { return In(i18n.Locale()).ScriptCharacter() }
+
+// ScriptCharacter says "Character / selector"
+// in the language of msgs.
+func (msgs Messages) ScriptCharacter() string {
+	return Catalog.Format(msgs.locale, "script_character", nil)
+}
+
+// ScriptItem says "Item value"
+// in the language the app shows.
+func ScriptItem() string { return In(i18n.Locale()).ScriptItem() }
+
+// ScriptItem says "Item value"
+// in the language of msgs.
+func (msgs Messages) ScriptItem() string {
+	return Catalog.Format(msgs.locale, "script_item", nil)
+}
+
+// ScriptX says "X coordinate"
+// in the language the app shows.
+func ScriptX() string { return In(i18n.Locale()).ScriptX() }
+
+// ScriptX says "X coordinate"
+// in the language of msgs.
+func (msgs Messages) ScriptX() string {
+	return Catalog.Format(msgs.locale, "script_x", nil)
+}
+
+// ScriptY says "Y coordinate"
+// in the language the app shows.
+func ScriptY() string { return In(i18n.Locale()).ScriptY() }
+
+// ScriptY says "Y coordinate"
+// in the language of msgs.
+func (msgs Messages) ScriptY() string {
+	return Catalog.Format(msgs.locale, "script_y", nil)
+}
+
+// ScriptSpeed says "Speed"
+// in the language the app shows.
+func ScriptSpeed() string { return In(i18n.Locale()).ScriptSpeed() }
+
+// ScriptSpeed says "Speed"
+// in the language of msgs.
+func (msgs Messages) ScriptSpeed() string {
+	return Catalog.Format(msgs.locale, "script_speed", nil)
+}
+
+// ScriptSong says "Song ID"
+// in the language the app shows.
+func ScriptSong() string { return In(i18n.Locale()).ScriptSong() }
+
+// ScriptSong says "Song ID"
+// in the language of msgs.
+func (msgs Messages) ScriptSong() string {
+	return Catalog.Format(msgs.locale, "script_song", nil)
+}
+
+// ScriptSoundId says "Sound effect ID"
+// in the language the app shows.
+func ScriptSoundId() string { return In(i18n.Locale()).ScriptSoundId() }
+
+// ScriptSoundId says "Sound effect ID"
+// in the language of msgs.
+func (msgs Messages) ScriptSoundId() string {
+	return Catalog.Format(msgs.locale, "script_sound_id", nil)
+}
+
+// ScriptBackgroundId says "Background ID"
+// in the language the app shows.
+func ScriptBackgroundId() string { return In(i18n.Locale()).ScriptBackgroundId() }
+
+// ScriptBackgroundId says "Background ID"
+// in the language of msgs.
+func (msgs Messages) ScriptBackgroundId() string {
+	return Catalog.Format(msgs.locale, "script_background_id", nil)
+}
+
+// ScriptEventBit says "Execution bit"
+// in the language the app shows.
+func ScriptEventBit() string { return In(i18n.Locale()).ScriptEventBit() }
+
+// ScriptEventBit says "Execution bit"
+// in the language of msgs.
+func (msgs Messages) ScriptEventBit() string {
+	return Catalog.Format(msgs.locale, "script_event_bit", nil)
+}
+
+// ScriptWordCoordinateHelp says "The signed value preserves the encoded 16-bit coordinate. FE6 and FE7 interpret every value with its high bit set as …"
+// in the language the app shows.
+func ScriptWordCoordinateHelp() string { return In(i18n.Locale()).ScriptWordCoordinateHelp() }
+
+// ScriptWordCoordinateHelp says "The signed value preserves the encoded 16-bit coordinate. FE6 and FE7 interpret every value with its high bit set as …"
+// in the language of msgs.
+func (msgs Messages) ScriptWordCoordinateHelp() string {
+	return Catalog.Format(msgs.locale, "script_word_coordinate_help", nil)
+}
+
+// ScriptFe8CharacterHelp says "Character ID, or a native selector: 0 = player leader, -1 = active unit, -2 = coordinates in slot B, -3 = character i…"
+// in the language the app shows.
+func ScriptFe8CharacterHelp() string { return In(i18n.Locale()).ScriptFe8CharacterHelp() }
+
+// ScriptFe8CharacterHelp says "Character ID, or a native selector: 0 = player leader, -1 = active unit, -2 = coordinates in slot B, -3 = character i…"
+// in the language of msgs.
+func (msgs Messages) ScriptFe8CharacterHelp() string {
+	return Catalog.Format(msgs.locale, "script_fe8_character_help", nil)
+}
+
+// ScriptFe8MoveHelp says "Move to the encoded coordinates. A negative speed places the unit immediately. Insert Wait for units before actions t…"
+// in the language the app shows.
+func ScriptFe8MoveHelp() string { return In(i18n.Locale()).ScriptFe8MoveHelp() }
+
+// ScriptFe8MoveHelp says "Move to the encoded coordinates. A negative speed places the unit immediately. Insert Wait for units before actions t…"
+// in the language of msgs.
+func (msgs Messages) ScriptFe8MoveHelp() string {
+	return Catalog.Format(msgs.locale, "script_fe8_move_help", nil)
+}
+
+// ScriptItemSlotHelp says "This instruction gives the item stored in memory slot 3. Insert Set memory slot before it, choose slot 3 and enter th…"
+// in the language the app shows.
+func ScriptItemSlotHelp() string { return In(i18n.Locale()).ScriptItemSlotHelp() }
+
+// ScriptItemSlotHelp says "This instruction gives the item stored in memory slot 3. Insert Set memory slot before it, choose slot 3 and enter th…"
+// in the language of msgs.
+func (msgs Messages) ScriptItemSlotHelp() string {
+	return Catalog.Format(msgs.locale, "script_item_slot_help", nil)
+}
+
+// ScriptGoldSlotHelp says "This instruction awards the amount stored in memory slot 3. Set slot 3 before it and choose a valid target unit for t…"
+// in the language the app shows.
+func ScriptGoldSlotHelp() string { return In(i18n.Locale()).ScriptGoldSlotHelp() }
+
+// ScriptGoldSlotHelp says "This instruction awards the amount stored in memory slot 3. Set slot 3 before it and choose a valid target unit for t…"
+// in the language of msgs.
+func (msgs Messages) ScriptGoldSlotHelp() string {
+	return Catalog.Format(msgs.locale, "script_gold_slot_help", nil)
+}
+
+// ScriptItemParameterHelp says "Item 0 uses the event's item parameter. For a named recipient, character 0 uses the event's character parameter. A ta…"
+// in the language the app shows.
+func ScriptItemParameterHelp() string { return In(i18n.Locale()).ScriptItemParameterHelp() }
+
+// ScriptItemParameterHelp says "Item 0 uses the event's item parameter. For a named recipient, character 0 uses the event's character parameter. A ta…"
+// in the language of msgs.
+func (msgs Messages) ScriptItemParameterHelp() string {
+	return Catalog.Format(msgs.locale, "script_item_parameter_help", nil)
+}
+
+// ScriptSlot2Help says "A nonnegative value is an immediate ID. A negative value reads memory slot 2 when the event runs."
+// in the language the app shows.
+func ScriptSlot2Help() string { return In(i18n.Locale()).ScriptSlot2Help() }
+
+// ScriptSlot2Help says "A nonnegative value is an immediate ID. A negative value reads memory slot 2 when the event runs."
+// in the language of msgs.
+func (msgs Messages) ScriptSlot2Help() string {
+	return Catalog.Format(msgs.locale, "script_slot2_help", nil)
+}
+
+// ScriptCameraPosition says "Move camera to coordinates"
+// in the language the app shows.
+func ScriptCameraPosition() string { return In(i18n.Locale()).ScriptCameraPosition() }
+
+// ScriptCameraPosition says "Move camera to coordinates"
+// in the language of msgs.
+func (msgs Messages) ScriptCameraPosition() string {
+	return Catalog.Format(msgs.locale, "script_camera_position", nil)
+}
+
+// ScriptCameraCenterPosition says "Center camera on coordinates"
+// in the language the app shows.
+func ScriptCameraCenterPosition() string { return In(i18n.Locale()).ScriptCameraCenterPosition() }
+
+// ScriptCameraCenterPosition says "Center camera on coordinates"
+// in the language of msgs.
+func (msgs Messages) ScriptCameraCenterPosition() string {
+	return Catalog.Format(msgs.locale, "script_camera_center_position", nil)
+}
+
+// ScriptCameraUnit says "Move camera to character"
+// in the language the app shows.
+func ScriptCameraUnit() string { return In(i18n.Locale()).ScriptCameraUnit() }
+
+// ScriptCameraUnit says "Move camera to character"
+// in the language of msgs.
+func (msgs Messages) ScriptCameraUnit() string {
+	return Catalog.Format(msgs.locale, "script_camera_unit", nil)
+}
+
+// ScriptCameraCenterUnit says "Center camera on character"
+// in the language the app shows.
+func ScriptCameraCenterUnit() string { return In(i18n.Locale()).ScriptCameraCenterUnit() }
+
+// ScriptCameraCenterUnit says "Center camera on character"
+// in the language of msgs.
+func (msgs Messages) ScriptCameraCenterUnit() string {
+	return Catalog.Format(msgs.locale, "script_camera_center_unit", nil)
+}
+
+// ScriptCursorPosition says "Highlight coordinates"
+// in the language the app shows.
+func ScriptCursorPosition() string { return In(i18n.Locale()).ScriptCursorPosition() }
+
+// ScriptCursorPosition says "Highlight coordinates"
+// in the language of msgs.
+func (msgs Messages) ScriptCursorPosition() string {
+	return Catalog.Format(msgs.locale, "script_cursor_position", nil)
+}
+
+// ScriptCursorUnit says "Highlight character"
+// in the language the app shows.
+func ScriptCursorUnit() string { return In(i18n.Locale()).ScriptCursorUnit() }
+
+// ScriptCursorUnit says "Highlight character"
+// in the language of msgs.
+func (msgs Messages) ScriptCursorUnit() string {
+	return Catalog.Format(msgs.locale, "script_cursor_unit", nil)
+}
+
+// ScriptCursorGlowPosition says "Glow at coordinates"
+// in the language the app shows.
+func ScriptCursorGlowPosition() string { return In(i18n.Locale()).ScriptCursorGlowPosition() }
+
+// ScriptCursorGlowPosition says "Glow at coordinates"
+// in the language of msgs.
+func (msgs Messages) ScriptCursorGlowPosition() string {
+	return Catalog.Format(msgs.locale, "script_cursor_glow_position", nil)
+}
+
+// ScriptCursorGlowUnit says "Glow at character"
+// in the language the app shows.
+func ScriptCursorGlowUnit() string { return In(i18n.Locale()).ScriptCursorGlowUnit() }
+
+// ScriptCursorGlowUnit says "Glow at character"
+// in the language of msgs.
+func (msgs Messages) ScriptCursorGlowUnit() string {
+	return Catalog.Format(msgs.locale, "script_cursor_glow_unit", nil)
+}
+
+// ScriptCursorFlashPosition says "Flash coordinates for 60 frames"
+// in the language the app shows.
+func ScriptCursorFlashPosition() string { return In(i18n.Locale()).ScriptCursorFlashPosition() }
+
+// ScriptCursorFlashPosition says "Flash coordinates for 60 frames"
+// in the language of msgs.
+func (msgs Messages) ScriptCursorFlashPosition() string {
+	return Catalog.Format(msgs.locale, "script_cursor_flash_position", nil)
+}
+
+// ScriptCursorFlashUnit says "Flash character for 60 frames"
+// in the language the app shows.
+func ScriptCursorFlashUnit() string { return In(i18n.Locale()).ScriptCursorFlashUnit() }
+
+// ScriptCursorFlashUnit says "Flash character for 60 frames"
+// in the language of msgs.
+func (msgs Messages) ScriptCursorFlashUnit() string {
+	return Catalog.Format(msgs.locale, "script_cursor_flash_unit", nil)
+}
+
+// ScriptCursorClear says "Clear persistent highlights"
+// in the language the app shows.
+func ScriptCursorClear() string { return In(i18n.Locale()).ScriptCursorClear() }
+
+// ScriptCursorClear says "Clear persistent highlights"
+// in the language of msgs.
+func (msgs Messages) ScriptCursorClear() string {
+	return Catalog.Format(msgs.locale, "script_cursor_clear", nil)
+}
+
+// ScriptCheckUnitExists says "Check unit exists → slot C"
+// in the language the app shows.
+func ScriptCheckUnitExists() string { return In(i18n.Locale()).ScriptCheckUnitExists() }
+
+// ScriptCheckUnitExists says "Check unit exists → slot C"
+// in the language of msgs.
+func (msgs Messages) ScriptCheckUnitExists() string {
+	return Catalog.Format(msgs.locale, "script_check_unit_exists", nil)
+}
+
+// ScriptCheckUnitAlive says "Check unit alive → slot C"
+// in the language the app shows.
+func ScriptCheckUnitAlive() string { return In(i18n.Locale()).ScriptCheckUnitAlive() }
+
+// ScriptCheckUnitAlive says "Check unit alive → slot C"
+// in the language of msgs.
+func (msgs Messages) ScriptCheckUnitAlive() string {
+	return Catalog.Format(msgs.locale, "script_check_unit_alive", nil)
+}
+
+// ScriptCheckUnitDeployed says "Check unit deployed → slot C"
+// in the language the app shows.
+func ScriptCheckUnitDeployed() string { return In(i18n.Locale()).ScriptCheckUnitDeployed() }
+
+// ScriptCheckUnitDeployed says "Check unit deployed → slot C"
+// in the language of msgs.
+func (msgs Messages) ScriptCheckUnitDeployed() string {
+	return Catalog.Format(msgs.locale, "script_check_unit_deployed", nil)
+}
+
+// ScriptCheckUnitFaction says "Read unit faction → slot C"
+// in the language the app shows.
+func ScriptCheckUnitFaction() string { return In(i18n.Locale()).ScriptCheckUnitFaction() }
+
+// ScriptCheckUnitFaction says "Read unit faction → slot C"
+// in the language of msgs.
+func (msgs Messages) ScriptCheckUnitFaction() string {
+	return Catalog.Format(msgs.locale, "script_check_unit_faction", nil)
+}
+
+// ScriptBranchNoAliveAlly says "Branch if no living player unit"
+// in the language the app shows.
+func ScriptBranchNoAliveAlly() string { return In(i18n.Locale()).ScriptBranchNoAliveAlly() }
+
+// ScriptBranchNoAliveAlly says "Branch if no living player unit"
+// in the language of msgs.
+func (msgs Messages) ScriptBranchNoAliveAlly() string {
+	return Catalog.Format(msgs.locale, "script_branch_no_alive_ally", nil)
+}
+
+// ScriptBranchNoDeployedAlly says "Branch if no deployed player unit"
+// in the language the app shows.
+func ScriptBranchNoDeployedAlly() string { return In(i18n.Locale()).ScriptBranchNoDeployedAlly() }
+
+// ScriptBranchNoDeployedAlly says "Branch if no deployed player unit"
+// in the language of msgs.
+func (msgs Messages) ScriptBranchNoDeployedAlly() string {
+	return Catalog.Format(msgs.locale, "script_branch_no_deployed_ally", nil)
+}
+
+// ScriptCameraVisibleHelp says "Move the camera as needed to bring the target into view. The game controls scrolling and map-edge limits; this comman…"
+// in the language the app shows.
+func ScriptCameraVisibleHelp() string { return In(i18n.Locale()).ScriptCameraVisibleHelp() }
+
+// ScriptCameraVisibleHelp says "Move the camera as needed to bring the target into view. The game controls scrolling and map-edge limits; this comman…"
+// in the language of msgs.
+func (msgs Messages) ScriptCameraVisibleHelp() string {
+	return Catalog.Format(msgs.locale, "script_camera_visible_help", nil)
+}
+
+// ScriptCameraCenterHelp says "Center the camera on the target within the map limits. The game controls scrolling; centering does not force an insta…"
+// in the language the app shows.
+func ScriptCameraCenterHelp() string { return In(i18n.Locale()).ScriptCameraCenterHelp() }
+
+// ScriptCameraCenterHelp says "Center the camera on the target within the map limits. The game controls scrolling; centering does not force an insta…"
+// in the language of msgs.
+func (msgs Messages) ScriptCameraCenterHelp() string {
+	return Catalog.Format(msgs.locale, "script_camera_center_help", nil)
+}
+
+// ScriptSlotBCoordinatesHelp says "If either coordinate is negative, the game reads both coordinates from slot B: X in the low 16 bits and Y in the high…"
+// in the language the app shows.
+func ScriptSlotBCoordinatesHelp() string { return In(i18n.Locale()).ScriptSlotBCoordinatesHelp() }
+
+// ScriptSlotBCoordinatesHelp says "If either coordinate is negative, the game reads both coordinates from slot B: X in the low 16 bits and Y in the high…"
+// in the language of msgs.
+func (msgs Messages) ScriptSlotBCoordinatesHelp() string {
+	return Catalog.Format(msgs.locale, "script_slot_b_coordinates_help", nil)
+}
+
+// ScriptCursorPersistentHelp says "The highlight remains at its starting coordinates until Clear persistent highlights. Use Wait to control how long it …"
+// in the language the app shows.
+func ScriptCursorPersistentHelp() string { return In(i18n.Locale()).ScriptCursorPersistentHelp() }
+
+// ScriptCursorPersistentHelp says "The highlight remains at its starting coordinates until Clear persistent highlights. Use Wait to control how long it …"
+// in the language of msgs.
+func (msgs Messages) ScriptCursorPersistentHelp() string {
+	return Catalog.Format(msgs.locale, "script_cursor_persistent_help", nil)
+}
+
+// ScriptCursorFlashHelp says "Display the native flashing cursor for 60 frames and wait for it to finish. It ends automatically; Clear persistent h…"
+// in the language the app shows.
+func ScriptCursorFlashHelp() string { return In(i18n.Locale()).ScriptCursorFlashHelp() }
+
+// ScriptCursorFlashHelp says "Display the native flashing cursor for 60 frames and wait for it to finish. It ends automatically; Clear persistent h…"
+// in the language of msgs.
+func (msgs Messages) ScriptCursorFlashHelp() string {
+	return Catalog.Format(msgs.locale, "script_cursor_flash_help", nil)
+}
+
+// ScriptCheckUnitExistsHelp says "Write 1 to slot C if the unit can be found in any faction, otherwise 0. This does not establish that it is alive or r…"
+// in the language the app shows.
+func ScriptCheckUnitExistsHelp() string { return In(i18n.Locale()).ScriptCheckUnitExistsHelp() }
+
+// ScriptCheckUnitExistsHelp says "Write 1 to slot C if the unit can be found in any faction, otherwise 0. This does not establish that it is alive or r…"
+// in the language of msgs.
+func (msgs Messages) ScriptCheckUnitExistsHelp() string {
+	return Catalog.Format(msgs.locale, "script_check_unit_exists_help", nil)
+}
+
+// ScriptCheckUnitAliveHelp says "Write 1 to slot C if the unit exists and is not marked dead, otherwise 0. This applies to any faction. Compare slot C…"
+// in the language the app shows.
+func ScriptCheckUnitAliveHelp() string { return In(i18n.Locale()).ScriptCheckUnitAliveHelp() }
+
+// ScriptCheckUnitAliveHelp says "Write 1 to slot C if the unit exists and is not marked dead, otherwise 0. This applies to any faction. Compare slot C…"
+// in the language of msgs.
+func (msgs Messages) ScriptCheckUnitAliveHelp() string {
+	return Catalog.Format(msgs.locale, "script_check_unit_alive_help", nil)
+}
+
+// ScriptCheckUnitDeployedHelp says "Write 1 to slot C if the existing unit is not marked undeployed and has a nonnegative X position, otherwise 0. A miss…"
+// in the language the app shows.
+func ScriptCheckUnitDeployedHelp() string { return In(i18n.Locale()).ScriptCheckUnitDeployedHelp() }
+
+// ScriptCheckUnitDeployedHelp says "Write 1 to slot C if the existing unit is not marked undeployed and has a nonnegative X position, otherwise 0. A miss…"
+// in the language of msgs.
+func (msgs Messages) ScriptCheckUnitDeployedHelp() string {
+	return Catalog.Format(msgs.locale, "script_check_unit_deployed_help", nil)
+}
+
+// ScriptCheckUnitFactionHelp says "Write the existing unit's faction to slot C: 0 = player, 1 = ally/NPC, 2 = enemy. These are not the 00/40/80 deployme…"
+// in the language the app shows.
+func ScriptCheckUnitFactionHelp() string { return In(i18n.Locale()).ScriptCheckUnitFactionHelp() }
+
+// ScriptCheckUnitFactionHelp says "Write the existing unit's faction to slot C: 0 = player, 1 = ally/NPC, 2 = enemy. These are not the 00/40/80 deployme…"
+// in the language of msgs.
+func (msgs Messages) ScriptCheckUnitFactionHelp() string {
+	return Catalog.Format(msgs.locale, "script_check_unit_faction_help", nil)
+}
+
+// ScriptBranchNoAliveAllyHelp says "Jump to the label if this character is absent from the living player roster. A living enemy or NPC still takes the br…"
+// in the language the app shows.
+func ScriptBranchNoAliveAllyHelp() string { return In(i18n.Locale()).ScriptBranchNoAliveAllyHelp() }
+
+// ScriptBranchNoAliveAllyHelp says "Jump to the label if this character is absent from the living player roster. A living enemy or NPC still takes the br…"
+// in the language of msgs.
+func (msgs Messages) ScriptBranchNoAliveAllyHelp() string {
+	return Catalog.Format(msgs.locale, "script_branch_no_alive_ally_help", nil)
+}
+
+// ScriptBranchNoDeployedAllyHelp says "Jump to the label if the player roster has no living, deployed unit with this character ID. Enemy and NPC units do no…"
+// in the language the app shows.
+func ScriptBranchNoDeployedAllyHelp() string {
+	return In(i18n.Locale()).ScriptBranchNoDeployedAllyHelp()
+}
+
+// ScriptBranchNoDeployedAllyHelp says "Jump to the label if the player roster has no living, deployed unit with this character ID. Enemy and NPC units do no…"
+// in the language of msgs.
+func (msgs Messages) ScriptBranchNoDeployedAllyHelp() string {
+	return Catalog.Format(msgs.locale, "script_branch_no_deployed_ally_help", nil)
+}
+
+// ScriptEventBitHelp says "These bits control the running event, independently of completion flags. Bit 7 suppresses the ending fade; bit 9 foll…"
+// in the language the app shows.
+func ScriptEventBitHelp() string { return In(i18n.Locale()).ScriptEventBitHelp() }
+
+// ScriptEventBitHelp says "These bits control the running event, independently of completion flags. Bit 7 suppresses the ending fade; bit 9 foll…"
+// in the language of msgs.
+func (msgs Messages) ScriptEventBitHelp() string {
+	return Catalog.Format(msgs.locale, "script_event_bit_help", nil)
 }
 
 // Deployments says "Deployments"
@@ -7140,4 +9224,606 @@ func PortraitMouthLabel() string { return In(i18n.Locale()).PortraitMouthLabel()
 // in the language of msgs.
 func (msgs Messages) PortraitMouthLabel() string {
 	return Catalog.Format(msgs.locale, "portrait_mouth_label", nil)
+}
+
+// ScriptClearSkip says "Clear event skip state"
+// in the language the app shows.
+func ScriptClearSkip() string { return In(i18n.Locale()).ScriptClearSkip() }
+
+// ScriptClearSkip says "Clear event skip state"
+// in the language of msgs.
+func (msgs Messages) ScriptClearSkip() string {
+	return Catalog.Format(msgs.locale, "script_clear_skip", nil)
+}
+
+// ScriptClearSkipHelp says "Clear the native event skip state and continue with the next instruction. This instruction does not end the script."
+// in the language the app shows.
+func ScriptClearSkipHelp() string { return In(i18n.Locale()).ScriptClearSkipHelp() }
+
+// ScriptClearSkipHelp says "Clear the native event skip state and continue with the next instruction. This instruction does not end the script."
+// in the language of msgs.
+func (msgs Messages) ScriptClearSkipHelp() string {
+	return Catalog.Format(msgs.locale, "script_clear_skip_help", nil)
+}
+
+// ScriptEarlyReturn says "Early return"
+// in the language the app shows.
+func ScriptEarlyReturn() string { return In(i18n.Locale()).ScriptEarlyReturn() }
+
+// ScriptEarlyReturn says "Early return"
+// in the language of msgs.
+func (msgs Messages) ScriptEarlyReturn() string {
+	return Catalog.Format(msgs.locale, "script_early_return", nil)
+}
+
+// ScriptEarlyReturnHelp says "End execution like END, while allowing native label lookup to continue past this instruction. Ordinary END (0) stops …"
+// in the language the app shows.
+func ScriptEarlyReturnHelp() string { return In(i18n.Locale()).ScriptEarlyReturnHelp() }
+
+// ScriptEarlyReturnHelp says "End execution like END, while allowing native label lookup to continue past this instruction. Ordinary END (0) stops …"
+// in the language of msgs.
+func (msgs Messages) ScriptEarlyReturnHelp() string {
+	return Catalog.Format(msgs.locale, "script_early_return_help", nil)
+}
+
+// ScriptMoveUnitPath says "Move character along path"
+// in the language the app shows.
+func ScriptMoveUnitPath() string { return In(i18n.Locale()).ScriptMoveUnitPath() }
+
+// ScriptMoveUnitPath says "Move character along path"
+// in the language of msgs.
+func (msgs Messages) ScriptMoveUnitPath() string {
+	return Catalog.Format(msgs.locale, "script_move_unit_path", nil)
+}
+
+// ScriptMovePositionPath says "Move unit at coordinates along path"
+// in the language the app shows.
+func ScriptMovePositionPath() string { return In(i18n.Locale()).ScriptMovePositionPath() }
+
+// ScriptMovePositionPath says "Move unit at coordinates along path"
+// in the language of msgs.
+func (msgs Messages) ScriptMovePositionPath() string {
+	return Catalog.Format(msgs.locale, "script_move_position_path", nil)
+}
+
+// ScriptMoveFactionPaths says "Choose movement path by faction"
+// in the language the app shows.
+func ScriptMoveFactionPaths() string { return In(i18n.Locale()).ScriptMoveFactionPaths() }
+
+// ScriptMoveFactionPaths says "Choose movement path by faction"
+// in the language of msgs.
+func (msgs Messages) ScriptMoveFactionPaths() string {
+	return Catalog.Format(msgs.locale, "script_move_faction_paths", nil)
+}
+
+// ScriptMoveFactionPositionPath says "Player destination / other-faction path"
+// in the language the app shows.
+func ScriptMoveFactionPositionPath() string { return In(i18n.Locale()).ScriptMoveFactionPositionPath() }
+
+// ScriptMoveFactionPositionPath says "Player destination / other-faction path"
+// in the language of msgs.
+func (msgs Messages) ScriptMoveFactionPositionPath() string {
+	return Catalog.Format(msgs.locale, "script_move_faction_position_path", nil)
+}
+
+// ScriptMovementPointer says "Movement path"
+// in the language the app shows.
+func ScriptMovementPointer() string { return In(i18n.Locale()).ScriptMovementPointer() }
+
+// ScriptMovementPointer says "Movement path"
+// in the language of msgs.
+func (msgs Messages) ScriptMovementPointer() string {
+	return Catalog.Format(msgs.locale, "script_movement_pointer", nil)
+}
+
+// ScriptMovementPlayer says "Player movement path"
+// in the language the app shows.
+func ScriptMovementPlayer() string { return In(i18n.Locale()).ScriptMovementPlayer() }
+
+// ScriptMovementPlayer says "Player movement path"
+// in the language of msgs.
+func (msgs Messages) ScriptMovementPlayer() string {
+	return Catalog.Format(msgs.locale, "script_movement_player", nil)
+}
+
+// ScriptMovementOther says "Other-faction movement path"
+// in the language the app shows.
+func ScriptMovementOther() string { return In(i18n.Locale()).ScriptMovementOther() }
+
+// ScriptMovementOther says "Other-faction movement path"
+// in the language of msgs.
+func (msgs Messages) ScriptMovementOther() string {
+	return Catalog.Format(msgs.locale, "script_movement_other", nil)
+}
+
+// ScriptMovementHelp says "Run the native FE6/FE7 movement bytecode for an existing unit. Wait for unit movement is a separate instruction. Coor…"
+// in the language the app shows.
+func ScriptMovementHelp() string { return In(i18n.Locale()).ScriptMovementHelp() }
+
+// ScriptMovementHelp says "Run the native FE6/FE7 movement bytecode for an existing unit. Wait for unit movement is a separate instruction. Coor…"
+// in the language of msgs.
+func (msgs Messages) ScriptMovementHelp() string {
+	return Catalog.Format(msgs.locale, "script_movement_help", nil)
+}
+
+// ScriptMovementFactionHelp says "Use the player path when the character belongs to the player roster; otherwise use the other-faction path. Both paths…"
+// in the language the app shows.
+func ScriptMovementFactionHelp() string { return In(i18n.Locale()).ScriptMovementFactionHelp() }
+
+// ScriptMovementFactionHelp says "Use the player path when the character belongs to the player roster; otherwise use the other-faction path. Both paths…"
+// in the language of msgs.
+func (msgs Messages) ScriptMovementFactionHelp() string {
+	return Catalog.Format(msgs.locale, "script_movement_faction_help", nil)
+}
+
+// ScriptMovementFactionPositionHelp says "Player units move to the specified destination and speed; X = 99 leaves them in place. Other factions use the movemen…"
+// in the language the app shows.
+func ScriptMovementFactionPositionHelp() string {
+	return In(i18n.Locale()).ScriptMovementFactionPositionHelp()
+}
+
+// ScriptMovementFactionPositionHelp says "Player units move to the specified destination and speed; X = 99 leaves them in place. Other factions use the movemen…"
+// in the language of msgs.
+func (msgs Messages) ScriptMovementFactionPositionHelp() string {
+	return Catalog.Format(msgs.locale, "script_movement_faction_position_help", nil)
+}
+
+// ScriptMovementEditorHelp says "Up to 64 bytes, including operands and final Halt. Changes append a private path and update this operand in the scrip…"
+// in the language the app shows.
+func ScriptMovementEditorHelp() string { return In(i18n.Locale()).ScriptMovementEditorHelp() }
+
+// ScriptMovementEditorHelp says "Up to 64 bytes, including operands and final Halt. Changes append a private path and update this operand in the scrip…"
+// in the language of msgs.
+func (msgs Messages) ScriptMovementEditorHelp() string {
+	return Catalog.Format(msgs.locale, "script_movement_editor_help", nil)
+}
+
+// ScriptMovementCreate says "Create replacement path"
+// in the language the app shows.
+func ScriptMovementCreate() string { return In(i18n.Locale()).ScriptMovementCreate() }
+
+// ScriptMovementCreate says "Create replacement path"
+// in the language of msgs.
+func (msgs Messages) ScriptMovementCreate() string {
+	return Catalog.Format(msgs.locale, "script_movement_create", nil)
+}
+
+// ScriptMovementStep says "Path step"
+// in the language the app shows.
+func ScriptMovementStep() string { return In(i18n.Locale()).ScriptMovementStep() }
+
+// ScriptMovementStep says "Path step"
+// in the language of msgs.
+func (msgs Messages) ScriptMovementStep() string {
+	return Catalog.Format(msgs.locale, "script_movement_step", nil)
+}
+
+// ScriptMovementValue says "Step parameter"
+// in the language the app shows.
+func ScriptMovementValue() string { return In(i18n.Locale()).ScriptMovementValue() }
+
+// ScriptMovementValue says "Step parameter"
+// in the language of msgs.
+func (msgs Messages) ScriptMovementValue() string {
+	return Catalog.Format(msgs.locale, "script_movement_value", nil)
+}
+
+// ScriptMovementPreview says "Append %d movement path(s); retain old paths and their other references."
+// in the language the app shows.
+func ScriptMovementPreview() string { return In(i18n.Locale()).ScriptMovementPreview() }
+
+// ScriptMovementPreview says "Append %d movement path(s); retain old paths and their other references."
+// in the language of msgs.
+func (msgs Messages) ScriptMovementPreview() string {
+	return Catalog.Format(msgs.locale, "script_movement_preview", nil)
+}
+
+// ScriptMoveLeft says "Move left"
+// in the language the app shows.
+func ScriptMoveLeft() string { return In(i18n.Locale()).ScriptMoveLeft() }
+
+// ScriptMoveLeft says "Move left"
+// in the language of msgs.
+func (msgs Messages) ScriptMoveLeft() string {
+	return Catalog.Format(msgs.locale, "script_move_left", nil)
+}
+
+// ScriptMoveRight says "Move right"
+// in the language the app shows.
+func ScriptMoveRight() string { return In(i18n.Locale()).ScriptMoveRight() }
+
+// ScriptMoveRight says "Move right"
+// in the language of msgs.
+func (msgs Messages) ScriptMoveRight() string {
+	return Catalog.Format(msgs.locale, "script_move_right", nil)
+}
+
+// ScriptMoveDown says "Move down"
+// in the language the app shows.
+func ScriptMoveDown() string { return In(i18n.Locale()).ScriptMoveDown() }
+
+// ScriptMoveDown says "Move down"
+// in the language of msgs.
+func (msgs Messages) ScriptMoveDown() string {
+	return Catalog.Format(msgs.locale, "script_move_down", nil)
+}
+
+// ScriptMoveUp says "Move up"
+// in the language the app shows.
+func ScriptMoveUp() string { return In(i18n.Locale()).ScriptMoveUp() }
+
+// ScriptMoveUp says "Move up"
+// in the language of msgs.
+func (msgs Messages) ScriptMoveUp() string {
+	return Catalog.Format(msgs.locale, "script_move_up", nil)
+}
+
+// ScriptMoveHalt says "Halt"
+// in the language the app shows.
+func ScriptMoveHalt() string { return In(i18n.Locale()).ScriptMoveHalt() }
+
+// ScriptMoveHalt says "Halt"
+// in the language of msgs.
+func (msgs Messages) ScriptMoveHalt() string {
+	return Catalog.Format(msgs.locale, "script_move_halt", nil)
+}
+
+// ScriptFaceLeft says "Face left"
+// in the language the app shows.
+func ScriptFaceLeft() string { return In(i18n.Locale()).ScriptFaceLeft() }
+
+// ScriptFaceLeft says "Face left"
+// in the language of msgs.
+func (msgs Messages) ScriptFaceLeft() string {
+	return Catalog.Format(msgs.locale, "script_face_left", nil)
+}
+
+// ScriptFaceRight says "Face right"
+// in the language the app shows.
+func ScriptFaceRight() string { return In(i18n.Locale()).ScriptFaceRight() }
+
+// ScriptFaceRight says "Face right"
+// in the language of msgs.
+func (msgs Messages) ScriptFaceRight() string {
+	return Catalog.Format(msgs.locale, "script_face_right", nil)
+}
+
+// ScriptFaceDown says "Face down"
+// in the language the app shows.
+func ScriptFaceDown() string { return In(i18n.Locale()).ScriptFaceDown() }
+
+// ScriptFaceDown says "Face down"
+// in the language of msgs.
+func (msgs Messages) ScriptFaceDown() string {
+	return Catalog.Format(msgs.locale, "script_face_down", nil)
+}
+
+// ScriptFaceUp says "Face up"
+// in the language the app shows.
+func ScriptFaceUp() string { return In(i18n.Locale()).ScriptFaceUp() }
+
+// ScriptFaceUp says "Face up"
+// in the language of msgs.
+func (msgs Messages) ScriptFaceUp() string {
+	return Catalog.Format(msgs.locale, "script_face_up", nil)
+}
+
+// ScriptMoveSleep says "Pause"
+// in the language the app shows.
+func ScriptMoveSleep() string { return In(i18n.Locale()).ScriptMoveSleep() }
+
+// ScriptMoveSleep says "Pause"
+// in the language of msgs.
+func (msgs Messages) ScriptMoveSleep() string {
+	return Catalog.Format(msgs.locale, "script_move_sleep", nil)
+}
+
+// ScriptMoveBump says "Fog bump"
+// in the language the app shows.
+func ScriptMoveBump() string { return In(i18n.Locale()).ScriptMoveBump() }
+
+// ScriptMoveBump says "Fog bump"
+// in the language of msgs.
+func (msgs Messages) ScriptMoveBump() string {
+	return Catalog.Format(msgs.locale, "script_move_bump", nil)
+}
+
+// ScriptMoveSpeed says "Set movement speed"
+// in the language the app shows.
+func ScriptMoveSpeed() string { return In(i18n.Locale()).ScriptMoveSpeed() }
+
+// ScriptMoveSpeed says "Set movement speed"
+// in the language of msgs.
+func (msgs Messages) ScriptMoveSpeed() string {
+	return Catalog.Format(msgs.locale, "script_move_speed", nil)
+}
+
+// ScriptMoveCameraOn says "Follow with camera"
+// in the language the app shows.
+func ScriptMoveCameraOn() string { return In(i18n.Locale()).ScriptMoveCameraOn() }
+
+// ScriptMoveCameraOn says "Follow with camera"
+// in the language of msgs.
+func (msgs Messages) ScriptMoveCameraOn() string {
+	return Catalog.Format(msgs.locale, "script_move_camera_on", nil)
+}
+
+// ScriptMoveCameraOff says "Stop camera following"
+// in the language the app shows.
+func ScriptMoveCameraOff() string { return In(i18n.Locale()).ScriptMoveCameraOff() }
+
+// ScriptMoveCameraOff says "Stop camera following"
+// in the language of msgs.
+func (msgs Messages) ScriptMoveCameraOff() string {
+	return Catalog.Format(msgs.locale, "script_move_camera_off", nil)
+}
+
+// ScriptMovementInsert says "Insert path step"
+// in the language the app shows.
+func ScriptMovementInsert() string { return In(i18n.Locale()).ScriptMovementInsert() }
+
+// ScriptMovementInsert says "Insert path step"
+// in the language of msgs.
+func (msgs Messages) ScriptMovementInsert() string {
+	return Catalog.Format(msgs.locale, "script_movement_insert", nil)
+}
+
+// ScriptBranchSkipped says "Branch if event or dialogue skipped"
+// in the language the app shows.
+func ScriptBranchSkipped() string { return In(i18n.Locale()).ScriptBranchSkipped() }
+
+// ScriptBranchSkipped says "Branch if event or dialogue skipped"
+// in the language of msgs.
+func (msgs Messages) ScriptBranchSkipped() string {
+	return Catalog.Format(msgs.locale, "script_branch_skipped", nil)
+}
+
+// ScriptBranchTextSkipped says "Branch if dialogue skipped"
+// in the language the app shows.
+func ScriptBranchTextSkipped() string { return In(i18n.Locale()).ScriptBranchTextSkipped() }
+
+// ScriptBranchTextSkipped says "Branch if dialogue skipped"
+// in the language of msgs.
+func (msgs Messages) ScriptBranchTextSkipped() string {
+	return Catalog.Format(msgs.locale, "script_branch_text_skipped", nil)
+}
+
+// ScriptBranchActive says "Branch if character is active"
+// in the language the app shows.
+func ScriptBranchActive() string { return In(i18n.Locale()).ScriptBranchActive() }
+
+// ScriptBranchActive says "Branch if character is active"
+// in the language of msgs.
+func (msgs Messages) ScriptBranchActive() string {
+	return Catalog.Format(msgs.locale, "script_branch_active", nil)
+}
+
+// ScriptBranchNotActive says "Branch if character is not active"
+// in the language the app shows.
+func ScriptBranchNotActive() string { return In(i18n.Locale()).ScriptBranchNotActive() }
+
+// ScriptBranchNotActive says "Branch if character is not active"
+// in the language of msgs.
+func (msgs Messages) ScriptBranchNotActive() string {
+	return Catalog.Format(msgs.locale, "script_branch_not_active", nil)
+}
+
+// ScriptBranchEliwood says "Branch in Eliwood mode"
+// in the language the app shows.
+func ScriptBranchEliwood() string { return In(i18n.Locale()).ScriptBranchEliwood() }
+
+// ScriptBranchEliwood says "Branch in Eliwood mode"
+// in the language of msgs.
+func (msgs Messages) ScriptBranchEliwood() string {
+	return Catalog.Format(msgs.locale, "script_branch_eliwood", nil)
+}
+
+// ScriptBranchHector says "Branch in Hector mode"
+// in the language the app shows.
+func ScriptBranchHector() string { return In(i18n.Locale()).ScriptBranchHector() }
+
+// ScriptBranchHector says "Branch in Hector mode"
+// in the language of msgs.
+func (msgs Messages) ScriptBranchHector() string {
+	return Catalog.Format(msgs.locale, "script_branch_hector", nil)
+}
+
+// ScriptBranchNormal says "Branch in normal difficulty"
+// in the language the app shows.
+func ScriptBranchNormal() string { return In(i18n.Locale()).ScriptBranchNormal() }
+
+// ScriptBranchNormal says "Branch in normal difficulty"
+// in the language of msgs.
+func (msgs Messages) ScriptBranchNormal() string {
+	return Catalog.Format(msgs.locale, "script_branch_normal", nil)
+}
+
+// ScriptBranchHard says "Branch in hard difficulty"
+// in the language the app shows.
+func ScriptBranchHard() string { return In(i18n.Locale()).ScriptBranchHard() }
+
+// ScriptBranchHard says "Branch in hard difficulty"
+// in the language of msgs.
+func (msgs Messages) ScriptBranchHard() string {
+	return Catalog.Format(msgs.locale, "script_branch_hard", nil)
+}
+
+// ScriptBranchNotYes says "Branch if choice is not YES"
+// in the language the app shows.
+func ScriptBranchNotYes() string { return In(i18n.Locale()).ScriptBranchNotYes() }
+
+// ScriptBranchNotYes says "Branch if choice is not YES"
+// in the language of msgs.
+func (msgs Messages) ScriptBranchNotYes() string {
+	return Catalog.Format(msgs.locale, "script_branch_not_yes", nil)
+}
+
+// ScriptBranchNotYesAlternate says "Branch if choice is not YES (alternate encoding)"
+// in the language the app shows.
+func ScriptBranchNotYesAlternate() string { return In(i18n.Locale()).ScriptBranchNotYesAlternate() }
+
+// ScriptBranchNotYesAlternate says "Branch if choice is not YES (alternate encoding)"
+// in the language of msgs.
+func (msgs Messages) ScriptBranchNotYesAlternate() string {
+	return Catalog.Format(msgs.locale, "script_branch_not_yes_alternate", nil)
+}
+
+// ScriptBranchNoTutorial says "Branch if tutorial is disabled"
+// in the language the app shows.
+func ScriptBranchNoTutorial() string { return In(i18n.Locale()).ScriptBranchNoTutorial() }
+
+// ScriptBranchNoTutorial says "Branch if tutorial is disabled"
+// in the language of msgs.
+func (msgs Messages) ScriptBranchNoTutorial() string {
+	return Catalog.Format(msgs.locale, "script_branch_no_tutorial", nil)
+}
+
+// ScriptBranchDeathOnce says "Continue on first confirmed player death"
+// in the language the app shows.
+func ScriptBranchDeathOnce() string { return In(i18n.Locale()).ScriptBranchDeathOnce() }
+
+// ScriptBranchDeathOnce says "Continue on first confirmed player death"
+// in the language of msgs.
+func (msgs Messages) ScriptBranchDeathOnce() string {
+	return Catalog.Format(msgs.locale, "script_branch_death_once", nil)
+}
+
+// ScriptBranchTurnReached says "Branch when turn reached"
+// in the language the app shows.
+func ScriptBranchTurnReached() string { return In(i18n.Locale()).ScriptBranchTurnReached() }
+
+// ScriptBranchTurnReached says "Branch when turn reached"
+// in the language of msgs.
+func (msgs Messages) ScriptBranchTurnReached() string {
+	return Catalog.Format(msgs.locale, "script_branch_turn_reached", nil)
+}
+
+// ScriptBranchDeployed says "Branch if player character deployed"
+// in the language the app shows.
+func ScriptBranchDeployed() string { return In(i18n.Locale()).ScriptBranchDeployed() }
+
+// ScriptBranchDeployed says "Branch if player character deployed"
+// in the language of msgs.
+func (msgs Messages) ScriptBranchDeployed() string {
+	return Catalog.Format(msgs.locale, "script_branch_deployed", nil)
+}
+
+// ScriptBranchNotDeployed says "Branch if player character not deployed"
+// in the language the app shows.
+func ScriptBranchNotDeployed() string { return In(i18n.Locale()).ScriptBranchNotDeployed() }
+
+// ScriptBranchNotDeployed says "Branch if player character not deployed"
+// in the language of msgs.
+func (msgs Messages) ScriptBranchNotDeployed() string {
+	return Catalog.Format(msgs.locale, "script_branch_not_deployed", nil)
+}
+
+// ScriptTurn says "Turn number"
+// in the language the app shows.
+func ScriptTurn() string { return In(i18n.Locale()).ScriptTurn() }
+
+// ScriptTurn says "Turn number"
+// in the language of msgs.
+func (msgs Messages) ScriptTurn() string {
+	return Catalog.Format(msgs.locale, "script_turn", nil)
+}
+
+// ScriptBranchSkippedHelp says "Jump if either native event-skip or dialogue-skip state is set. Clear skip state explicitly when required."
+// in the language the app shows.
+func ScriptBranchSkippedHelp() string { return In(i18n.Locale()).ScriptBranchSkippedHelp() }
+
+// ScriptBranchSkippedHelp says "Jump if either native event-skip or dialogue-skip state is set. Clear skip state explicitly when required."
+// in the language of msgs.
+func (msgs Messages) ScriptBranchSkippedHelp() string {
+	return Catalog.Format(msgs.locale, "script_branch_skipped_help", nil)
+}
+
+// ScriptBranchTextSkippedHelp says "Jump only when the native dialogue-skip state is set."
+// in the language the app shows.
+func ScriptBranchTextSkippedHelp() string { return In(i18n.Locale()).ScriptBranchTextSkippedHelp() }
+
+// ScriptBranchTextSkippedHelp says "Jump only when the native dialogue-skip state is set."
+// in the language of msgs.
+func (msgs Messages) ScriptBranchTextSkippedHelp() string {
+	return Catalog.Format(msgs.locale, "script_branch_text_skipped_help", nil)
+}
+
+// ScriptBranchActiveHelp says "Compare the active unit with this character. The game requires an active unit; the editor does not simulate it."
+// in the language the app shows.
+func ScriptBranchActiveHelp() string { return In(i18n.Locale()).ScriptBranchActiveHelp() }
+
+// ScriptBranchActiveHelp says "Compare the active unit with this character. The game requires an active unit; the editor does not simulate it."
+// in the language of msgs.
+func (msgs Messages) ScriptBranchActiveHelp() string {
+	return Catalog.Format(msgs.locale, "script_branch_active_help", nil)
+}
+
+// ScriptBranchRouteHelp says "Jump only in the named campaign. Other campaigns continue with the next instruction."
+// in the language the app shows.
+func ScriptBranchRouteHelp() string { return In(i18n.Locale()).ScriptBranchRouteHelp() }
+
+// ScriptBranchRouteHelp says "Jump only in the named campaign. Other campaigns continue with the next instruction."
+// in the language of msgs.
+func (msgs Messages) ScriptBranchRouteHelp() string {
+	return Catalog.Format(msgs.locale, "script_branch_route_help", nil)
+}
+
+// ScriptBranchDifficultyHelp says "Compare the native hard-mode flag and jump in the named difficulty."
+// in the language the app shows.
+func ScriptBranchDifficultyHelp() string { return In(i18n.Locale()).ScriptBranchDifficultyHelp() }
+
+// ScriptBranchDifficultyHelp says "Compare the native hard-mode flag and jump in the named difficulty."
+// in the language of msgs.
+func (msgs Messages) ScriptBranchDifficultyHelp() string {
+	return Catalog.Format(msgs.locale, "script_branch_difficulty_help", nil)
+}
+
+// ScriptBranchChoiceHelp says "Both native encodings jump when the dialogue result is not YES. The second encoding does not implement the opposite c…"
+// in the language the app shows.
+func ScriptBranchChoiceHelp() string { return In(i18n.Locale()).ScriptBranchChoiceHelp() }
+
+// ScriptBranchChoiceHelp says "Both native encodings jump when the dialogue result is not YES. The second encoding does not implement the opposite c…"
+// in the language of msgs.
+func (msgs Messages) ScriptBranchChoiceHelp() string {
+	return Catalog.Format(msgs.locale, "script_branch_choice_help", nil)
+}
+
+// ScriptBranchNoTutorialHelp says "Jump on hard difficulty or when the tutorial is disabled."
+// in the language the app shows.
+func ScriptBranchNoTutorialHelp() string { return In(i18n.Locale()).ScriptBranchNoTutorialHelp() }
+
+// ScriptBranchNoTutorialHelp says "Jump on hard difficulty or when the tutorial is disabled."
+// in the language of msgs.
+func (msgs Messages) ScriptBranchNoTutorialHelp() string {
+	return Catalog.Format(msgs.locale, "script_branch_no_tutorial_help", nil)
+}
+
+// ScriptBranchDeathOnceHelp says "Continue and set the flag only when this character is a dead player unit and the flag is still clear. Otherwise jump …"
+// in the language the app shows.
+func ScriptBranchDeathOnceHelp() string { return In(i18n.Locale()).ScriptBranchDeathOnceHelp() }
+
+// ScriptBranchDeathOnceHelp says "Continue and set the flag only when this character is a dead player unit and the flag is still clear. Otherwise jump …"
+// in the language of msgs.
+func (msgs Messages) ScriptBranchDeathOnceHelp() string {
+	return Catalog.Format(msgs.locale, "script_branch_death_once_help", nil)
+}
+
+// ScriptBranchTurnHelp says "Jump when the current turn is greater than or equal to the supplied number."
+// in the language the app shows.
+func ScriptBranchTurnHelp() string { return In(i18n.Locale()).ScriptBranchTurnHelp() }
+
+// ScriptBranchTurnHelp says "Jump when the current turn is greater than or equal to the supplied number."
+// in the language of msgs.
+func (msgs Messages) ScriptBranchTurnHelp() string {
+	return Catalog.Format(msgs.locale, "script_branch_turn_help", nil)
+}
+
+// ScriptBranchDeployedHelp says "Check the native player deployment predicate, not the deployment table or another faction."
+// in the language the app shows.
+func ScriptBranchDeployedHelp() string { return In(i18n.Locale()).ScriptBranchDeployedHelp() }
+
+// ScriptBranchDeployedHelp says "Check the native player deployment predicate, not the deployment table or another faction."
+// in the language of msgs.
+func (msgs Messages) ScriptBranchDeployedHelp() string {
+	return Catalog.Format(msgs.locale, "script_branch_deployed_help", nil)
 }

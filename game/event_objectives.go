@@ -53,7 +53,13 @@ func (f deploymentFormat) eventResources(
 	if event.Script < 0xC0 || event.Script%4 != 0 {
 		scanner.warn(event.Address + 4)
 	} else {
-		scanner.walk(event.Script, [16]int{}, 0, chapter, event.source(table))
+		scanner.walk(
+			event.Script,
+			eventSlotState{},
+			0,
+			chapter,
+			event.source(table),
+		)
 	}
 	event.Groups, event.Warnings = resources.Groups, resources.Warnings
 	return resources.ranges

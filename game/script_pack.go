@@ -24,13 +24,26 @@ func (d *ScriptDraft) scriptContent(
 	}
 	entry := d.Entry()
 	end := entry.Address + d.originalLength()
+	loadSources := d.unitLoadSources()
 	for index, row := range d.rows {
 		if row.definition == nil {
 			return nil, nil, ErrScriptStructure
 		}
 		for _, field := range row.definition.fields {
 			value := field.value(row.instruction.Raw)
-			if (field.ID == ScriptPointer || field.ID == ScriptUnitPointer) &&
+			if field.Target == ScriptDeploymentTarget &&
+				d.original.format.kind == eventFE8 &&
+				slotUnitLoad(row.instruction.Raw) {
+				source, ok := loadSources[index]
+				if !ok {
+					return nil, nil, ErrScriptStructure
+				}
+				value = int64(u32(d.rows[source].instruction.Raw, 4))
+			}
+			if field.Optional && value == 0 {
+				continue
+			}
+			if (field.Target == ScriptEventTarget || field.Target == ScriptDeploymentTarget || field.Target == ScriptMovementTarget) &&
 				(value < 0x080000C0 || value >= 0x0A000000) {
 				return nil, nil, ErrScriptStructure
 			}
@@ -39,7 +52,7 @@ func (d *ScriptDraft) scriptContent(
 				value < int64(0x08000000+end) {
 				return nil, nil, ErrScriptStructure
 			}
-			if field.ID != ScriptPointer {
+			if field.Target != ScriptEventTarget {
 				continue
 			}
 			target := int(value) - 0x08000000

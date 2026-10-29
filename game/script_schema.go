@@ -1,7 +1,5 @@
 package game
 
-import "encoding/binary"
-
 type ScriptOp string
 
 const (
@@ -47,13 +45,40 @@ const (
 	ScriptSlotB       = "script_slot_b"
 )
 
+// ScriptTarget is the resource contract of an operand, independent of its
+// display name. One instruction may refer to several resources of the same kind.
+type ScriptTarget uint8
+
+const (
+	ScriptNoTarget ScriptTarget = iota
+	ScriptTextTarget
+	ScriptEventTarget
+	ScriptDeploymentTarget
+	ScriptMovementTarget
+)
+
 // ScriptField describes a confirmed operand; the opcode and unrelated bytes
 // remain outside its writable range. Pointer operands use native GBA addresses.
+// A negative Min denotes a signed native operand. Reference supplies optional
+// record choices; Help identifies the operand's version-specific explanation.
 type ScriptField struct {
 	ID            string
-	Max           int64
+	Min, Max      int64
 	Hex           bool
+	Reference     Kind
+	Target        ScriptTarget
+	Optional      bool
+	Help          string
 	offset, width int
+	bits, shift   uint
+}
+
+func (field ScriptField) mask() int64 {
+	bits := field.bits
+	if bits == 0 {
+		bits = uint(field.width * 8)
+	}
+	return (int64(1)<<bits - 1) << field.shift
 }
 
 func (field ScriptField) value(raw []byte) int64 {
@@ -61,12 +86,21 @@ func (field ScriptField) value(raw []byte) int64 {
 	for index := range field.width {
 		result |= int64(raw[field.offset+index]) << (8 * index)
 	}
+	result = (result & field.mask()) >> field.shift
+	sign := ((field.mask() >> field.shift) + 1) >> 1
+	if field.Min < 0 && result&sign != 0 {
+		result -= sign << 1
+	}
 	return result
 }
 
 func (field ScriptField) put(raw []byte, value int64) {
+	mask := field.mask()
 	for index := range field.width {
-		raw[field.offset+index] = byte((value >> (8 * index)) & 0xFF)
+		shift := uint(8 * index)
+		part := byte((mask >> shift) & 0xFF)
+		raw[field.offset+index] = raw[field.offset+index]&^part |
+			byte(((value<<field.shift)>>shift)&0xFF)&part
 	}
 }
 
@@ -76,11 +110,22 @@ type scriptDefinition struct {
 	fields        []ScriptField
 	label, branch bool
 	terminal      bool
+	help          string
 }
 
 func scriptOperand(id string, offset, width int, maximum int64) ScriptField {
+	var target ScriptTarget
+	switch id {
+	case ScriptTextID:
+		target = ScriptTextTarget
+	case ScriptPointer:
+		target = ScriptEventTarget
+	case ScriptUnitPointer:
+		target = ScriptDeploymentTarget
+	}
 	return ScriptField{
 		ID:     id,
+		Target: target,
 		offset: offset,
 		width:  width,
 		Max:    maximum,
@@ -89,7 +134,17 @@ func scriptOperand(id string, offset, width int, maximum int64) ScriptField {
 }
 
 func (f deploymentFormat) scriptDefinitions() []scriptDefinition {
-	var result []scriptDefinition
+	result := f.sceneDefinitions()
+	result = append(result, f.cameraDefinitions()...)
+	result = append(result, f.unitConditionDefinitions()...)
+	result = append(result, f.loadDefinitions()...)
+	result = append(result, f.slotDefinitions()...)
+	result = append(result, f.controlDefinitions()...)
+	result = append(result, f.unitStateDefinitions()...)
+	result = append(result, f.presentationDefinitions()...)
+	result = append(result, f.wordVariantDefinitions()...)
+	result = append(result, f.movementDefinitions()...)
+	result = append(result, f.wordConditionDefinitions()...)
 	add := func(op ScriptOp, raw []byte, fields ...ScriptField) {
 		result = append(
 			result,
@@ -114,8 +169,8 @@ func (f deploymentFormat) scriptDefinitions() []scriptDefinition {
 		add(ScriptEnd, []byte{0x20, 1, 0, 0})
 		add(
 			ScriptWait,
-			[]byte{0x20, 0x0E, 0, 0},
-			scriptOperand(ScriptFrames, 2, 2, 0x7FFF),
+			[]byte{0x20, 0x0E, 1, 0},
+			sceneOperand(ScriptFrames, 2, 2, 1, 0x7FFF),
 		)
 		add(ScriptTextStart, []byte{0x20, 0x1A, 0, 0})
 		add(
@@ -130,11 +185,6 @@ func (f deploymentFormat) scriptDefinitions() []scriptDefinition {
 		)
 		add(ScriptTextWait, []byte{0x20, 0x1D, 0, 0})
 		add(ScriptTextClear, []byte{0x22, 0x1B, 0, 0})
-		add(
-			ScriptLoadUnits,
-			[]byte{0x40, 0x2C, 1, 0, 0, 0, 0, 0},
-			scriptOperand(ScriptUnitPointer, 4, 4, 0xFFFFFFFF),
-		)
 		add(ScriptWaitUnits, []byte{0x20, 0x30, 0, 0})
 		add(
 			ScriptFlagOn,
@@ -169,27 +219,22 @@ func (f deploymentFormat) scriptDefinitions() []scriptDefinition {
 		add(
 			ScriptSetSlot,
 			[]byte{0x40, 5, 0, 0, 0, 0, 0, 0},
-			scriptOperand(ScriptSlot, 2, 2, 15),
+			scriptOperand(ScriptSlot, 2, 2, eventSlotCount-1),
 			scriptOperand(ScriptSlotValue, 4, 4, 0xFFFFFFFF),
 		)
+		result[len(result)-1].help = "script_slot_assignment_help"
 		for sub, op := range []ScriptOp{ScriptEqual, ScriptNotEqual, ScriptGreaterEqual, ScriptGreater, ScriptLessEqual, ScriptLess} {
 			add(
 				op,
 				[]byte{0x40 + byte(sub), 0x0C, 0, 0, 0, 0, 0, 0},
 				scriptOperand(ScriptLabelID, 2, 2, 0xFFFF),
-				scriptOperand(ScriptSlotA, 4, 2, 15),
-				scriptOperand(ScriptSlotB, 6, 2, 15),
+				scriptOperand(ScriptSlotA, 4, 2, eventSlotCount-1),
+				scriptOperand(ScriptSlotB, 6, 2, eventSlotCount-1),
 			)
 		}
 		return result
 	}
-	words := func(values ...uint32) []byte {
-		var result []byte
-		for _, value := range values {
-			result = binary.LittleEndian.AppendUint32(result, value)
-		}
-		return result
-	}
+	words := scriptWords
 	label, goTo, branchOn, branchOff, load, wait, flagOn, flagOff, call := uint32(
 		0x42,
 	), uint32(
@@ -213,7 +258,7 @@ func (f deploymentFormat) scriptDefinitions() []scriptDefinition {
 		label, goTo, branchOn, branchOff, load, wait, flagOn, flagOff, call = 0x44, 0x45, 0x4C, 0x4D, 0x32, 0x3B, 0x76, 0x77, 0xCB
 	}
 	if f.kind == eventFE6 {
-		add(ScriptEnd, words(6, 0))
+		add(ScriptEnd, words(0))
 		add(ScriptWait, words(2, 0), scriptOperand(ScriptFrames, 4, 4, 0xFFFF))
 		add(ScriptText, words(7, 1), scriptOperand(ScriptTextID, 4, 2, 0xFFFF))
 		add(
@@ -239,7 +284,7 @@ func (f deploymentFormat) scriptDefinitions() []scriptDefinition {
 		)
 		label, goTo, branchOn, branchOff, load, wait = 0x1B, 0x1C, 0x22, 0x23, 0x12, 0x14
 	} else {
-		add(ScriptEnd, words(0x0A, 0))
+		add(ScriptEnd, words(0))
 		add(ScriptWait, words(2), scriptOperand(ScriptFrames, 2, 2, 0xFFFF))
 		add(
 			ScriptText,
@@ -304,14 +349,15 @@ func (definition scriptDefinition) matches(raw []byte) bool {
 		return false
 	}
 	for index, value := range raw {
-		operand := false
+		var mask byte
 		for _, field := range definition.fields {
 			if index >= field.offset && index < field.offset+field.width {
-				operand = true
-				break
+				mask |= byte(
+					(field.mask() >> uint(8*(index-field.offset))) & 0xFF,
+				)
 			}
 		}
-		if !operand && value != definition.raw[index] {
+		if value&^mask != definition.raw[index]&^mask {
 			return false
 		}
 	}

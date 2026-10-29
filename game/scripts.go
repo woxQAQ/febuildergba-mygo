@@ -35,6 +35,7 @@ type ScriptInstruction struct {
 	ID       uint64
 	Address  int
 	Op       ScriptOp
+	Help     string
 	Raw      []byte
 	Editable bool
 }
@@ -44,6 +45,7 @@ type scriptRow struct {
 	definition    *scriptDefinition
 	label, branch int64
 	call          int
+	movements     map[string][]ScriptMovementStep
 }
 
 // Script is a bounded linear instruction listing, including forward labels past
@@ -132,7 +134,7 @@ func (f deploymentFormat) readScript(data []byte, entry ScriptEntry) Script {
 		}
 		terminal := command.end || command.chapterEnd || command.jump ||
 			(row.definition != nil && row.definition.terminal)
-		if terminal && len(pending) == 0 {
+		if terminal && (len(pending) == 0 || f.labelSearchEnd(raw)) {
 			result.Complete = true
 			break
 		}

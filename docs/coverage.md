@@ -257,13 +257,23 @@
 
 版本前提、旧版依据与详细限制：[格式与来源](reference/chapters-and-events.md#通用事件脚本)。
 
-| ID                | 能力                   | 实现状态 | 范围与缺口                     |
-| ----------------- | ---------------------- | -------- | ------------------------------ |
-| scripts.entries   | 章节入口与调用导航     | 已接入   | 五版当前章节布局               |
-| scripts.decode    | 有界指令列表           | 已接入   | 常用指令；未知或不完整段只读   |
-| scripts.operands  | 常用参数编辑           | 已接入   | 已确认原生定义；更多指令待接入 |
-| scripts.structure | 插入、复制、删除和排序 | 已接入   | 完整且可静态重定位的脚本       |
-| scripts.write     | 共享预览与原子历史     | 已接入   | 当前文档、修订和布局           |
+| ID                      | 能力                   | 实现状态 | 范围与缺口                                                                                                                                      |
+| ----------------------- | ---------------------- | -------- | ----------------------------------------------------------------------------------------------------------------------------------------------- |
+| scripts.entries         | 章节入口与调用导航     | 已接入   | 五版当前章节布局                                                                                                                                |
+| scripts.decode          | 有界指令列表           | 已接入   | 常用指令；未知或不完整段只读                                                                                                                    |
+| scripts.operands        | 原生参数编辑           | 已接入   | 已确认参数、共享位段、带符号值及人物／道具选择；未解释编码保持只读                                                                              |
+| scripts.units           | 剧情移动与阵营变更     | 已接入   | 五版按人物移动及三阵营；FE7／FE8 速度；FE6／FE7 人物、坐标及 FE7 阵营分流的手动路径编辑，64 字节边界、独立追加及原子历史                        |
+| scripts.rewards         | 剧情道具与金币奖励     | 已接入   | FE6／FE7 指定人物或行动单位道具；FE8 从槽 3 给予道具／金币                                                                                      |
+| scripts.presentation    | 背景、音乐及画面过渡   | 已接入   | 五版基础演出；FE8 音乐渐变、音量、CG／教程／文本框模式、继续对话及地图恢复；世界地图和战斗演出另行适配                                          |
+| scripts.focus           | 镜头定位与光标高亮     | 已接入   | 五版按人物／坐标定位；FE7／FE8 居中；FE6／FE7 60 帧闪烁及持续坐标光标；FE8 普通／发光高亮与清除                                                 |
+| scripts.unit-conditions | 单位状态条件           | 已接入   | FE8 存在、存活、出场、阵营、行动单位、坐标、职业及幸运查询；FE6／FE7 我方队伍及行动单位分支；FE7 出场及死亡标志一次性判定                       |
+| scripts.loads           | 单位加载与部署导航     | 已接入   | FE8 LOAD1／2／3、可证明槽来源；FE6 当前队伍模板；FE7 存活、当前队伍、路线／难度及四路部署；独立文本／部署资源契约；RAM 和未知动态来源不自动搬迁 |
+| scripts.queue           | 槽赋值、运算与队列     | 已接入   | FE8 十种槽运算及 FIFO；仅恒等复制保留字面量所有权；显式清空后追踪队列；不模拟运行状态或合并任意控制流                                           |
+| scripts.control         | 执行控制与条件分支     | 已接入   | FE8 等待变体、计数器、执行模式、按键屏蔽及状态查询；FE6／FE7 跳过状态和结束边界；FE7 路线、难度、选择、教程及回合分支                           |
+| scripts.unit-state      | 单位状态修改           | 已接入   | FE8 显隐、HP、行动、出场及移除；操作的槽依赖在指令帮助中说明                                                                                    |
+| scripts.dialogue        | 对话模式与路线文本     | 已接入   | FE8 对话模式及续接；FE7 不透明对话和两路文本的独立选择、校验及导航                                                                              |
+| scripts.structure       | 插入、复制、删除和排序 | 已接入   | 完整且可静态重定位的脚本                                                                                                                        |
+| scripts.write           | 共享预览与原子历史     | 已接入   | 当前文档、修订和布局                                                                                                                            |
 
 ## 待展开的旧版功能组
 
@@ -336,14 +346,14 @@
 
 默认测试使用独立构造的合成数据，调用实际文档和领域操作。可选[集成测试](../tests/integration/real_rom_test.go)动态发现 `.rom/` 中的输入，按可编辑入口验证通用流程，不绑定固定文件或内容；跳过项不计为通过。保存、重开等流程只操作临时副本。这些证据不包含游戏内执行验证。临时 UI 观察不作为永久回归，纯布局调整无需专门测试；规则见[测试说明](../tests/README.md)。
 
-| ID                    | 验证范围                             | 证据入口                                                                                |
-| --------------------- | ------------------------------------ | --------------------------------------------------------------------------------------- |
-| maps.validation       | 五版固定像素、地图资源与布局         | [地图流程](../game/maps_test.go)、[合成样本](../internal/testutil/maps.go)              |
-| paths.validation      | FE8 两版路径字节、文档历史与保存重开 | [路径流程](../game/deployment_paths_test.go)、[合成样本](../internal/testutil/paths.go) |
-| areas.validation      | 五版区域条件、事件写入与文件流程     | [区域流程](../game/area_events_test.go)、[合成样本](../internal/testutil/areas.go)      |
-| talks.validation      | 五版人物对话、独立引用与文件流程     | [对话流程](../game/talk_events_test.go)、[合成样本](../internal/testutil/talks.go)      |
-| objectives.validation | 五版胜败条件、脚本模板与文件流程     | [胜败流程](../game/objectives_test.go)、[合成样本](../internal/testutil/objectives.go)  |
-| scripts.validation    | 五版指令字节、结构编辑与文件流程     | [脚本流程](../game/scripts_test.go)、[合成样本](../internal/testutil/scripts.go)        |
+| ID                    | 验证范围                             | 证据入口                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    |
+| --------------------- | ------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| maps.validation       | 五版固定像素、地图资源与布局         | [地图流程](../game/maps_test.go)、[合成样本](../internal/testutil/maps.go)                                                                                                                                                                                                                                                                                                                                                                                                                  |
+| paths.validation      | FE8 两版路径字节、文档历史与保存重开 | [路径流程](../game/deployment_paths_test.go)、[合成样本](../internal/testutil/paths.go)                                                                                                                                                                                                                                                                                                                                                                                                     |
+| areas.validation      | 五版区域条件、事件写入与文件流程     | [区域流程](../game/area_events_test.go)、[合成样本](../internal/testutil/areas.go)                                                                                                                                                                                                                                                                                                                                                                                                          |
+| talks.validation      | 五版人物对话、独立引用与文件流程     | [对话流程](../game/talk_events_test.go)、[合成样本](../internal/testutil/talks.go)                                                                                                                                                                                                                                                                                                                                                                                                          |
+| objectives.validation | 五版胜败条件、脚本模板与文件流程     | [胜败流程](../game/objectives_test.go)、[合成样本](../internal/testutil/objectives.go)                                                                                                                                                                                                                                                                                                                                                                                                      |
+| scripts.validation    | 五版指令字节、资源编辑与文件流程     | [基本脚本](../game/scripts_test.go)、[剧情](../game/script_scene_test.go)、[镜头](../game/script_camera_test.go)、[加载／队列](../game/script_load_test.go)、[位段／控制](../game/script_control_test.go)、[路线资源](../game/script_word_variants_test.go)、[条件分支](../game/script_word_conditions_test.go)、[手动移动及结束边界](../game/script_movement_test.go)、[动态文件流程](../tests/integration/scripts_test.go)、[路径文件流程](../tests/integration/scripts_movement_test.go) |
 
 其他领域测试位于对应包；样本构造规则见 [fixture 约定](../testdata/fixtures.md)，新增用例无需同步登记数量。
 

@@ -18,12 +18,17 @@ type ScriptDraft struct {
 	layouts  map[Kind]Layout
 	original Script
 	rows     []scriptRow
+	source   []byte
 	nextID   uint64
 }
 
 func cloneScriptRows(rows []scriptRow) []scriptRow {
 	result := slices.Clone(rows)
 	for index := range result {
+		result[index].movements = maps.Clone(result[index].movements)
+		for id, steps := range result[index].movements {
+			result[index].movements[id] = slices.Clone(steps)
+		}
 		result[index].instruction.Raw = bytes.Clone(
 			result[index].instruction.Raw,
 		)
@@ -41,6 +46,7 @@ func (s *Session) NewScriptDraft(chapter, site int) (*ScriptDraft, error) {
 		revision: s.image.Revision,
 		layouts:  maps.Clone(s.layouts),
 		original: program,
+		source:   s.image.Data,
 		rows:     cloneScriptRows(program.rows),
 		nextID:   uint64(len(program.rows) + 1),
 	}, nil
@@ -57,6 +63,11 @@ func (d *ScriptDraft) Instructions() []ScriptInstruction { return scriptRows(d.r
 
 func (d *ScriptDraft) Complete() bool { return d.original.Complete }
 func (d *ScriptDraft) Modified() bool {
+	for _, row := range d.rows {
+		if len(row.movements) > 0 {
+			return true
+		}
+	}
 	if len(d.rows) != len(d.original.rows) {
 		return true
 	}
@@ -125,29 +136,50 @@ func (d *ScriptDraft) Value(index int, id string) (int64, error) {
 	return 0, ErrField
 }
 
+// ScriptReference identifies the ROM operand that owns a resource address.
+// Indirect references point to the proven SVAL literal, which may feed several
+// LOAD instructions through slots or the queue.
+type ScriptReference struct {
+	Chapter, Pointer, Address int
+	Indirect                  bool
+}
+
 // Reference resolves a declared script or deployment operand in the draft.
 // New instructions have no pointer site until the plan has been applied.
-func (d *ScriptDraft) Reference(index int, id string) (ScriptEntry, error) {
+func (d *ScriptDraft) Reference(index int, id string) (ScriptReference, error) {
 	if index < 0 || index >= len(d.rows) ||
 		d.rows[index].instruction.Address == 0 {
-		return ScriptEntry{}, ErrField
+		return ScriptReference{}, ErrField
 	}
 	for _, field := range d.Fields(index) {
-		if field.ID != id || (id != ScriptPointer && id != ScriptUnitPointer) {
+		if field.ID != id ||
+			(field.Target != ScriptEventTarget && field.Target != ScriptDeploymentTarget) {
 			continue
 		}
 		value := field.value(d.rows[index].instruction.Raw)
-		if value < 0x080000C0 || value >= 0x0A000000 {
-			return ScriptEntry{}, ErrValue
+		site := d.rows[index].instruction.Address + field.offset
+		indirect := field.Target == ScriptDeploymentTarget &&
+			d.original.format.kind == eventFE8 &&
+			slotUnitLoad(d.rows[index].instruction.Raw)
+		if indirect {
+			source, ok := d.unitLoadSources()[index]
+			if !ok || d.rows[source].instruction.Address == 0 {
+				return ScriptReference{}, ErrScriptStructure
+			}
+			value = int64(u32(d.rows[source].instruction.Raw, 4))
+			site = d.rows[source].instruction.Address + 4
 		}
-		return ScriptEntry{
-			Chapter: d.Entry().Chapter,
-			Pointer: d.rows[index].instruction.Address + field.offset,
-			Address: int(value) - 0x08000000,
-			Source:  string(d.rows[index].instruction.Op),
+		if value < 0x080000C0 || value >= 0x0A000000 {
+			return ScriptReference{}, ErrValue
+		}
+		return ScriptReference{
+			Chapter:  d.Entry().Chapter,
+			Pointer:  site,
+			Address:  int(value) - 0x08000000,
+			Indirect: indirect,
 		}, nil
 	}
-	return ScriptEntry{}, ErrField
+	return ScriptReference{}, ErrField
 }
 
 func (d *ScriptDraft) Set(index int, id string, value int64) (err error) {
@@ -162,9 +194,12 @@ func (d *ScriptDraft) Set(index int, id string, value int64) (err error) {
 		if field.ID != id {
 			continue
 		}
-		if value < 0 || value > field.Max {
-			context.Bounds = &fault.Bounds{Min: 0, Max: field.Max}
+		if value < field.Min || value > field.Max {
+			context.Bounds = &fault.Bounds{Min: field.Min, Max: field.Max}
 			return ErrValue
+		}
+		if field.value(d.rows[index].instruction.Raw) != value {
+			delete(d.rows[index].movements, id)
 		}
 		field.put(d.rows[index].instruction.Raw, value)
 		if id == ScriptLabelID {
@@ -196,6 +231,7 @@ func (d *ScriptDraft) Insert(index int, op ScriptOp) error {
 			instruction: ScriptInstruction{
 				ID:       d.nextID,
 				Op:       op,
+				Help:     definition.help,
 				Raw:      bytes.Clone(definition.raw),
 				Editable: true,
 			},

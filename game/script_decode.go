@@ -1,5 +1,11 @@
 package game
 
+// FE6/FE7 label lookup stops at native END (0), but continues past the
+// equivalent early return (1). FE8 searches by command length until its label.
+func (f deploymentFormat) labelSearchEnd(raw []byte) bool {
+	return f.kind != eventFE8 && len(raw) == 4 && u32(raw, 0) == 0
+}
+
 func (f deploymentFormat) scriptASM(raw []byte) bool {
 	switch f.kind {
 	case eventFE8:
@@ -19,6 +25,7 @@ func (row *scriptRow) describe(definitions []scriptDefinition, at int) {
 		if definitions[index].matches(row.instruction.Raw) {
 			row.definition = &definitions[index]
 			row.instruction.Op = row.definition.op
+			row.instruction.Help = row.definition.help
 			row.instruction.Editable = true
 			break
 		}
@@ -33,7 +40,7 @@ func (row *scriptRow) describe(definitions []scriptDefinition, at int) {
 		if field.ID == ScriptLabelID && row.definition.branch {
 			row.branch = field.value(row.instruction.Raw)
 		}
-		if field.ID == ScriptPointer {
+		if field.Target == ScriptEventTarget {
 			row.call = at + field.offset
 		}
 	}

@@ -67,6 +67,11 @@ func (page *Page) operands(
 	row game.ScriptInstruction,
 ) {
 	fields := draft.data.Fields(draft.selected)
+	if row.Help != "" {
+		ui.Text(c, locales.Label(row.Help)).
+			FontSize(12).
+			TextColor(c.Theme().TextMuted)
+	}
 	if !row.Editable {
 		ui.Text(c, locales.ScriptReadonlyInstruction()).
 			FontSize(12).
@@ -80,42 +85,73 @@ func (page *Page) operands(
 				Gap(8).
 				AlignItems(ui.Center).
 				Children(func() {
+					tooltip := locales.ScriptOperandHelp()
+					if field.Help != "" {
+						tooltip = locales.Label(field.Help)
+					}
 					ui.Text(c, locales.Label(field.ID)).
 						Grow(1).
-						Tooltip(locales.ScriptOperandHelp())
+						Tooltip(tooltip)
 					page.number(c, draft, row, field)
 				})
 		}
 	})
 	for _, field := range fields {
-		switch field.ID {
-		case game.ScriptPointer, game.ScriptUnitPointer:
-			page.referenceChoice(c, draft, row, field)
+		if field.Target == game.ScriptMovementTarget {
+			page.movement(c, draft, row, field)
 		}
 	}
+	var references []game.ScriptField
+	for _, field := range fields {
+		if field.Target == game.ScriptEventTarget ||
+			field.Target == game.ScriptDeploymentTarget ||
+			field.Reference != "" {
+			references = append(references, field)
+		}
+	}
+	for _, field := range references {
+		page.referenceChoice(c, draft, row, field, len(references) > 1)
+	}
+	page.operandLinks(c, draft, row, fields)
+	if page.showRaw || !row.Editable {
+		ui.Textf(c, "% X", row.Raw).Font("monospace").Selectable()
+	}
+}
+
+func (page *Page) operandLinks(
+	c *ui.Context,
+	draft *draftState,
+	row game.ScriptInstruction,
+	fields []game.ScriptField,
+) {
 	ui.Row(c).Wrap().Gap(8).Children(func() {
 		for _, field := range fields {
 			value, _ := draft.data.Value(draft.selected, field.ID)
-			switch field.ID {
-			case game.ScriptTextID:
+			switch {
+			case field.Target == game.ScriptTextTarget:
 				textID := uint16(
 					value,
 				) // #nosec G115 -- Text operands are bounded to 16 bits.
-				ui.Button(c, fmt.Sprintf("%s · %04X", locales.TextEditor(), value)).
+				ui.Button(c.Key(field.ID), fmt.Sprintf("%s · %04X", locales.TextEditor(), value)).
 					Disabled(page.state.Busy || value <= 0 || value >= 0x7FFF).
 					OnClick(func() { page.openText(textID) })
 			// #nosec G115 -- The control is enabled only for bounded text IDs.
-			case game.ScriptPointer, game.ScriptUnitPointer:
+			case field.Target == game.ScriptEventTarget || field.Target == game.ScriptDeploymentTarget:
 				reference, err := draft.data.Reference(draft.selected, field.ID)
+				if err == nil && reference.Indirect {
+					ui.Textf(c, locales.ScriptIndirectUnitsReference(), 0x08000000+reference.Address, reference.Pointer).
+						FontSize(12).
+						TextColor(c.Theme().TextMuted)
+				}
 				label := locales.ScriptOpenCall()
-				if field.ID == game.ScriptUnitPointer {
+				if field.Target == game.ScriptDeploymentTarget {
 					label = locales.TurnOpenUnits()
 				}
-				ui.Button(c, label).
+				ui.Button(c.Key(field.ID), label).
 					Tooltip(locales.ScriptReferenceHelp()).
-					Disabled(page.state.Busy || err != nil || draft.data.Modified()).
+					Disabled(page.state.Busy || err != nil || draft.data.Modified() || !draft.data.Current(page.state.Session)).
 					OnClick(func() {
-						if field.ID == game.ScriptPointer {
+						if field.Target == game.ScriptEventTarget {
 							page.Open(reference.Chapter, reference.Pointer)
 						} else {
 							page.openDeployment(
@@ -124,7 +160,7 @@ func (page *Page) operands(
 							)
 						}
 					})
-			case game.ScriptLabelID:
+			case field.ID == game.ScriptLabelID:
 				if row.Op == game.ScriptLabel {
 					continue
 				}
@@ -153,9 +189,6 @@ func (page *Page) operands(
 				OnClick(func() { page.openHex(row.Address, len(row.Raw)) })
 		}
 	})
-	if page.showRaw || !row.Editable {
-		ui.Textf(c, "% X", row.Raw).Font("monospace").Selectable()
-	}
 }
 
 func (page *Page) number(
@@ -168,7 +201,7 @@ func (page *Page) number(
 	value, _ := draft.data.Value(draft.selected, field.ID)
 	input := draft.inputs[key]
 	format := func(value int64) string {
-		if field.Hex {
+		if field.Hex && value >= 0 {
 			return fmt.Sprintf("0x%X", value)
 		}
 		return strconv.FormatInt(value, 10)
@@ -194,7 +227,7 @@ func (page *Page) number(
 			OnChange(func() {
 				draft.preview = nil
 				parsed, err := inputparse.ParseInteger(input.text)
-				if err != nil || parsed < 0 || parsed > field.Max {
+				if err != nil || parsed < field.Min || parsed > field.Max {
 					input.invalid = true
 					return
 				}
@@ -207,17 +240,17 @@ func (page *Page) number(
 	)
 	if input.invalid {
 		control.Error(
-			fmt.Sprintf("%s: 0…%d", locales.AllowedRange(), field.Max),
+			fmt.Sprintf(
+				"%s: %d…%d",
+				locales.AllowedRange(),
+				field.Min,
+				field.Max,
+			),
 		)
 	}
 }
 
-func (page *Page) referenceChoice(
-	c *ui.Context,
-	draft *draftState,
-	row game.ScriptInstruction,
-	field game.ScriptField,
-) {
+func (page *Page) referenceOptions(field game.ScriptField) ([]int64, []string) {
 	var values []int64
 	var captions []string
 	add := func(address int, caption string) {
@@ -231,19 +264,51 @@ func (page *Page) referenceChoice(
 			fmt.Sprintf("0x%08X · %s", 0x08000000+address, caption),
 		)
 	}
-	if field.ID == game.ScriptPointer {
+	if field.Reference != "" {
+		table := page.state.Session.Table(field.Reference)
+		if table == nil || table.Err != nil {
+			return nil, nil
+		}
+		for _, record := range table.Rows {
+			if record.ID <= 0 || int64(record.ID) > field.Max {
+				continue
+			}
+			values = append(values, int64(record.ID))
+			captions = append(
+				captions,
+				fmt.Sprintf("%02X · %s", record.ID, record.Name),
+			)
+		}
+		return values, captions
+	}
+	if field.Target == game.ScriptEventTarget {
 		for _, entry := range page.entries {
 			if entry.Err == nil {
 				add(entry.Address, locales.Label(entry.Source))
 			}
 		}
-	} else if groups, err := page.state.Session.ChapterDeployments(page.chapter); err == nil {
-		for _, group := range groups.Groups {
-			if group.Err == nil {
-				add(group.Address, locales.Label(group.Label))
-			}
+		return values, captions
+	}
+	groups, err := page.state.Session.ChapterDeployments(page.chapter)
+	if err != nil {
+		return nil, nil
+	}
+	for _, group := range groups.Groups {
+		if group.Err == nil {
+			add(group.Address, locales.Label(group.Label))
 		}
 	}
+	return values, captions
+}
+
+func (page *Page) referenceChoice(
+	c *ui.Context,
+	draft *draftState,
+	row game.ScriptInstruction,
+	field game.ScriptField,
+	named bool,
+) {
+	values, captions := page.referenceOptions(field)
 	if len(captions) == 0 {
 		return
 	}
@@ -261,10 +326,14 @@ func (page *Page) referenceChoice(
 			reference.choice = captions[index]
 		}
 	}
+	label := locales.ScriptChooseReference()
+	if named {
+		label += " · " + locales.Label(field.ID)
+	}
 	ui.Select(c.Key(key), &reference.choice, captions).
 		Width(440).
 		MaxWidthPercent(100).
-		Label(locales.ScriptChooseReference()).
+		Label(label).
 		Placeholder(locales.ScriptChooseReference()).
 		Disabled(page.state.Busy || !draft.data.Current(page.state.Session)).
 		OnChange(func() {
@@ -300,6 +369,10 @@ func (page *Page) actions(c *ui.Context, draft *draftState) {
 		Selectable().
 		FontFeatures("tnum")
 	scope := locales.ScriptPatchScope()
+	if preview.MovementCount() > 0 {
+		ui.Textf(c, locales.Label("script_movement_preview"), preview.MovementCount()).
+			FontSize(12)
+	}
 	if preview.Relocated() {
 		scope = locales.ScriptRelocateScope()
 	}

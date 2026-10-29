@@ -88,7 +88,7 @@ func (f deploymentFormat) dialogueScript(id uint16) []byte {
 // Text discovery uses confirmed direct operands and the same bounded control
 // flow as deployment discovery. Slot-based text is included only when its
 // immediate value is known; other instructions and script bytes stay untouched.
-func (s *deploymentScanner) collectTexts(at int, slots *[16]int) {
+func (s *deploymentScanner) collectTexts(at int, slots *eventSlotState) {
 	if s.texts == nil {
 		return
 	}
@@ -99,7 +99,7 @@ func (s *deploymentScanner) collectTexts(at int, slots *[16]int) {
 		if (op == 0x20 || op == 0x21) && s.data[at+1] == 0x1B {
 			id := uint32(u16(s.data, at+2))
 			if id >= 0x8000 {
-				if site := slots[2]; site > 0 {
+				if site := slots.slots[2]; site > 0 {
 					id = u32(s.data, site)
 				} else {
 					s.warn(at)

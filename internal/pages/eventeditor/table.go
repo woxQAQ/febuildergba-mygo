@@ -49,7 +49,7 @@ func (page *Page) instructionTable(
 				for _, field := range draft.data.Fields(index) {
 					value, _ := draft.data.Value(index, field.ID)
 					format := "%d"
-					if field.Hex {
+					if field.Hex && value >= 0 {
 						format = "0x%X"
 					}
 					values = append(values, fmt.Sprintf(format, value))
