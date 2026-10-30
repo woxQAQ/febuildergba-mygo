@@ -2,9 +2,9 @@
 
 本文维护当前格式、写入语义和限制；功能状态见[覆盖矩阵](../coverage.md)，操作步骤见[使用指南](../user-guide.md)。旧版与原生代码的固定版本见[核对来源](../sources.md)。
 
-当前入口：[章节布局](../../game/chapter/format.go)、[资源协调](../../game/chapter/editor.go)、[部署草稿](../../game/deployment/draft.go)、[事件条件](../../game/event/conditions.go)、[条件编辑](../../game/event/conditions_edit.go) 和 [脚本读取](../../game/event/script.go)。
+当前入口：章节布局（`game/chapter/format.go`）、资源协调（`game/chapter/editor.go`）、部署草稿（`game/deployment/draft.go`）、事件条件（`game/event/conditions.go`）、条件编辑（`game/event/conditions_edit.go`）和脚本读取（`game/event/script.go`）。
 
-`event.Table` 区分回合、常驻和对话表，`event.Condition` 保留原生条件及独立脚本；`event.ConditionDraft`／`event.ConditionEdit` 管理草稿和不可变写入计划。UI 位于 [chapters](../../internal/pages/chapters) 和 [eventeditor](../../internal/pages/eventeditor)。
+`event.Table` 区分回合、常驻和对话表，`event.Condition` 保留原生条件及独立脚本；`event.ConditionDraft`／`event.ConditionEdit` 管理草稿和不可变写入计划。UI 位于 `internal/pages/chapters` 和 `internal/pages/eventeditor`。
 
 ## 五版章节配置
 
@@ -27,7 +27,7 @@
 
 ## 五版章节地图
 
-依据 `ImageUtilMap.DrawMap`／`GetChipsetID`、`MapPointerForm.PlistToOffsetAddr` 及五版 `ROMFE*` 指针位置。资源指针列表在旧版称为 PLIST；新版逐类读取当前入口，允许各类使用独立列表。GBA 背景图块解释位于 [background.go](../../gba/background.go)，章节资源组合位于 [map.go](../../game/maps/map.go)。
+依据 `ImageUtilMap.DrawMap`／`GetChipsetID`、`MapPointerForm.PlistToOffsetAddr` 及五版 `ROMFE*` 指针位置。资源指针列表在旧版称为 PLIST；新版逐类读取当前入口，允许各类使用独立列表。GBA 背景图块解释位于 `gba/background.go`，章节资源组合位于 `game/maps/map.go`。
 
 | 能力                    | 版本／依据                            | 行为与限制                                                                                                                      |
 | ----------------------- | ------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------- |
@@ -42,7 +42,7 @@
 
 ### 布局草稿与写入
 
-[map_draft.go](../../game/maps/map_draft.go) 的 `maps.Draft` 保存布局、当前图块集和本地历史；[map_plan.go](../../game/maps/map_plan.go) 的 `maps.Edit` 是绑定文档身份、修订和表布局的不可变写入计划。地图编辑由章节页面组合，复用现有地图缩放、平移和选格。
+`game/maps/map_draft.go` 的 `maps.Draft` 保存布局、当前图块集和本地历史；`game/maps/map_plan.go` 的 `maps.Edit` 是绑定文档身份、修订和表布局的不可变写入计划。地图编辑由章节页面组合，复用现有地图缩放、平移和选格。
 
 地图布局为 LZ77 流，解压后先是单字节宽、高，再是逐行的小端 16 位图块值。绘制保持宽高与未修改格子；尺寸调整改变宽高和行步长，按锚点保留相应图块。两者都保留已读出的解压尾部字节。写入依据旧版 `MapEditorForm.WriteMapData`；宽高、图块值与地形查找另核对固定原生来源的 `UnpackChapterMap`、`InitBaseTilesBmMap` 和 `RefreshTerrainBmMap`，见[来源](../sources.md#地图布局)。
 
@@ -54,13 +54,13 @@
 
 ### 尺寸与坐标影响
 
-[map_draft.go](../../game/maps/map_draft.go) 的 `maps.Anchor` 表示九个对齐锚点。扩展用当前合法图块填充，裁剪丢弃范围外的格子；中心对齐将奇数差额多出的一行或一列放在右侧或下方。宽、高分别为 1–60、1–63，总面积不超过 1536；当前完整解压内容的读取上限为 3074 字节，包括保留尾部。非法尺寸、锚点或填充图块不会产生部分修改。一条绘制或尺寸操作保存前后布局快照，混合撤销重做时同时恢复宽高、行步长和未知尾部。
+`game/maps/map_draft.go` 的 `maps.Anchor` 表示九个对齐锚点。扩展用当前合法图块填充，裁剪丢弃范围外的格子；中心对齐将奇数差额多出的一行或一列放在右侧或下方。宽、高分别为 1–60、1–63，总面积不超过 1536；当前完整解压内容的读取上限为 3074 字节，包括保留尾部。非法尺寸、锚点或填充图块不会产生部分修改。一条绘制或尺寸操作保存前后布局快照，混合撤销重做时同时恢复宽高、行步长和未知尾部。
 
-尺寸变化不平移部署、路径或事件坐标。[map_plan.go](../../game/maps/map_plan.go) 的 `maps.Impact` 保存坐标资源、所属章节、入口、记录／节点及范围；对比旧、新边界，分别记录此前越界、调整后越界、新排除格数和新纳入格数。一个原本部分越界的矩形仍可能新增越界，不能只按此前是否越界分类。只检查同一地图入口会更新的章节，独立入口保留的章节不纳入影响。相同章节内重复发现的同一资源坐标合并展示。
+尺寸变化不平移部署、路径或事件坐标。`game/maps/map_plan.go` 的 `maps.Impact` 保存坐标资源、所属章节、入口、记录／节点及范围；对比旧、新边界，分别记录此前越界、调整后越界、新排除格数和新纳入格数。一个原本部分越界的矩形仍可能新增越界，不能只按此前是否越界分类。只检查同一地图入口会更新的章节，独立入口保留的章节不纳入影响。相同章节内重复发现的同一资源坐标合并展示。
 
 静态检查复用已确认的部署发现与条件解析，覆盖部署起点、FE6／FE7 编码终点、FE8 各 REDA 绝对节点、区域触发和地图变化外包矩形。地图变化读取其独立的实时 PLIST 根，空指针表示无表，资源 ID 0 本身不表示空。原生条目为 12 字节，ID 为负的字节（`80…FF`）终止；矩形检查不根据图块内容或运行状态判断是否会执行。
 
-[map_resize.go](../../game/chapter/map_resize.go) 只检查章节上下文可确认的脚本线性前段：显式移动、镜头／光标坐标，以及 FE6／FE7 有显式起点的手动移动路径。路径按编码步骤展开，不模拟地形、碰撞或实际单位状态。调用、分支、ASM、未知指令使相应脚本后续上下文不再可确认；被调用入口、动态或负值坐标、需要当前单位位置的路径另列提示。切换到其他章节地图的原生指令之后不再归入当前地图。已有低速度路径操作数可能被原生坐标扫描器再次解释，遇到时也停止推算。
+`game/chapter/map_resize.go` 只检查章节上下文可确认的脚本线性前段：显式移动、镜头／光标坐标，以及 FE6／FE7 有显式起点的手动移动路径。路径按编码步骤展开，不模拟地形、碰撞或实际单位状态。调用、分支、ASM、未知指令使相应脚本后续上下文不再可确认；被调用入口、动态或负值坐标、需要当前单位位置的路径另列提示。切换到其他章节地图的原生指令之后不再归入当前地图。已有低速度路径操作数可能被原生坐标扫描器再次解释，遇到时也停止推算。
 
 影响与不完整提示随 `maps.Edit` 一起冻结，返回的列表为副本。检查最多记录 4096 个影响、访问 65536 个坐标，达到限额或资源无法读取时显示不完整提示。同章节、同资源类型及同错误码的提示合并，地址为首个发现位置。越界本身不禁止保存，原生事件可能刻意使用图外位置；布局合法性、共享图块集、入口冲突、容量及过期检查仍由写入计划执行。此检查不等于全局引用索引或游戏运行验证。
 
@@ -76,7 +76,7 @@ flowchart LR
 
 ### 地图变化资源与引用
 
-[changes.go](../../game/maps/changes.go) 的 `maps.ChangesDraft` 保存变化表和每项图块的不可变草稿历史；[changes_plan.go](../../game/maps/changes_plan.go) 的 `maps.ChangesEdit` 冻结写入字节、共享用途和引用报告。五版均使用变化资源自己的实时 PLIST，实际空指针可创建新表，资源 ID 0 可指向有效表。
+`game/maps/changes.go` 的 `maps.ChangesDraft` 保存变化表和每项图块的不可变草稿历史；`game/maps/changes_plan.go` 的 `maps.ChangesEdit` 冻结写入字节、共享用途和引用报告。五版均使用变化资源自己的实时 PLIST，实际空指针可创建新表，资源 ID 0 可指向有效表。
 
 每条记录为 12 字节：偏移 0 为变化 ID，1–4 为 X、Y、宽、高，5–7 为未解释字节，8–11 为逐行小端 uint16 图块载荷指针。任一负的 ID 字节（80–FF）终止。读取有界，载荷须完整且半字对齐；保留原顺序、重复 ID、未解释头字节及实际可读的结束字节。新 ID 限于 0–127 且唯一；编辑后的矩形须在所有共用入口章节的地图内，非零图块须能被各章图块集解释。已有未修改记录不会被顺带规范化。
 
@@ -84,7 +84,7 @@ flowchart LR
 
 位置变化不改图块相对排列；尺寸变化保留左上交集，新增格子为 0。笔画、矩形、属性及增删复制各形成一步历史。计划追加完整变化表，只追加已改变的图块载荷；未修改或直接复制的载荷继续使用旧指针。只更新所选 PLIST 项，共用此项的章节一起变化，独立指针项与旧字节保留。表、载荷、指针和文件长度一次提交／撤销；已确认变化表和载荷也进入地图入口的重叠保护。容量、过期及共享解释失败不留下部分修改。
 
-[event/script_map_changes.go](../../game/event/script_map_changes.go) 定义原生操作并解释脚本上下文；[maps/change_references.go](../../game/maps/change_references.go) 提供原生 ID／坐标目标模型；[chapter/map_references.go](../../game/chapter/map_references.go) 关联章节资源并审核共享引用。
+`game/event/script_map_changes.go` 定义原生操作并解释脚本上下文；`game/maps/change_references.go` 提供原生 ID／坐标目标模型；`game/chapter/map_references.go` 关联章节资源并审核共享引用。
 
 | 操作                 | FE6                            | FE7J／FE7U                                 | FE8J／FE8U                          |
 | -------------------- | ------------------------------ | ------------------------------------------ | ----------------------------------- |
@@ -142,7 +142,7 @@ flowchart LR
 
 ## FE8 完整部署移动路径
 
-[paths.go](../../game/deployment/paths.go) 以 `deployment.MovementStep` 保存完整 8 字节快照。原生 REDA 缓冲区有 4 组、每组 16 段；未修改的超长路径可保留，编辑路径或创建增援时最多 16 段。
+`game/deployment/paths.go` 以 `deployment.MovementStep` 保存完整 8 字节快照。原生 REDA 缓冲区有 4 组、每组 16 段；未修改的超长路径可保留，编辑路径或创建增援时最多 16 段。
 
 依据旧版 `EventUnitForm.MakeUnitCoordList` 以及 FE8 原生 `struct REDA`、`CopyEventMoveREDAs`、`sub_807A294`、`MuCtr_ExecREDA_807A358` 和 `SetMuConfig`。两个版本使用相同的 8 字节格式；以原版序章赛特的固定六段路径校核。同步人物字段用于等待其移动进度，坐标保持绝对值。
 
@@ -256,7 +256,7 @@ flowchart LR
 
 ## 通用事件脚本
 
-[instructions.go](../../game/event/instructions.go)、[scene_commands.go](../../game/event/scene_commands.go) 和 [unit_commands.go](../../game/event/unit_commands.go) 定义已确认指令，[script_draft.go](../../game/event/script_draft.go) 与 [script_plan.go](../../game/event/script_plan.go) 处理草稿、重定位与写入。
+`game/event/instructions.go`、`game/event/scene_commands.go` 和 `game/event/unit_commands.go` 定义已确认指令，`game/event/script_draft.go` 与 `game/event/script_plan.go` 处理草稿、重定位与写入。
 
 依据旧版 EventScript 及五版 event 配置、FE6／FE8 原生事件执行器和固定原版字节。按入口保留别名，未知与 ASM 不参与结构重写。
 
@@ -308,7 +308,7 @@ FE6／FE7 两个单位分支都只搜索我方队伍：无存活人物，或无�
 
 ### 单位加载与槽引用
 
-[unit_loads.go](../../game/event/unit_loads.go) 定义 FE8 加载及队列指令，[script_slots.go](../../game/event/script_slots.go) 保存字面量来源，供脚本草稿与部署发现共用。定义按具体工作流提取；编辑器不执行游戏状态或计算任意槽表达式。
+`game/event/unit_loads.go` 定义 FE8 加载及队列指令，`game/event/script_slots.go` 保存字面量来源，供脚本草稿与部署发现共用。定义按具体工作流提取；编辑器不执行游戏状态或计算任意槽表达式。
 
 | 编码             | 原生行为与编辑约束                                                                                                                       |
 | ---------------- | ---------------------------------------------------------------------------------------------------------------------------------------- |
@@ -343,7 +343,7 @@ flowchart LR
 
 ### 槽运算、执行控制与单位状态
 
-[script_slots.go](../../game/event/script_slots.go)、[control_commands.go](../../game/event/control_commands.go) 和 [unit_commands.go](../../game/event/unit_commands.go) 定义 FE8 的十种槽运算、计数器、执行模式、按键屏蔽、游戏状态查询及单位状态修改。三个运算槽编号共享一个 16 位参数字，各占 4 位；修改一个槽只改对应位段，未解释高位保持只读。除法、余数及移位消费运行时槽值，编辑器不推断除数或执行结果。
+`game/event/script_slots.go`、`game/event/control_commands.go` 和 `game/event/unit_commands.go` 定义 FE8 的十种槽运算、计数器、执行模式、按键屏蔽、游戏状态查询及单位状态修改。三个运算槽编号共享一个 16 位参数字，各占 4 位；修改一个槽只改对应位段，未解释高位保持只读。除法、余数及移位消费运行时槽值，编辑器不推断除数或执行结果。
 
 计数器编号为 0–7，设置值为 0–15。运行模式、章节、难度、回合、敌军／友军数量、地图种类、教程、金币、触发标志及通关后状态写槽 C；单位访问组、活动单位、坐标、职业和幸运查询也写槽 C。单位显隐、HP、行动状态、出场状态及清理指令的槽输入在帮助中明确；页面不根据显示人物推断运行时状态。
 
@@ -351,15 +351,15 @@ FE8 四种等待的新值为 1–32767，默认 1 帧；零值在原生等待处
 
 ### 路线、选择与对话
 
-[control_commands.go](../../game/event/control_commands.go) 接入 FE6／FE7 跳过状态及行动单位分支，FE7 另有路线、难度、选择结果、教程、回合、出场及死亡标志一次性判定。FE7 两个选择分支实际都在结果不是 YES 时跳转；不能沿用旧版目录中的相反含义。死亡判定仅在我方人物已死亡且标志未设置时置位并继续，其他情况跳转。分支目标参加统一标签校验。
+`game/event/control_commands.go` 接入 FE6／FE7 跳过状态及行动单位分支，FE7 另有路线、难度、选择结果、教程、回合、出场及死亡标志一次性判定。FE7 两个选择分支实际都在结果不是 YES 时跳转；不能沿用旧版目录中的相反含义。死亡判定仅在我方人物已死亡且标志未设置时置位并继续，其他情况跳转。分支目标参加统一标签校验。
 
-[route_commands.go](../../game/event/route_commands.go) 为 FE7 的路线文本和部署声明独立资源操作数。两路文本按海克托尔／其他路线选择；四路部署区分海克托尔／其他路线及普通／困难难度。普通加载允许零地址跳过对应分支，当前队伍模板的每个分支都须有有效部署。过滤加载固定为三个字，部署指针位于偏移 8；困难限定参数非零不改变长度。
+`game/event/route_commands.go` 为 FE7 的路线文本和部署声明独立资源操作数。两路文本按海克托尔／其他路线选择；四路部署区分海克托尔／其他路线及普通／困难难度。普通加载允许零地址跳过对应分支，当前队伍模板的每个分支都须有有效部署。过滤加载固定为三个字，部署指针位于偏移 8；困难限定参数非零不改变长度。
 
-[scene_commands.go](../../game/event/scene_commands.go) 定义 FE8 音乐渐变与音量、背景／CG／教程／文本框模式、继续对话、气泡清理及地图恢复。音乐渐变速度占指令首字的低 4 位；资源契约与字段名称分开，多个文本或部署引用分别校验和导航。
+`game/event/scene_commands.go` 定义 FE8 音乐渐变与音量、背景／CG／教程／文本框模式、继续对话、气泡清理及地图恢复。音乐渐变速度占指令首字的低 4 位；资源契约与字段名称分开，多个文本或部署引用分别校验和导航。
 
 ### FE6／FE7 手动移动路径
 
-[script_movement.go](../../game/event/script_movement.go) 定义人物／坐标处单位的移动路径，以及 FE7 按阵营选择两条路径、我方按坐标而其他阵营按路径移动。此字节码与 FE8 部署的 REDA 记录不同。
+`game/event/script_movement.go` 定义人物／坐标处单位的移动路径，以及 FE7 按阵营选择两条路径、我方按坐标而其他阵营按路径移动。此字节码与 FE8 部署的 REDA 记录不同。
 
 原生移动缓冲区固定复制 64 字节，须包含完整参数及末尾停止（`04`）。已确认步骤包括四向移动、四向转身、停顿、迷雾碰撞、速度和镜头跟随开关。停顿新值为 1–127；速度新值为 16–127，因为原生终点计算不会跳过速度参数，较小参数会被再次解释为命令。`FF` 在动画执行器和坐标扫描器中的解释不一致，未知命令及无法证明停止边界的路径不自动重写。
 

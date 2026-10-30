@@ -2,7 +2,7 @@
 
 本文维护当前格式、写入语义和限制；功能状态见[覆盖矩阵](../coverage.md)，操作步骤见[使用指南](../user-guide.md)。旧版与原生代码的固定版本见[核对来源](../sources.md)。
 
-当前入口：[document.go](../../rom/document.go)、[session.go](../../game/session.go)、[bytes.go](../../game/edit/bytes.go)、[relocation.go](../../game/records/relocation.go)、[write.go](../../space/write.go)。
+当前入口：`rom/document.go`、`game/session.go`、`game/edit/bytes.go`、`game/records/relocation.go`、`space/write.go`。
 
 FE7U 的 Huffman 根／树入口为 `0x6B8`／`0x6BC`，其余当前版本使用 `0x6DC`／`0x6E0`，由适配器提供。FE7 的人物／职业／道具记录分别为 52／84／36 字节；FE7U 头像主图使用 LZ77，FE7J 主图不压缩。
 

@@ -4,7 +4,7 @@
 
 ## 主题与状态
 
-主题定义位于 [chrome.go](internal/components/chrome.go) 的 `ApplyTheme`，在 MyGo 主题上覆盖以下参数：
+主题定义位于 `internal/components/chrome.go` 的 `ApplyTheme`，在 MyGo 主题上覆盖以下参数：
 
 | 参数                 | 当前值    | 用途                               |
 | -------------------- | --------- | ---------------------------------- |
@@ -46,4 +46,4 @@
 
 ## 实现位置
 
-[pages](internal/pages) 拥有标签内容、导航和页面组合，包括记录、脚本、通用文本及十六进制编辑。[components](internal/components) 根包维护窗口 chrome、共享编辑状态及通用控件；[recordform](internal/components/recordform)、chapterview 和 mapview 属于记录页内部组件堆栈。应用层只通过 pages 引入界面；[input](internal/input) 独立承载纯数值及地址解析，导入边界由架构检查覆盖。依赖与所有权见[架构说明](docs/architecture.md)，启动与构建见[开发说明](docs/development.md)。
+`internal/pages` 拥有标签内容、导航和页面组合，包括记录、脚本、通用文本及十六进制编辑。`internal/components` 根包维护窗口 chrome 和通用控件，`internal/editor` 保存窗口共享编辑状态。记录表单和章节交互分别位于 `internal/pages/records`、`internal/pages/chapters`，共享地图渲染位于 `internal/components/mapview`。应用层只通过 pages 引入界面；`internal/input` 独立承载纯数值及地址解析，导入边界由架构检查覆盖。依赖与所有权见[架构说明](docs/architecture.md)，启动与构建见[开发说明](docs/development.md)。

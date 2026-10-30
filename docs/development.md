@@ -1,10 +1,10 @@
 # 开发说明
 
-命令在仓库根目录执行，由 [justfile](../justfile) 维护；执行 `just` 查看全部说明。代码修改约束见 [AGENTS](../AGENTS.md)，测试数据与组织见[测试说明](../tests/README.md)。
+命令在仓库根目录执行，由 `justfile` 维护；执行 `just` 查看全部说明。代码修改约束见 [AGENTS](../AGENTS.md)，测试数据与组织见[测试说明](../tests/README.md)。
 
 ## 环境与命令
 
-使用 [go.mod](../go.mod) 指定的 Go 版本和 MyGo 工具。MyGo 通过 `go tool mygo` 调用，lint 与 Go 格式化需要 PATH 中的 `golangci-lint`，文档格式化使用 `oxfmt`。不需要旧版 Windows/.NET 运行环境。生成旧版来源索引前，先初始化固定子模块：
+使用 `go.mod` 指定的 Go 版本和 MyGo 工具。MyGo 通过 `go tool mygo` 调用，lint 与 Go 格式化需要 PATH 中的 `golangci-lint`，文档格式化使用 `oxfmt`。不需要旧版 Windows/.NET 运行环境。生成旧版来源索引前，先初始化固定子模块：
 
 ```sh
 git submodule update --init FEBuilderGBA
@@ -32,11 +32,11 @@ git submodule update --init FEBuilderGBA
 
 开发模式（`just dev` 或未打包的 `go run .`）会记住成功打开的 ROM 路径。没有显式路径参数时，重编译或重启后自动恢复这些文件；显式参数优先，另存为后更新记录。
 
-记录由 [dev_session.go](../internal/app/dev_session.go) 原子写入 `os.UserCacheDir()/febuildergba-mygo/dev-session.json`，macOS 通常位于用户 Library 的 Caches 目录。生产构建及 `MYGO_ENV=production` 不读写此记录。恢复仅涉及文件路径，未保存的内存修改不会自动写入 ROM。
+记录由 `internal/app/dev_session.go` 原子写入 `os.UserCacheDir()/febuildergba-mygo/dev-session.json`，macOS 通常位于用户 Library 的 Caches 目录。生产构建及 `MYGO_ENV=production` 不读写此记录。恢复仅涉及文件路径，未保存的内存修改不会自动写入 ROM。
 
 ## 国际化
 
-[mygo.json](../mygo.json) 将 `internal/locales` 配置为翻译目录：`en.json` 是源语言，`zh-Hans.json` 是简体中文。静态文案使用生成的类型化函数；[labels.go](../internal/locales/labels.go) 将动态字段 ID 映射到 catalog key，[errtext.go](../internal/components/errtext.go) 将结构化错误码映射为文案。
+`mygo.json` 将 `internal/locales` 配置为翻译目录：`en.json` 是源语言，`zh-Hans.json` 是简体中文。静态文案使用生成的类型化函数；`internal/locales/labels.go` 将动态字段 ID 映射到 catalog key，`internal/components/errtext.go` 将结构化错误码映射为文案。
 
 语言匹配、回退、复数和原生控件翻译由 MyGo 处理。界面语言不影响游戏编码、字段 ID 或 ROM 输出；旧编辑器 UI 文案无需迁移。
 

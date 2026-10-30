@@ -4,27 +4,27 @@
 
 ## 模块职责
 
-| 模块         | 代码                                                                                                    | 职责                                                                                                 |
-| ------------ | ------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------- |
-| ROM 文档     | [rom](../rom)                                                                                           | 字节、修订、撤销重做、保存点、备份与外部修改检测。                                                   |
-| 空间与引用   | [space](../space)                                                                                       | 根据明确声明的区间和引用规划写入、追加与搬迁，不自行猜测资源含义。                                   |
-| GBA 编解码   | [gba](../gba)                                                                                           | 地址边界、LZ77、4bpp、BGR555 与背景图块等原生编码。                                                  |
-| 错误模型     | [fault](../fault)                                                                                       | 稳定错误码、结构化上下文和原因链，不依赖 UI。                                                        |
-| 版本与装配   | [game/session.go](../game/session.go)、[game/format.go](../game/format.go)、[版本配置](../game/fe8u.go) | 识别固定基线版本，组合领域编辑器。`Session` 保存这些编辑器及同一个文档入口。                         |
-| 编辑有效性   | [game/edit](../game/edit)                                                                               | 绑定文档身份、修订和解析设置，冻结完整写入计划；提供原始字节编辑。                                   |
-| 记录         | [game/records](../game/records)                                                                         | 表与字段、手动布局、单项及批量写入、搬迁、人物与职业规则、资源引用选择。                             |
-| 文本         | [game/text](../game/text)                                                                               | 文本表、Huffman／anti-Huffman、Shift-JIS、NarrowFont、控制语言、浏览与替换计划。                     |
-| 原生静态图像 | [game/portrait](../game/portrait)、[game/itemicon](../game/itemicon)                                    | 头像部件、帧与元数据，以及道具图标和共享调色板约束。                                                 |
-| 图像文件流程 | [game/graphics](../game/graphics)                                                                       | 通过原生图像后端校验 PNG、组合替换预览与原子写入。                                                   |
-| 部署         | [game/deployment](../game/deployment)                                                                   | 单位记录、FE8 REDA 路径、草稿与载荷编码，不扫描章节脚本。                                            |
-| 事件         | [game/event](../game/event)                                                                             | 条件表、事件指令、控制流、槽与队列、FE6／FE7 手动路径、脚本草稿和写入。                              |
-| 地图         | [game/maps](../game/maps)                                                                               | 底图、图块集、变化表、绘制与尺寸历史、原生 ID／坐标目标查找。                                        |
-| 章节协调     | [game/chapter](../game/chapter)                                                                         | 章节表布局、资源发现、共享引用、地图变化引用审核与尺寸影响检查；为原生编辑器提供明确的外部资源输入。 |
-| 页面与组件   | [pages](../internal/pages)、[components](../internal/components)                                        | 页面拥有选择、导航与草稿；组件提供复用的显示和交互。                                                 |
-| 窗口编辑状态 | [internal/editor](../internal/editor)                                                                   | 当前会话、忙碌与错误状态、历史和文本焦点，由 UI 线程修改。                                           |
-| 系统接口     | [app](../internal/app)                                                                                  | 窗口、文件对话框、关闭确认、菜单、外部修改检测和模拟器启动。                                         |
-| 显示语言     | [locales](../internal/locales)                                                                          | MyGo catalogs、系统语言匹配、英文回退与语言偏好保存。                                                |
-| 开发工具     | [ui-probe](../cmd/ui-probe)、[legacy-inventory](../cmd/legacy-inventory)                                | 原生控件试验与旧版来源索引；索引生成到 `.cache/`。                                                   |
+| 模块         | 代码                                                            | 职责                                                                                                 |
+| ------------ | --------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------- |
+| ROM 文档     | `rom`                                                           | 字节、修订、撤销重做、保存点、备份与外部修改检测。                                                   |
+| 空间与引用   | `space`                                                         | 根据明确声明的区间和引用规划写入、追加与搬迁，不自行猜测资源含义。                                   |
+| GBA 编解码   | `gba`                                                           | 地址边界、LZ77、4bpp、BGR555 与背景图块等原生编码。                                                  |
+| 错误模型     | `fault`                                                         | 稳定错误码、结构化上下文和原因链，不依赖 UI。                                                        |
+| 版本与装配   | `game/session.go`、`game/format.go`、版本配置（`game/fe8u.go`） | 识别固定基线版本，组合领域编辑器。`Session` 保存这些编辑器及同一个文档入口。                         |
+| 编辑有效性   | `game/edit`                                                     | 绑定文档身份、修订和解析设置，冻结完整写入计划；提供原始字节编辑。                                   |
+| 记录         | `game/records`                                                  | 表与字段、手动布局、单项及批量写入、搬迁、人物与职业规则、资源引用选择。                             |
+| 文本         | `game/text`                                                     | 文本表、Huffman／anti-Huffman、Shift-JIS、NarrowFont、控制语言、浏览与替换计划。                     |
+| 原生静态图像 | `game/portrait`、`game/itemicon`                                | 头像部件、帧与元数据，以及道具图标和共享调色板约束。                                                 |
+| 图像文件流程 | `game/graphics`                                                 | 通过原生图像后端校验 PNG、组合替换预览与原子写入。                                                   |
+| 部署         | `game/deployment`                                               | 单位记录、FE8 REDA 路径、草稿与载荷编码，不扫描章节脚本。                                            |
+| 事件         | `game/event`                                                    | 条件表、事件指令、控制流、槽与队列、FE6／FE7 手动路径、脚本草稿和写入。                              |
+| 地图         | `game/maps`                                                     | 底图、图块集、变化表、绘制与尺寸历史、原生 ID／坐标目标查找。                                        |
+| 章节协调     | `game/chapter`                                                  | 章节表布局、资源发现、共享引用、地图变化引用审核与尺寸影响检查；为原生编辑器提供明确的外部资源输入。 |
+| 页面与组件   | `internal/pages`、`internal/components`                         | 页面拥有选择、导航与草稿；组件提供复用的显示和交互。                                                 |
+| 窗口编辑状态 | `internal/editor`                                               | 当前会话、忙碌与错误状态、历史和文本焦点，由 UI 线程修改。                                           |
+| 系统接口     | `internal/app`                                                  | 窗口、文件对话框、关闭确认、菜单、外部修改检测和模拟器启动。                                         |
+| 显示语言     | `internal/locales`                                              | MyGo catalogs、系统语言匹配、英文回退与语言偏好保存。                                                |
+| 开发工具     | `cmd/ui-probe`、`cmd/legacy-inventory`                          | 原生控件试验与旧版来源索引；索引生成到 `.cache/`。                                                   |
 
 目录层级表达领域关系，`import` 表达实际依赖，每个包独立封装。子包不访问父包私有成员，父包也不需要为子包逐项转发 API。`Session.Records`、`Session.Texts` 等字段直接提供所属包的编辑器；章节协调器与会话引用的是同一组地图、事件和部署编辑器。
 
@@ -34,15 +34,15 @@
 
 文件是包内的阅读与修改单元，按具体对象、操作或工作流组织。文件名应说明内容；同包存在条件表、脚本等多个对象时，保留必要限定。同一流程的状态、操作及紧密相关的私有辅助实现放在一起，独立的读取、编码与替换规划分别归位。拆合取决于修改关系，不按文件长度或声明种类机械划分。
 
-| 文件入口                                                                                                                                                                                         | 包内职责                                                                                           |
-| ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | -------------------------------------------------------------------------------------------------- |
-| [event/instructions.go](../game/event/instructions.go)、[instruction_sizes.go](../game/event/instruction_sizes.go)                                                                               | 已确认指令的字段定义，以及用于有界解码的原生指令长度。具体命令按控制、场景、单位等主题组织。       |
-| [event/deployment_discovery.go](../game/event/deployment_discovery.go)                                                                                                                           | 部署发现的结果、入口读取与脚本追踪；版本布局留在 `format.go`。                                     |
-| [text/table.go](../game/text/table.go)、[encode.go](../game/text/encode.go)、[replacement.go](../game/text/replacement.go)                                                                       | 文本表、编码与不可变替换计划；写入保护和计划提交与替换操作放在一起。                               |
-| [maps/map_draft.go](../game/maps/map_draft.go)、[map_plan.go](../game/maps/map_plan.go)                                                                                                          | 底图绘制、尺寸调整与草稿历史，以及完整写入计划；变化表使用独立的 `changes.go`、`changes_plan.go`。 |
-| [portrait/editor.go](../game/portrait/editor.go)、[record_preview.go](../game/portrait/record_preview.go)                                                                                        | 头像读取、帧与元数据编辑，以及消费人物／职业选择的预览。                                           |
-| [pages/records/text.go](../internal/pages/records/text.go)、[assets.go](../internal/pages/records/assets.go)                                                                                     | 名称和描述共用的文本草稿、预览与提交，以及图像缓存、预览与编辑入口。                               |
-| [pages/chapters/page.go](../internal/pages/chapters/page.go)、[deployments.go](../internal/pages/chapters/deployments.go)、[deployment_scene.go](../internal/pages/chapters/deployment_scene.go) | 页面组合、部署选择与提交，以及部署在地图上的展示和位置交互。                                       |
+| 文件入口                                                                                                                   | 包内职责                                                                                           |
+| -------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------- |
+| `game/event/instructions.go`、`game/event/instruction_sizes.go`                                                            | 已确认指令的字段定义，以及用于有界解码的原生指令长度。具体命令按控制、场景、单位等主题组织。       |
+| `game/event/deployment_discovery.go`                                                                                       | 部署发现的结果、入口读取与脚本追踪；版本布局留在 `format.go`。                                     |
+| `game/text/table.go`、`game/text/encode.go`、`game/text/replacement.go`                                                    | 文本表、编码与不可变替换计划；写入保护和计划提交与替换操作放在一起。                               |
+| `game/maps/map_draft.go`、`game/maps/map_plan.go`                                                                          | 底图绘制、尺寸调整与草稿历史，以及完整写入计划；变化表使用独立的 `changes.go`、`changes_plan.go`。 |
+| `game/portrait/editor.go`、`game/portrait/record_preview.go`                                                               | 头像读取、帧与元数据编辑，以及消费人物／职业选择的预览。                                           |
+| `internal/pages/records/text.go`、`internal/pages/records/assets.go`                                                       | 名称和描述共用的文本草稿、预览与提交，以及图像缓存、预览与编辑入口。                               |
+| `internal/pages/chapters/page.go`、`internal/pages/chapters/deployments.go`、`internal/pages/chapters/deployment_scene.go` | 页面组合、部署选择与提交，以及部署在地图上的展示和位置交互。                                       |
 
 导入通常直接使用包名。局部变量用 `condition`、`plan`、`versionID` 等名称表达具体含义；同时引用领域 `records` 与记录页面 `records` 时，页面使用 `recordspage` 别名。
 

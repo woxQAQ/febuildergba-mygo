@@ -66,4 +66,4 @@ FE6／FE7 的结束与分支以各自 `EventGotoLabel` 及执行器为准；FE7 
 
 ## 验证证据
 
-[测试说明](../tests/README.md)定义证据类型和停止条件，[fixture 说明](../testdata/fixtures.md)记录独立样本构造。固定预期由合成数据提供；可选[集成测试](../tests/integration/real_rom_test.go)使用 `.rom/` 中动态发现的输入检查通用流程，不绑定某份 ROM 的具体内容。当前实现状态与各功能对应的证据入口见[覆盖矩阵](coverage.md#验证证据)。
+[测试说明](../tests/README.md)定义证据类型和停止条件，[fixture 说明](../testdata/fixtures.md)记录独立样本构造。固定预期由合成数据提供；可选集成测试（`tests/integration/real_rom_test.go`）使用 `.rom/` 中动态发现的输入检查通用流程，不绑定某份 ROM 的具体内容。当前实现状态与各功能对应的证据入口见[覆盖矩阵](coverage.md#验证证据)。

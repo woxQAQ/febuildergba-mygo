@@ -8,7 +8,7 @@
 
 元数据描述游戏格式和规则，包括字段宽度、表定位规则、事件参数类型和补丁适用条件。定义库保存版本与补丁差异，兼容读取器将社区格式转换为领域定义。
 
-当前字段和表规则保存在 [Field 与 Table](../game/records/schema.go)、[FE8U 表定义](../game/fe8u.go) 和 [表解析](../game/records/tables.go) 中。编辑器继续使用这些实现，开发不依赖元数据层先完成。
+当前字段和表规则保存在 `game/records/schema.go`（`Field` 与 `Table`）、`game/fe8u.go`（FE8U 表定义）和 `game/records/tables.go`（表解析）中。编辑器继续使用这些实现，开发不依赖元数据层先完成。
 
 未来包名暂定 `metadata`，表示游戏定义库。具体类型、接口和 JSON 字段在首次实际接入时确定，不预先建立通用配置框架。
 

@@ -85,11 +85,11 @@ PNG 导入导出使用完整素材表。导入时校验颜色，预览共享影�
 
 ## 实现边界与验证
 
-- [editor.go](../game/portrait/editor.go)：独立部件读取、原生帧组合、可写字段、修订绑定与原子定位。
-- [records/portrait.go](../game/records/portrait.go) 选择人物／职业引用与职业回退；[portrait/record_preview.go](../game/portrait/record_preview.go) 消费选择并解码小头像与原生通用资源。
-- [table.go](../game/portrait/table.go)：有界索引、空洞、损坏记录及已知使用处。
-- [portraits](../internal/pages/portraits)：缩略图列表、预览、定位输入、拖动、资源导航与 PNG 工作流。
-- [records](../internal/pages/records)：人物／职业身份区和引用入口。
+- `game/portrait/editor.go`：独立部件读取、原生帧组合、可写字段、修订绑定与原子定位。
+- `game/records/portrait.go` 选择人物／职业引用与职业回退；`game/portrait/record_preview.go` 消费选择并解码小头像与原生通用资源。
+- `game/portrait/table.go`：有界索引、空洞、损坏记录及已知使用处。
+- `internal/pages/portraits`：缩略图列表、预览、定位输入、拖动、资源导航与 PNG 工作流。
+- `internal/pages/records`：人物／职业身份区和引用入口。
 
 领域流程使用独立字节样本验证五版图块位置、表情帧、部件损坏、未知字节、原子历史、过期写入、手动布局、头像表搬迁、PNG 与定位的相互失效、职业回退、通用小头像及保存重开。固定预期使用独立构造的合成样本；可选集成流程从 `.rom/` 中实际可编辑的头像选择入口，验证定位修改和 PNG 替换。
 

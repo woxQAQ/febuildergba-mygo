@@ -6,9 +6,9 @@
 - `records`、`text`、`portrait`、`graphics`、`deployment`、`event`、`maps` 验证各自的编辑行为、错误边界和文档历史。
 - `chapter` 验证章节布局、跨资源引用、脚本与地图关联及尺寸影响。
 
-共享样本和临时会话打开位于 [internal/testutil](../internal/testutil)；领域特有的查找与断言 helper 留在所属测试包。样本明确声明输入字节、地址和布局，不从生产私有配置反推输入或预期，具体规则见 [fixtures.md](../testdata/fixtures.md)。`just test-core` 和 `just test-race` 递归覆盖 `game/...`。
+共享样本和临时会话打开位于 `internal/testutil`；领域特有的查找与断言 helper 留在所属测试包。样本明确声明输入字节、地址和布局，不从生产私有配置反推输入或预期，具体规则见 [fixtures.md](../testdata/fixtures.md)。`just test-core` 和 `just test-race` 递归覆盖 `game/...`。
 
-可选[集成测试](integration)动态发现 `.rom/` 中的输入，不要求固定文件名或特定原版组合。合成测试与集成测试的写入、保存流程均在临时目录执行；验证范围以测试代码为准。
+可选集成测试（`tests/integration`）动态发现 `.rom/` 中的输入，不要求固定文件名或特定原版组合。合成测试与集成测试的写入、保存流程均在临时目录执行；验证范围以测试代码为准。
 
 ## 运行
 
