@@ -2,7 +2,7 @@ package components
 
 import (
 	"github.com/woxQAQ/febuildergba-mygo/fault"
-	"github.com/woxQAQ/febuildergba-mygo/game"
+	"github.com/woxQAQ/febuildergba-mygo/game/maps"
 	"github.com/woxQAQ/febuildergba-mygo/internal/locales"
 )
 
@@ -13,7 +13,7 @@ func ErrorText(err error) string {
 		return ""
 	}
 	code := fault.CodeOf(err)
-	if code == game.ErrMap {
+	if code == maps.ErrMap {
 		for frame := range fault.Frames(err) {
 			if frame.Code == code && frame.Context.Resource != "" {
 				return locales.MapResourceError(

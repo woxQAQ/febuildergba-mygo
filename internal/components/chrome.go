@@ -10,6 +10,7 @@ import (
 	"github.com/egoist/mygo/i18n"
 	"github.com/egoist/mygo/ui"
 
+	"github.com/woxQAQ/febuildergba-mygo/internal/editor"
 	"github.com/woxQAQ/febuildergba-mygo/internal/locales"
 )
 
@@ -26,7 +27,7 @@ func ApplyTheme(c *ui.Context) {
 	c.SetTheme(&t)
 }
 
-func Header(c *ui.Context, state *State) {
+func Header(c *ui.Context, state *editor.State) {
 	t := c.Theme()
 	bar := c.TitleBar()
 	ui.Row(c).Height(max(HeaderHeight, bar.Height)).Shrink(0).
@@ -65,7 +66,7 @@ func Header(c *ui.Context, state *State) {
 	})
 }
 
-func ErrorBanner(c *ui.Context, state *State) {
+func ErrorBanner(c *ui.Context, state *editor.State) {
 	if state.Err == nil {
 		return
 	}
@@ -87,7 +88,7 @@ func ErrorBanner(c *ui.Context, state *State) {
 		})
 }
 
-func ExternalChangeBanner(c *ui.Context, state *State, reload func()) {
+func ExternalChangeBanner(c *ui.Context, state *editor.State, reload func()) {
 	if !state.External {
 		return
 	}
@@ -111,7 +112,7 @@ func ExternalChangeBanner(c *ui.Context, state *State, reload func()) {
 		})
 }
 
-func StatusBar(c *ui.Context, state *State, run func()) {
+func StatusBar(c *ui.Context, state *editor.State, run func()) {
 	document := state.Session.Document.State()
 	ui.Row(c).
 		Padding(8, 16).
@@ -120,7 +121,7 @@ func StatusBar(c *ui.Context, state *State, run func()) {
 		BorderWidth(1, 0, 0, 0).
 		BorderColor(c.Theme().Border).
 		Children(func() {
-			ui.Textf(c, "%s  %.2f MiB", state.Session.Adapter.ID(), float64(document.Size)/(1<<20)).
+			ui.Textf(c, "%s  %.2f MiB", state.Session.Version(), float64(document.Size)/(1<<20)).
 				TextColor(c.Theme().TextMuted)
 			ui.Box(c).Grow(1)
 			status := locales.Ready()

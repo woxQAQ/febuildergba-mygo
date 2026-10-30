@@ -4,9 +4,10 @@ import (
 	"github.com/egoist/mygo/i18n"
 	"github.com/egoist/mygo/ui"
 
-	"github.com/woxQAQ/febuildergba-mygo/game"
+	"github.com/woxQAQ/febuildergba-mygo/game/edit"
+	"github.com/woxQAQ/febuildergba-mygo/game/records"
 	"github.com/woxQAQ/febuildergba-mygo/internal/components"
-	inputparse "github.com/woxQAQ/febuildergba-mygo/internal/input"
+	"github.com/woxQAQ/febuildergba-mygo/internal/input"
 	"github.com/woxQAQ/febuildergba-mygo/internal/locales"
 )
 
@@ -16,7 +17,7 @@ type batchDraft struct {
 	err                  error
 }
 
-func (p *pane) selectedIDs(rows []game.Row) []int {
+func (p *pane) selectedIDs(rows []records.Row) []int {
 	var ids []int
 	for _, row := range rows {
 		if p.chosen.Has(row.ID) {
@@ -26,11 +27,11 @@ func (p *pane) selectedIDs(rows []game.Row) []int {
 	return ids
 }
 
-func (a *Page) batchEditor(c *ui.Context, table *game.Table, ids []int) {
+func (a *Page) batchEditor(c *ui.Context, table *records.Table, ids []int) {
 	p := &a.panes[a.tab]
 	b := &p.batch
 	labels := make([]string, len(table.Fields))
-	var selected *game.Field
+	var selected *records.Field
 	for i := range table.Fields {
 		f := &table.Fields[i]
 		labels[i] = locales.Label(f.Group) + " / " + locales.Label(f.ID)
@@ -46,7 +47,7 @@ func (a *Page) batchEditor(c *ui.Context, table *game.Table, ids []int) {
 		}
 		b.language = i18n.Locale()
 	}
-	value, parseErr := inputparse.ParseInteger(b.value)
+	value, parseErr := input.ParseInteger(b.value)
 	valid := selected != nil && parseErr == nil
 	if selected != nil {
 		low, high := selected.Bounds()
@@ -110,7 +111,7 @@ func (a *Page) batchEditor(c *ui.Context, table *game.Table, ids []int) {
 				}
 			case 2:
 				if selected != nil {
-					before, err := a.state.Session.Value(
+					before, err := a.state.Session.Records.Value(
 						table.Kind,
 						id,
 						selected.ID,
@@ -135,16 +136,16 @@ func (a *Page) applyBatch() {
 	p := &a.panes[a.tab]
 	ids := p.selectedIDs(a.rows())
 	if len(ids) < 2 {
-		p.batch.err = game.ErrField
+		p.batch.err = edit.ErrField
 		return
 	}
-	value, err := inputparse.ParseInteger(p.batch.value)
+	value, err := input.ParseInteger(p.batch.value)
 	if err != nil {
-		p.batch.err = game.ErrValue
+		p.batch.err = edit.ErrValue
 		return
 	}
-	p.batch.err = a.state.Session.Set(
-		game.Kinds[a.tab],
+	p.batch.err = a.state.Session.Records.Set(
+		records.Kinds[a.tab],
 		ids,
 		p.batch.field,
 		value,

@@ -7,7 +7,7 @@ import (
 
 	"github.com/egoist/mygo/ui"
 
-	"github.com/woxQAQ/febuildergba-mygo/game"
+	"github.com/woxQAQ/febuildergba-mygo/game/maps"
 	"github.com/woxQAQ/febuildergba-mygo/internal/components"
 	"github.com/woxQAQ/febuildergba-mygo/internal/locales"
 )
@@ -35,45 +35,26 @@ type Overlay struct {
 }
 
 type View struct {
-	session          *game.Session
-	loaded           bool
-	revision         uint64
-	chapter, address int
-	resource         game.MapPreview
-	bitmap           *ui.Bitmap
-	err              error
-	zoom             int
-	grid             bool
-	scroll           ui.ScrollState
-	selection        image.Point
-	selected         bool
-	panning          bool
-	stroke           []image.Point
-	strokeTool       Tool
+	loaded     bool
+	resource   maps.Preview
+	bitmap     *ui.Bitmap
+	err        error
+	zoom       int
+	grid       bool
+	scroll     ui.ScrollState
+	selection  image.Point
+	selected   bool
+	panning    bool
+	stroke     []image.Point
+	strokeTool Tool
 }
 
-func (v *View) load(session *game.Session, row game.Row) {
-	if v.session != session {
-		*v = View{session: session, zoom: 1, grid: true}
-	}
-	revision := session.Document.State().Revision
-	if v.loaded && v.revision == revision && v.chapter == row.ID &&
-		v.address == row.Address {
-		return
-	}
-	if !v.loaded || v.chapter != row.ID || v.address != row.Address {
-		v.selected, v.panning = false, false
-		v.scroll = ui.ScrollState{}
-	}
-	v.loaded, v.revision, v.chapter, v.address = true, revision, row.ID, row.Address
-	v.resource, v.err = session.ChapterMap(row.ID)
-	v.bitmap = nil
-	if v.err == nil {
-		v.bitmap = ui.NewBitmap(v.resource.Image).Pixelated()
-	}
-	if _, ok := v.resource.Cell(v.selection.X, v.selection.Y); !ok {
-		v.selected = false
-	}
+// ResetInteraction clears selection, scrolling and incomplete gestures while
+// retaining the user's zoom and grid preferences.
+func (v *View) ResetInteraction() {
+	v.selected, v.panning = false, false
+	v.stroke = nil
+	v.scroll = ui.ScrollState{}
 }
 
 func (v *View) Selection() (image.Point, bool) {
@@ -91,35 +72,28 @@ func (v *View) focus(point image.Point) {
 	v.scroll.Y = max(0, float32(point.Y)*16*scale-120)
 }
 
+// Render consumes a domain preview and page-owned error. It never reads ROMs.
 func (v *View) Render(
 	c *ui.Context,
-	session *game.Session,
-	row game.Row,
-	overlay Overlay,
-) {
-	v.load(session, row)
-	v.render(c, overlay)
-}
-
-// RenderPreview uses a domain draft's snapshot while retaining viewport state.
-func (v *View) RenderPreview(
-	c *ui.Context,
-	preview game.MapPreview,
+	preview maps.Preview,
+	err error,
 	overlay Overlay,
 ) {
 	if !v.loaded {
 		v.loaded, v.zoom, v.grid = true, 1, true
 	}
-	if v.resource.Image != preview.Image {
+	if v.resource.Image != preview.Image || err != nil {
 		if v.resource.Width != preview.Width ||
 			v.resource.Height != preview.Height {
-			v.selected, v.panning = false, false
-			v.stroke = nil
-			v.scroll = ui.ScrollState{}
+			v.ResetInteraction()
 		}
-		v.resource, v.err = preview, nil
-		v.bitmap = ui.NewBitmap(preview.Image).Pixelated()
+		v.resource = preview
+		v.bitmap = nil
+		if err == nil {
+			v.bitmap = ui.NewBitmap(preview.Image).Pixelated()
+		}
 	}
+	v.err = err
 	v.render(c, overlay)
 }
 

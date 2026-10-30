@@ -8,7 +8,7 @@ import (
 
 	"github.com/egoist/mygo/ui"
 
-	"github.com/woxQAQ/febuildergba-mygo/game"
+	"github.com/woxQAQ/febuildergba-mygo/game/event"
 	"github.com/woxQAQ/febuildergba-mygo/internal/components"
 	"github.com/woxQAQ/febuildergba-mygo/internal/locales"
 )
@@ -40,8 +40,8 @@ var movementLabels = [...]string{
 func (page *Page) movement(
 	c *ui.Context,
 	draft *draftState,
-	row game.ScriptInstruction,
-	field game.ScriptField,
+	row event.ScriptInstruction,
+	field event.ScriptField,
 ) {
 	if draft.movements == nil {
 		draft.movements = make(map[operandKey]*movementDraft)
@@ -52,7 +52,8 @@ func (page *Page) movement(
 		state = &movementDraft{}
 		draft.movements[key] = state
 	}
-	disabled := page.state.Busy || !draft.data.Current(page.state.Session)
+	disabled := page.state.Busy ||
+		!draft.data.Current(page.state.Session.Events)
 	steps, err := draft.data.Movement(draft.selected, field.ID)
 	ui.Column(c.Key(key)).Gap(8).Children(func() {
 		ui.Text(c, locales.Label(field.ID))
@@ -67,7 +68,7 @@ func (page *Page) movement(
 					page.state.Err = draft.data.SetMovement(
 						draft.selected,
 						field.ID,
-						[]game.ScriptMovementStep{{Command: 4}},
+						[]event.ScriptMovementStep{{Command: 4}},
 					)
 					draft.preview = nil
 				})
@@ -89,7 +90,7 @@ func (page *Page) movement(
 			state.value = strconv.Itoa(steps[index].Value)
 			state.invalid = false
 		}
-		update := func(next []game.ScriptMovementStep, selected int) {
+		update := func(next []event.ScriptMovementStep, selected int) {
 			page.state.Err = draft.data.SetMovement(
 				draft.selected,
 				field.ID,
@@ -187,7 +188,7 @@ func (page *Page) movement(
 					if choice < 0 {
 						return
 					}
-					step := game.ScriptMovementStep{Command: codes[choice]}
+					step := event.ScriptMovementStep{Command: codes[choice]}
 					if step.Command == 9 {
 						step.Value = 1
 					}

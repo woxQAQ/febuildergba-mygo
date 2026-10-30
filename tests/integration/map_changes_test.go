@@ -9,13 +9,14 @@ import (
 	"time"
 
 	"github.com/woxQAQ/febuildergba-mygo/game"
+	"github.com/woxQAQ/febuildergba-mygo/game/records"
 )
 
 func editMapChanges(t *testing.T, s *game.Session) {
 	t.Helper()
-	chapters := requireTable(t, s, game.Chapters)
+	chapters := requireTable(t, s, records.Chapters)
 	for _, chapter := range chapters.Rows {
-		draft, err := s.NewMapChangesDraft(chapter.ID)
+		draft, err := s.Maps.NewChangesDraft(chapter.ID)
 		if err != nil {
 			continue
 		}
@@ -57,7 +58,7 @@ func editMapChanges(t *testing.T, s *game.Session) {
 				t.Fatal("change draft history")
 			}
 			started := time.Now()
-			plan, err := s.PlanMapChangesEdit(draft)
+			plan, err := s.Maps.PlanChanges(draft)
 			t.Logf(
 				"chapter=%02X change=%02X planning=%s",
 				chapter.ID,
@@ -68,7 +69,7 @@ func editMapChanges(t *testing.T, s *game.Session) {
 			if !plan.Applicable() {
 				t.Fatal("tile painting removed a script target")
 			}
-			if err = s.ApplyMapChangesEdit(plan); err != nil {
+			if err = s.Maps.ApplyChanges(plan); err != nil {
 				t.Fatal(err)
 			}
 			after := s.Document.Snapshot()
@@ -84,7 +85,7 @@ func editMapChanges(t *testing.T, s *game.Session) {
 				if !use.Updated {
 					continue
 				}
-				shared, readErr := s.NewMapChangesDraft(use.Chapter)
+				shared, readErr := s.Maps.NewChangesDraft(use.Chapter)
 				if readErr != nil {
 					t.Fatal(readErr)
 				}
@@ -97,7 +98,7 @@ func editMapChanges(t *testing.T, s *game.Session) {
 				}
 			}
 			reopened := historyAndReopen(t, s, before)
-			continued, err := reopened.NewMapChangesDraft(chapter.ID)
+			continued, err := reopened.Maps.NewChangesDraft(chapter.ID)
 			if err != nil {
 				t.Fatal(err)
 			}
@@ -113,14 +114,14 @@ func editMapChanges(t *testing.T, s *game.Session) {
 				if ref.After < 0 {
 					continue
 				}
-				script, readErr := reopened.NewScriptDraft(
+				script, readErr := reopened.Events.NewScriptDraft(
 					ref.ScriptChapter,
 					ref.Pointer,
 				)
 				if readErr != nil {
 					t.Fatal(readErr)
 				}
-				links, readErr := reopened.ScriptMapChanges(
+				links, readErr := reopened.Events.MapChanges(
 					script,
 					ref.Instruction,
 				)
@@ -146,9 +147,9 @@ func editMapChanges(t *testing.T, s *game.Session) {
 			); err != nil {
 				t.Fatal(err)
 			}
-			next, err := reopened.PlanMapChangesEdit(continued)
+			next, err := reopened.Maps.PlanChanges(continued)
 			checkPlan(t, reopened, reopened.Document.Snapshot(), err)
-			if err = reopened.ApplyMapChangesEdit(next); err != nil {
+			if err = reopened.Maps.ApplyChanges(next); err != nil {
 				t.Fatal(err)
 			}
 			t.Logf(

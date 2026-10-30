@@ -11,6 +11,10 @@ import (
 	"testing"
 
 	"github.com/woxQAQ/febuildergba-mygo/game"
+	"github.com/woxQAQ/febuildergba-mygo/game/edit"
+	"github.com/woxQAQ/febuildergba-mygo/game/event"
+	"github.com/woxQAQ/febuildergba-mygo/game/graphics"
+	"github.com/woxQAQ/febuildergba-mygo/game/records"
 	"github.com/woxQAQ/febuildergba-mygo/rom"
 	"github.com/woxQAQ/febuildergba-mygo/space"
 )
@@ -54,15 +58,15 @@ func TestROMWorkflows(t *testing.T) {
 				{"deployments", editDeployment},
 				{
 					"turns",
-					func(t *testing.T, s *game.Session) { editEvents(t, s, game.TurnEvents) },
+					func(t *testing.T, s *game.Session) { editEvents(t, s, event.TurnEvents) },
 				},
 				{
 					"always",
-					func(t *testing.T, s *game.Session) { editEvents(t, s, game.AlwaysEvents) },
+					func(t *testing.T, s *game.Session) { editEvents(t, s, event.AlwaysEvents) },
 				},
 				{
 					"talks",
-					func(t *testing.T, s *game.Session) { editEvents(t, s, game.TalkEvents) },
+					func(t *testing.T, s *game.Session) { editEvents(t, s, event.TalkEvents) },
 				},
 				{"scripts", editScript},
 				{"script-scenes", editScriptScene},
@@ -77,7 +81,7 @@ func TestROMWorkflows(t *testing.T) {
 			}
 			// Identify the input once, so an unsupported header has one explicit skip.
 			probe := openCopy(t, source)
-			t.Logf("adapter=%s, bytes=%d", probe.Adapter.ID(), len(source))
+			t.Logf("adapter=%s, bytes=%d", probe.Version(), len(source))
 			for _, workflow := range workflows {
 				t.Run(workflow.name, func(t *testing.T) {
 					workflow.run(t, openCopy(t, source))
@@ -97,7 +101,7 @@ func openCopy(t *testing.T, data []byte) *game.Session {
 		t.Fatal(err)
 	}
 	s, err := game.Open(path)
-	if errors.Is(err, game.ErrVersion) {
+	if errors.Is(err, edit.ErrVersion) {
 		t.Skipf("unsupported ROM header: %v", err)
 	}
 	if err != nil {
@@ -106,9 +110,13 @@ func openCopy(t *testing.T, data []byte) *game.Session {
 	return s
 }
 
-func requireTable(t *testing.T, s *game.Session, kind game.Kind) *game.Table {
+func requireTable(
+	t *testing.T,
+	s *game.Session,
+	kind records.Kind,
+) *records.Table {
 	t.Helper()
-	table := s.Table(kind)
+	table := s.Records.Table(kind)
 	if table == nil {
 		t.Skipf("no %s table", kind)
 	}
@@ -131,7 +139,7 @@ func checkPlan(t *testing.T, s *game.Session, before rom.Snapshot, err error) {
 		t.Fatal("preview changed the document")
 	}
 	if errors.Is(err, space.ErrCapacity) ||
-		errors.Is(err, game.ErrAssetFormat) {
+		errors.Is(err, graphics.ErrFormat) {
 		t.Skipf("operation unavailable for this input: %v", err)
 	}
 	if err != nil {
@@ -179,7 +187,7 @@ func saveAndReopen(
 	if err != nil {
 		t.Fatal(err)
 	}
-	if reopened.Adapter.ID() != s.Adapter.ID() ||
+	if reopened.Version() != s.Version() ||
 		reopened.Document.State().Dirty ||
 		!bytes.Equal(reopened.Document.Snapshot().Data, expected) {
 		t.Fatal("reopen changed bytes, version or saved state")

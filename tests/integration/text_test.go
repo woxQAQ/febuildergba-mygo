@@ -10,7 +10,7 @@ import (
 )
 
 func editText(t *testing.T, s *game.Session) {
-	entries, err := s.TextEntries()
+	entries, err := s.Texts.Entries()
 	if err != nil {
 		t.Skipf("text table unavailable: %v", err)
 	}
@@ -24,13 +24,13 @@ func editText(t *testing.T, s *game.Session) {
 		content := entry.Content + entry.Content
 		t.Logf("text ID=%d", entry.ID)
 		before := s.Document.Snapshot()
-		edit, err := s.PlanTextIDEdit(entry.ID, content)
+		edit, err := s.Texts.PlanID(entry.ID, content)
 		checkPlan(t, s, before, err)
-		if err := s.ApplyTextEdit(edit); err != nil {
+		if err := s.Texts.Apply(edit); err != nil {
 			t.Fatal(err)
 		}
 		reopened := historyAndReopen(t, s, before)
-		value, err := reopened.TextByID(entry.ID)
+		value, err := reopened.Texts.Read(entry.ID)
 		if err != nil || value.Content != content {
 			t.Fatalf("edited text after reopening: %v", err)
 		}

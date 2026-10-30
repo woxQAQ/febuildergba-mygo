@@ -6,12 +6,15 @@ import (
 	"github.com/egoist/mygo/ui"
 
 	"github.com/woxQAQ/febuildergba-mygo/game"
+	"github.com/woxQAQ/febuildergba-mygo/game/graphics"
+	"github.com/woxQAQ/febuildergba-mygo/game/records"
 	"github.com/woxQAQ/febuildergba-mygo/internal/components"
+	"github.com/woxQAQ/febuildergba-mygo/internal/editor"
 	"github.com/woxQAQ/febuildergba-mygo/internal/locales"
 	"github.com/woxQAQ/febuildergba-mygo/internal/pages/eventeditor"
 	"github.com/woxQAQ/febuildergba-mygo/internal/pages/hexeditor"
 	"github.com/woxQAQ/febuildergba-mygo/internal/pages/portraits"
-	"github.com/woxQAQ/febuildergba-mygo/internal/pages/records"
+	recordspage "github.com/woxQAQ/febuildergba-mygo/internal/pages/records"
 	"github.com/woxQAQ/febuildergba-mygo/internal/pages/texteditor"
 )
 
@@ -25,15 +28,15 @@ type Actions struct {
 	Reload                func()
 	Run                   func()
 	ImportPNG             func(func([]byte, error))
-	ExportPNG             func(game.AssetRef)
+	ExportPNG             func(graphics.Ref)
 	HistoryContextChanged func()
 }
 
 type Workspace struct {
-	Editor      *components.State
+	Editor      *editor.State
 	Actions     Actions
 	tab         int
-	records     *records.Page
+	records     *recordspage.Page
 	hex         *hexeditor.Page
 	texts       *texteditor.Page
 	scripts     *eventeditor.Page
@@ -42,11 +45,11 @@ type Workspace struct {
 }
 
 func New() *Workspace {
-	w := &Workspace{Editor: &components.State{}}
+	w := &Workspace{Editor: &editor.State{}}
 	w.hex = hexeditor.New(w.Editor)
 	w.texts = texteditor.New(
 		w.Editor,
-		func(kind game.Kind, id int) { w.records.Open(kind, id) },
+		func(kind records.Kind, id int) { w.records.Open(kind, id) },
 	)
 	assets := components.AssetActions{
 		Import: func(done func([]byte, error)) {
@@ -54,17 +57,17 @@ func New() *Workspace {
 				w.Actions.ImportPNG(done)
 			}
 		},
-		Export: func(ref game.AssetRef) {
+		Export: func(ref graphics.Ref) {
 			if w.Actions.ExportPNG != nil {
 				w.Actions.ExportPNG(ref)
 			}
 		},
 	}
-	w.records = records.New(
+	w.records = recordspage.New(
 		w.Editor,
 		w.openHex,
 		w.openText,
-		func(kind game.Kind) { w.tab = slices.Index(game.Kinds, kind) },
+		func(kind records.Kind) { w.tab = slices.Index(records.Kinds, kind) },
 		assets,
 	)
 	w.portraits = portraits.New(w.Editor, assets, w.records.Open, w.openHex)
@@ -91,18 +94,18 @@ func (w *Workspace) SetSession(session *game.Session) {
 }
 
 func (w *Workspace) openHex(address, length int) {
-	w.tab = len(game.Kinds) + 1
+	w.tab = len(records.Kinds) + 1
 	w.hex.Open(address, length)
 }
 
 func (w *Workspace) openText(id uint16) {
-	w.tab = len(game.Kinds)
+	w.tab = len(records.Kinds)
 	w.texts.Open(id)
 }
 
 // OpenScript navigates to a chapter's physical script entry pointer.
 func (w *Workspace) OpenScript(chapter, site int) {
-	w.tab = len(game.Kinds) + 2
+	w.tab = len(records.Kinds) + 2
 	w.scripts.Open(chapter, site)
 }
 
@@ -110,7 +113,7 @@ func (w *Workspace) OpenScript(chapter, site int) {
 func (w *Workspace) OpenPortrait(
 	id int,
 ) {
-	w.tab = len(game.Kinds) + 3
+	w.tab = len(records.Kinds) + 3
 	w.portraits.Open(id)
 }
 
@@ -139,8 +142,8 @@ func (w *Workspace) View(c *ui.Context) {
 			return
 		}
 		components.ExternalChangeBanner(c, state, w.Actions.Reload)
-		labels := make([]string, 0, len(game.Kinds)+2)
-		for _, kind := range game.Kinds {
+		labels := make([]string, 0, len(records.Kinds)+2)
+		for _, kind := range records.Kinds {
 			labels = append(labels, locales.Label(string(kind)))
 		}
 		labels = append(
@@ -152,13 +155,13 @@ func (w *Workspace) View(c *ui.Context) {
 		)
 		ui.Tabs(c, &w.tab, labels...)
 		switch w.tab {
-		case len(game.Kinds):
+		case len(records.Kinds):
 			w.texts.View(c)
-		case len(game.Kinds) + 1:
+		case len(records.Kinds) + 1:
 			w.hex.View(c)
-		case len(game.Kinds) + 2:
+		case len(records.Kinds) + 2:
 			w.scripts.View(c)
-		case len(game.Kinds) + 3:
+		case len(records.Kinds) + 3:
 			w.portraits.View(c)
 		default:
 			w.records.View(c, w.tab)

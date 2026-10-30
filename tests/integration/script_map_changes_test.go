@@ -7,15 +7,16 @@ import (
 	"testing"
 
 	"github.com/woxQAQ/febuildergba-mygo/game"
+	"github.com/woxQAQ/febuildergba-mygo/game/records"
 )
 
 // Follow a confirmed native script operand into the change editor, then verify
 // the same operand resolves through the updated resource entry after reopening.
 func linkMapChange(t *testing.T, s *game.Session) {
 	t.Helper()
-	chapters := requireTable(t, s, game.Chapters)
+	chapters := requireTable(t, s, records.Chapters)
 	for _, chapter := range chapters.Rows {
-		entries, err := s.ScriptEntries(chapter.ID)
+		entries, err := s.Events.ScriptEntries(chapter.ID)
 		if err != nil {
 			continue
 		}
@@ -25,7 +26,7 @@ func linkMapChange(t *testing.T, s *game.Session) {
 				continue
 			}
 			seen[entry.Address] = true
-			script, err := s.NewScriptDraft(chapter.ID, entry.Pointer)
+			script, err := s.Events.NewScriptDraft(chapter.ID, entry.Pointer)
 			if err != nil {
 				continue
 			}
@@ -33,12 +34,12 @@ func linkMapChange(t *testing.T, s *game.Session) {
 				if !script.IsMapChange(instruction) {
 					continue
 				}
-				links, err := s.ScriptMapChanges(script, instruction)
+				links, err := s.Events.MapChanges(script, instruction)
 				if err != nil || len(links) == 0 {
 					continue
 				}
 				for _, link := range links {
-					draft, err := s.NewMapChangesDraft(link.Chapter)
+					draft, err := s.Maps.NewChangesDraft(link.Chapter)
 					if err != nil {
 						continue
 					}
@@ -49,7 +50,9 @@ func linkMapChange(t *testing.T, s *game.Session) {
 					for index, change := range draft.Entries() {
 						if change.Address != link.Address ||
 							change.Bounds.Empty() ||
-							!change.Bounds.In(image.Rectangle{Max: draft.Size()}) {
+							!change.Bounds.In(
+								image.Rectangle{Max: draft.Size()},
+							) {
 							continue
 						}
 						if _, err = draft.Preview(index, true); err != nil {
@@ -77,20 +80,20 @@ func linkMapChange(t *testing.T, s *game.Session) {
 						); err != nil {
 							t.Fatal(err)
 						}
-						plan, err := s.PlanMapChangesEdit(draft)
+						plan, err := s.Maps.PlanChanges(draft)
 						checkPlan(t, s, before, err)
-						if err = s.ApplyMapChangesEdit(plan); err != nil {
+						if err = s.Maps.ApplyChanges(plan); err != nil {
 							t.Fatal(err)
 						}
 						reopened := historyAndReopen(t, s, before)
-						script, err = reopened.NewScriptDraft(
+						script, err = reopened.Events.NewScriptDraft(
 							chapter.ID,
 							entry.Pointer,
 						)
 						if err != nil {
 							t.Fatal(err)
 						}
-						updated, err := reopened.ScriptMapChanges(
+						updated, err := reopened.Events.MapChanges(
 							script,
 							instruction,
 						)
@@ -109,7 +112,7 @@ func linkMapChange(t *testing.T, s *game.Session) {
 								"script target did not follow appended change table",
 							)
 						}
-						continued, err := reopened.NewMapChangesDraft(
+						continued, err := reopened.Maps.NewChangesDraft(
 							link.Chapter,
 						)
 						if err != nil {

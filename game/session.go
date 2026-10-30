@@ -1,160 +1,34 @@
+// Package game selects native versions and assembles editors for an open ROM.
 package game
 
 import (
-	"bytes"
-	"encoding/binary"
-	"image"
-
 	"github.com/woxQAQ/febuildergba-mygo/fault"
+	"github.com/woxQAQ/febuildergba-mygo/game/chapter"
+	"github.com/woxQAQ/febuildergba-mygo/game/deployment"
+	"github.com/woxQAQ/febuildergba-mygo/game/edit"
+	"github.com/woxQAQ/febuildergba-mygo/game/event"
+	"github.com/woxQAQ/febuildergba-mygo/game/graphics"
+	"github.com/woxQAQ/febuildergba-mygo/game/maps"
+	"github.com/woxQAQ/febuildergba-mygo/game/portrait"
+	"github.com/woxQAQ/febuildergba-mygo/game/records"
+	"github.com/woxQAQ/febuildergba-mygo/game/text"
 	"github.com/woxQAQ/febuildergba-mygo/rom"
-	"github.com/woxQAQ/febuildergba-mygo/space"
 )
 
-var (
-	ErrVersion = fault.Code{
-		ID:   "game.unsupported_version",
-		Kind: fault.Unsupported,
-	}
-	ErrLayout = fault.Code{
-		ID:   "game.invalid_layout",
-		Kind: fault.InvalidData,
-	}
-	ErrField = fault.Code{
-		ID:   "game.invalid_field",
-		Kind: fault.InvalidInput,
-	}
-	ErrValue = fault.Code{
-		ID:   "game.invalid_value",
-		Kind: fault.InvalidInput,
-	}
-	ErrText = fault.Code{
-		ID:   "game.invalid_text",
-		Kind: fault.InvalidData,
-	}
-	ErrImage = fault.Code{
-		ID:   "game.invalid_image",
-		Kind: fault.InvalidData,
-	}
-	ErrNameEncoding = fault.Code{
-		ID:   "game.invalid_name_encoding",
-		Kind: fault.InvalidInput,
-	}
-	ErrTextEncoding = fault.Code{
-		ID:   "game.invalid_text_encoding",
-		Kind: fault.InvalidInput,
-	}
-	ErrTextControl = fault.Code{
-		ID:   "game.unsupported_text_control",
-		Kind: fault.Unsupported,
-	}
-	ErrTextArgument = fault.Code{
-		ID:   "game.invalid_text_argument",
-		Kind: fault.InvalidInput,
-	}
-)
-
-type Kind string
-
-const (
-	Units    Kind = "units"
-	Classes  Kind = "classes"
-	Items    Kind = "items"
-	Chapters Kind = "chapters"
-)
-
-var Kinds = []Kind{Units, Classes, Items, Chapters}
-
-type TextRole uint8
-
-const (
-	NoText TextRole = iota
-	NameText
-	DescriptionText
-)
-
-type Field struct {
-	ID, Group     string
-	Offset, Width int
-	Signed, Hex   bool
-	Reference     Kind
-	Asset         AssetKind
-	Text          TextRole
-}
-
-func (f Field) Bounds() (int64, int64) {
-	if f.Signed {
-		return -(1 << (f.Width*8 - 1)), (1 << (f.Width*8 - 1)) - 1
-	}
-	return 0, (1 << (f.Width * 8)) - 1
-}
-
-func (f Field) Value(data []byte, address int) int64 {
-	var v uint32
-	for i := range f.Width {
-		v |= uint32(data[address+f.Offset+i]) << (i * 8)
-	}
-	value := int64(v)
-	bits := f.Width * 8
-	if f.Signed && value&(1<<(bits-1)) != 0 {
-		value -= 1 << bits
-	}
-	return value
-}
-
-type Row struct {
-	ID, Address int
-	Name        string
-	NameID      uint16
-	TextError   error
-}
-type Layout struct {
-	Address, Stride, Count int
-}
-
-type Table struct {
-	Layout
-	Kind             Kind
-	Pointer, FirstID int
-	Manual           bool
-	Fields           []Field
-	Rows             []Row
-	Err              error
-}
-
-type Inspection struct {
-	Tables  []Table
-	Patches []string
-}
-
-type Adapter interface {
-	ID() string
-	Match([]byte) bool
-	Inspect([]byte, map[Kind]Layout) Inspection
-	TableMove([]byte, Table) (space.Move, error)
-	Preview([]byte, AssetRef) (Preview, error)
-	ChapterMap([]byte, int) (MapPreview, error)
-	ChapterDeployments([]byte, int, int) (ChapterDeployments, error)
-	ChapterEvents([]byte, int, int, EventTable) (ChapterEvents, error)
-	AssetImage([]byte, AssetRef) (*image.RGBA, error)
-	PlanAssetEdit([]byte, AssetRef, image.Image) (space.Plan, error)
-	TextCommands() []string
-	TextTable([]byte) (TextTable, error)
-	ReadText([]byte, uint16) (TextValue, error)
-	PlanTextEdit([]byte, uint16, string, TextRole) (space.Plan, error)
-}
-
-// Session combines a document with a game adapter. The UI sees schema and
-// records, not ROM offsets.
+// Session assembles the editors for one document and the detected game version.
+// Each editor owns its interpretation and cache; all edits share document history.
 type Session struct {
-	Document        *rom.Document
-	Adapter         Adapter
-	Tables          []Table
-	Patches         []string
-	image           rom.Snapshot
-	layouts         map[Kind]Layout
-	texts           []TextEntry
-	scriptIndexes   map[int]scriptIndex
-	portraitEntries []PortraitEntry
+	Document    *rom.Document
+	Bytes       *edit.Bytes
+	Records     *records.Editor
+	Texts       *text.Editor
+	Portraits   *portrait.Editor
+	Images      *graphics.Editor
+	Chapters    *chapter.Editor
+	Events      *event.Editor
+	Deployments *deployment.Editor
+	Maps        *maps.Editor
+	format      format
 }
 
 func Open(path string) (session *Session, err error) {
@@ -164,178 +38,38 @@ func Open(path string) (session *Session, err error) {
 		return nil, err
 	}
 	image := doc.Snapshot()
-	for _, adapter := range []Adapter{fe8uFormat(), fe8jFormat(), fe7uFormat(), fe7jFormat(), fe6Format()} {
-		if adapter.Match(image.Data) {
-			s := &Session{Document: doc, Adapter: adapter}
-			s.refresh(image)
-			return s, nil
-		}
-	}
-	return nil, ErrVersion
-}
-
-func (s *Session) Refresh() {
-	if s.Document.State().Revision != s.image.Revision {
-		s.refresh(s.Document.Snapshot())
-	}
-}
-
-func (s *Session) refresh(image rom.Snapshot) {
-	s.image = image
-	s.texts = nil
-	s.scriptIndexes = nil
-	s.portraitEntries = nil
-	inspection := s.Adapter.Inspect(image.Data, s.layouts)
-	s.Tables, s.Patches = inspection.Tables, inspection.Patches
-	if !s.Adapter.Match(image.Data) {
-		for i := range s.Tables {
-			s.Tables[i].Err = ErrVersion
-		}
-	}
-}
-
-func (s *Session) Table(kind Kind) *Table {
-	for i := range s.Tables {
-		if s.Tables[i].Kind == kind {
-			return &s.Tables[i]
-		}
-	}
-	return nil
-}
-
-func (s *Session) Value(kind Kind, id int, fieldID string) (int64, error) {
-	table, row, field, err := s.locate(kind, id, fieldID)
-	if err != nil {
-		return 0, err
-	}
-	if table.Err != nil {
-		return 0, table.Err
-	}
-	return field.Value(s.image.Data, row.Address), nil
-}
-
-func (s *Session) locate(
-	kind Kind,
-	id int,
-	fieldID string,
-) (table *Table, row Row, field Field, err error) {
-	defer func() {
-		err = fault.Wrap(
-			err,
-			"game.locate_field",
-			fault.Context{
-				Table:    string(kind),
-				RecordID: new(id),
-				Field:    fieldID,
-			},
-		)
-	}()
-	t := s.Table(kind)
-	if t == nil {
-		return nil, Row{}, Field{}, ErrLayout
-	}
-	if t.Err != nil {
-		return nil, Row{}, Field{}, t.Err
-	}
-	for _, row := range t.Rows {
-		if row.ID != id {
+	for _, format := range []format{fe8uFormat(), fe8jFormat(), fe7uFormat(), fe7jFormat(), fe6Format()} {
+		if !format.Match(image.Data) {
 			continue
 		}
-		for _, f := range t.Fields {
-			if f.ID == fieldID {
-				return t, row, f, nil
-			}
-		}
-	}
-	return nil, Row{}, Field{}, ErrField
-}
-
-// Set applies one field to one or more records as a single undoable operation.
-func (s *Session) Set(
-	kind Kind,
-	ids []int,
-	fieldID string,
-	value int64,
-) (err error) {
-	ctx := fault.Context{Table: string(kind), Field: fieldID, Value: new(value)}
-	defer func() { err = fault.Wrap(err, "game.set", ctx) }()
-	var changes []rom.Change
-	for _, id := range ids {
-		ctx.RecordID = new(id)
-		_, row, field, err := s.locate(kind, id, fieldID)
-		if err != nil {
-			return err
-		}
-		low, high := field.Bounds()
-		if value < low || value > high {
-			ctx.Bounds = &fault.Bounds{Min: low, Max: high}
-			return ErrValue
-		}
-		data := make([]byte, field.Width)
-		for i := range data {
-			data[i] = byte((value >> (i * 8)) & 0xFF)
-		}
-		changes = append(
-			changes,
-			rom.Change{Offset: row.Address + field.Offset, Data: data},
+		context := edit.New(doc, format.Match)
+		s := &Session{Document: doc, format: format}
+		s.Bytes = edit.NewBytes(context)
+		s.Texts = text.New(
+			context,
+			format.text,
+			func(data []byte, id uint16) text.References { return s.Records.TextReferences(data, id) },
 		)
-	}
-	ctx.RecordID = nil
-	if err := s.Document.Apply(
-		s.image.Revision,
-		string(kind)+"."+fieldID,
-		changes,
-	); err != nil {
-		return err
-	}
-	s.Refresh()
-	return nil
-}
-
-func (s *Session) Raw(address, length int) ([]byte, error) {
-	if !within(s.image.Data, address, length) {
-		return nil, fault.Wrap(
-			rom.ErrRange,
-			"game.raw",
-			fault.Context{
-				Range: &fault.Range{
-					Offset: address,
-					Length: length,
-					Size:   len(s.image.Data),
-				},
-			},
+		s.Records = records.New(context, format.recordFormat, s.Texts)
+		s.Chapters = chapter.New(context, format.chapterConfig(), s.Records)
+		s.Events, s.Deployments, s.Maps = s.Chapters.Events, s.Chapters.Deployments, s.Chapters.Maps
+		s.Portraits = portrait.New(
+			context,
+			format.portraits,
+			format.genericPortraitFormat(),
+			s.Records,
+			format.chapterConfig().Ranges,
 		)
+		s.Images = graphics.New(context, map[graphics.Kind]graphics.Backend{
+			graphics.Portrait: format.portraits,
+			graphics.ItemIcon: format.icons,
+		}, format.imageReferences(s.Records))
+		s.Refresh()
+		return s, nil
 	}
-	return bytes.Clone(s.image.Data[address : address+length]), nil
+	return nil, edit.ErrVersion
 }
 
-func within(data []byte, offset, size int) bool {
-	return offset >= 0 && size >= 0 && offset <= len(data) &&
-		size <= len(data)-offset
-}
+func (s *Session) Version() string { return s.format.id }
 
-func u16(
-	data []byte,
-	offset int,
-) uint16 {
-	return binary.LittleEndian.Uint16(data[offset:])
-}
-
-func u32(
-	data []byte,
-	offset int,
-) uint32 {
-	return binary.LittleEndian.Uint32(data[offset:])
-}
-
-func pointer(data []byte, at int) (int, bool) {
-	if !within(data, at, 4) {
-		return 0, false
-	}
-	p := u32(data, at)
-	if p < 0x08000000 || p >= 0x0A000000 {
-		return 0, false
-	}
-	offset := int(p - 0x08000000)
-	return offset, offset < len(data)
-}
+func (s *Session) Refresh() { s.Records.Refresh() }

@@ -8,12 +8,14 @@ import (
 	"testing"
 
 	"github.com/woxQAQ/febuildergba-mygo/game"
+	"github.com/woxQAQ/febuildergba-mygo/game/event"
+	"github.com/woxQAQ/febuildergba-mygo/game/records"
 )
 
 func editDeployment(t *testing.T, s *game.Session) {
-	table := requireTable(t, s, game.Chapters)
+	table := requireTable(t, s, records.Chapters)
 	for _, chapter := range table.Rows {
-		resource, err := s.ChapterDeployments(chapter.ID)
+		resource, err := s.Events.Deployments(chapter.ID)
 		if err != nil {
 			continue
 		}
@@ -21,7 +23,7 @@ func editDeployment(t *testing.T, s *game.Session) {
 			if group.Err != nil || len(group.Units) == 0 {
 				continue
 			}
-			draft, err := s.NewDeploymentDraft(chapter.ID, group.Pointer)
+			draft, err := s.Deployments.NewDraft(chapter.ID, group.Pointer)
 			if err != nil {
 				t.Fatal(err)
 			}
@@ -36,13 +38,13 @@ func editDeployment(t *testing.T, s *game.Session) {
 			); err != nil {
 				t.Fatal(err)
 			}
-			edit, err := s.PlanDeploymentEdit(draft)
+			edit, err := s.Deployments.Plan(draft)
 			checkPlan(t, s, before, err)
-			if err := s.ApplyDeploymentEdit(edit); err != nil {
+			if err := s.Deployments.Apply(edit); err != nil {
 				t.Fatal(err)
 			}
 			reopened := historyAndReopen(t, s, before)
-			result, err := reopened.NewDeploymentDraft(
+			result, err := reopened.Deployments.NewDraft(
 				chapter.ID,
 				group.Pointer,
 			)
@@ -58,10 +60,10 @@ func editDeployment(t *testing.T, s *game.Session) {
 	t.Skip("no readable nonempty deployment group")
 }
 
-func editEvents(t *testing.T, s *game.Session, kind game.EventTable) {
-	table := requireTable(t, s, game.Chapters)
+func editEvents(t *testing.T, s *game.Session, kind event.Table) {
+	table := requireTable(t, s, records.Chapters)
 	for _, chapter := range table.Rows {
-		draft, err := s.NewEventDraft(chapter.ID, kind)
+		draft, err := s.Events.NewConditions(chapter.ID, kind)
 		if err != nil {
 			continue
 		}
@@ -69,7 +71,7 @@ func editEvents(t *testing.T, s *game.Session, kind game.EventTable) {
 			fields := draft.Fields(index)
 			position := slices.IndexFunc(
 				fields,
-				func(field game.Field) bool { return field.ID == game.EventFlag },
+				func(field records.Field) bool { return field.ID == event.EventFlag },
 			)
 			if position < 0 {
 				continue
@@ -78,28 +80,32 @@ func editEvents(t *testing.T, s *game.Session, kind game.EventTable) {
 			before := s.Document.Snapshot()
 			expected := draft.Events()
 			expected[index].Raw[field.Offset] ^= 1
-			value, err := draft.Value(index, game.EventFlag)
+			value, err := draft.Value(index, event.EventFlag)
 			if err != nil {
 				t.Fatal(err)
 			}
-			if err := draft.Set(index, game.EventFlag, value^1); err != nil {
+			if err := draft.Set(
+				index,
+				event.EventFlag,
+				value^1,
+			); err != nil {
 				t.Fatal(err)
 			}
 			t.Logf("chapter=%d, condition=%d", chapter.ID, index)
-			edit, err := s.PlanEventEdit(draft)
+			edit, err := s.Events.PlanConditions(draft)
 			checkPlan(t, s, before, err)
-			if err := s.ApplyEventEdit(edit); err != nil {
+			if err := s.Events.ApplyConditions(edit); err != nil {
 				t.Fatal(err)
 			}
 			reopened := historyAndReopen(t, s, before)
-			result, err := reopened.NewEventDraft(chapter.ID, kind)
+			result, err := reopened.Events.NewConditions(chapter.ID, kind)
 			if err != nil {
 				t.Fatal(err)
 			}
 			if !slices.EqualFunc(
 				result.Events(),
 				expected,
-				func(a, b game.EventCondition) bool {
+				func(a, b event.Condition) bool {
 					return bytes.Equal(a.Raw, b.Raw)
 				},
 			) {

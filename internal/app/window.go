@@ -8,6 +8,7 @@ import (
 
 	"github.com/woxQAQ/febuildergba-mygo/fault"
 	"github.com/woxQAQ/febuildergba-mygo/game"
+	"github.com/woxQAQ/febuildergba-mygo/game/graphics"
 	"github.com/woxQAQ/febuildergba-mygo/internal/locales"
 	"github.com/woxQAQ/febuildergba-mygo/internal/pages"
 )
@@ -39,7 +40,7 @@ func (m *application) newWindow(session *game.Session) *mygo.Window {
 	a.Actions.Save = func(as bool) { m.saveDocument(win, a, as) }
 	a.Actions.Reload = func() { reloadDocument(win, a) }
 	a.Actions.ImportPNG = func(done func([]byte, error)) { importPNG(win, a, done) }
-	a.Actions.ExportPNG = func(ref game.AssetRef) { m.exportPNG(win, a, ref) }
+	a.Actions.ExportPNG = func(ref graphics.Ref) { m.exportPNG(win, a, ref) }
 	a.Actions.Run = func() {
 		if a.Editor.Session == nil {
 			return

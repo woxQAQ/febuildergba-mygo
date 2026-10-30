@@ -1,4 +1,4 @@
-package game
+package game_test
 
 import (
 	"bytes"
@@ -11,12 +11,15 @@ import (
 	"testing"
 
 	"github.com/woxQAQ/febuildergba-mygo/fault"
+	"github.com/woxQAQ/febuildergba-mygo/game"
+	"github.com/woxQAQ/febuildergba-mygo/game/edit"
+	"github.com/woxQAQ/febuildergba-mygo/game/records"
 	"github.com/woxQAQ/febuildergba-mygo/internal/testutil"
 	"github.com/woxQAQ/febuildergba-mygo/rom"
 )
 
 func TestEditingFailuresCarryRecoveryContext(t *testing.T) {
-	s := openFixture(t, testutil.NewMinimalFE8U())
+	s := testutil.Open(t, testutil.NewMinimalFE8U())
 	before := s.Document.Snapshot()
 	for _, sample := range []struct {
 		ids    []int
@@ -24,15 +27,15 @@ func TestEditingFailuresCarryRecoveryContext(t *testing.T) {
 		code   fault.Code
 		record int
 	}{
-		{[]int{1, 999}, 20, ErrField, 999},
-		{[]int{1, 2}, 128, ErrValue, 1},
+		{[]int{1, 999}, 20, edit.ErrField, 999},
+		{[]int{1, 2}, 128, edit.ErrValue, 1},
 	} {
-		err := s.Set(Units, sample.ids, "base.hp", sample.value)
+		err := s.Records.Set(records.Units, sample.ids, "base.hp", sample.value)
 		frame, ok := errors.AsType[*fault.Error](err)
 		if !ok || frame.Code != sample.code ||
 			frame.Code.Kind != fault.InvalidInput ||
 			frame.Op != "game.set" ||
-			frame.Context.Table != string(Units) ||
+			frame.Context.Table != string(records.Units) ||
 			frame.Context.Field != "base.hp" ||
 			frame.Context.RecordID == nil ||
 			*frame.Context.RecordID != sample.record ||
@@ -40,7 +43,7 @@ func TestEditingFailuresCarryRecoveryContext(t *testing.T) {
 			*frame.Context.Value != sample.value {
 			t.Fatalf("missing failed edit context: %v", err)
 		}
-		if sample.code == ErrValue && (frame.Context.Bounds == nil ||
+		if sample.code == edit.ErrValue && (frame.Context.Bounds == nil ||
 			*frame.Context.Bounds != (fault.Bounds{Min: -128, Max: 127})) {
 			t.Fatalf("missing field bounds: %v", err)
 		}
@@ -51,15 +54,20 @@ func TestEditingFailuresCarryRecoveryContext(t *testing.T) {
 		}
 	}
 
-	region, err := s.ReadRegion(0x200, 1)
+	region, err := s.Bytes.Read(0x200, 1)
 	if err != nil {
 		t.Fatal(err)
 	}
-	if err := s.Set(Units, []int{1}, "base.hp", 20); err != nil {
+	if err := s.Records.Set(
+		records.Units,
+		[]int{1},
+		"base.hp",
+		20,
+	); err != nil {
 		t.Fatal(err)
 	}
 	stable := s.Document.Snapshot()
-	err = s.ApplyRegion(region, []byte{0xAA})
+	err = s.Bytes.Apply(region, []byte{0xAA})
 	if fault.CodeOf(err) != rom.ErrStale || !errors.Is(err, rom.ErrStale) {
 		t.Fatalf("stale draft is not a conflict: %v", err)
 	}
@@ -76,11 +84,11 @@ func TestEditingFailuresCarryRecoveryContext(t *testing.T) {
 	if !bytes.Equal(stable.Data, s.Document.Snapshot().Data) {
 		t.Fatal("stale draft changed bytes")
 	}
-	region, err = s.ReadRegion(0x200, 1)
+	region, err = s.Bytes.Read(0x200, 1)
 	if err != nil {
 		t.Fatal(err)
 	}
-	if err := s.ApplyRegion(region, []byte{0xAA}); err != nil {
+	if err := s.Bytes.Apply(region, []byte{0xAA}); err != nil {
 		t.Fatalf("fresh draft could not recover: %v", err)
 	}
 }
@@ -91,7 +99,7 @@ func TestOpenFailureReportPreservesCauses(t *testing.T) {
 		t.Fatal(err)
 	}
 	path := filepath.Join(directory, "missing.gba")
-	_, err = Open(path)
+	_, err = game.Open(path)
 	if fault.CodeOf(err).Kind != fault.NotFound ||
 		!errors.Is(err, fs.ErrNotExist) {
 		t.Fatalf("missing file classification: %v", err)

@@ -43,11 +43,11 @@ test *args:
 
 # 只运行文档、游戏会话、空间和图像核心测试。
 test-core *args:
-    go test "$@" ./rom ./game ./space ./gba
+    go test "$@" ./rom ./game/... ./space ./gba
 
 # 检查文档、游戏会话和空间操作的数据竞争。
 test-race *args:
-    go test -race "$@" ./rom ./game ./space
+    go test -race "$@" ./rom ./game/... ./space
 
 # 动态发现 .rom/ 中的 ROM，使用临时副本验证通用流程；禁用缓存。
 test-integration *args:

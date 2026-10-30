@@ -6,7 +6,7 @@ import (
 
 	"github.com/egoist/mygo/ui"
 
-	"github.com/woxQAQ/febuildergba-mygo/game"
+	"github.com/woxQAQ/febuildergba-mygo/game/event"
 	"github.com/woxQAQ/febuildergba-mygo/internal/components"
 	"github.com/woxQAQ/febuildergba-mygo/internal/locales"
 )
@@ -14,12 +14,12 @@ import (
 func (page *Page) mapChanges(
 	c *ui.Context,
 	draft *draftState,
-	row game.ScriptInstruction,
+	row event.ScriptInstruction,
 ) {
 	if !draft.data.IsMapChange(draft.selected) {
 		return
 	}
-	chapter, err := page.state.Session.ScriptMapChapter(
+	chapter, err := page.state.Session.Events.MapChapter(
 		draft.data,
 		draft.selected,
 	)
@@ -28,11 +28,11 @@ func (page *Page) mapChanges(
 		return
 	}
 	for _, field := range draft.data.Fields(draft.selected) {
-		if field.Target == game.ScriptMapChangeTarget {
+		if field.Target == event.ScriptMapChangeTarget {
 			page.mapChangeChoice(c, draft, row, field, chapter)
 		}
 	}
-	links, err := page.state.Session.ScriptMapChanges(
+	links, err := page.state.Session.Events.MapChanges(
 		draft.data,
 		draft.selected,
 	)
@@ -43,7 +43,7 @@ func (page *Page) mapChanges(
 	ui.Row(c).Wrap().Gap(8).Children(func() {
 		for index, link := range links {
 			ui.Button(c.Key(index), fmt.Sprintf("%s · %02X", locales.MapChangesEditor(), link.ID)).
-				Disabled(page.state.Busy || draft.data.Modified() || draft.invalid() || !draft.data.Current(page.state.Session) || page.openMapChange == nil).
+				Disabled(page.state.Busy || draft.data.Modified() || draft.invalid() || !draft.data.Current(page.state.Session.Events) || page.openMapChange == nil).
 				OnClick(func() { page.openMapChange(link.Chapter, link.ID) })
 		}
 	})
@@ -52,11 +52,11 @@ func (page *Page) mapChanges(
 func (page *Page) mapChangeChoice(
 	c *ui.Context,
 	draft *draftState,
-	row game.ScriptInstruction,
-	field game.ScriptField,
+	row event.ScriptInstruction,
+	field event.ScriptField,
 	chapter int,
 ) {
-	changes, err := page.state.Session.MapChanges(chapter)
+	changes, err := page.state.Session.Maps.Changes(chapter)
 	if err != nil || len(changes) == 0 {
 		return
 	}
@@ -99,7 +99,7 @@ func (page *Page) mapChangeChoice(
 		MaxWidthPercent(100).
 		Label(locales.MapChangeChoose()).
 		Placeholder(locales.MapChangeChoose()).
-		Disabled(page.state.Busy || !draft.data.Current(page.state.Session)).
+		Disabled(page.state.Busy || !draft.data.Current(page.state.Session.Events)).
 		OnChange(func() {
 			if index := slices.Index(captions, reference.choice); index >= 0 {
 				page.state.Err = draft.data.Set(

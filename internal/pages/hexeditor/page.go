@@ -10,9 +10,10 @@ import (
 	"github.com/egoist/mygo/ui"
 
 	"github.com/woxQAQ/febuildergba-mygo/fault"
-	"github.com/woxQAQ/febuildergba-mygo/game"
+	"github.com/woxQAQ/febuildergba-mygo/game/edit"
 	"github.com/woxQAQ/febuildergba-mygo/internal/components"
-	inputparse "github.com/woxQAQ/febuildergba-mygo/internal/input"
+	"github.com/woxQAQ/febuildergba-mygo/internal/editor"
+	"github.com/woxQAQ/febuildergba-mygo/internal/input"
 	"github.com/woxQAQ/febuildergba-mygo/internal/locales"
 )
 
@@ -36,7 +37,7 @@ var (
 type rawDraft struct {
 	address, length            string
 	original, text             string
-	region                     *game.RawRegion
+	region                     *edit.Region
 	generation                 uint64
 	originalInput, editedInput ui.Handle
 	err                        error
@@ -75,11 +76,11 @@ func decodeHex(text string, length int) ([]byte, error) {
 }
 
 func (a *Page) rawRange() (int, int, error) {
-	address, err := inputparse.ParseAddress(a.raw.address)
+	address, err := input.ParseAddress(a.raw.address)
 	if err != nil {
 		return 0, 0, err
 	}
-	length, err := inputparse.ParseInteger(a.raw.length)
+	length, err := input.ParseInteger(a.raw.length)
 	if err != nil || length < 1 || length > rawViewLimit {
 		return 0, 0, fault.New(
 			errRawLength,
@@ -103,7 +104,7 @@ func (a *Page) readRaw() {
 		a.raw.err = err
 		return
 	}
-	region, err := a.state.Session.ReadRegion(address, length)
+	region, err := a.state.Session.Bytes.Read(address, length)
 	if err != nil {
 		a.raw.err = err
 		return
@@ -134,7 +135,7 @@ func (a *Page) applyRaw() {
 		a.raw.err = err
 		return
 	}
-	if err := a.state.Session.ApplyRegion(a.raw.region, data); err != nil {
+	if err := a.state.Session.Bytes.Apply(a.raw.region, data); err != nil {
 		a.raw.err = err
 		return
 	}
@@ -240,11 +241,11 @@ func (a *Page) View(c *ui.Context) {
 }
 
 type Page struct {
-	state *components.State
+	state *editor.State
 	raw   rawDraft
 }
 
-func New(state *components.State) *Page {
+func New(state *editor.State) *Page {
 	a := &Page{state: state}
 	a.Reset()
 	return a

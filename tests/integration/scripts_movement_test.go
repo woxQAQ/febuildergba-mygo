@@ -8,12 +8,15 @@ import (
 	"testing"
 
 	"github.com/woxQAQ/febuildergba-mygo/game"
+	"github.com/woxQAQ/febuildergba-mygo/game/edit"
+	"github.com/woxQAQ/febuildergba-mygo/game/event"
+	"github.com/woxQAQ/febuildergba-mygo/game/records"
 )
 
 func editScriptMovement(t *testing.T, s *game.Session) {
-	table := requireTable(t, s, game.Chapters)
+	table := requireTable(t, s, records.Chapters)
 	for _, chapter := range table.Rows {
-		entries, err := s.ScriptEntries(chapter.ID)
+		entries, err := s.Events.ScriptEntries(chapter.ID)
 		if err != nil {
 			continue
 		}
@@ -21,7 +24,7 @@ func editScriptMovement(t *testing.T, s *game.Session) {
 			if entry.Err != nil || entry.Address == 0 {
 				continue
 			}
-			d, err := s.NewScriptDraft(chapter.ID, entry.Pointer)
+			d, err := s.Events.NewScriptDraft(chapter.ID, entry.Pointer)
 			if err != nil {
 				t.Fatal(err)
 			}
@@ -30,7 +33,7 @@ func editScriptMovement(t *testing.T, s *game.Session) {
 			}
 			for index := range d.Instructions() {
 				for _, field := range d.Fields(index) {
-					if field.Target != game.ScriptMovementTarget {
+					if field.Target != event.ScriptMovementTarget {
 						continue
 					}
 					steps, err := d.Movement(index, field.ID)
@@ -39,7 +42,7 @@ func editScriptMovement(t *testing.T, s *game.Session) {
 					}
 					at := slices.IndexFunc(
 						steps,
-						func(step game.ScriptMovementStep) bool { return step.Command < 4 },
+						func(step event.ScriptMovementStep) bool { return step.Command < 4 },
 					)
 					if at < 0 {
 						continue
@@ -51,23 +54,23 @@ func editScriptMovement(t *testing.T, s *game.Session) {
 						steps,
 					); errors.Is(
 						err,
-						game.ErrValue,
+						edit.ErrValue,
 					) {
 						continue
 					} else if err != nil {
 						t.Fatal(err)
 					}
 					before := s.Document.Snapshot()
-					edit, err := s.PlanScriptEdit(d)
+					edit, err := s.Events.PlanScriptEdit(d)
 					checkPlan(t, s, before, err)
 					if edit.MovementCount() != 1 {
 						t.Fatal("movement preview count")
 					}
-					if err := s.ApplyScriptEdit(edit); err != nil {
+					if err := s.Events.ApplyScriptEdit(edit); err != nil {
 						t.Fatal(err)
 					}
 					reopened := historyAndReopen(t, s, before)
-					again, err := reopened.NewScriptDraft(
+					again, err := reopened.Events.NewScriptDraft(
 						chapter.ID,
 						entry.Pointer,
 					)

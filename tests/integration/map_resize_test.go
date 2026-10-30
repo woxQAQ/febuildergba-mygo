@@ -9,12 +9,14 @@ import (
 	"time"
 
 	"github.com/woxQAQ/febuildergba-mygo/game"
+	"github.com/woxQAQ/febuildergba-mygo/game/maps"
+	"github.com/woxQAQ/febuildergba-mygo/game/records"
 )
 
 func resizeMap(t *testing.T, s *game.Session) {
 	t.Helper()
-	for _, row := range requireTable(t, s, game.Chapters).Rows {
-		draft, err := s.NewMapDraft(row.ID)
+	for _, row := range requireTable(t, s, records.Chapters).Rows {
+		draft, err := s.Maps.NewDraft(row.ID)
 		if err != nil {
 			continue
 		}
@@ -33,7 +35,7 @@ func resizeMap(t *testing.T, s *game.Session) {
 		if err = draft.Resize(
 			size.X,
 			size.Y,
-			game.MapBottomRight,
+			maps.MapBottomRight,
 			fill.Tile,
 		); err != nil {
 			t.Fatal(err)
@@ -42,7 +44,7 @@ func resizeMap(t *testing.T, s *game.Session) {
 			t.Fatal("resize draft history")
 		}
 		started := time.Now()
-		plan, err := s.PlanMapEdit(draft)
+		plan, err := s.Maps.Plan(draft)
 		checkPlan(t, s, before, err)
 		if !plan.Resized() || plan.BeforeSize() != old ||
 			plan.AfterSize() != size {
@@ -57,7 +59,7 @@ func resizeMap(t *testing.T, s *game.Session) {
 			len(plan.ImpactWarnings()),
 			time.Since(started),
 		)
-		if err = s.ApplyMapEdit(plan); err != nil {
+		if err = s.Maps.Apply(plan); err != nil {
 			t.Fatal(err)
 		}
 		after := s.Document.Snapshot()
@@ -72,7 +74,7 @@ func resizeMap(t *testing.T, s *game.Session) {
 			)
 		}
 		for _, use := range plan.Uses() {
-			view, readErr := s.ChapterMap(use.Chapter)
+			view, readErr := s.Maps.Read(use.Chapter)
 			if readErr != nil {
 				t.Fatal(readErr)
 			}
@@ -91,24 +93,24 @@ func resizeMap(t *testing.T, s *game.Session) {
 			}
 		}
 		reopened := historyAndReopen(t, s, before)
-		next, err := reopened.NewMapDraft(row.ID)
+		next, err := reopened.Maps.NewDraft(row.ID)
 		if err != nil || image.Pt(next.Width(), next.Height()) != size {
 			t.Fatal("reopened map size", err)
 		}
 		if err = next.Resize(
 			old.X,
 			old.Y,
-			game.MapTopLeft,
+			maps.MapTopLeft,
 			fill.Tile,
 		); err != nil {
 			t.Fatal(err)
 		}
-		expand, err := reopened.PlanMapEdit(next)
+		expand, err := reopened.Maps.Plan(next)
 		checkPlan(t, reopened, reopened.Document.Snapshot(), err)
-		if err = reopened.ApplyMapEdit(expand); err != nil {
+		if err = reopened.Maps.Apply(expand); err != nil {
 			t.Fatal(err)
 		}
-		view, err := reopened.ChapterMap(row.ID)
+		view, err := reopened.Maps.Read(row.ID)
 		if err != nil || image.Pt(view.Width, view.Height) != old {
 			t.Fatal("continued resize", err)
 		}
