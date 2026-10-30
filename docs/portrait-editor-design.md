@@ -85,8 +85,8 @@ PNG 导入导出使用完整素材表。导入时校验颜色，预览共享影�
 
 ## 实现边界与验证
 
-- [portrait.go](../game/portrait/portrait.go)：独立部件读取、原生帧组合、可写字段、修订绑定与原子定位。
-- [records/portrait.go](../game/records/portrait.go) 选择人物／职业引用与职业回退；[portrait/preview.go](../game/portrait/preview.go) 消费选择并解码小头像与原生通用资源。
+- [editor.go](../game/portrait/editor.go)：独立部件读取、原生帧组合、可写字段、修订绑定与原子定位。
+- [records/portrait.go](../game/records/portrait.go) 选择人物／职业引用与职业回退；[portrait/record_preview.go](../game/portrait/record_preview.go) 消费选择并解码小头像与原生通用资源。
 - [table.go](../game/portrait/table.go)：有界索引、空洞、损坏记录及已知使用处。
 - [portraits](../internal/pages/portraits)：缩略图列表、预览、定位输入、拖动、资源导航与 PNG 工作流。
 - [records](../internal/pages/records)：人物／职业身份区和引用入口。

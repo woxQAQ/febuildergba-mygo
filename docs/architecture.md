@@ -30,7 +30,19 @@
 
 文件数量不是拆包依据。记录的字段、布局、搬迁及人物／职业规则共享同一编辑模型，保留在 `records` 包内；只有具备独立含义的资源能力才形成独立包。[元数据设计](metadata-design.md)仍为已确认、暂缓实施，不为本次分层引入通用 schema 或空的未来领域包。
 
-包名表达稳定职责：`edit` 管理提交有效性，`internal/editor` 管理窗口编辑状态；`portrait`、`itemicon` 管理原生资源，`graphics` 管理共享 PNG 流程。文件名表达包内概念，例如 `deployment/draft.go` 包含草稿和载荷编码，`records/tables.go` 包含表解析与范围判定，`event/slots.go` 包含槽来源和槽指令。事件包同时有条件编辑与脚本编辑，因此保留 `conditions_edit.go`、`script_draft.go` 和 `script_plan.go` 的区别。
+包名表达稳定职责：`edit` 管理提交有效性，`internal/editor` 管理窗口编辑状态；`portrait`、`itemicon` 管理原生资源，`graphics` 管理共享 PNG 流程。
+
+文件是包内的阅读与修改单元，按具体对象、操作或工作流组织。文件名应说明内容；同包存在条件表、脚本等多个对象时，保留必要限定。同一流程的状态、操作及紧密相关的私有辅助实现放在一起，独立的读取、编码与替换规划分别归位。拆合取决于修改关系，不按文件长度或声明种类机械划分。
+
+| 文件入口                                                                                                                                                                                         | 包内职责                                                                                           |
+| ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | -------------------------------------------------------------------------------------------------- |
+| [event/instructions.go](../game/event/instructions.go)、[instruction_sizes.go](../game/event/instruction_sizes.go)                                                                               | 已确认指令的字段定义，以及用于有界解码的原生指令长度。具体命令按控制、场景、单位等主题组织。       |
+| [event/deployment_discovery.go](../game/event/deployment_discovery.go)                                                                                                                           | 部署发现的结果、入口读取与脚本追踪；版本布局留在 `format.go`。                                     |
+| [text/table.go](../game/text/table.go)、[encode.go](../game/text/encode.go)、[replacement.go](../game/text/replacement.go)                                                                       | 文本表、编码与不可变替换计划；写入保护和计划提交与替换操作放在一起。                               |
+| [maps/map_draft.go](../game/maps/map_draft.go)、[map_plan.go](../game/maps/map_plan.go)                                                                                                          | 底图绘制、尺寸调整与草稿历史，以及完整写入计划；变化表使用独立的 `changes.go`、`changes_plan.go`。 |
+| [portrait/editor.go](../game/portrait/editor.go)、[record_preview.go](../game/portrait/record_preview.go)                                                                                        | 头像读取、帧与元数据编辑，以及消费人物／职业选择的预览。                                           |
+| [pages/records/text.go](../internal/pages/records/text.go)、[assets.go](../internal/pages/records/assets.go)                                                                                     | 名称和描述共用的文本草稿、预览与提交，以及图像缓存、预览与编辑入口。                               |
+| [pages/chapters/page.go](../internal/pages/chapters/page.go)、[deployments.go](../internal/pages/chapters/deployments.go)、[deployment_scene.go](../internal/pages/chapters/deployment_scene.go) | 页面组合、部署选择与提交，以及部署在地图上的展示和位置交互。                                       |
 
 导入通常直接使用包名。局部变量用 `condition`、`plan`、`versionID` 等名称表达具体含义；同时引用领域 `records` 与记录页面 `records` 时，页面使用 `recordspage` 别名。
 

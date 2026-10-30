@@ -7,8 +7,34 @@ import (
 
 	"golang.org/x/text/encoding/japanese"
 
+	"github.com/woxQAQ/febuildergba-mygo/fault"
 	"github.com/woxQAQ/febuildergba-mygo/gba"
 )
+
+func (g Format) Read(
+	data []byte,
+	id uint16,
+) (result Value, err error) {
+	defer func() {
+		ctx := fault.Context{Resource: Resource, ResourceID: new(int(id))}
+		err = fault.Wrap(err, "game.read_text", ctx)
+		result.ReadOnlyReason = fault.Wrap(
+			result.ReadOnlyReason,
+			"game.edit_text",
+			ctx,
+		)
+	}()
+	stream, err := g.readStream(data, id)
+	if err != nil {
+		return Value{}, err
+	}
+	value := g.descriptionValue(stream)
+	value.ID = id
+	if id == 0 {
+		value.Editable, value.ReadOnlyReason = false, ErrText
+	}
+	return value, nil
+}
 
 // textStream retains Huffman leaf boundaries, including 16-bit control
 // arguments.

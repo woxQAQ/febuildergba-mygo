@@ -141,3 +141,21 @@ func (f Format) ChangeGeometry(data []byte, id int64) Geometry {
 	result.Address, result.Err = at, ErrMap
 	return result
 }
+
+// resolveMapTarget applies native ID and rectangle selection to an existing table.
+func (s *Editor) ResolveTarget(chapter int, target Target) (Change, error) {
+	s.Refresh()
+	table, err := s.mapChanges(chapter)
+	if err != nil {
+		return Change{}, err
+	}
+	id := target.ID
+	if target.ByPosition {
+		id = mapChangeAt(table.rows, target.Position)
+	}
+	index := mapChangeIndex(table.rows, id)
+	if index < 0 {
+		return Change{}, ErrMapChanges
+	}
+	return table.rows[index].info(), nil
+}

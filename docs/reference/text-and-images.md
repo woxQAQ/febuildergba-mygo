@@ -2,7 +2,7 @@
 
 本文维护当前格式、写入语义和限制；功能状态见[覆盖矩阵](../coverage.md)，操作步骤见[使用指南](../user-guide.md)。旧版与原生代码的固定版本见[核对来源](../sources.md)。
 
-当前入口：[文本格式](../../game/text/format.go)、[解码](../../game/text/decode.go)、[编码](../../game/text/encode.go)、[文本编辑器](../../game/text/editor.go)、[控制指令](../../game/text/controls.go) 和 [PNG 编辑器](../../game/graphics/editor.go)。
+当前入口：[文本表](../../game/text/table.go)、[解码](../../game/text/decode.go)、[编码](../../game/text/encode.go)、[文本替换](../../game/text/replacement.go)、[控制指令](../../game/text/controls.go)、[PNG 读取](../../game/graphics/editor.go) 和 [图像替换](../../game/graphics/replacement.go)。
 
 ## 五版名称写入
 

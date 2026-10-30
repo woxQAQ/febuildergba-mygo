@@ -81,3 +81,10 @@ func (a *form) previewFor(kind records.Kind, id int) *assetPreview {
 	}
 	return nil
 }
+
+func (a *form) assetEditor(c *ui.Context, preview *assetPreview) {
+	if preview == nil || preview.bitmap == nil {
+		return
+	}
+	a.imageEditor.Render(c, a.state, preview.ref, a.assets)
+}

@@ -10,8 +10,53 @@ import (
 	"golang.org/x/text/encoding/japanese"
 
 	"github.com/woxQAQ/febuildergba-mygo/fault"
+	"github.com/woxQAQ/febuildergba-mygo/game/edit"
 	"github.com/woxQAQ/febuildergba-mygo/gba"
 )
+
+func (g Format) encodeText(
+	data []byte,
+	entry int,
+	id uint16,
+	content string,
+	role Role,
+) ([]byte, string, error) {
+	switch role {
+	case Name:
+		if _, err := g.ReadName(data, id, nil); err != nil {
+			return nil, "", err
+		}
+		encoded, err := g.encodeName(data, entry, content)
+		return encoded, content, err
+	case Description:
+		original, err := g.Read(data, id)
+		if err != nil {
+			return nil, "", err
+		}
+		if !original.Editable {
+			return nil, "", fault.Wrap(
+				original.ReadOnlyReason,
+				"game.encode_text",
+				fault.Context{Resource: Resource, ResourceID: new(int(id))},
+			)
+		}
+		value, err := g.parseDescription(content)
+		if err != nil {
+			return nil, "", fault.Wrap(
+				err,
+				"game.parse_text",
+				fault.Context{Resource: Resource, ResourceID: new(int(id))},
+			)
+		}
+		if original.Content == value.Content {
+			return nil, "", edit.ErrValue
+		}
+		encoded, err := g.encodeTextUnits(data, entry, value.units, false)
+		return encoded, value.Content, err
+	default:
+		return nil, "", edit.ErrField
+	}
+}
 
 // nameSymbol removes the name-padding control from a leaf's visible output.
 // A zero low byte terminates text; a padding-only leaf does not.
