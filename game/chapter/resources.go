@@ -31,7 +31,7 @@ func (g Config) Conditions(
 	chapter, address int,
 	table event.Table,
 ) (event.Conditions, error) {
-	if table > event.TalkEvents {
+	if table > event.LocationEvents {
 		return event.Conditions{}, event.ErrEventConditions
 	}
 	for _, field := range g.Table.fields {

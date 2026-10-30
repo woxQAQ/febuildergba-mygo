@@ -312,13 +312,14 @@ func (s *Editor) mapUses(
 type ImpactKind string
 
 const (
-	UnitStart      ImpactKind = "map_impact_unit_start"
-	UnitEnd        ImpactKind = "map_impact_unit_end"
-	MovementNode   ImpactKind = "map_impact_movement"
-	TriggerArea    ImpactKind = "map_impact_area"
-	ChangeArea     ImpactKind = "map_impact_change"
-	ScriptPosition ImpactKind = "map_impact_script"
-	ScriptPath     ImpactKind = "map_impact_script_path"
+	UnitStart       ImpactKind = "map_impact_unit_start"
+	UnitEnd         ImpactKind = "map_impact_unit_end"
+	MovementNode    ImpactKind = "map_impact_movement"
+	TriggerArea     ImpactKind = "map_impact_area"
+	TriggerLocation ImpactKind = "map_impact_location"
+	ChangeArea      ImpactKind = "map_impact_change"
+	ScriptPosition  ImpactKind = "map_impact_script"
+	ScriptPath      ImpactKind = "map_impact_script_path"
 )
 
 // MapImpact describes unchanged coordinates against the old and new map.

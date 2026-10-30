@@ -34,6 +34,316 @@ type Messages struct{ locale string }
 // source language.
 func In(locale string) Messages { return Messages{locale} }
 
+// LocationEvents says "Location events"
+// in the language the app shows.
+func LocationEvents() string { return In(i18n.Locale()).LocationEvents() }
+
+// LocationEvents says "Location events"
+// in the language of msgs.
+func (msgs Messages) LocationEvents() string {
+	return Catalog.Format(msgs.locale, "location_events", nil)
+}
+
+// LocationType says "Location type"
+// in the language the app shows.
+func LocationType() string { return In(i18n.Locale()).LocationType() }
+
+// LocationType says "Location type"
+// in the language of msgs.
+func (msgs Messages) LocationType() string {
+	return Catalog.Format(msgs.locale, "location_type", nil)
+}
+
+// LocationHouse says "House"
+// in the language the app shows.
+func LocationHouse() string { return In(i18n.Locale()).LocationHouse() }
+
+// LocationHouse says "House"
+// in the language of msgs.
+func (msgs Messages) LocationHouse() string {
+	return Catalog.Format(msgs.locale, "location_house", nil)
+}
+
+// LocationVillage says "Village"
+// in the language the app shows.
+func LocationVillage() string { return In(i18n.Locale()).LocationVillage() }
+
+// LocationVillage says "Village"
+// in the language of msgs.
+func (msgs Messages) LocationVillage() string {
+	return Catalog.Format(msgs.locale, "location_village", nil)
+}
+
+// LocationVillageCenter says "Village center"
+// in the language the app shows.
+func LocationVillageCenter() string { return In(i18n.Locale()).LocationVillageCenter() }
+
+// LocationVillageCenter says "Village center"
+// in the language of msgs.
+func (msgs Messages) LocationVillageCenter() string {
+	return Catalog.Format(msgs.locale, "location_village_center", nil)
+}
+
+// LocationSeize says "Seize"
+// in the language the app shows.
+func LocationSeize() string { return In(i18n.Locale()).LocationSeize() }
+
+// LocationSeize says "Seize"
+// in the language of msgs.
+func (msgs Messages) LocationSeize() string {
+	return Catalog.Format(msgs.locale, "location_seize", nil)
+}
+
+// LocationChest says "Chest"
+// in the language the app shows.
+func LocationChest() string { return In(i18n.Locale()).LocationChest() }
+
+// LocationChest says "Chest"
+// in the language of msgs.
+func (msgs Messages) LocationChest() string {
+	return Catalog.Format(msgs.locale, "location_chest", nil)
+}
+
+// LocationDoor says "Door"
+// in the language the app shows.
+func LocationDoor() string { return In(i18n.Locale()).LocationDoor() }
+
+// LocationDoor says "Door"
+// in the language of msgs.
+func (msgs Messages) LocationDoor() string {
+	return Catalog.Format(msgs.locale, "location_door", nil)
+}
+
+// LocationShop says "Shop"
+// in the language the app shows.
+func LocationShop() string { return In(i18n.Locale()).LocationShop() }
+
+// LocationShop says "Shop"
+// in the language of msgs.
+func (msgs Messages) LocationShop() string {
+	return Catalog.Format(msgs.locale, "location_shop", nil)
+}
+
+// LocationRandomChest says "Random chest"
+// in the language the app shows.
+func LocationRandomChest() string { return In(i18n.Locale()).LocationRandomChest() }
+
+// LocationRandomChest says "Random chest"
+// in the language of msgs.
+func (msgs Messages) LocationRandomChest() string {
+	return Catalog.Format(msgs.locale, "location_random_chest", nil)
+}
+
+// LocationScriptChest says "Scripted chest"
+// in the language the app shows.
+func LocationScriptChest() string { return In(i18n.Locale()).LocationScriptChest() }
+
+// LocationScriptChest says "Scripted chest"
+// in the language of msgs.
+func (msgs Messages) LocationScriptChest() string {
+	return Catalog.Format(msgs.locale, "location_script_chest", nil)
+}
+
+// LocationX says "Location X"
+// in the language the app shows.
+func LocationX() string { return In(i18n.Locale()).LocationX() }
+
+// LocationX says "Location X"
+// in the language of msgs.
+func (msgs Messages) LocationX() string {
+	return Catalog.Format(msgs.locale, "location_x", nil)
+}
+
+// LocationY says "Location Y"
+// in the language the app shows.
+func LocationY() string { return In(i18n.Locale()).LocationY() }
+
+// LocationY says "Location Y"
+// in the language of msgs.
+func (msgs Messages) LocationY() string {
+	return Catalog.Format(msgs.locale, "location_y", nil)
+}
+
+// ChestItem says "Reward item value"
+// in the language the app shows.
+func ChestItem() string { return In(i18n.Locale()).ChestItem() }
+
+// ChestItem says "Reward item value"
+// in the language of msgs.
+func (msgs Messages) ChestItem() string {
+	return Catalog.Format(msgs.locale, "chest_item", nil)
+}
+
+// ChestMoney says "Gold amount"
+// in the language the app shows.
+func ChestMoney() string { return In(i18n.Locale()).ChestMoney() }
+
+// ChestMoney says "Gold amount"
+// in the language of msgs.
+func (msgs Messages) ChestMoney() string {
+	return Catalog.Format(msgs.locale, "chest_money", nil)
+}
+
+// LocationAdd says "Add location"
+// in the language the app shows.
+func LocationAdd() string { return In(i18n.Locale()).LocationAdd() }
+
+// LocationAdd says "Add location"
+// in the language of msgs.
+func (msgs Messages) LocationAdd() string {
+	return Catalog.Format(msgs.locale, "location_add", nil)
+}
+
+// LocationCopy says "Copy location"
+// in the language the app shows.
+func LocationCopy() string { return In(i18n.Locale()).LocationCopy() }
+
+// LocationCopy says "Copy location"
+// in the language of msgs.
+func (msgs Messages) LocationCopy() string {
+	return Catalog.Format(msgs.locale, "location_copy", nil)
+}
+
+// LocationPlace says "Move to selected tile"
+// in the language the app shows.
+func LocationPlace() string { return In(i18n.Locale()).LocationPlace() }
+
+// LocationPlace says "Move to selected tile"
+// in the language of msgs.
+func (msgs Messages) LocationPlace() string {
+	return Catalog.Format(msgs.locale, "location_place", nil)
+}
+
+// LocationPreview says "Preview locations"
+// in the language the app shows.
+func LocationPreview() string { return In(i18n.Locale()).LocationPreview() }
+
+// LocationPreview says "Preview locations"
+// in the language of msgs.
+func (msgs Messages) LocationPreview() string {
+	return Catalog.Format(msgs.locale, "location_preview", nil)
+}
+
+// LocationApply says "Apply locations"
+// in the language the app shows.
+func LocationApply() string { return In(i18n.Locale()).LocationApply() }
+
+// LocationApply says "Apply locations"
+// in the language of msgs.
+func (msgs Messages) LocationApply() string {
+	return Catalog.Format(msgs.locale, "location_apply", nil)
+}
+
+// LocationScope says "Add a house, village, chest, door or seize point. Visits reference existing text; seize uses the chapter ending. Map …"
+// in the language the app shows.
+func LocationScope() string { return In(i18n.Locale()).LocationScope() }
+
+// LocationScope says "Add a house, village, chest, door or seize point. Visits reference existing text; seize uses the chapter ending. Map …"
+// in the language of msgs.
+func (msgs Messages) LocationScope() string {
+	return Catalog.Format(msgs.locale, "location_scope", nil)
+}
+
+// LocationHelp says "Coordinates are unsigned bytes. Nonzero completion flags prevent repeated triggers. Native type and tile command dete…"
+// in the language the app shows.
+func LocationHelp() string { return In(i18n.Locale()).LocationHelp() }
+
+// LocationHelp says "Coordinates are unsigned bytes. Nonzero completion flags prevent repeated triggers. Native type and tile command dete…"
+// in the language of msgs.
+func (msgs Messages) LocationHelp() string {
+	return Catalog.Format(msgs.locale, "location_help", nil)
+}
+
+// LocationPreviewScope says "Append the complete location table and any new dialogue scripts. Only chapters sharing this pointer entry change; ind…"
+// in the language the app shows.
+func LocationPreviewScope() string { return In(i18n.Locale()).LocationPreviewScope() }
+
+// LocationPreviewScope says "Append the complete location table and any new dialogue scripts. Only chapters sharing this pointer entry change; ind…"
+// in the language of msgs.
+func (msgs Messages) LocationPreviewScope() string {
+	return Catalog.Format(msgs.locale, "location_preview_scope", nil)
+}
+
+// LocationRepeat says "Completion flag 0 does not prevent repeated triggers; map changes may also remove the available interaction."
+// in the language the app shows.
+func LocationRepeat() string { return In(i18n.Locale()).LocationRepeat() }
+
+// LocationRepeat says "Completion flag 0 does not prevent repeated triggers; map changes may also remove the available interaction."
+// in the language of msgs.
+func (msgs Messages) LocationRepeat() string {
+	return Catalog.Format(msgs.locale, "location_repeat", nil)
+}
+
+// LocationResourceReadonly says "This entry references a separate resource. Its bytes and reference are preserved; resource editing is not available h…"
+// in the language the app shows.
+func LocationResourceReadonly() string { return In(i18n.Locale()).LocationResourceReadonly() }
+
+// LocationResourceReadonly says "This entry references a separate resource. Its bytes and reference are preserved; resource editing is not available h…"
+// in the language of msgs.
+func (msgs Messages) LocationResourceReadonly() string {
+	return Catalog.Format(msgs.locale, "location_resource_readonly", nil)
+}
+
+// ChestGold says "Gold reward"
+// in the language the app shows.
+func ChestGold() string { return In(i18n.Locale()).ChestGold() }
+
+// ChestGold says "Gold reward"
+// in the language of msgs.
+func (msgs Messages) ChestGold() string {
+	return Catalog.Format(msgs.locale, "chest_gold", nil)
+}
+
+// ChestUseGold says "Use gold reward"
+// in the language the app shows.
+func ChestUseGold() string { return In(i18n.Locale()).ChestUseGold() }
+
+// ChestUseGold says "Use gold reward"
+// in the language of msgs.
+func (msgs Messages) ChestUseGold() string {
+	return Catalog.Format(msgs.locale, "chest_use_gold", nil)
+}
+
+// ChestRewardHelp says "Gold uses this version's gold marker. FE8 distinguishes items from gold at 255; FE6/FE7 use separate reward scripts. …"
+// in the language the app shows.
+func ChestRewardHelp() string { return In(i18n.Locale()).ChestRewardHelp() }
+
+// ChestRewardHelp says "Gold uses this version's gold marker. FE8 distinguishes items from gold at 255; FE6/FE7 use separate reward scripts. …"
+// in the language of msgs.
+func (msgs Messages) ChestRewardHelp() string {
+	return Catalog.Format(msgs.locale, "chest_reward_help", nil)
+}
+
+// MapImpactLocation says "Location trigger"
+// in the language the app shows.
+func MapImpactLocation() string { return In(i18n.Locale()).MapImpactLocation() }
+
+// MapImpactLocation says "Location trigger"
+// in the language of msgs.
+func (msgs Messages) MapImpactLocation() string {
+	return Catalog.Format(msgs.locale, "map_impact_location", nil)
+}
+
+// LocationScriptHelp says "Select an existing chapter script or native marker 1. For a door, marker 1 applies the map change at its position. Ap…"
+// in the language the app shows.
+func LocationScriptHelp() string { return In(i18n.Locale()).LocationScriptHelp() }
+
+// LocationScriptHelp says "Select an existing chapter script or native marker 1. For a door, marker 1 applies the map change at its position. Ap…"
+// in the language of msgs.
+func (msgs Messages) LocationScriptHelp() string {
+	return Catalog.Format(msgs.locale, "location_script_help", nil)
+}
+
+// LocationNativeAction says "Native location action (1)"
+// in the language the app shows.
+func LocationNativeAction() string { return In(i18n.Locale()).LocationNativeAction() }
+
+// LocationNativeAction says "Native location action (1)"
+// in the language of msgs.
+func (msgs Messages) LocationNativeAction() string {
+	return Catalog.Format(msgs.locale, "location_native_action", nil)
+}
+
 // MoveUnits says "Unit list"
 // in the language the app shows.
 func MoveUnits() string { return In(i18n.Locale()).MoveUnits() }

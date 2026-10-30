@@ -45,6 +45,9 @@ func (f Format) eventResources(
 	event *Condition,
 	parsed *deployment.Reader,
 ) []space.Range {
+	if event.OperandKind != ConditionScript {
+		return locationResources(data, event)
+	}
 	if event.Script == 1 {
 		return nil
 	}
@@ -73,6 +76,9 @@ func (f Format) editableCondition(
 	table Table,
 	event Condition,
 ) bool {
+	if table == LocationEvents {
+		return event.OperandKind == ConditionScript
+	}
 	return event.Kind == f.condition(table) ||
 		(table == AlwaysEvents && (event.Kind == 1 || event.Rout))
 }
@@ -170,7 +176,8 @@ func (d *ConditionDraft) SetEventScript(
 		return rom.ErrStale
 	}
 	if index < 0 || index >= len(d.records) ||
-		len(d.objectiveFields(index)) == 0 {
+		(len(d.objectiveFields(index)) == 0 &&
+			(d.original.Table != LocationEvents || d.records[index].event.OperandKind != ConditionScript)) {
 		return edit.ErrField
 	}
 	if !slices.ContainsFunc(
@@ -187,12 +194,13 @@ func (d *ConditionDraft) SetEventScript(
 	}
 	record := &d.records[index]
 	binary.LittleEndian.PutUint32(record.raw[4:], word)
+	record.message = nil
 	record.event.Script = address
 	record.event.Texts, record.event.Groups, record.event.Warnings = nil, nil, nil
 	d.original.format.eventResources(
 		s.image.Data,
 		d.chapter,
-		AlwaysEvents,
+		d.original.Table,
 		&record.event,
 		deployment.NewReader(s.image.Data, d.original.format.units),
 	)
@@ -252,7 +260,7 @@ func (d *ConditionDraft) AddObjective(
 	}
 	binary.LittleEndian.PutUint32(raw[8:], trigger)
 	event := Condition{Script: address}
-	event.decode(raw, d.original.format)
+	event.decode(raw, d.original.format, AlwaysEvents)
 	d.original.format.eventResources(
 		s.image.Data,
 		d.chapter,

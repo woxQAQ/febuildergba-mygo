@@ -208,6 +208,15 @@ func (v *Page) eventNumber(
 		entry.inputs[key] = draft
 	}
 	low, high := field.Bounds()
+	if entry.data.Table() == event.LocationEvents {
+		location := entry.data.Events()[entry.selected].Location
+		if field.ID == event.ChestItem {
+			low, high = 1, int64(location.ItemMaximum)
+		}
+		if field.ID == event.ChestMoney && location.Item == location.GoldItem {
+			low = int64(location.GoldMinimum)
+		}
+	}
 	control := components.TextDraft(
 		state,
 		ui.TextInput(c.Key("value"), &draft.text).

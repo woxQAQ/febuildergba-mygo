@@ -139,7 +139,7 @@ func (v *Page) objectiveDetails(
 	openText func(uint16),
 ) {
 	if condition.Kind == 1 || condition.Rout {
-		v.objectiveScript(c, state, entry, condition)
+		v.conditionScript(c, state, entry, condition)
 		if condition.Kind == 1 && condition.TriggerFlag == 0 {
 			message := locales.ObjectiveZeroNever()
 			for _, field := range entry.data.Fields(entry.selected) {
@@ -176,17 +176,25 @@ func (v *Page) objectiveDetails(
 	eventTexts(c, state, entry, condition, openText)
 }
 
-func (v *Page) objectiveScript(
+func (v *Page) conditionScript(
 	c *ui.Context,
 	state *editor.State,
 	entry *eventState,
 	condition event.Condition,
 ) {
+	label, help := locales.ObjectiveEvent(), locales.ObjectiveScriptHelp()
+	if entry.data.Table() == event.LocationEvents {
+		label, help = locales.AreaScript(), locales.LocationScriptHelp()
+	}
 	refs := entry.data.Scripts()
 	captions := make([]string, len(refs))
 	selected := ""
 	for i, ref := range refs {
 		captions[i] = scriptCaption(ref)
+		if entry.data.Table() == event.LocationEvents &&
+			ref.Kind == event.FlagOnlyEvent {
+			captions[i] = locales.LocationNativeAction()
+		}
 		if ref.Address == condition.Script {
 			selected = captions[i]
 		}
@@ -209,14 +217,14 @@ func (v *Page) objectiveScript(
 		input.text, input.value = selected, int64(condition.Script)
 	}
 	ui.Row(c).Wrap().Gap(8).AlignItems(ui.Center).Children(func() {
-		ui.Text(c, locales.ObjectiveEvent())
+		ui.Text(c, label)
 		components.TextDraft(
 			state,
 			ui.Combobox(c.Key("objective-script"), &input.text, captions).
 				Width(400).
 				MaxWidthPercent(100).
-				Label(locales.Objectives()+" / "+locales.ObjectiveEvent()).
-				Tooltip(locales.ObjectiveScriptHelp()).
+				Label(v.labelsFor(entry.data.Table()).title+" / "+label).
+				Tooltip(help).
 				Disabled(state.Busy || !entry.data.Current(state.Session.Events)).
 				OnChange(func() {
 					if index := slices.Index(

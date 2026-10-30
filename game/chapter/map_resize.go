@@ -163,6 +163,46 @@ func (s *Editor) mapResizeImpacts(
 				r.warn(use.Chapter, ending.Address, maps.UnitStart, warning)
 			}
 		}
+		locations, locationErr := s.Events.Conditions(
+			use.Chapter,
+			event.LocationEvents,
+		)
+		if locationErr != nil {
+			r.warn(
+				use.Chapter,
+				locations.Pointer,
+				maps.TriggerLocation,
+				locationErr,
+			)
+		}
+		for index, condition := range locations.Events {
+			if condition.Location.Kind == "" {
+				r.warn(
+					use.Chapter,
+					condition.Address,
+					maps.TriggerLocation,
+					event.ErrEventConditions,
+				)
+				continue
+			}
+			position := condition.Location.Position
+			r.add(
+				maps.Impact{
+					Kind:      maps.TriggerLocation,
+					Chapter:   use.Chapter,
+					Reference: locations.Pointer,
+					Address:   condition.Address,
+					Index:     index,
+					Step:      -1,
+					Bounds: image.Rect(
+						position.X,
+						position.Y,
+						position.X+1,
+						position.Y+1,
+					),
+				},
+			)
+		}
 		r.deploymentGroups(use.Chapter, groups.Groups)
 		s.mapChangeImpacts(format, use.Chapter, &r)
 		s.mapScriptImpacts(use.Chapter, &r)

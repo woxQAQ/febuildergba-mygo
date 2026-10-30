@@ -71,7 +71,7 @@ func (v *Page) Render(
 ) {
 	v.load(state, row)
 	v.openScript = openScript
-	ui.Tabs(c.Key("chapter-mode"), &v.mode, locales.DeployConfiguration(), locales.Deployments(), locales.TurnEvents(), locales.AreaEvents(), locales.TalkEvents(), locales.Objectives(), locales.MapEditor(), locales.MapChangesEditor()).
+	ui.Tabs(c.Key("chapter-mode"), &v.mode, locales.DeployConfiguration(), locales.Deployments(), locales.TurnEvents(), locales.AreaEvents(), locales.TalkEvents(), locales.Objectives(), locales.MapEditor(), locales.MapChangesEditor(), locales.LocationEvents()).
 		Label(locales.Chapters()).
 		Wrap()
 	if v.mode == 6 {
@@ -80,6 +80,19 @@ func (v *Page) Render(
 	}
 	if v.mode == 7 {
 		v.mapChangesEditor(c, state, row, jump, openHex)
+		return
+	}
+	if v.mode == 8 {
+		v.eventEditor(
+			c,
+			state,
+			row,
+			event.LocationEvents,
+			advanced,
+			jump,
+			openHex,
+			openText,
+		)
 		return
 	}
 	if v.Configuration() {

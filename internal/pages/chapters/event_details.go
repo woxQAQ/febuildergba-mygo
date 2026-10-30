@@ -62,6 +62,8 @@ func (v *Page) eventDetails(
 					openHex,
 					openText,
 				)
+			case entry.data.Table() == event.LocationEvents:
+				v.locationDetails(c, state, row, entry, condition, openText)
 			case entry.data.Table() == event.TalkEvents:
 				v.talkDetails(c, state, entry, condition, jump, openText)
 			default:
@@ -70,7 +72,7 @@ func (v *Page) eventDetails(
 			if v.mode != 5 && v.openScript != nil && condition.Address > 0 &&
 				condition.Script >= 0xC0 {
 				ui.Button(c, locales.ScriptEditor()).
-					Disabled(state.Busy).
+					Disabled(state.Busy || (entry.data.Table() == event.LocationEvents && entry.data.Modified())).
 					OnClick(func() { v.openScript(row.ID, condition.Address+4) })
 			}
 			if advanced && condition.Address > 0 {
@@ -78,7 +80,7 @@ func (v *Page) eventDetails(
 					ui.Button(c, locales.EditBytes()).
 						Disabled(state.Busy).
 						OnClick(func() { openHex(condition.Address, len(condition.Raw)) })
-					ui.Textf(c, "0x%08X → 0x%08X · % X", condition.Address, condition.Script, condition.Raw).
+					ui.Textf(c, "0x%08X → 0x%08X · % X", condition.Address, condition.Operand, condition.Raw).
 						Selectable().
 						Font("monospace")
 				})

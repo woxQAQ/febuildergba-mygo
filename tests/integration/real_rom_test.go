@@ -68,6 +68,10 @@ func TestROMWorkflows(t *testing.T) {
 					"talks",
 					func(t *testing.T, s *game.Session) { editEvents(t, s, event.TalkEvents) },
 				},
+				{
+					"locations",
+					func(t *testing.T, s *game.Session) { editEvents(t, s, event.LocationEvents) },
+				},
 				{"scripts", editScript},
 				{"script-scenes", editScriptScene},
 				{"script-focus", editScriptFocus},

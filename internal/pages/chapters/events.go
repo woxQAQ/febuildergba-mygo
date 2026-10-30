@@ -30,11 +30,25 @@ type eventState struct {
 	generations                  map[*deployment.Draft]uint64
 	textChoices                  []dialogueChoice
 	textReference                string
+	locationTemplate             string
 }
 
 type eventLabels struct{ title, add, remove, scope, preview, reload, apply, previewScope, help string }
 
 func (v *Page) labelsFor(table event.Table) eventLabels {
+	if table == event.LocationEvents {
+		return eventLabels{
+			title:        locales.LocationEvents(),
+			add:          locales.LocationAdd(),
+			remove:       locales.TalkRemove(),
+			scope:        locales.LocationScope(),
+			preview:      locales.LocationPreview(),
+			reload:       locales.TalkReload(),
+			apply:        locales.LocationApply(),
+			previewScope: locales.LocationPreviewScope(),
+			help:         locales.LocationHelp(),
+		}
+	}
 	if v.mode == 5 {
 		return eventLabels{
 			title:        locales.Objectives(),
@@ -202,6 +216,8 @@ func (v *Page) eventEditor(
 		ui.Row(c).Wrap().Gap(8).Children(func() {
 			if objective {
 				v.objectiveAdd(c, state, entry)
+			} else if table == event.LocationEvents {
+				v.locationAdd(c, state, entry)
 			} else {
 				ui.Button(c, labels.add).
 					Tooltip(labels.scope).
@@ -222,7 +238,20 @@ func (v *Page) eventEditor(
 						delete(entry.generations, units)
 					}
 					state.Err = entry.data.Remove(entry.selected)
-					entry.preview, entry.inputs = nil, nil
+					if state.Err != nil {
+						return
+					}
+					inputs := make(map[inputKey]*numberDraft, len(entry.inputs))
+					for key, draft := range entry.inputs {
+						if key.index == entry.selected {
+							continue
+						}
+						if key.index > entry.selected {
+							key.index--
+						}
+						inputs[key] = draft
+					}
+					entry.preview, entry.inputs = nil, inputs
 					entry.lastSelected = -1
 				})
 		})
@@ -272,6 +301,11 @@ func (v *Page) eventTable(
 	objective := v.mode == 5
 	area := entry.data.Table() == event.AlwaysEvents
 	talk := entry.data.Table() == event.TalkEvents
+	location := entry.data.Table() == event.LocationEvents
+	if location {
+		columns[1].Title = locales.LocationType()
+		columns[2].Title = locales.DeployPosition()
+	}
 	if talk {
 		columns[1].Title = locales.Label(event.TalkInitiator)
 		columns[2].Title = locales.Label(event.TalkTarget)
@@ -293,6 +327,8 @@ func (v *Page) eventTable(
 			switch {
 			case objective:
 				ui.Text(c, objectiveConditionCaption(condition)).SingleLine()
+			case location:
+				ui.Text(c, locationCaption(condition)).SingleLine()
 			case talk && len(entry.data.Fields(index)) > 0:
 				ui.Text(c, characterCaption(session, condition.Initiator, len(entry.data.Fields(index)) > 3)).
 					SingleLine()
@@ -307,6 +343,13 @@ func (v *Page) eventTable(
 			}
 		case 2:
 			switch {
+			case location:
+				if condition.Location.Kind != "" {
+					ui.Textf(c, "%d, %d", condition.Location.Position.X, condition.Location.Position.Y).
+						FontFeatures("tnum")
+				} else {
+					ui.Text(c, "—")
+				}
 			case talk && len(entry.data.Fields(index)) > 0:
 				ui.Text(c, characterCaption(session, condition.Target, false)).
 					SingleLine()

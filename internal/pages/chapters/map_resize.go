@@ -211,6 +211,9 @@ func (v *Page) mapImpacts(
 								item.Reference,
 							)
 							jump(records.Chapters, item.Chapter)
+						case maps.TriggerLocation:
+							v.mode = 8
+							jump(records.Chapters, item.Chapter)
 						case maps.TriggerArea:
 							v.mode = 3
 							jump(records.Chapters, item.Chapter)

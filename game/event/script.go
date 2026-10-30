@@ -219,7 +219,9 @@ func (s *Editor) scriptIndex(chapter int) (scriptIndex, error) {
 			continue
 		}
 		for _, condition := range conditions.Events {
-			add(condition.Address+4, condition.source(table))
+			if condition.OperandKind == ConditionScript {
+				add(condition.Address+4, condition.source(table))
+			}
 		}
 	}
 	// Decode each address once; aliases remain individual pointer entries.

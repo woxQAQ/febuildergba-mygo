@@ -48,6 +48,16 @@ FE8 路径使用同一固定提交的 [muctrl.h](https://github.com/FireEmblemUn
 
 FE6／FE7 坐标未命中退回事件参数，FE8 则返回事件错误。FE7 高位控制前一 ID 的启用状态，静默模式另有不启用当前 ID 的分支；FE8 恢复整个矩形，并按 signed halfword 消费队列 ID。以上规则分别有独立五版字节样本与动态文件流程；实际游戏内执行仍未验证。
 
+## 地点条件与执行
+
+地点表入口、12 字节记录、对象分类及商店引用依据固定旧版 `EventCondForm.InitObject`、`SupportOtherSeries`、`MakeShopPointerListBox` 和 `ItemShopForm.Init`。原生语义使用上表同一固定提交：
+
+- FE6：[src/eventinfo.c](https://github.com/StanHash/fe6/blob/f9ea5f67f3f1048ca9836d7350077231ba54b589/src/eventinfo.c) 的 `EvtListCmd_Tile`／`TileWithMapChange`／`ItemChest`／`Door`／`Shop` 与 `StartAvailableTileEvent`；[include/constants/iids.h](https://github.com/StanHash/fe6/blob/f9ea5f67f3f1048ca9836d7350077231ba54b589/include/constants/iids.h) 确认金币标记 `6F`。
+- FE7U：[asm/code.s](https://github.com/StanHash/fe7_us/blob/5c8b3c5e254e00f0f3458b9772c27e1a5a326e3b/asm/code.s) 的 `func_080784C0`、`func_0807850C`、`func_08078520`、`func_0807856C`、`func_080785F4` 核对坐标、命令单字节和关联数据；`08078CD8…08078DF2` 的地点执行分支确认事件宝箱、门、访问、商店和金币标记 `76`。FE7J 的表入口、命令及记录结构另核对固定旧版日版配置。
+- FE8：[src/eventinfo.c](https://github.com/FireEmblemUniverse/fireemblem8u/blob/04d1edb163d14bd10777a065697e1a9f17be65f2/src/eventinfo.c) 的 `EvCheck05_LOCA`／`06_VILL`／`07_CHES`／`08_DOOR`／`0A_SHOP` 和 `StartAvailableTileEvent` 确认半字命令、门的单字节命令、随机奖励表与自动地图变化；[include/constants/items.h](https://github.com/FireEmblemUniverse/fireemblem8u/blob/04d1edb163d14bd10777a065697e1a9f17be65f2/include/constants/items.h) 确认金币标记 `77`。FE8J 的入口和记录布局另查固定旧版日版配置。
+
+金币数量以实际消费者为准：FE8 同一提交的 [src/eventscr.c](https://github.com/FireEmblemUniverse/fireemblem8u/blob/04d1edb163d14bd10777a065697e1a9f17be65f2/src/eventscr.c) 中 `EventScr_OpenChest` 在 255 处分流道具和金币，因此新金币至少为 256、新道具最多为 255；FE6 的 [src/event.c](https://github.com/StanHash/fe6/blob/f9ea5f67f3f1048ca9836d7350077231ba54b589/src/event.c) 中 `StartChestMoneyEvent`／`EventScr_MoneyChest` 和 FE7U 的 [asm/event.s](https://github.com/StanHash/fe7_us/blob/5c8b3c5e254e00f0f3458b9772c27e1a5a326e3b/asm/event.s) 中 `func_0800F044`／`func_0800F06C` 使用独立奖励脚本，不套用旧版界面统一的 256 提示。五版独立合成记录验证固定字节，动态 ROM 流程验证当前输入的条件修改和保存重开；这些检查不等于游戏内执行。
+
 ## 事件剧情指令
 
 常用剧情指令沿用上表的固定提交，并与旧版事件目录交叉核对：

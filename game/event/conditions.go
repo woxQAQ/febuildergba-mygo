@@ -31,9 +31,15 @@ const (
 	TurnEvents Table = iota
 	AlwaysEvents
 	TalkEvents
+	LocationEvents
 )
 
-var eventTables = [...]Table{TurnEvents, TalkEvents, AlwaysEvents}
+var eventTables = [...]Table{
+	TurnEvents,
+	TalkEvents,
+	LocationEvents,
+	AlwaysEvents,
+}
 
 func (table Table) offset() int {
 	switch table {
@@ -41,6 +47,8 @@ func (table Table) offset() int {
 		return 12
 	case TalkEvents:
 		return 4
+	case LocationEvents:
+		return 8
 	default:
 		return 0
 	}
@@ -66,6 +74,8 @@ func (table Table) source() string {
 		return "deploy_area_event"
 	case TalkEvents:
 		return "deploy_talk_event"
+	case LocationEvents:
+		return "location_events"
 	default:
 		return "deploy_turn_event"
 	}
@@ -82,6 +92,9 @@ func (event Condition) source(table Table) string {
 // parameters are decoded views, and only confirmed fields are offered for edits.
 type Condition struct {
 	Address, Kind, Flag, Script           int
+	OperandKind                           ConditionTarget
+	Operand                               uint32
+	Location                              Location
 	Start, End, Phase                     int
 	Route                                 uint32
 	X1, Y1, X2, Y2                        int
@@ -112,8 +125,15 @@ func (event Condition) Area() image.Rectangle {
 	return image.Rect(x1, y1, x2+1, y2+1)
 }
 
-func (event *Condition) decode(raw []byte, f Format) {
+func (event *Condition) decode(raw []byte, f Format, table Table) {
 	event.Raw = bytes.Clone(raw)
+	event.Operand = gba.Uint32(raw, 4)
+	if table == LocationEvents {
+		event.Location, event.OperandKind = f.location(raw)
+		if event.OperandKind != ConditionScript {
+			event.Script = 0
+		}
+	}
 	event.reversedArea = f.kind == eventFE8
 	event.TriggerFlag = gba.Uint32(raw, 8)
 	if f.kind != eventFE8 {
@@ -198,7 +218,7 @@ func (f Format) readEvents(
 		Range:    &fault.Range{Offset: site, Length: 4, Size: len(data)},
 	}
 	defer func() { err = fault.Wrap(err, "game.read_event_conditions", ctx) }()
-	if table > TalkEvents || site < 0xC0 || site%4 != 0 ||
+	if table > LocationEvents || site < 0xC0 || site%4 != 0 ||
 		!gba.Within(data, site, 4) {
 		return result, ErrEventConditions
 	}
@@ -228,10 +248,12 @@ func (f Format) readEvents(
 			return result, ErrEventConditions
 		}
 		event := Condition{Address: at, reversedArea: f.kind == eventFE8}
-		event.decode(data[at:at+length], f)
-		event.Script, _ = gba.Pointer(data, at+4)
-		if gba.Uint32(data, at+4) == 1 {
-			event.Script = 1 // Native marker: set the completion flag without a script.
+		event.decode(data[at:at+length], f, table)
+		if event.OperandKind == ConditionScript {
+			event.Script, _ = gba.Pointer(data, at+4)
+			if event.Operand == 1 {
+				event.Script = 1 // Native marker: no user script.
+			}
 		}
 		result.Events = append(result.Events, event)
 		at += length
@@ -279,7 +301,7 @@ func (f Format) ReadConditions(
 	eventID byte,
 	table Table,
 ) (Conditions, error) {
-	if table > TalkEvents {
+	if table > LocationEvents {
 		return Conditions{}, ErrEventConditions
 	}
 	header, err := f.eventHeader(
@@ -340,7 +362,7 @@ func (f Format) ReadConditions(
 	return result, nil
 }
 
-func Tables() [3]Table { return eventTables }
+func Tables() [4]Table { return eventTables }
 
 func (c Conditions) Regions() []space.Range { return slices.Clone(c.ranges) }
 

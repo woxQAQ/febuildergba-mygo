@@ -67,8 +67,12 @@ func (s *Editor) NewConditions(
 			eventRecord{event: event, raw: bytes.Clone(event.Raw)},
 		)
 	}
-	if table == AlwaysEvents {
-		d.scripts = s.objectiveScripts(resource, chapter)
+	if table == AlwaysEvents || table == LocationEvents {
+		objectives := resource
+		if table == LocationEvents {
+			objectives, _ = s.Conditions(chapter, AlwaysEvents)
+		}
+		d.scripts = s.objectiveScripts(objectives, chapter)
 	}
 	return d, nil
 }
@@ -96,7 +100,7 @@ func (d *ConditionDraft) Events() []Condition {
 	events := make([]Condition, len(d.records))
 	for i, record := range d.records {
 		event := record.event
-		event.decode(record.raw, d.original.format)
+		event.decode(record.raw, d.original.format, d.original.Table)
 		event.Texts = slices.Clone(record.event.Texts)
 		if record.message != nil {
 			event.Texts = nil
@@ -112,6 +116,9 @@ func (d *ConditionDraft) Events() []Condition {
 func (d *ConditionDraft) Fields(index int) []records.Field {
 	if index < 0 || index >= len(d.records) {
 		return nil
+	}
+	if d.original.Table == LocationEvents {
+		return d.locationFields(index)
 	}
 	if fields := d.objectiveFields(index); len(fields) > 0 {
 		return fields
@@ -188,6 +195,15 @@ func (d *ConditionDraft) Set(index int, id string, value int64) (err error) {
 			continue
 		}
 		low, high := field.Bounds()
+		if d.original.Table == LocationEvents {
+			location, _ := d.original.format.location(d.records[index].raw)
+			if id == ChestItem {
+				low, high = 1, int64(location.ItemMaximum)
+			}
+			if id == ChestMoney && location.Item == location.GoldItem {
+				low = int64(location.GoldMinimum)
+			}
+		}
 		if value < low || value > high {
 			ctx.Bounds = &fault.Bounds{Min: low, Max: high}
 			return edit.ErrValue
@@ -208,6 +224,9 @@ func (d *ConditionDraft) Add(s *Editor) error {
 	}
 	if len(d.records) >= maxEventConditions {
 		return edit.ErrValue
+	}
+	if d.original.Table == LocationEvents {
+		return edit.ErrField
 	}
 	kind := d.original.format.condition(d.original.Table)
 	raw := make([]byte, d.original.format.eventStride(d.original.Table, kind))
@@ -309,12 +328,15 @@ func (s *Editor) PlanConditions(
 	var content []byte
 	offsets := make([]int, len(d.records))
 	for i, record := range d.records {
+		if err = d.validateLocation(record); err != nil {
+			return nil, err
+		}
 		if record.message != nil {
 			if _, readErr := s.DialogueText(*record.message); readErr != nil {
 				return nil, readErr
 			}
-			if record.raw[9] == 0 ||
-				(d.original.format.kind == eventFE6 && record.raw[8] == 0) {
+			if d.original.Table == TalkEvents && (record.raw[9] == 0 ||
+				(d.original.format.kind == eventFE6 && record.raw[8] == 0)) {
 				return nil, edit.ErrValue
 			}
 		}
