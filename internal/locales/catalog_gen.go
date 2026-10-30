@@ -34,6 +34,16 @@ type Messages struct{ locale string }
 // source language.
 func In(locale string) Messages { return Messages{locale} }
 
+// ChapterScripts says "Chapter scripts"
+// in the language the app shows.
+func ChapterScripts() string { return In(i18n.Locale()).ChapterScripts() }
+
+// ChapterScripts says "Chapter scripts"
+// in the language of msgs.
+func (msgs Messages) ChapterScripts() string {
+	return Catalog.Format(msgs.locale, "chapter_scripts", nil)
+}
+
 // LocationEvents says "Location events"
 // in the language the app shows.
 func LocationEvents() string { return In(i18n.Locale()).LocationEvents() }
@@ -204,14 +214,164 @@ func (msgs Messages) LocationCopy() string {
 	return Catalog.Format(msgs.locale, "location_copy", nil)
 }
 
-// LocationPlace says "Move to selected tile"
+// LocationPlace says "Set position"
 // in the language the app shows.
 func LocationPlace() string { return In(i18n.Locale()).LocationPlace() }
 
-// LocationPlace says "Move to selected tile"
+// LocationPlace says "Set position"
 // in the language of msgs.
 func (msgs Messages) LocationPlace() string {
 	return Catalog.Format(msgs.locale, "location_place", nil)
+}
+
+// LocationRemove says "Delete location"
+// in the language the app shows.
+func LocationRemove() string { return In(i18n.Locale()).LocationRemove() }
+
+// LocationRemove says "Delete location"
+// in the language of msgs.
+func (msgs Messages) LocationRemove() string {
+	return Catalog.Format(msgs.locale, "location_remove", nil)
+}
+
+// LocationReload says "Reload locations"
+// in the language the app shows.
+func LocationReload() string { return In(i18n.Locale()).LocationReload() }
+
+// LocationReload says "Reload locations"
+// in the language of msgs.
+func (msgs Messages) LocationReload() string {
+	return Catalog.Format(msgs.locale, "location_reload", nil)
+}
+
+// LocationContent says "Trigger content"
+// in the language the app shows.
+func LocationContent() string { return In(i18n.Locale()).LocationContent() }
+
+// LocationContent says "Trigger content"
+// in the language of msgs.
+func (msgs Messages) LocationContent() string {
+	return Catalog.Format(msgs.locale, "location_content", nil)
+}
+
+// LocationEmpty says "No locations in this chapter. Add a location, then choose its tile on the map."
+// in the language the app shows.
+func LocationEmpty() string { return In(i18n.Locale()).LocationEmpty() }
+
+// LocationEmpty says "No locations in this chapter. Add a location, then choose its tile on the map."
+// in the language of msgs.
+func (msgs Messages) LocationEmpty() string {
+	return Catalog.Format(msgs.locale, "location_empty", nil)
+}
+
+// LocationChoosePosition says "Choose a tile for the new location. Esc cancels."
+// in the language the app shows.
+func LocationChoosePosition() string { return In(i18n.Locale()).LocationChoosePosition() }
+
+// LocationChoosePosition says "Choose a tile for the new location. Esc cancels."
+// in the language of msgs.
+func (msgs Messages) LocationChoosePosition() string {
+	return Catalog.Format(msgs.locale, "location_choose_position", nil)
+}
+
+// LocationMovePosition says "Choose a new tile for location {id}. Esc cancels."
+// in the language the app shows.
+func LocationMovePosition(id string) string { return In(i18n.Locale()).LocationMovePosition(id) }
+
+// LocationMovePosition says "Choose a new tile for location {id}. Esc cancels."
+// in the language of msgs.
+func (msgs Messages) LocationMovePosition(id string) string {
+	return Catalog.Format(msgs.locale, "location_move_position", map[string]any{"id": id})
+}
+
+// LocationAddOrigin says "Add at (0, 0)"
+// in the language the app shows.
+func LocationAddOrigin() string { return In(i18n.Locale()).LocationAddOrigin() }
+
+// LocationAddOrigin says "Add at (0, 0)"
+// in the language of msgs.
+func (msgs Messages) LocationAddOrigin() string {
+	return Catalog.Format(msgs.locale, "location_add_origin", nil)
+}
+
+// LocationOpenScript says "Edit location script"
+// in the language the app shows.
+func LocationOpenScript() string { return In(i18n.Locale()).LocationOpenScript() }
+
+// LocationOpenScript says "Edit location script"
+// in the language of msgs.
+func (msgs Messages) LocationOpenScript() string {
+	return Catalog.Format(msgs.locale, "location_open_script", nil)
+}
+
+// LocationChangeScript says "Change linked script"
+// in the language the app shows.
+func LocationChangeScript() string { return In(i18n.Locale()).LocationChangeScript() }
+
+// LocationChangeScript says "Change linked script"
+// in the language of msgs.
+func (msgs Messages) LocationChangeScript() string {
+	return Catalog.Format(msgs.locale, "location_change_script", nil)
+}
+
+// LocationDialogue says "Dialogue"
+// in the language the app shows.
+func LocationDialogue() string { return In(i18n.Locale()).LocationDialogue() }
+
+// LocationDialogue says "Dialogue"
+// in the language of msgs.
+func (msgs Messages) LocationDialogue() string {
+	return Catalog.Format(msgs.locale, "location_dialogue", nil)
+}
+
+// LocationReward says "Reward"
+// in the language the app shows.
+func LocationReward() string { return In(i18n.Locale()).LocationReward() }
+
+// LocationReward says "Reward"
+// in the language of msgs.
+func (msgs Messages) LocationReward() string {
+	return Catalog.Format(msgs.locale, "location_reward", nil)
+}
+
+// LocationDiscardReload says "Discard draft and reload"
+// in the language the app shows.
+func LocationDiscardReload() string { return In(i18n.Locale()).LocationDiscardReload() }
+
+// LocationDiscardReload says "Discard draft and reload"
+// in the language of msgs.
+func (msgs Messages) LocationDiscardReload() string {
+	return Catalog.Format(msgs.locale, "location_discard_reload", nil)
+}
+
+// LocationReloadHelp says "Reloading discards unapplied changes on this page and reads the current location table."
+// in the language the app shows.
+func LocationReloadHelp() string { return In(i18n.Locale()).LocationReloadHelp() }
+
+// LocationReloadHelp says "Reloading discards unapplied changes on this page and reads the current location table."
+// in the language of msgs.
+func (msgs Messages) LocationReloadHelp() string {
+	return Catalog.Format(msgs.locale, "location_reload_help", nil)
+}
+
+// LocationTextExcerpt says "Text excerpt"
+// in the language the app shows.
+func LocationTextExcerpt() string { return In(i18n.Locale()).LocationTextExcerpt() }
+
+// LocationTextExcerpt says "Text excerpt"
+// in the language of msgs.
+func (msgs Messages) LocationTextExcerpt() string {
+	return Catalog.Format(msgs.locale, "location_text_excerpt", nil)
+}
+
+// MapFit says "Fit canvas"
+// in the language the app shows.
+func MapFit() string { return In(i18n.Locale()).MapFit() }
+
+// MapFit says "Fit canvas"
+// in the language of msgs.
+func (msgs Messages) MapFit() string {
+	return Catalog.Format(msgs.locale, "map_fit", nil)
 }
 
 // LocationPreview says "Preview locations"
@@ -264,14 +424,24 @@ func (msgs Messages) LocationPreviewScope() string {
 	return Catalog.Format(msgs.locale, "location_preview_scope", nil)
 }
 
-// LocationRepeat says "Completion flag 0 does not prevent repeated triggers; map changes may also remove the available interaction."
+// LocationRepeat says "0 does not prevent repeat triggers."
 // in the language the app shows.
 func LocationRepeat() string { return In(i18n.Locale()).LocationRepeat() }
 
-// LocationRepeat says "Completion flag 0 does not prevent repeated triggers; map changes may also remove the available interaction."
+// LocationRepeat says "0 does not prevent repeat triggers."
 // in the language of msgs.
 func (msgs Messages) LocationRepeat() string {
 	return Catalog.Format(msgs.locale, "location_repeat", nil)
+}
+
+// LocationRepeatHelp says "Completion flag 0 does not prevent repeated triggers; map changes may also remove the available interaction."
+// in the language the app shows.
+func LocationRepeatHelp() string { return In(i18n.Locale()).LocationRepeatHelp() }
+
+// LocationRepeatHelp says "Completion flag 0 does not prevent repeated triggers; map changes may also remove the available interaction."
+// in the language of msgs.
+func (msgs Messages) LocationRepeatHelp() string {
+	return Catalog.Format(msgs.locale, "location_repeat_help", nil)
 }
 
 // LocationResourceReadonly says "This entry references a separate resource. Its bytes and reference are preserved; resource editing is not available h…"

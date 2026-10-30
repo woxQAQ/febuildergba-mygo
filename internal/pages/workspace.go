@@ -154,6 +154,9 @@ func (w *Workspace) View(c *ui.Context) {
 			locales.PortraitTable(),
 		)
 		ui.Tabs(c, &w.tab, labels...)
+		if w.tab >= len(records.Kinds) {
+			w.records.Deactivate()
+		}
 		switch w.tab {
 		case len(records.Kinds):
 			w.texts.View(c)

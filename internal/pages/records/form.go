@@ -112,7 +112,11 @@ func (a *form) View(
 							FontSize(20).
 							TextColor(c.Theme().TextMuted)
 						if kind == records.Chapters {
-							ui.Text(c, row.Name).FontSize(20).Grow(1)
+							ui.Text(c, row.Name).
+								FontSize(20).
+								Grow(1).
+								MinWidth(0).
+								SingleLine()
 						} else {
 							a.nameEditor(c, kind, row).Grow(1).MinWidth(0)
 						}
@@ -121,8 +125,8 @@ func (a *form) View(
 								Label(locales.PreviewZoom())
 						}
 						if kind == records.Chapters && a.openScript != nil {
-							ui.Button(c, locales.ScriptEditor()).
-								Label(locales.ScriptChapterOpen()).
+							ui.Button(c, locales.ChapterScripts()).
+								Tooltip(locales.ScriptChapterOpen()).
 								Disabled(a.state.Busy).
 								OnClick(func() { a.openScript(row.ID, 0) })
 						}
@@ -152,10 +156,12 @@ func (a *form) View(
 							TextColor(c.Theme().TextMuted)
 					}
 					if kind == records.Chapters {
+						width, _ := c.Size()
 						a.chapter.Render(
 							c,
 							a.state,
 							row,
+							max(0, width-sidebar-40),
 							a.showRaw,
 							a.jump,
 							a.openHex,

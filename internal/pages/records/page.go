@@ -57,8 +57,13 @@ func (a *Page) Reset() {
 	a.form.Reset()
 }
 
+func (a *Page) Deactivate() { a.form.chapter.Deactivate() }
+
 func (a *Page) View(c *ui.Context, tab int) {
 	a.tab = tab
+	if records.Kinds[tab] != records.Chapters {
+		a.Deactivate()
+	}
 	pane := &a.panes[tab]
 	if pane.sidebar == 0 {
 		pane.sidebar = 330

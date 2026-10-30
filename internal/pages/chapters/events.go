@@ -30,7 +30,8 @@ type eventState struct {
 	generations                  map[*deployment.Draft]uint64
 	textChoices                  []dialogueChoice
 	textReference                string
-	locationTemplate             string
+	location                     locationInteraction
+	locationScript               bool
 }
 
 type eventLabels struct{ title, add, remove, scope, preview, reload, apply, previewScope, help string }
@@ -40,10 +41,10 @@ func (v *Page) labelsFor(table event.Table) eventLabels {
 		return eventLabels{
 			title:        locales.LocationEvents(),
 			add:          locales.LocationAdd(),
-			remove:       locales.TalkRemove(),
+			remove:       locales.LocationRemove(),
 			scope:        locales.LocationScope(),
 			preview:      locales.LocationPreview(),
-			reload:       locales.TalkReload(),
+			reload:       locales.LocationReload(),
 			apply:        locales.LocationApply(),
 			previewScope: locales.LocationPreviewScope(),
 			help:         locales.LocationHelp(),
@@ -158,6 +159,29 @@ func (e *eventState) invalid() bool {
 	return false
 }
 
+func (e *eventState) removeSelected() error {
+	units := e.data.Deployment(e.selected)
+	if err := e.data.Remove(e.selected); err != nil {
+		return err
+	}
+	delete(e.units, units)
+	delete(e.generations, units)
+	inputs := make(map[inputKey]*numberDraft, len(e.inputs))
+	for key, draft := range e.inputs {
+		if key.index == e.selected {
+			continue
+		}
+		if key.index > e.selected {
+			key.index--
+		}
+		inputs[key] = draft
+	}
+	e.preview, e.inputs = nil, inputs
+	e.lastSelected = -1
+	e.location = locationInteraction{}
+	return nil
+}
+
 func phaseLabel(value int) string {
 	switch value {
 	case 0:
@@ -216,8 +240,6 @@ func (v *Page) eventEditor(
 		ui.Row(c).Wrap().Gap(8).Children(func() {
 			if objective {
 				v.objectiveAdd(c, state, entry)
-			} else if table == event.LocationEvents {
-				v.locationAdd(c, state, entry)
 			} else {
 				ui.Button(c, labels.add).
 					Tooltip(labels.scope).
@@ -231,28 +253,7 @@ func (v *Page) eventEditor(
 			ui.Button(c, labels.remove).
 				Disabled(disabled || len(events) == 0).
 				OnClick(func() {
-					if units := entry.data.Deployment(
-						entry.selected,
-					); units != nil {
-						delete(entry.units, units)
-						delete(entry.generations, units)
-					}
-					state.Err = entry.data.Remove(entry.selected)
-					if state.Err != nil {
-						return
-					}
-					inputs := make(map[inputKey]*numberDraft, len(entry.inputs))
-					for key, draft := range entry.inputs {
-						if key.index == entry.selected {
-							continue
-						}
-						if key.index > entry.selected {
-							key.index--
-						}
-						inputs[key] = draft
-					}
-					entry.preview, entry.inputs = nil, inputs
-					entry.lastSelected = -1
+					state.Err = entry.removeSelected()
 				})
 		})
 		if stale {
@@ -305,6 +306,7 @@ func (v *Page) eventTable(
 	if location {
 		columns[1].Title = locales.LocationType()
 		columns[2].Title = locales.DeployPosition()
+		columns[3].Width = 120
 	}
 	if talk {
 		columns[1].Title = locales.Label(event.TalkInitiator)
@@ -416,7 +418,11 @@ func (v *Page) eventActions(
 	key := eventKey{row.ID, table}
 	labels := v.labelsFor(table)
 	ui.Row(c).Wrap().Gap(8).Children(func() {
-		ui.Button(c, labels.preview).
+		previewButton := ui.Button
+		if table == event.LocationEvents && entry.preview == nil {
+			previewButton = ui.PrimaryButton
+		}
+		previewButton(c.Key("preview"), labels.preview).
 			Disabled(state.Busy || stale || entry.invalid() || !entry.data.Modified()).
 			OnClick(func() {
 				entry.preview, state.Err = state.Session.Events.PlanConditions(
@@ -427,7 +433,15 @@ func (v *Page) eventActions(
 					entry.generations[data] = data.Generation()
 				}
 			})
-		ui.Button(c, labels.reload).
+		reload, help := labels.reload, ""
+		if table == event.LocationEvents {
+			help = locales.LocationReloadHelp()
+			if entry.data.Modified() || entry.invalid() {
+				reload = locales.LocationDiscardReload()
+			}
+		}
+		ui.Button(c.Key("reload"), reload).
+			Tooltip(help).
 			Disabled(state.Busy).
 			OnClick(func() { delete(v.events, key) })
 	})
@@ -446,7 +460,11 @@ func (v *Page) eventActions(
 			ui.Textf(c, "%02X %s", chapter, nameOf(state.Session, records.Chapters, chapter)).
 				FontSize(12)
 		}
-		ui.Button(c, labels.apply).
+		applyButton := ui.Button
+		if table == event.LocationEvents {
+			applyButton = ui.PrimaryButton
+		}
+		applyButton(c.Key("apply"), labels.apply).
 			Disabled(state.Busy || stale || entry.invalid()).
 			OnClick(func() {
 				if state.Err = state.Session.Events.ApplyConditions(

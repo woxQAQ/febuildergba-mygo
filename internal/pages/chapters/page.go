@@ -36,6 +36,13 @@ type Page struct {
 	changeDrafts           map[int]*mapChangesState
 }
 
+// Deactivate cancels pending placement while keeping the chapter drafts.
+func (v *Page) Deactivate() {
+	for _, entry := range v.events {
+		entry.location = locationInteraction{}
+	}
+}
+
 func (v *Page) Configuration() bool { return v.mode == 0 }
 
 func (v *Page) load(state *editor.State, row records.Row) {
@@ -63,6 +70,7 @@ func (v *Page) Render(
 	c *ui.Context,
 	state *editor.State,
 	row records.Row,
+	width float32,
 	advanced bool,
 	jump func(records.Kind, int),
 	openHex func(int, int),
@@ -74,6 +82,11 @@ func (v *Page) Render(
 	ui.Tabs(c.Key("chapter-mode"), &v.mode, locales.DeployConfiguration(), locales.Deployments(), locales.TurnEvents(), locales.AreaEvents(), locales.TalkEvents(), locales.Objectives(), locales.MapEditor(), locales.MapChangesEditor(), locales.LocationEvents()).
 		Label(locales.Chapters()).
 		Wrap()
+	for key, entry := range v.events {
+		if v.mode != 8 || key.chapter != row.ID {
+			entry.location = locationInteraction{}
+		}
+	}
 	if v.mode == 6 {
 		v.mapEditor(c, state, row, jump, openHex)
 		return
@@ -83,16 +96,7 @@ func (v *Page) Render(
 		return
 	}
 	if v.mode == 8 {
-		v.eventEditor(
-			c,
-			state,
-			row,
-			event.LocationEvents,
-			advanced,
-			jump,
-			openHex,
-			openText,
-		)
+		v.locationEditor(c, state, row, width, advanced, openHex, openText)
 		return
 	}
 	if v.Configuration() {

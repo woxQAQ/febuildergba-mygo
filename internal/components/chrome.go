@@ -20,10 +20,11 @@ func ApplyTheme(c *ui.Context) {
 	t := *c.Theme()
 	t.Spacing, t.Radius = 3, 4
 	t.Accent = ui.Hex("#C44B2C")
+	t.AccentHover = t.Accent.Mix(ui.RGB(0, 0, 0), 0.1)
+	t.AccentPressed = t.Accent.Mix(ui.RGB(0, 0, 0), 0.2)
 	t.Success = ui.Hex("#4A7C59")
 	t.Warning = ui.Hex("#D4941E")
 	t.Danger = ui.Hex("#B3332D")
-	t.TextMuted = ui.Hex("#6B6B6B")
 	c.SetTheme(&t)
 }
 

@@ -4,6 +4,8 @@ package mapview
 import (
 	"fmt"
 	"image"
+	"math"
+	"slices"
 
 	"github.com/egoist/mygo/ui"
 
@@ -32,6 +34,12 @@ type Overlay struct {
 	Focus       *image.Point
 	Path        *Path
 	Drawing     *Drawing
+	// Tools builds page-owned controls alongside zoom and grid controls.
+	Tools  func(*ui.Context)
+	Prompt string
+	// Viewport opts into a canvas fitted to this size in logical pixels.
+	// A zero size retains the compact map preview.
+	Viewport image.Point
 }
 
 type View struct {
@@ -40,6 +48,9 @@ type View struct {
 	bitmap     *ui.Bitmap
 	err        error
 	zoom       int
+	zoomChoice string
+	fit        bool
+	viewport   image.Point
 	grid       bool
 	scroll     ui.ScrollState
 	selection  image.Point
@@ -67,9 +78,13 @@ func (v *View) focus(point image.Point) {
 		return
 	}
 	v.selection, v.selected = point, true
-	scale := float32(uint32(1)<<uint(v.zoom)) / 2
-	v.scroll.X = max(0, float32(point.X)*16*scale-120)
-	v.scroll.Y = max(0, float32(point.Y)*16*scale-120)
+	scale := v.scale()
+	centerX, centerY := float32(120), float32(120)
+	if v.viewport.X > 0 {
+		centerX, centerY = float32(v.viewport.X)/2, float32(v.viewport.Y)/2
+	}
+	v.scroll.X = max(0, (float32(point.X)+0.5)*16*scale-centerX)
+	v.scroll.Y = max(0, (float32(point.Y)+0.5)*16*scale-centerY)
 }
 
 // Render consumes a domain preview and page-owned error. It never reads ROMs.
@@ -93,8 +108,28 @@ func (v *View) Render(
 			v.bitmap = ui.NewBitmap(preview.Image).Pixelated()
 		}
 	}
+	if overlay.Viewport.X > 0 && v.viewport.X == 0 {
+		v.fit = true
+		v.zoomChoice = locales.MapFit()
+	}
+	v.viewport = overlay.Viewport
 	v.err = err
 	v.render(c, overlay)
+}
+
+func (v *View) scale() float32 {
+	if v.fit && v.viewport.X > 0 && v.resource.Width > 0 &&
+		v.resource.Height > 0 {
+		scale := min(
+			float64(v.viewport.X-2)/float64(v.resource.Width*16),
+			float64(v.viewport.Y-2)/float64(v.resource.Height*16),
+		)
+		if scale >= 1 {
+			return float32(math.Floor(scale))
+		}
+		return float32(1 / math.Ceil(1/max(scale, 0.01)))
+	}
+	return float32(uint32(1)<<uint(v.zoom)) / 2
 }
 
 func (v *View) render(c *ui.Context, overlay Overlay) {
@@ -109,70 +144,129 @@ func (v *View) render(c *ui.Context, overlay Overlay) {
 		help = locales.MapPreviewScope()
 	}
 	ui.Column(c.Key("chapter-map")).Gap(8).Children(func() {
-		ui.Row(c).Wrap().Gap(12).AlignItems(ui.Center).Children(func() {
-			ui.Text(c, title).
-				Bold().
-				Tooltip(help)
-			if v.err == nil {
-				ui.Textf(c, "%d × %d", v.resource.Width, v.resource.Height).
-					FontFeatures("tnum").
-					TextColor(c.Theme().TextMuted)
-			}
-		})
+		if v.viewport.X == 0 {
+			ui.Row(c).Wrap().Gap(12).AlignItems(ui.Center).Children(func() {
+				ui.Text(c, title).
+					Bold().
+					Tooltip(help)
+				if v.err == nil {
+					ui.Textf(c, "%d × %d", v.resource.Width, v.resource.Height).
+						FontFeatures("tnum").
+						TextColor(c.Theme().TextMuted)
+				}
+			})
+		}
+		if v.err == nil || overlay.Tools != nil {
+			ui.Row(c.Key("map-tools")).
+				Wrap().
+				Gap(12).
+				AlignItems(ui.Center).
+				Children(func() {
+					if overlay.Tools != nil {
+						overlay.Tools(c)
+					}
+					if v.err != nil {
+						return
+					}
+					before, beforeScale := v.zoom, v.scale()
+					if v.viewport.X > 0 {
+						choices := []string{
+							locales.MapFit(),
+							"50%",
+							"100%",
+							"200%",
+							"400%",
+						}
+						if !slices.Contains(choices, v.zoomChoice) {
+							v.zoomChoice = choices[0]
+						}
+						ui.Select(c.Key("canvas-zoom"), &v.zoomChoice, choices).
+							Width(132).Label(locales.MapZoom()).
+							OnChange(func() {
+								for i, choice := range choices {
+									if choice != v.zoomChoice {
+										continue
+									}
+									v.fit = i == 0
+									if !v.fit {
+										v.zoom = i - 1
+									}
+								}
+								v.scroll = ui.ScrollState{}
+							})
+					} else {
+						ui.Tabs(c.Key("zoom"), &v.zoom, "50%", "100%", "200%", "400%").
+							Label(locales.MapZoom())
+						if before != v.zoom {
+							ratio := v.scale() / beforeScale
+							v.scroll.X *= ratio
+							v.scroll.Y *= ratio
+						}
+					}
+					ui.Checkbox(c.Key("grid"), &v.grid, locales.MapGrid())
+					if ui.Button(c.Key("reset-view"), locales.MapResetView()).
+						Clicked() {
+						v.zoom, v.fit = 1, v.viewport.X > 0
+						v.zoomChoice = locales.MapFit()
+						v.scroll.X, v.scroll.Y = 0, 0
+					}
+					if v.viewport.X > 0 {
+						ui.Textf(c, "%d × %d", v.resource.Width, v.resource.Height).
+							FontSize(12).
+							TextColor(c.Theme().TextMuted)
+					}
+				})
+		}
+		if overlay.Prompt != "" {
+			ui.Text(c.Key("map-prompt"), overlay.Prompt).FontSize(13)
+		}
 		if v.err != nil {
 			ui.Text(c, components.ErrorText(v.err)).
 				TextColor(c.Theme().TextMuted)
 			return
 		}
-		ui.Row(c).Wrap().Gap(12).AlignItems(ui.Center).Children(func() {
-			before := v.zoom
-			ui.Tabs(c.Key("zoom"), &v.zoom, "50%", "100%", "200%", "400%").
-				Label(locales.MapZoom())
-			if before != v.zoom {
-				ratio := float32(
-					uint32(1)<<uint(v.zoom),
-				) / float32(
-					uint32(1)<<uint(before),
-				)
-				v.scroll.X *= ratio
-				v.scroll.Y *= ratio
-			}
-			ui.Checkbox(c, &v.grid, locales.MapGrid())
-			if ui.Button(c, locales.MapResetView()).Clicked() {
-				v.zoom = 1
-				v.scroll.X, v.scroll.Y = 0, 0
-			}
-		})
-		scale := float32(uint32(1)<<uint(v.zoom)) / 2
+		scale := v.scale()
 		width, height := float32(
 			v.resource.Width*16,
 		)*scale, float32(
 			v.resource.Height*16,
 		)*scale
+		viewWidth, viewHeight := width+2, min(height+2, 360)
+		if v.viewport.X > 0 {
+			viewWidth, viewHeight = float32(v.viewport.X), float32(v.viewport.Y)
+		}
 		ui.ScrollBoth(c.Key("viewport")).
-			Width(width + 2).
+			Width(viewWidth).
 			MaxWidthPercent(100).
-			Height(min(height+2, 360)).
+			Height(viewHeight).
+			Background(c.Theme().Surface).
 			Shrink(0).
 			TrackScroll(&v.scroll).
 			BorderWidth(1).
 			BorderColor(c.Theme().Border).
 			Children(func() {
-				canvas := ui.Image(c, v.bitmap).
-					Size(width, height).
-					Shrink(0).
-					Label(locales.MapCanvas()).Cursor(ui.CursorCrosshair)
-				if overlay.Drawing != nil && overlay.Drawing.Tool != Pan {
-					v.drawInput(canvas, scale, overlay.Drawing)
-				} else {
-					v.inspectInput(canvas, scale, overlay.Choose)
-				}
-				accent := c.Theme().Accent
-				canvas.DrawOver(
-					func(p *ui.Painter, r ui.Rect) { v.overlay(p, r, scale, accent, overlay) },
-				)
+				ui.Column(c.Key("map-surface")).Width(max(width, viewWidth-2)).
+					Height(max(height, viewHeight-2)).Center().Children(func() {
+					canvas := ui.Image(c, v.bitmap).
+						Size(width, height).
+						Shrink(0).
+						Label(locales.MapCanvas()).Cursor(ui.CursorCrosshair)
+					if overlay.Drawing != nil && overlay.Drawing.Tool != Pan {
+						v.drawInput(canvas, scale, overlay.Drawing)
+					} else {
+						v.inspectInput(canvas, scale, overlay.Choose)
+					}
+					accent := c.Theme().Accent
+					canvas.DrawOver(
+						func(p *ui.Painter, r ui.Rect) { v.overlay(p, r, scale, accent, overlay) },
+					)
+				})
 			})
-		if v.selected {
+		if v.selected && v.viewport.X > 0 {
+			ui.Textf(c, "X %d · Y %d", v.selection.X, v.selection.Y).
+				Label(locales.MapSelection()).
+				FontFeatures("tnum").FontSize(12).TextColor(c.Theme().TextMuted)
+		} else if v.selected {
 			cell, _ := v.resource.Cell(v.selection.X, v.selection.Y)
 			ui.Textf(c, "X %d · Y %d · %s 0x%04X · %s 0x%02X", v.selection.X, v.selection.Y, locales.MapTile(), cell.Tile, locales.MapTerrain(), cell.Terrain).
 				Label(locales.MapSelection()).
