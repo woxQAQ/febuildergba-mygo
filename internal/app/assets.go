@@ -11,7 +11,7 @@ import (
 	"github.com/egoist/mygo"
 
 	"github.com/woxQAQ/febuildergba-mygo/fault"
-	"github.com/woxQAQ/febuildergba-mygo/game"
+	"github.com/woxQAQ/febuildergba-mygo/game/graphics"
 	"github.com/woxQAQ/febuildergba-mygo/internal/locales"
 	"github.com/woxQAQ/febuildergba-mygo/internal/pages"
 )
@@ -69,12 +69,12 @@ func readPNG(path string) (result []byte, err error) {
 		return nil, err
 	}
 	defer func() { err = errors.Join(err, file.Close()) }()
-	content, err := io.ReadAll(io.LimitReader(file, game.MaxAssetPNG+1))
+	content, err := io.ReadAll(io.LimitReader(file, graphics.MaxPNG+1))
 	if err != nil {
 		return nil, err
 	}
-	if len(content) > game.MaxAssetPNG {
-		return nil, game.ErrAssetSize
+	if len(content) > graphics.MaxPNG {
+		return nil, graphics.ErrSize
 	}
 	return content, nil
 }
@@ -82,12 +82,12 @@ func readPNG(path string) (result []byte, err error) {
 func (m *application) exportPNG(
 	win *mygo.Window,
 	workspace *pages.Workspace,
-	ref game.AssetRef,
+	ref graphics.Ref,
 ) {
 	if workspace.Editor.Session == nil || workspace.Editor.Busy {
 		return
 	}
-	content, err := workspace.Editor.Session.AssetPNG(ref)
+	content, err := workspace.Editor.Session.Images.PNG(ref)
 	if err != nil {
 		workspace.Editor.Err = err
 		return

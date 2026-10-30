@@ -8,7 +8,7 @@
 
 ## 快速运行
 
-使用 [go.mod](go.mod) 指定的 Go 版本和 MyGo 工具，在仓库根目录执行：
+使用 `go.mod` 指定的 Go 版本和 MyGo 工具，在仓库根目录执行：
 
 ```sh
 go run . /path/to/FE8U.gba
@@ -41,4 +41,4 @@ just build
 - [开发说明](docs/development.md)与 [AGENTS](AGENTS.md)：开发命令及修改约束。
 - [文档索引](docs/README.md)：架构、格式参考、设计和历史记录。
 
-完整产品目标见[重建计划](docs/rebuild-plan.md)，所有日常命令见 [justfile](justfile)。
+完整产品目标见[重建计划](docs/rebuild-plan.md)，所有日常命令见 `justfile`。

@@ -8,8 +8,10 @@ import (
 
 	"github.com/egoist/mygo/ui"
 
-	"github.com/woxQAQ/febuildergba-mygo/game"
+	"github.com/woxQAQ/febuildergba-mygo/game/event"
+	"github.com/woxQAQ/febuildergba-mygo/game/records"
 	"github.com/woxQAQ/febuildergba-mygo/internal/components"
+	"github.com/woxQAQ/febuildergba-mygo/internal/editor"
 	"github.com/woxQAQ/febuildergba-mygo/internal/locales"
 )
 
@@ -28,11 +30,11 @@ type (
 		field       string
 	}
 	draftState struct {
-		data       *game.ScriptDraft
+		data       *event.ScriptDraft
 		selected   int
 		list       ui.ListState
 		inputs     map[operandKey]*numberDraft
-		preview    *game.ScriptEdit
+		preview    *event.ScriptEdit
 		command    string
 		references map[operandKey]*referenceDraft
 		movements  map[operandKey]*movementDraft
@@ -80,7 +82,7 @@ func (draft *draftState) invalid() bool {
 }
 
 type Page struct {
-	state          *components.State
+	state          *editor.State
 	openHex        func(int, int)
 	openText       func(uint16)
 	openDeployment func(int, int)
@@ -92,14 +94,14 @@ type Page struct {
 	selected       int
 	sidebar        float32
 	list           ui.ListState
-	entries, rows  []game.ScriptEntry
+	entries, rows  []event.ScriptEntry
 	err            error
 	drafts         map[int]*draftState
 	showRaw        bool
 }
 
 func New(
-	state *components.State,
+	state *editor.State,
 	openHex func(int, int),
 	openText func(uint16),
 	openDeployment func(int, int),
@@ -132,7 +134,9 @@ func (page *Page) refresh() {
 	if page.selected >= 0 && page.selected < len(page.rows) {
 		page.site = page.rows[page.selected].Pointer
 	}
-	page.entries, page.err = page.state.Session.ScriptEntries(page.chapter)
+	page.entries, page.err = page.state.Session.Events.ScriptEntries(
+		page.chapter,
+	)
 	page.rows = nil
 	query := strings.TrimPrefix(
 		strings.ToLower(strings.TrimSpace(page.query)),
@@ -187,8 +191,8 @@ func (page *Page) navigation(c *ui.Context) {
 		Children(func() {
 			var chapters []int
 			var captions []string
-			if table := state.Session.Table(
-				game.Chapters,
+			if table := state.Session.Records.Table(
+				records.Chapters,
 			); table != nil &&
 				table.Err == nil {
 				for _, row := range table.Rows {
@@ -267,16 +271,16 @@ func (page *Page) navigation(c *ui.Context) {
 		})
 }
 
-func (page *Page) draft(entry game.ScriptEntry) (*draftState, error) {
+func (page *Page) draft(entry event.ScriptEntry) (*draftState, error) {
 	draft := page.drafts[entry.Pointer]
-	if draft != nil && !draft.data.Current(page.state.Session) &&
+	if draft != nil && !draft.data.Current(page.state.Session.Events) &&
 		!draft.data.Modified() &&
 		!draft.invalid() {
 		delete(page.drafts, entry.Pointer)
 		draft = nil
 	}
 	if draft == nil {
-		data, err := page.state.Session.NewScriptDraft(
+		data, err := page.state.Session.Events.NewScriptDraft(
 			entry.Chapter,
 			entry.Pointer,
 		)
@@ -319,7 +323,7 @@ func (page *Page) editor(c *ui.Context) {
 				Selectable().
 				FontFeatures("tnum").
 				Tooltip(locales.ScriptScope())
-			if !draft.data.Current(page.state.Session) {
+			if !draft.data.Current(page.state.Session.Events) {
 				ui.Text(c, locales.DeployStale()).TextColor(c.Theme().Danger)
 			}
 			if !draft.data.Complete() {
@@ -333,9 +337,12 @@ func (page *Page) editor(c *ui.Context) {
 			draft.selected = min(draft.selected, max(0, len(rows)-1))
 			if len(rows) == 0 {
 				ui.Button(c, locales.ScriptCreate()).
-					Disabled(page.state.Busy || !draft.data.Current(page.state.Session) || !draft.data.Relocatable()).
+					Disabled(page.state.Busy || !draft.data.Current(page.state.Session.Events) || !draft.data.Relocatable()).
 					OnClick(func() {
-						page.state.Err = draft.data.Insert(0, game.ScriptEnd)
+						page.state.Err = draft.data.Insert(
+							0,
+							event.ScriptEnd,
+						)
 						if page.state.Err == nil {
 							draft.structuralChanged(0)
 						}

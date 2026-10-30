@@ -9,13 +9,15 @@ import (
 	"time"
 
 	"github.com/woxQAQ/febuildergba-mygo/game"
+	"github.com/woxQAQ/febuildergba-mygo/game/maps"
+	"github.com/woxQAQ/febuildergba-mygo/game/records"
 )
 
 func editMap(t *testing.T, s *game.Session) {
 	t.Helper()
-	chapters := requireTable(t, s, game.Chapters)
+	chapters := requireTable(t, s, records.Chapters)
 	for _, row := range chapters.Rows {
-		draft, err := s.NewMapDraft(row.ID)
+		draft, err := s.Maps.NewDraft(row.ID)
 		if err != nil {
 			continue
 		}
@@ -24,7 +26,7 @@ func editMap(t *testing.T, s *game.Session) {
 			continue
 		}
 		original, _ := draft.Cell(0, 0)
-		var replacement *game.MapCell
+		var replacement *maps.Cell
 		for _, tile := range tileset.Cells {
 			if tile.Tile != original.Tile {
 				replacement = &tile
@@ -51,7 +53,7 @@ func editMap(t *testing.T, s *game.Session) {
 			t.Fatal(err)
 		}
 		started := time.Now()
-		plan, err := s.PlanMapEdit(draft)
+		plan, err := s.Maps.Plan(draft)
 		t.Logf(
 			"chapter=%02X, map=%dx%d, planning=%s",
 			row.ID,
@@ -60,7 +62,7 @@ func editMap(t *testing.T, s *game.Session) {
 			time.Since(started),
 		)
 		checkPlan(t, s, before, err)
-		if err = s.ApplyMapEdit(plan); err != nil {
+		if err = s.Maps.Apply(plan); err != nil {
 			t.Fatal(err)
 		}
 		after := s.Document.Snapshot()
@@ -76,13 +78,13 @@ func editMap(t *testing.T, s *game.Session) {
 			if !use.Updated {
 				continue
 			}
-			view, readErr := s.ChapterMap(use.Chapter)
+			view, readErr := s.Maps.Read(use.Chapter)
 			if readErr != nil || view.Cells[0].Tile != replacement.Tile {
 				t.Fatal("shared map entry did not follow the edit", readErr)
 			}
 		}
 		reopened := historyAndReopen(t, s, before)
-		continued, err := reopened.NewMapDraft(row.ID)
+		continued, err := reopened.Maps.NewDraft(row.ID)
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -95,9 +97,9 @@ func editMap(t *testing.T, s *game.Session) {
 		); err != nil {
 			t.Fatal(err)
 		}
-		next, err := reopened.PlanMapEdit(continued)
+		next, err := reopened.Maps.Plan(continued)
 		checkPlan(t, reopened, reopened.Document.Snapshot(), err)
-		if err = reopened.ApplyMapEdit(next); err != nil {
+		if err = reopened.Maps.Apply(next); err != nil {
 			t.Fatal(err)
 		}
 		t.Logf(

@@ -8,6 +8,10 @@ import (
 	"github.com/egoist/mygo/ui"
 
 	"github.com/woxQAQ/febuildergba-mygo/game"
+	"github.com/woxQAQ/febuildergba-mygo/game/edit"
+	"github.com/woxQAQ/febuildergba-mygo/game/graphics"
+	"github.com/woxQAQ/febuildergba-mygo/game/records"
+	"github.com/woxQAQ/febuildergba-mygo/internal/editor"
 	"github.com/woxQAQ/febuildergba-mygo/internal/locales"
 	"github.com/woxQAQ/febuildergba-mygo/rom"
 )
@@ -16,23 +20,23 @@ import (
 // publishes bytes on the UI thread; the editor previews before applying them.
 type AssetActions struct {
 	Import func(func([]byte, error))
-	Export func(game.AssetRef)
+	Export func(graphics.Ref)
 }
 
 // AssetEditor shares the PNG preview/apply workflow between resource pages.
 // State contains only the bound source and persistent resource/widget data.
 type AssetEditor struct {
 	session  *game.Session
-	ref      game.AssetRef
+	ref      graphics.Ref
 	revision uint64
-	edit     *game.AssetEdit
+	edit     *graphics.Edit
 	imported *ui.Bitmap
 }
 
 func (editor *AssetEditor) Render(
 	c *ui.Context,
-	state *State,
-	ref game.AssetRef,
+	state *editor.State,
+	ref graphics.Ref,
 	actions AssetActions,
 ) {
 	editor.RenderButtons(c, state, ref, actions)
@@ -41,8 +45,8 @@ func (editor *AssetEditor) Render(
 
 func (editor *AssetEditor) RenderButtons(
 	c *ui.Context,
-	state *State,
-	ref game.AssetRef,
+	state *editor.State,
+	ref graphics.Ref,
 	actions AssetActions,
 ) {
 	revision := state.Session.Document.State().Revision
@@ -64,7 +68,7 @@ func (editor *AssetEditor) RenderButtons(
 	})
 }
 
-func (editor *AssetEditor) RenderPreview(c *ui.Context, state *State) {
+func (editor *AssetEditor) RenderPreview(c *ui.Context, state *editor.State) {
 	if editor.edit == nil {
 		return
 	}
@@ -72,7 +76,7 @@ func (editor *AssetEditor) RenderPreview(c *ui.Context, state *State) {
 	ui.Row(c).Wrap().Gap(12).AlignItems(ui.Start).Children(func() {
 		bounds := editor.edit.Bounds()
 		scale := float32(2)
-		if ref.Kind == game.ItemIconAsset {
+		if ref.Kind == graphics.ItemIcon {
 			scale = 4
 		}
 		ui.Image(c, editor.imported).
@@ -80,7 +84,7 @@ func (editor *AssetEditor) RenderPreview(c *ui.Context, state *State) {
 			Label(locales.ImportedImage())
 		ui.Column(c).Gap(6).Grow(1).Children(func() {
 			ui.Text(c, locales.ImportedImage()).Bold()
-			if ref.Kind == game.PortraitAsset {
+			if ref.Kind == graphics.Portrait {
 				ui.Text(c, locales.PortraitColors()).
 					FontSize(12).
 					TextColor(c.Theme().TextMuted)
@@ -90,7 +94,7 @@ func (editor *AssetEditor) RenderPreview(c *ui.Context, state *State) {
 				ui.Button(c, locales.ApplyImage()).
 					Disabled(state.Busy).
 					OnClick(func() {
-						if err := state.Session.ApplyAssetEdit(
+						if err := state.Session.Images.Apply(
 							editor.edit,
 						); err != nil {
 							state.Err = err
@@ -107,7 +111,10 @@ func (editor *AssetEditor) RenderPreview(c *ui.Context, state *State) {
 	})
 }
 
-func (editor *AssetEditor) importPNG(state *State, actions AssetActions) {
+func (editor *AssetEditor) importPNG(
+	state *editor.State,
+	actions AssetActions,
+) {
 	session, ref, revision := editor.session, editor.ref, editor.revision
 	actions.Import(func(content []byte, err error) {
 		if err != nil {
@@ -125,8 +132,8 @@ func (editor *AssetEditor) importPNG(state *State, actions AssetActions) {
 		if editor.session != session || editor.ref != ref {
 			return
 		}
-		edit, err := session.PlanAssetEdit(ref, content)
-		if errors.Is(err, game.ErrValue) {
+		plan, err := session.Images.Plan(ref, content)
+		if errors.Is(err, edit.ErrValue) {
 			state.Err = nil
 			editor.edit, editor.imported = nil, nil
 			return
@@ -136,19 +143,19 @@ func (editor *AssetEditor) importPNG(state *State, actions AssetActions) {
 			return
 		}
 		state.Err = nil
-		editor.edit = edit
-		editor.imported = ui.NewBitmap(edit.Image())
+		editor.edit = plan
+		editor.imported = ui.NewBitmap(plan.Image())
 		editor.imported.Pixelated()
 	})
 }
 
-func assetUses(c *ui.Context, edit *game.AssetEdit) {
-	uses := edit.Uses()
+func assetUses(c *ui.Context, plan *graphics.Edit) {
+	uses := plan.Uses()
 	ui.Text(c, locales.AssetEditSummary(len(uses))).FontSize(12)
-	for _, kind := range game.Kinds {
+	for _, kind := range records.Kinds {
 		var fields []string
 		for _, use := range uses {
-			if use.Kind == kind {
+			if use.Kind == string(kind) {
 				fields = append(
 					fields,
 					fmt.Sprintf("%02X (%s)", use.ID, locales.Label(use.Field)),

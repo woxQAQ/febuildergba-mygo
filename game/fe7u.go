@@ -1,70 +1,81 @@
 package game
 
+import (
+	"github.com/woxQAQ/febuildergba-mygo/game/chapter"
+	"github.com/woxQAQ/febuildergba-mygo/game/event"
+	"github.com/woxQAQ/febuildergba-mygo/game/itemicon"
+	"github.com/woxQAQ/febuildergba-mygo/game/maps"
+	"github.com/woxQAQ/febuildergba-mygo/game/portrait"
+	"github.com/woxQAQ/febuildergba-mygo/game/records"
+	"github.com/woxQAQ/febuildergba-mygo/game/text"
+	"github.com/woxQAQ/febuildergba-mygo/game/version"
+)
+
 // Locations and the 253-character limit follow ROMFE7U and UnitFE7Form.
-func fe7uFormat() gameFormat {
-	return gameFormat{
-		id:      fe7UID,
+func fe7uFormat() format {
+	return format{
+		id:      version.FE7U,
 		header:  "AE7E01",
 		minimum: 16 << 20,
-		tables: []tableRule{
+		tables: []records.Rule{
 			{
-				kind:     Units,
-				pointers: []int{0x9A274},
-				stride:   52,
-				firstID:  1,
-				count:    253,
-				probe:    0x2C,
-				fields:   unitFields(fe7UID),
+				Kind:     records.Units,
+				Pointers: []int{0x9A274},
+				Stride:   52,
+				FirstID:  1,
+				Count:    253,
+				Probe:    0x2C,
+				Fields:   records.UnitFields(version.FE7U),
 			},
 			{
-				kind:     Classes,
-				pointers: []int{0x178F0},
-				stride:   84,
-				count:    256,
-				probe:    0x88,
-				fields:   classFields(),
+				Kind:     records.Classes,
+				Pointers: []int{0x178F0},
+				Stride:   84,
+				Count:    256,
+				Probe:    0x88,
+				Fields:   records.ClassFields(),
 			},
 			{
-				kind:          Items,
-				pointers:      []int{0x174D4},
-				stride:        36,
-				count:         256,
-				probe:         -1,
-				pointerFields: []int{12, 16},
-				fields:        itemFields(),
+				Kind:          records.Items,
+				Pointers:      []int{0x174D4},
+				Stride:        36,
+				Count:         256,
+				Probe:         -1,
+				PointerFields: []int{12, 16},
+				Fields:        records.ItemFields(),
 			},
 		},
-		chapters:    fe7Chapters(0x31580, true),
-		deployments: fe7Deployments(0x315D4, eventFE7U),
-		maps: mapFormat{
-			graphics:    0x19230,
-			palette:     0x19264,
-			config:      0x191C8,
-			layout:      0x3159C,
-			animation:   0x2D364,
-			animation2:  0x2DEA4,
-			changes:     0x315B8,
-			worldEvents: 0,
+		chapters: chapter.FE7(0x31580, true),
+		events:   event.FE7(0x315D4, true),
+		maps: maps.Format{
+			Graphics:    0x19230,
+			Palette:     0x19264,
+			Config:      0x191C8,
+			Layout:      0x3159C,
+			Animation:   0x2D364,
+			Animation2:  0x2DEA4,
+			Changes:     0x315B8,
+			WorldEvents: 0,
 		},
-		text: textFormat{
-			pointer:     0x12CB8,
-			recovery:    0xB808AC,
-			treePointer: 0x6BC,
-			rootPointer: 0x6B8,
+		text: text.Format{
+			Pointer:     0x12CB8,
+			Recovery:    0xB808AC,
+			TreePointer: 0x6BC,
+			RootPointer: 0x6B8,
 		},
-		portraits: portraitFormat{
-			pointer:     0x6B30,
-			stride:      28,
-			cardMarker:  0,
-			cardPointer: 16,
-			stateOffset: 24,
-			mouthOffset: 22,
+		portraits: portrait.Format{
+			Pointer:     0x6B30,
+			Stride:      28,
+			CardMarker:  0,
+			CardPointer: 16,
+			StateOffset: 24,
+			MouthOffset: 22,
 		},
-		icons: iconFormat{
-			pointer:  0x4E20,
-			palette:  0x4D40,
-			original: 0xC5EA4,
-			maximum:  0xAC,
+		icons: itemicon.Format{
+			Pointer:  0x4E20,
+			Palette:  0x4D40,
+			Original: 0xC5EA4,
+			Maximum:  0xAC,
 		},
 	}
 }

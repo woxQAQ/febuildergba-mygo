@@ -7,20 +7,22 @@ import (
 
 	"github.com/egoist/mygo/ui"
 
-	"github.com/woxQAQ/febuildergba-mygo/game"
+	"github.com/woxQAQ/febuildergba-mygo/game/graphics"
+	"github.com/woxQAQ/febuildergba-mygo/game/portrait"
+	"github.com/woxQAQ/febuildergba-mygo/game/records"
 	"github.com/woxQAQ/febuildergba-mygo/internal/components"
 	"github.com/woxQAQ/febuildergba-mygo/internal/locales"
 )
 
 type positionDrag struct {
-	portrait *game.Portrait
+	portrait *portrait.Portrait
 	part     int
 	start    image.Point
 	dx, dy   float32
 	rejected bool
 }
 
-func (page *Page) positions(p *game.Portrait) (image.Point, image.Point) {
+func (page *Page) positions(p *portrait.Portrait) (image.Point, image.Point) {
 	mouth, eyes := p.Mouth, p.Eyes
 	if d := page.drag; d != nil && !d.rejected && d.portrait == p {
 		scale := float32(page.viewFor(p.Entry.ID).zoom + 1)
@@ -37,7 +39,7 @@ func (page *Page) positions(p *game.Portrait) (image.Point, image.Point) {
 	return mouth, eyes
 }
 
-func (page *Page) frames(p *game.Portrait, v *viewState) {
+func (page *Page) frames(p *portrait.Portrait, v *viewState) {
 	mouth, eyes := page.positions(p)
 	key := fmt.Sprint(p.Entry.ID, p.Revision(), v.eye, v.mouth, mouth, eyes)
 	if key == page.frameKey {
@@ -68,7 +70,7 @@ func (page *Page) frames(p *game.Portrait, v *viewState) {
 	}
 }
 
-func (page *Page) workspace(c *ui.Context, p *game.Portrait, v *viewState) {
+func (page *Page) workspace(c *ui.Context, p *portrait.Portrait, v *viewState) {
 	if page.drag != nil && page.drag.portrait != p {
 		page.drag = nil
 	}
@@ -123,15 +125,15 @@ func (page *Page) workspace(c *ui.Context, p *game.Portrait, v *viewState) {
 				ui.Button(c.Key(use), page.useLabel(use)).
 					Tooltip(locales.Label(use.Field)).
 					Disabled(page.state.Busy).
-					OnClick(func() { page.openRecord(use.Kind, use.ID) })
+					OnClick(func() { page.openRecord(records.Kind(use.Kind), use.ID) })
 			}
 		})
 	})
 }
 
-func (page *Page) useLabel(use game.AssetUse) string {
-	label := fmt.Sprintf("%s %02X", locales.Label(string(use.Kind)), use.ID)
-	table := page.state.Session.Table(use.Kind)
+func (page *Page) useLabel(use graphics.Use) string {
+	label := fmt.Sprintf("%s %02X", locales.Label(use.Kind), use.ID)
+	table := page.state.Session.Records.Table(records.Kind(use.Kind))
 	if table == nil {
 		return label
 	}
@@ -143,7 +145,7 @@ func (page *Page) useLabel(use game.AssetUse) string {
 	return label
 }
 
-func (page *Page) sheetView(c *ui.Context, p *game.Portrait, v *viewState) {
+func (page *Page) sheetView(c *ui.Context, p *portrait.Portrait, v *viewState) {
 	if page.sheet != nil {
 		bounds := p.Sheet.Bounds()
 		scale := float32(v.zoom + 1)
@@ -157,7 +159,11 @@ func (page *Page) sheetView(c *ui.Context, p *game.Portrait, v *viewState) {
 	}
 }
 
-func (page *Page) effectView(c *ui.Context, p *game.Portrait, v *viewState) {
+func (page *Page) effectView(
+	c *ui.Context,
+	p *portrait.Portrait,
+	v *viewState,
+) {
 	ui.Row(c).Wrap().Gap(20).AlignItems(ui.Start).Children(func() {
 		ui.Column(c).Gap(8).Children(func() {
 			ui.Text(c, locales.Label("portrait_main")).Bold().FontSize(13)
@@ -191,7 +197,7 @@ func (page *Page) effectView(c *ui.Context, p *game.Portrait, v *viewState) {
 
 func (page *Page) expressionControls(
 	c *ui.Context,
-	p *game.Portrait,
+	p *portrait.Portrait,
 	v *viewState,
 ) {
 	if !p.HasEyes && p.MouthFrames() == 0 {
@@ -223,7 +229,7 @@ func (page *Page) expressionControls(
 	})
 }
 
-func (page *Page) secondaryPreview(c *ui.Context, p *game.Portrait) {
+func (page *Page) secondaryPreview(c *ui.Context, p *portrait.Portrait) {
 	ui.Column(c).Gap(16).Children(func() {
 		ui.Column(c).Gap(8).Children(func() {
 			ui.Text(c, locales.Label("portrait_mini")).
@@ -266,7 +272,7 @@ func (page *Page) imageError(c *ui.Context, err error) {
 	}
 }
 
-func (page *Page) canvas(c *ui.Context, p *game.Portrait, v *viewState) {
+func (page *Page) canvas(c *ui.Context, p *portrait.Portrait, v *viewState) {
 	bounds := p.Main.Bounds()
 	scale := float32(v.zoom + 1)
 	mouth, eyes := page.positions(p)
@@ -307,7 +313,7 @@ func (page *Page) canvas(c *ui.Context, p *game.Portrait, v *viewState) {
 			if d.part == 1 {
 				name, position = eyePart, eyesAt
 			}
-			page.state.Err = page.state.Session.SetPortrait(
+			page.state.Err = page.state.Session.Portraits.Set(
 				d.portrait,
 				map[string]int64{
 					name + "_x": int64(position.X),

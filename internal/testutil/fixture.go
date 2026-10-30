@@ -6,18 +6,21 @@ import (
 	"encoding/binary"
 	"os"
 	"path/filepath"
+	"slices"
 )
 
 type FixtureBuilder struct {
-	data      []byte
-	positions map[string]int
+	data          []byte
+	positions     map[string]int
+	tablePointers map[string][]int
 }
 
-// NewFixture writes the six-byte version identifier consumed by the adapters.
+// NewFixture writes the six-byte version identifier used by game.Open.
 func NewFixture(gameID string, size int) *FixtureBuilder {
 	f := &FixtureBuilder{
-		data:      make([]byte, max(size, 0x1000)),
-		positions: make(map[string]int),
+		data:          make([]byte, max(size, 0x1000)),
+		positions:     make(map[string]int),
+		tablePointers: make(map[string][]int),
 	}
 	copy(f.data[0xA0:0xAC], "TEST FIXTURE")
 	copy(f.data[0xAC:0xB2], gameID)
@@ -67,6 +70,12 @@ func (f *FixtureBuilder) GetPosition(name string) int {
 	}
 	return pos
 }
+
+// TablePointers returns the pointer sites written when the fixture was built.
+func (f *FixtureBuilder) TablePointers(name string) []int {
+	return slices.Clone(f.tablePointers[name])
+}
+
 func (f *FixtureBuilder) Bytes() []byte { return bytes.Clone(f.data) }
 func (f *FixtureBuilder) Save(path string) error {
 	if err := os.MkdirAll(filepath.Dir(path), 0o700); err != nil {
@@ -144,6 +153,9 @@ func gameFixture(
 ) *FixtureBuilder {
 	f := NewFixture(id, size)
 	const unitBase, classBase, itemBase, chapterBase = 0x200000, 0x204000, 0x208000, 0x20C000
+	for i, name := range []string{"units", "classes", "items", "chapters"} {
+		f.tablePointers[name] = slices.Clone(pointers[i])
+	}
 	for i, base := range []int{unitBase, classBase, itemBase, chapterBase} {
 		for _, address := range pointers[i] {
 			f.WritePointer(address, base)

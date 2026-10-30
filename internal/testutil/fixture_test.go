@@ -5,6 +5,7 @@ import (
 	"testing"
 
 	"github.com/woxQAQ/febuildergba-mygo/game"
+	"github.com/woxQAQ/febuildergba-mygo/game/records"
 	"github.com/woxQAQ/febuildergba-mygo/internal/testutil"
 )
 
@@ -30,11 +31,11 @@ func TestGameFixtures(t *testing.T) {
 			if err != nil {
 				t.Fatal(err)
 			}
-			if s.Adapter.ID() != tt.id {
-				t.Fatalf("identified as %s", s.Adapter.ID())
+			if s.Version() != tt.id {
+				t.Fatalf("identified as %s", s.Version())
 			}
-			for _, kind := range game.Kinds {
-				table := s.Table(kind)
+			for _, kind := range records.Kinds {
+				table := s.Records.Table(kind)
 				if table.Err != nil ||
 					table.Address != f.GetPosition(string(kind)) {
 					t.Fatalf(
@@ -45,16 +46,16 @@ func TestGameFixtures(t *testing.T) {
 					)
 				}
 			}
-			if value, err := s.Value(
-				game.Units,
+			if value, err := s.Records.Value(
+				records.Units,
 				1,
 				"base.hp",
 			); err != nil ||
 				value != 16 {
 				t.Fatalf("HP %d, error %v", value, err)
 			}
-			if s.Table(game.Classes).Count != 2 ||
-				s.Table(game.Items).Count != 2 {
+			if s.Records.Table(records.Classes).Count != 2 ||
+				s.Records.Table(records.Items).Count != 2 {
 				t.Fatal("class or item terminator was not recognized")
 			}
 		})

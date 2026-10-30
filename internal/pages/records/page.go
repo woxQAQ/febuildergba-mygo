@@ -7,9 +7,10 @@ import (
 
 	"github.com/egoist/mygo/ui"
 
-	"github.com/woxQAQ/febuildergba-mygo/game"
+	"github.com/woxQAQ/febuildergba-mygo/game/edit"
+	"github.com/woxQAQ/febuildergba-mygo/game/records"
 	"github.com/woxQAQ/febuildergba-mygo/internal/components"
-	"github.com/woxQAQ/febuildergba-mygo/internal/components/recordform"
+	"github.com/woxQAQ/febuildergba-mygo/internal/editor"
 	"github.com/woxQAQ/febuildergba-mygo/internal/locales"
 )
 
@@ -25,33 +26,33 @@ type pane struct {
 }
 
 type Page struct {
-	state      *components.State
+	state      *editor.State
 	panes      []pane
 	tab        int
 	sidebar    float32
-	form       *recordform.Form
-	selectKind func(game.Kind)
+	form       *form
+	selectKind func(records.Kind)
 }
 
 func New(
-	state *components.State,
+	state *editor.State,
 	openHex func(int, int),
 	openText func(uint16),
-	selectKind func(game.Kind),
+	selectKind func(records.Kind),
 	assets components.AssetActions,
 ) *Page {
 	a := &Page{
 		state:      state,
 		sidebar:    330,
 		selectKind: selectKind,
-		panes:      make([]pane, len(game.Kinds)),
+		panes:      make([]pane, len(records.Kinds)),
 	}
-	a.form = recordform.New(state, openHex, openText, a.Open, assets)
+	a.form = newForm(state, openHex, openText, a.Open, assets)
 	return a
 }
 
 func (a *Page) Reset() {
-	a.panes = make([]pane, len(game.Kinds))
+	a.panes = make([]pane, len(records.Kinds))
 	a.tab = 0
 	a.form.Reset()
 }
@@ -61,7 +62,8 @@ func (a *Page) View(c *ui.Context, tab int) {
 	pane := &a.panes[tab]
 	if pane.sidebar == 0 {
 		pane.sidebar = 330
-		if game.Kinds[tab] == game.Units || game.Kinds[tab] == game.Classes {
+		if records.Kinds[tab] == records.Units ||
+			records.Kinds[tab] == records.Classes {
 			pane.sidebar = 260
 		}
 	}
@@ -71,8 +73,8 @@ func (a *Page) View(c *ui.Context, tab int) {
 }
 
 func (a *Page) details(c *ui.Context) {
-	kind := game.Kinds[a.tab]
-	table := a.state.Session.Table(kind)
+	kind := records.Kinds[a.tab]
+	table := a.state.Session.Records.Table(kind)
 	if table == nil {
 		return
 	}
@@ -94,11 +96,11 @@ func (a *Page) details(c *ui.Context) {
 	a.form.View(c, kind, rows[selected], table, a.sidebar)
 }
 
-func (a *Page) rows() []game.Row {
+func (a *Page) rows() []records.Row {
 	if a.state.Session == nil || a.tab >= len(a.panes) {
 		return nil
 	}
-	table := a.state.Session.Table(game.Kinds[a.tab])
+	table := a.state.Session.Records.Table(records.Kinds[a.tab])
 	if table == nil || table.Err != nil {
 		return nil
 	}
@@ -106,7 +108,7 @@ func (a *Page) rows() []game.Row {
 	if query == "" {
 		return table.Rows
 	}
-	var rows []game.Row
+	var rows []records.Row
 	for _, row := range table.Rows {
 		if strings.Contains(strings.ToLower(row.Name), query) ||
 			strings.EqualFold(fmt.Sprintf("%02X", row.ID), query) ||
@@ -149,7 +151,7 @@ func (a *Page) records(c *ui.Context) {
 			} else {
 				ui.Text(c, rows[row].Name).SingleLine()
 			}
-		}).Grow(1).Label(locales.Label(string(game.Kinds[a.tab])))
+		}).Grow(1).Label(locales.Label(string(records.Kinds[a.tab])))
 		ui.Text(c, locales.RecordSummary(len(rows))).
 			TextColor(c.Theme().TextMuted)
 	})
@@ -168,23 +170,23 @@ func (a *Page) SetScriptOpener(
 }
 
 func (a *Page) OpenMapChange(chapter, id int) {
-	a.Open(game.Chapters, chapter)
+	a.Open(records.Chapters, chapter)
 	a.form.OpenMapChange(chapter, id)
 }
 
 func (a *Page) OpenDeployment(chapter, site int) {
-	a.Open(game.Chapters, chapter)
+	a.Open(records.Chapters, chapter)
 	a.form.OpenDeployment(chapter, site)
 }
 
-func (a *Page) Open(kind game.Kind, id int) {
-	for i, k := range game.Kinds {
+func (a *Page) Open(kind records.Kind, id int) {
+	for i, k := range records.Kinds {
 		if k != kind {
 			continue
 		}
-		table := a.state.Session.Table(kind)
+		table := a.state.Session.Records.Table(kind)
 		if table == nil || table.Err != nil {
-			a.state.Err = game.ErrLayout
+			a.state.Err = edit.ErrLayout
 			return
 		}
 		for index, row := range table.Rows {
@@ -200,5 +202,5 @@ func (a *Page) Open(kind game.Kind, id int) {
 			}
 		}
 	}
-	a.state.Err = game.ErrField
+	a.state.Err = edit.ErrField
 }

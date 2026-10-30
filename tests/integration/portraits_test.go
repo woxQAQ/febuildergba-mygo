@@ -10,11 +10,13 @@ import (
 	"testing"
 
 	"github.com/woxQAQ/febuildergba-mygo/game"
+	"github.com/woxQAQ/febuildergba-mygo/game/graphics"
+	"github.com/woxQAQ/febuildergba-mygo/game/portrait"
 )
 
-func editablePortrait(t *testing.T, s *game.Session) *game.Portrait {
+func editablePortrait(t *testing.T, s *game.Session) *portrait.Portrait {
 	t.Helper()
-	entries, err := s.PortraitEntries()
+	entries, err := s.Portraits.Entries()
 	if err != nil {
 		t.Skipf("portrait table unavailable: %v", err)
 	}
@@ -22,7 +24,7 @@ func editablePortrait(t *testing.T, s *game.Session) *game.Portrait {
 		if entry.Err != nil || entry.Empty || entry.ClassCard {
 			continue
 		}
-		portrait, err := s.Portrait(entry.ID)
+		portrait, err := s.Portraits.Read(entry.ID)
 		if err == nil && len(portrait.Fields) > 0 && portrait.SheetErr == nil &&
 			portrait.Sheet != nil && len(sheetColors(portrait.Sheet)) == 2 {
 			t.Logf("portrait ID=%d", entry.ID)
@@ -38,7 +40,7 @@ func editPortrait(t *testing.T, s *game.Session) {
 	before := s.Document.Snapshot()
 	field := portrait.Fields[0]
 	value := field.Value(before.Data, portrait.Entry.Address)
-	if err := s.SetPortrait(
+	if err := s.Portraits.Set(
 		portrait,
 		map[string]int64{field.ID: value ^ 1},
 	); err != nil {
@@ -50,7 +52,7 @@ func editPortrait(t *testing.T, s *game.Session) {
 		t.Fatal("portrait coordinate edit changed unrelated bytes")
 	}
 	reopened := historyAndReopen(t, s, before)
-	result, err := reopened.Portrait(portrait.Entry.ID)
+	result, err := reopened.Portraits.Read(portrait.Entry.ID)
 	if err != nil ||
 		field.Value(
 			reopened.Document.Snapshot().Data,
@@ -62,7 +64,7 @@ func editPortrait(t *testing.T, s *game.Session) {
 
 func replacePNG(t *testing.T, s *game.Session) {
 	portrait := editablePortrait(t, s)
-	ref := game.AssetRef{Kind: game.PortraitAsset, ID: portrait.Entry.ID}
+	ref := graphics.Ref{Kind: graphics.Portrait, ID: portrait.Entry.ID}
 	bitmap := portrait.Sheet
 	colors := sheetColors(bitmap)
 	expected := image.NewRGBA(bitmap.Bounds())
@@ -82,13 +84,13 @@ func replacePNG(t *testing.T, s *game.Session) {
 		t.Fatal(err)
 	}
 	before := s.Document.Snapshot()
-	edit, err := s.PlanAssetEdit(ref, input.Bytes())
+	edit, err := s.Images.Plan(ref, input.Bytes())
 	checkPlan(t, s, before, err)
-	if err := s.ApplyAssetEdit(edit); err != nil {
+	if err := s.Images.Apply(edit); err != nil {
 		t.Fatal(err)
 	}
 	reopened := historyAndReopen(t, s, before)
-	saved, err := reopened.AssetPNG(ref)
+	saved, err := reopened.Images.PNG(ref)
 	if err != nil {
 		t.Fatal(err)
 	}

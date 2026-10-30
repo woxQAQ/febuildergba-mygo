@@ -82,7 +82,7 @@
 - 跳回引用此资源的人物或职业。
 - 跟随当前 ROM 的头像表指针；保留表内空洞，省略末尾空记录，最多发现 4096 条并以连续 1000 条空记录作为探索边界之一。
 
-PNG 控件共用 [components.AssetEditor](../internal/components/asseteditor.go)，道具图标和头像表使用同一流程。仍不提供新建头像 ID、头像表扩展或自定义引擎写入。
+PNG 控件共用 `components.AssetEditor`，道具图标和头像表使用同一流程。仍不提供新建头像 ID、头像表扩展或自定义引擎写入。
 
 五版定位、表情、拖动历史及小头像来源的规则和截图见[头像编辑页](portrait-editor-design.md)。
 
@@ -98,7 +98,7 @@ PNG 控件共用 [components.AssetEditor](../internal/components/asseteditor.go)
 
 数值右对齐并使用等宽数字；地址和原始字节使用等宽字体。系统字体与已有强调色保持一致。Tab 遍历可编辑控件，上下键微调数值；普通数值使用 ROM 历史，名称、正文、搜索和估算设置使用对应文本历史。
 
-[records.Page](../internal/pages/records/page.go) 负责导航、多选和表布局，recordform 提供人物、职业详情及数值、文本控件。[portraits.Page](../internal/pages/portraits/page.go) 处理头像资源编辑。页面通过回调导航，app 打开原生文件对话框。
+`records.Page` 负责导航、多选和表布局，同包的 form 提供人物、职业详情及数值、文本控件。`portraits.Page` 处理头像资源编辑。页面通过回调导航，app 打开原生文件对话框。
 
 `game` 提供字段、位定义、武器等级与继承、只读能力参照、资源指针和头像索引。UI 使用这些结果，不解析偏移或通过显示名称推断规则。当前只增加具体功能需要的定义，尚未迁移完整 metadata 库。
 
@@ -110,7 +110,7 @@ PNG 控件共用 [components.AssetEditor](../internal/components/asseteditor.go)
 
 ## 核对来源
 
-- 当前规则：[fields.go](../game/fields.go)、[record_traits.go](../game/record_traits.go)、[record_weapons.go](../game/record_weapons.go)、[record_abilities.go](../game/record_abilities.go)、[record_resources.go](../game/record_resources.go)、[portrait_table.go](../game/portrait_table.go)。
+- 当前规则：`game/records/fields.go`、`game/records/traits.go`、`game/records/weapons.go`、`game/records/abilities.go`、`game/records/resources.go`、`game/portrait/table.go`。
 - 旧版工作流：[UnitForm.cs](../FEBuilderGBA/FEBuilderGBA/UnitForm.cs)、[ClassForm.cs](../FEBuilderGBA/FEBuilderGBA/ClassForm.cs)、[GrowSimulator.cs](../FEBuilderGBA/FEBuilderGBA/GrowSimulator.cs)、[ImagePortraitForm.cs](../FEBuilderGBA/FEBuilderGBA/ImagePortraitForm.cs)。
 - 武器门槛：[InputFormRef.cs](../FEBuilderGBA/FEBuilderGBA/InputFormRef.cs) 的 `GetWeaponClass`／`GetWeaponClassRev`，以及 FE8 原生 `bmitem.h` 的 `WPN_EXP_*`。
 - 原生结构与使用方式：fe6／fe7_us 的 `include/unit.h` 与 `src/unit.c`，fireemblem8u 的 `include/bmunit.h` 与 `src/bmunit.c`；固定提交和文件链接见[核对来源](sources.md#原生结构与语义)。

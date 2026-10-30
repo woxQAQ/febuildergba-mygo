@@ -6,14 +6,14 @@ import (
 
 	"github.com/egoist/mygo/ui"
 
-	"github.com/woxQAQ/febuildergba-mygo/game"
+	"github.com/woxQAQ/febuildergba-mygo/game/event"
 	"github.com/woxQAQ/febuildergba-mygo/internal/locales"
 )
 
 func (page *Page) instructionTable(
 	c *ui.Context,
 	draft *draftState,
-	rows []game.ScriptInstruction,
+	rows []event.ScriptInstruction,
 ) {
 	draft.list.Selected = &draft.selected
 	draft.list.Key = func(index int) any { return rows[index].ID }

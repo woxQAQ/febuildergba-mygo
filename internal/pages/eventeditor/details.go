@@ -7,23 +7,24 @@ import (
 
 	"github.com/egoist/mygo/ui"
 
-	"github.com/woxQAQ/febuildergba-mygo/game"
+	"github.com/woxQAQ/febuildergba-mygo/game/event"
 	"github.com/woxQAQ/febuildergba-mygo/internal/components"
-	inputparse "github.com/woxQAQ/febuildergba-mygo/internal/input"
+	"github.com/woxQAQ/febuildergba-mygo/internal/input"
 	"github.com/woxQAQ/febuildergba-mygo/internal/locales"
 )
 
 func (page *Page) commands(c *ui.Context, draft *draftState) {
-	ops := page.state.Session.ScriptCommands()
+	ops := page.state.Session.Events.ScriptCommands()
 	labels := make([]string, len(ops))
 	for index, op := range ops {
 		labels[index] = locales.Label(string(op))
 	}
 	if !slices.Contains(labels, draft.command) {
-		index := max(0, slices.Index(ops, game.ScriptWait))
+		index := max(0, slices.Index(ops, event.ScriptWait))
 		draft.command = labels[index]
 	}
-	disabled := page.state.Busy || !draft.data.Current(page.state.Session) ||
+	disabled := page.state.Busy ||
+		!draft.data.Current(page.state.Session.Events) ||
 		!draft.data.Relocatable()
 	ui.Row(c).Wrap().Gap(8).Children(func() {
 		ui.Select(c.Key("new-command"), &draft.command, labels).
@@ -64,7 +65,7 @@ func (page *Page) commands(c *ui.Context, draft *draftState) {
 func (page *Page) operands(
 	c *ui.Context,
 	draft *draftState,
-	row game.ScriptInstruction,
+	row event.ScriptInstruction,
 ) {
 	fields := draft.data.Fields(draft.selected)
 	if row.Help != "" {
@@ -97,14 +98,14 @@ func (page *Page) operands(
 		}
 	})
 	for _, field := range fields {
-		if field.Target == game.ScriptMovementTarget {
+		if field.Target == event.ScriptMovementTarget {
 			page.movement(c, draft, row, field)
 		}
 	}
-	var references []game.ScriptField
+	var references []event.ScriptField
 	for _, field := range fields {
-		if field.Target == game.ScriptEventTarget ||
-			field.Target == game.ScriptDeploymentTarget ||
+		if field.Target == event.ScriptEventTarget ||
+			field.Target == event.ScriptDeploymentTarget ||
 			field.Reference != "" {
 			references = append(references, field)
 		}
@@ -122,14 +123,14 @@ func (page *Page) operands(
 func (page *Page) operandLinks(
 	c *ui.Context,
 	draft *draftState,
-	row game.ScriptInstruction,
-	fields []game.ScriptField,
+	row event.ScriptInstruction,
+	fields []event.ScriptField,
 ) {
 	ui.Row(c).Wrap().Gap(8).Children(func() {
 		for _, field := range fields {
 			value, _ := draft.data.Value(draft.selected, field.ID)
 			switch {
-			case field.Target == game.ScriptTextTarget:
+			case field.Target == event.ScriptTextTarget:
 				textID := uint16(
 					value,
 				) // #nosec G115 -- Text operands are bounded to 16 bits.
@@ -137,7 +138,7 @@ func (page *Page) operandLinks(
 					Disabled(page.state.Busy || value <= 0 || value >= 0x7FFF).
 					OnClick(func() { page.openText(textID) })
 			// #nosec G115 -- The control is enabled only for bounded text IDs.
-			case field.Target == game.ScriptEventTarget || field.Target == game.ScriptDeploymentTarget:
+			case field.Target == event.ScriptEventTarget || field.Target == event.ScriptDeploymentTarget:
 				reference, err := draft.data.Reference(draft.selected, field.ID)
 				if err == nil && reference.Indirect {
 					ui.Textf(c, locales.ScriptIndirectUnitsReference(), 0x08000000+reference.Address, reference.Pointer).
@@ -145,14 +146,14 @@ func (page *Page) operandLinks(
 						TextColor(c.Theme().TextMuted)
 				}
 				label := locales.ScriptOpenCall()
-				if field.Target == game.ScriptDeploymentTarget {
+				if field.Target == event.ScriptDeploymentTarget {
 					label = locales.TurnOpenUnits()
 				}
 				ui.Button(c.Key(field.ID), label).
 					Tooltip(locales.ScriptReferenceHelp()).
-					Disabled(page.state.Busy || err != nil || draft.data.Modified() || !draft.data.Current(page.state.Session)).
+					Disabled(page.state.Busy || err != nil || draft.data.Modified() || !draft.data.Current(page.state.Session.Events)).
 					OnClick(func() {
-						if field.Target == game.ScriptEventTarget {
+						if field.Target == event.ScriptEventTarget {
 							page.Open(reference.Chapter, reference.Pointer)
 						} else {
 							page.openDeployment(
@@ -161,20 +162,20 @@ func (page *Page) operandLinks(
 							)
 						}
 					})
-			case field.ID == game.ScriptLabelID:
-				if row.Op == game.ScriptLabel {
+			case field.ID == event.ScriptLabelID:
+				if row.Op == event.ScriptLabel {
 					continue
 				}
 				ui.Button(c, locales.ScriptFindLabel()).
 					Disabled(page.state.Busy).
 					OnClick(func() {
 						for index, instruction := range draft.data.Instructions() {
-							if instruction.Op != game.ScriptLabel {
+							if instruction.Op != event.ScriptLabel {
 								continue
 							}
 							if label, _ := draft.data.Value(
 								index,
-								game.ScriptLabelID,
+								event.ScriptLabelID,
 							); label == value {
 								draft.selected = index
 								draft.list.ScrollIntoView(index)
@@ -195,51 +196,53 @@ func (page *Page) operandLinks(
 func (page *Page) number(
 	c *ui.Context,
 	draft *draftState,
-	row game.ScriptInstruction,
-	field game.ScriptField,
+	row event.ScriptInstruction,
+	field event.ScriptField,
 ) {
 	key := operandKey{row.ID, field.ID}
 	value, _ := draft.data.Value(draft.selected, field.ID)
-	input := draft.inputs[key]
+	numberInput := draft.inputs[key]
 	format := func(value int64) string {
 		if field.Hex && value >= 0 {
 			return fmt.Sprintf("0x%X", value)
 		}
 		return strconv.FormatInt(value, 10)
 	}
-	if input == nil {
-		input = &numberDraft{text: format(value), value: value}
-		draft.inputs[key] = input
+	if numberInput == nil {
+		numberInput = &numberDraft{text: format(value), value: value}
+		draft.inputs[key] = numberInput
 	}
-	if input.value != value {
-		input.text, input.value, input.invalid = format(value), value, false
+	if numberInput.value != value {
+		numberInput.text, numberInput.value, numberInput.invalid = format(
+			value,
+		), value, false
 	}
 	index := draft.selected
 	control := components.TextDraft(
 		page.state,
-		ui.TextInput(c.Key("operand"), &input.text).
+		ui.TextInput(c.Key("operand"), &numberInput.text).
 			Width(130).
 			Height(28).
 			Padding(4, 8).
 			FontFeatures("tnum").
 			TextAlign(ui.End).
 			Label(locales.ScriptEditor()+" / "+locales.Label(field.ID)).
-			Disabled(page.state.Busy || !draft.data.Current(page.state.Session)).
+			Disabled(page.state.Busy || !draft.data.Current(page.state.Session.Events)).
 			OnChange(func() {
 				draft.preview = nil
-				parsed, err := inputparse.ParseInteger(input.text)
+				parsed, err := input.ParseInteger(numberInput.text)
 				if err != nil || parsed < field.Min || parsed > field.Max {
-					input.invalid = true
+					numberInput.invalid = true
 					return
 				}
 				page.state.Err = draft.data.Set(index, field.ID, parsed)
-				input.invalid = page.state.Err != nil
-				if !input.invalid {
-					input.value = parsed
+				numberInput.invalid = page.state.Err != nil
+				if !numberInput.invalid {
+					numberInput.value = parsed
 				}
 			}),
 	)
-	if input.invalid {
+	if numberInput.invalid {
 		control.Error(
 			fmt.Sprintf(
 				"%s: %d…%d",
@@ -251,7 +254,9 @@ func (page *Page) number(
 	}
 }
 
-func (page *Page) referenceOptions(field game.ScriptField) ([]int64, []string) {
+func (page *Page) referenceOptions(
+	field event.ScriptField,
+) ([]int64, []string) {
 	var values []int64
 	var captions []string
 	add := func(address int, caption string) {
@@ -266,7 +271,7 @@ func (page *Page) referenceOptions(field game.ScriptField) ([]int64, []string) {
 		)
 	}
 	if field.Reference != "" {
-		table := page.state.Session.Table(field.Reference)
+		table := page.state.Session.Records.Table(field.Reference)
 		if table == nil || table.Err != nil {
 			return nil, nil
 		}
@@ -282,7 +287,7 @@ func (page *Page) referenceOptions(field game.ScriptField) ([]int64, []string) {
 		}
 		return values, captions
 	}
-	if field.Target == game.ScriptEventTarget {
+	if field.Target == event.ScriptEventTarget {
 		for _, entry := range page.entries {
 			if entry.Err == nil {
 				add(entry.Address, locales.Label(entry.Source))
@@ -290,7 +295,7 @@ func (page *Page) referenceOptions(field game.ScriptField) ([]int64, []string) {
 		}
 		return values, captions
 	}
-	groups, err := page.state.Session.ChapterDeployments(page.chapter)
+	groups, err := page.state.Session.Events.Deployments(page.chapter)
 	if err != nil {
 		return nil, nil
 	}
@@ -305,8 +310,8 @@ func (page *Page) referenceOptions(field game.ScriptField) ([]int64, []string) {
 func (page *Page) referenceChoice(
 	c *ui.Context,
 	draft *draftState,
-	row game.ScriptInstruction,
-	field game.ScriptField,
+	row event.ScriptInstruction,
+	field event.ScriptField,
 	named bool,
 ) {
 	values, captions := page.referenceOptions(field)
@@ -336,7 +341,7 @@ func (page *Page) referenceChoice(
 		MaxWidthPercent(100).
 		Label(label).
 		Placeholder(locales.ScriptChooseReference()).
-		Disabled(page.state.Busy || !draft.data.Current(page.state.Session)).
+		Disabled(page.state.Busy || !draft.data.Current(page.state.Session.Events)).
 		OnChange(func() {
 			if index := slices.Index(captions, reference.choice); index >= 0 {
 				page.state.Err = draft.data.Set(
@@ -350,14 +355,14 @@ func (page *Page) referenceChoice(
 }
 
 func (page *Page) actions(c *ui.Context, draft *draftState) {
-	stale := !draft.data.Current(page.state.Session)
+	stale := !draft.data.Current(page.state.Session.Events)
 	if !draft.data.Modified() && !draft.invalid() && !stale {
 		return
 	}
 	ui.Row(c).Wrap().Gap(8).Children(func() {
 		ui.Button(c, locales.ScriptPreview()).
 			Disabled(page.state.Busy || stale || draft.invalid() || !draft.data.Modified()).
-			OnClick(func() { draft.preview, page.state.Err = page.state.Session.PlanScriptEdit(draft.data) })
+			OnClick(func() { draft.preview, page.state.Err = page.state.Session.Events.PlanScriptEdit(draft.data) })
 		ui.Button(c, locales.ScriptReload()).
 			Disabled(page.state.Busy).
 			OnClick(func() { delete(page.drafts, draft.data.Entry().Pointer) })
@@ -388,7 +393,7 @@ func (page *Page) actions(c *ui.Context, draft *draftState) {
 	ui.Button(c, locales.ScriptApply()).
 		Disabled(page.state.Busy || stale || draft.invalid()).
 		OnClick(func() {
-			page.state.Err = page.state.Session.ApplyScriptEdit(preview)
+			page.state.Err = page.state.Session.Events.ApplyScriptEdit(preview)
 			if page.state.Err == nil {
 				delete(page.drafts, draft.data.Entry().Pointer)
 				page.state.HistoryEpoch++

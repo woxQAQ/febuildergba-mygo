@@ -1,15 +1,26 @@
 package game
 
+import (
+	"github.com/woxQAQ/febuildergba-mygo/game/chapter"
+	"github.com/woxQAQ/febuildergba-mygo/game/event"
+	"github.com/woxQAQ/febuildergba-mygo/game/itemicon"
+	"github.com/woxQAQ/febuildergba-mygo/game/maps"
+	"github.com/woxQAQ/febuildergba-mygo/game/portrait"
+	"github.com/woxQAQ/febuildergba-mygo/game/records"
+	"github.com/woxQAQ/febuildergba-mygo/game/text"
+	"github.com/woxQAQ/febuildergba-mygo/game/version"
+)
+
 // Locations follow ROMFE8JP; field layouts are shared with FE8U.
-func fe8jFormat() gameFormat {
-	return gameFormat{
-		id:      fe8JID,
+func fe8jFormat() format {
+	return format{
+		id:      version.FE8J,
 		header:  "BE8J01",
 		minimum: 16 << 20,
-		tables: []tableRule{
+		tables: []records.Rule{
 			{
-				kind: Units,
-				pointers: []int{
+				Kind: records.Units,
+				Pointers: []int{
 					0x10650,
 					0x10268,
 					0x1069C,
@@ -26,69 +37,69 @@ func fe8jFormat() gameFormat {
 					0xA5D28,
 					0xA61F8,
 				},
-				stride:  52,
-				firstID: 1,
-				count:   255,
-				probe:   0x2C,
-				fields:  unitFields(fe8JID),
+				Stride:  52,
+				FirstID: 1,
+				Count:   255,
+				Probe:   0x2C,
+				Fields:  records.UnitFields(version.FE8J),
 			},
 			{
-				kind:     Classes,
-				pointers: []int{0x17860, 0x17ADC, 0x18AC0, 0x19130},
-				stride:   84,
-				count:    256,
-				probe:    0x88,
-				fields:   classFields(),
+				Kind:     records.Classes,
+				Pointers: []int{0x17860, 0x17ADC, 0x18AC0, 0x19130},
+				Stride:   84,
+				Count:    256,
+				Probe:    0x88,
+				Fields:   records.ClassFields(),
 			},
 			{
-				kind: Items,
-				pointers: []int{
+				Kind: records.Items,
+				Pointers: []int{
 					0x17568,
 					0x17554,
 					0x1753C,
 					0x17510,
 					0x172BC,
 				},
-				stride:        36,
-				count:         256,
-				probe:         -1,
-				pointerFields: []int{12, 16},
-				fields:        itemFields(),
+				Stride:        36,
+				Count:         256,
+				Probe:         -1,
+				PointerFields: []int{12, 16},
+				Fields:        records.ItemFields(),
 			},
 		},
-		chapters:    fe8Chapters(0xBAB1C, 0x34534, 0xBA9EC, 0xBAD44, 0xBAEAC),
-		deployments: fe8Deployments(0x345E4, 0xA60380, 0x5B9EE8),
-		maps: mapFormat{
-			graphics:    0x19640,
-			palette:     0x19674,
-			config:      0x195D8,
-			layout:      0x34588,
-			animation:   0x30084,
-			animation2:  0x30BC8,
-			changes:     0x345B4,
-			worldEvents: 0,
+		chapters: chapter.FE8(0xBAB1C, 0x34534, 0xBA9EC, 0xBAD44, 0xBAEAC),
+		events:   event.FE8(0x345E4, 0xA60380, 0x5B9EE8),
+		maps: maps.Format{
+			Graphics:    0x19640,
+			Palette:     0x19674,
+			Config:      0x195D8,
+			Layout:      0x34588,
+			Animation:   0x30084,
+			Animation2:  0x30BC8,
+			Changes:     0x345B4,
+			WorldEvents: 0,
 		},
-		text: textFormat{
-			pointer:     0xA000,
-			recovery:    0x14D08C,
-			treePointer: 0x6E0,
-			rootPointer: 0x6DC,
-			shiftJIS:    true,
-			names:       fe8JNameSymbols,
+		text: text.Format{
+			Pointer:     0xA000,
+			Recovery:    0x14D08C,
+			TreePointer: 0x6E0,
+			RootPointer: 0x6DC,
+			ShiftJIS:    true,
+			Names:       text.FE8JNames,
 		},
-		portraits: portraitFormat{
-			pointer:     0x542C,
-			stride:      28,
-			cardMarker:  0,
-			cardPointer: 16,
-			stateOffset: 24,
-			mouthOffset: 22,
+		portraits: portrait.Format{
+			Pointer:     0x542C,
+			Stride:      28,
+			CardMarker:  0,
+			CardPointer: 16,
+			StateOffset: 24,
+			MouthOffset: 22,
 		},
-		icons: iconFormat{
-			pointer:  0x36D4,
-			palette:  0x351C,
-			original: 0x5BA470,
-			maximum:  0xDF,
+		icons: itemicon.Format{
+			Pointer:  0x36D4,
+			Palette:  0x351C,
+			Original: 0x5BA470,
+			Maximum:  0xDF,
 		},
 	}
 }

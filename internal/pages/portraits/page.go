@@ -8,8 +8,11 @@ import (
 
 	"github.com/egoist/mygo/ui"
 
-	"github.com/woxQAQ/febuildergba-mygo/game"
+	"github.com/woxQAQ/febuildergba-mygo/game/graphics"
+	"github.com/woxQAQ/febuildergba-mygo/game/portrait"
+	"github.com/woxQAQ/febuildergba-mygo/game/records"
 	"github.com/woxQAQ/febuildergba-mygo/internal/components"
+	"github.com/woxQAQ/febuildergba-mygo/internal/editor"
 	"github.com/woxQAQ/febuildergba-mygo/internal/locales"
 )
 
@@ -37,17 +40,17 @@ type viewState struct {
 	blinkValue                      int
 }
 type Page struct {
-	state                    *components.State
+	state                    *editor.State
 	actions                  components.AssetActions
-	openRecord               func(game.Kind, int)
+	openRecord               func(records.Kind, int)
 	openHex                  func(int, int)
 	sidebar                  float32
 	query                    string
 	selected                 int
 	list                     ui.ListState
-	rows                     []game.PortraitEntry
+	rows                     []portrait.Entry
 	err                      error
-	portrait                 *game.Portrait
+	portrait                 *portrait.Portrait
 	views                    map[int]*viewState
 	thumbnails               map[int]*ui.Bitmap
 	thumbRevision            uint64
@@ -59,9 +62,9 @@ type Page struct {
 }
 
 func New(
-	state *components.State,
+	state *editor.State,
 	actions components.AssetActions,
-	openRecord func(game.Kind, int),
+	openRecord func(records.Kind, int),
 	openHex func(int, int),
 ) *Page {
 	return &Page{
@@ -87,7 +90,7 @@ func (page *Page) refresh() {
 	if page.selected >= 0 && page.selected < len(page.rows) {
 		selectedID = page.rows[page.selected].ID
 	}
-	entries, err := page.state.Session.PortraitEntries()
+	entries, err := page.state.Session.Portraits.Entries()
 	page.err = err
 	query := strings.ToLower(strings.TrimSpace(page.query))
 	id, idErr := strconv.ParseUint(strings.TrimPrefix(query, "0x"), 16, 16)
@@ -172,11 +175,11 @@ func (page *Page) navigation(c *ui.Context) {
 			case 0:
 				thumb, loaded := page.thumbnails[entry.ID]
 				if !loaded {
-					preview, _ := page.state.Session.PortraitMini(entry.ID)
+					preview, _ := page.state.Session.Portraits.Mini(entry.ID)
 					if entry.ClassCard {
-						preview, _ = page.state.Session.Preview(
-							game.AssetRef{
-								Kind: game.PortraitAsset,
+						preview, _ = page.state.Session.Images.Preview(
+							graphics.Ref{
+								Kind: graphics.Portrait,
 								ID:   entry.ID,
 							},
 						)
@@ -208,7 +211,7 @@ func (page *Page) navigation(c *ui.Context) {
 	})
 }
 
-func portraitKind(entry game.PortraitEntry) string {
+func portraitKind(entry portrait.Entry) string {
 	if entry.Empty {
 		return locales.PortraitEmpty()
 	}
@@ -235,10 +238,10 @@ func (page *Page) viewFor(id int) *viewState {
 
 func (page *Page) load(id int) {
 	if page.portrait != nil && page.portrait.Entry.ID == id &&
-		page.portrait.Current(page.state.Session) {
+		page.portrait.Current(page.state.Session.Portraits) {
 		return
 	}
-	page.portrait, page.err = page.state.Session.Portrait(id)
+	page.portrait, page.err = page.state.Session.Portraits.Read(id)
 	page.frameKey = ""
 	page.mini, page.sheet = nil, nil
 	if page.portrait != nil {
@@ -283,7 +286,7 @@ func (page *Page) detail(c *ui.Context) {
 					page.editor.RenderButtons(
 						c,
 						page.state,
-						game.AssetRef{Kind: game.PortraitAsset, ID: entry.ID},
+						graphics.Ref{Kind: graphics.Portrait, ID: entry.ID},
 						page.actions,
 					)
 				}

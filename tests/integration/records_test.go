@@ -7,19 +7,21 @@ import (
 	"testing"
 
 	"github.com/woxQAQ/febuildergba-mygo/game"
+	"github.com/woxQAQ/febuildergba-mygo/game/records"
+	"github.com/woxQAQ/febuildergba-mygo/game/text"
 )
 
 func editRecords(t *testing.T, s *game.Session) {
 	source := s.Document.Snapshot().Data
-	for _, kind := range game.Kinds {
+	for _, kind := range records.Kinds {
 		t.Run(string(kind), func(t *testing.T) {
 			s := openCopy(t, source)
 			table := requireTable(t, s, kind)
-			var selected *game.Field
+			var selected *records.Field
 			for _, field := range table.Fields {
-				if field.ID != "id" && field.Text == game.NoText &&
+				if field.ID != "id" && field.Text == text.NoRole &&
 					field.Reference == "" && field.Asset == "" && !field.Hex &&
-					field.Group != game.GroupAdvanced {
+					field.Group != records.GroupAdvanced {
 					selected = &field
 					break
 				}
@@ -28,13 +30,13 @@ func editRecords(t *testing.T, s *game.Session) {
 				t.Skip("no scalar field in this table")
 			}
 			field, row := *selected, table.Rows[0]
-			value, err := s.Value(kind, row.ID, field.ID)
+			value, err := s.Records.Value(kind, row.ID, field.ID)
 			if err != nil {
 				t.Fatal(err)
 			}
 			t.Logf("record=%d, field=%s", row.ID, field.ID)
 			before := s.Document.Snapshot()
-			if err := s.Set(
+			if err := s.Records.Set(
 				kind,
 				[]int{row.ID},
 				field.ID,
@@ -50,7 +52,7 @@ func editRecords(t *testing.T, s *game.Session) {
 				t.Fatal("scalar edit changed unrelated bytes")
 			}
 			reopened := historyAndReopen(t, s, before)
-			if got, err := reopened.Value(
+			if got, err := reopened.Records.Value(
 				kind,
 				row.ID,
 				field.ID,
@@ -58,7 +60,7 @@ func editRecords(t *testing.T, s *game.Session) {
 				got != value^1 {
 				t.Fatalf("edited value after reopening: %d, %v", got, err)
 			}
-			if err := reopened.Set(
+			if err := reopened.Records.Set(
 				kind,
 				[]int{row.ID},
 				field.ID,
@@ -73,15 +75,15 @@ func editRecords(t *testing.T, s *game.Session) {
 
 func relocateRecords(t *testing.T, s *game.Session) {
 	source := s.Document.Snapshot().Data
-	for _, kind := range game.Kinds {
+	for _, kind := range records.Kinds {
 		t.Run(string(kind), func(t *testing.T) {
 			s := openCopy(t, source)
 			table := requireTable(t, s, kind)
 			original := *table
 			before := s.Document.Snapshot()
-			move, err := s.PlanTableMove(kind, nil)
+			move, err := s.Records.PlanTableMove(kind, nil)
 			checkPlan(t, s, before, err)
-			if err := s.ApplyTableMove(move); err != nil {
+			if err := s.Records.ApplyTableMove(move); err != nil {
 				t.Fatal(err)
 			}
 			reopened := historyAndReopen(t, s, before)

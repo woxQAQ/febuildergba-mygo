@@ -6,9 +6,10 @@ import (
 
 	"github.com/egoist/mygo/ui"
 
-	"github.com/woxQAQ/febuildergba-mygo/game"
+	"github.com/woxQAQ/febuildergba-mygo/game/edit"
+	"github.com/woxQAQ/febuildergba-mygo/game/records"
 	"github.com/woxQAQ/febuildergba-mygo/internal/components"
-	inputparse "github.com/woxQAQ/febuildergba-mygo/internal/input"
+	"github.com/woxQAQ/febuildergba-mygo/internal/input"
 	"github.com/woxQAQ/febuildergba-mygo/internal/locales"
 	"github.com/woxQAQ/febuildergba-mygo/rom"
 )
@@ -17,12 +18,12 @@ type layoutDraft struct {
 	show, initialized      bool
 	address, stride, count string
 	err                    error
-	move                   *game.TableMove
+	move                   *records.TableMove
 }
 
 func (a *Page) tableLayout(c *ui.Context) {
 	p := &a.panes[a.tab]
-	table := a.state.Session.Table(game.Kinds[a.tab])
+	table := a.state.Session.Records.Table(records.Kinds[a.tab])
 	if table == nil {
 		return
 	}
@@ -67,23 +68,23 @@ func (a *Page) tableLayout(c *ui.Context) {
 		ui.Button(c, locales.UseLayout()).
 			Disabled(a.state.Busy).
 			OnClick(func() {
-				address, err := inputparse.ParseAddress(p.layout.address)
+				address, err := input.ParseAddress(p.layout.address)
 				if err != nil {
 					p.layout.err = err
 					return
 				}
-				stride, e1 := inputparse.ParseInteger(p.layout.stride)
-				count, e2 := inputparse.ParseInteger(p.layout.count)
+				stride, e1 := input.ParseInteger(p.layout.stride)
+				count, e2 := input.ParseInteger(p.layout.count)
 				if e1 != nil || e2 != nil || stride < 4 ||
 					stride > rom.MaxSize ||
 					count < 1 ||
 					count > 256 {
-					p.layout.err = game.ErrLayout
+					p.layout.err = edit.ErrLayout
 					return
 				}
-				p.layout.err = a.state.Session.UseLayout(
+				p.layout.err = a.state.Session.Records.UseLayout(
 					kind,
-					game.Layout{
+					records.Layout{
 						Address: address,
 						Stride:  int(stride),
 						Count:   int(count),
@@ -100,7 +101,7 @@ func (a *Page) tableLayout(c *ui.Context) {
 		ui.Button(c, locales.ResetLayout()).
 			Disabled(a.state.Busy || !table.Manual).
 			OnClick(func() {
-				a.state.Session.UseAutomaticLayout(kind)
+				a.state.Session.Records.UseAutomaticLayout(kind)
 				p.layout.initialized = false
 				p.layout.move = nil
 				p.layout.err = nil
@@ -116,7 +117,7 @@ func (a *Page) tableLayout(c *ui.Context) {
 	a.tableMove(c, table, p)
 }
 
-func (a *Page) tableMove(c *ui.Context, table *game.Table, p *pane) {
+func (a *Page) tableMove(c *ui.Context, table *records.Table, p *pane) {
 	ui.Text(c, locales.MoveTable()).FontSize(13)
 	ui.Text(c, locales.MoveTableScope()).
 		FontSize(12).
@@ -124,7 +125,7 @@ func (a *Page) tableMove(c *ui.Context, table *game.Table, p *pane) {
 	ui.Button(c, locales.PreviewMove()).
 		Disabled(a.state.Busy || table.Manual || table.Err != nil).
 		OnClick(func() {
-			p.layout.move, p.layout.err = a.state.Session.PlanTableMove(
+			p.layout.move, p.layout.err = a.state.Session.Records.PlanTableMove(
 				table.Kind,
 				nil,
 			)
@@ -150,7 +151,7 @@ func (a *Page) tableMove(c *ui.Context, table *game.Table, p *pane) {
 	ui.Button(c, locales.ApplyMove()).
 		Disabled(a.state.Busy || table.Manual || stale).
 		OnClick(func() {
-			p.layout.err = a.state.Session.ApplyTableMove(move)
+			p.layout.err = a.state.Session.Records.ApplyTableMove(move)
 			if p.layout.err == nil {
 				p.layout.move = nil
 				p.layout.initialized = false

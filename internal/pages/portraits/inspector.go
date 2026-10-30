@@ -6,13 +6,14 @@ import (
 
 	"github.com/egoist/mygo/ui"
 
-	"github.com/woxQAQ/febuildergba-mygo/game"
+	"github.com/woxQAQ/febuildergba-mygo/game/portrait"
+	"github.com/woxQAQ/febuildergba-mygo/game/records"
 	"github.com/woxQAQ/febuildergba-mygo/internal/components"
-	inputparse "github.com/woxQAQ/febuildergba-mygo/internal/input"
+	"github.com/woxQAQ/febuildergba-mygo/internal/input"
 	"github.com/woxQAQ/febuildergba-mygo/internal/locales"
 )
 
-func portraitValue(p *game.Portrait, name string) int64 {
+func portraitValue(p *portrait.Portrait, name string) int64 {
 	switch name {
 	case mouthXField:
 		return int64(p.Mouth.X)
@@ -30,7 +31,7 @@ func portraitValue(p *game.Portrait, name string) int64 {
 
 func (page *Page) number(
 	c *ui.Context,
-	p *game.Portrait,
+	p *portrait.Portrait,
 	v *viewState,
 	name string,
 ) {
@@ -51,7 +52,7 @@ func (page *Page) number(
 		draft.invalid = false
 	}
 	commit := func(next int64) {
-		if err := page.state.Session.SetPortrait(
+		if err := page.state.Session.Portraits.Set(
 			p,
 			map[string]int64{name: next},
 		); err != nil {
@@ -93,7 +94,7 @@ func (page *Page) number(
 			default:
 				return false
 			}
-			fresh, err := page.state.Session.Portrait(p.Entry.ID)
+			fresh, err := page.state.Session.Portraits.Read(p.Entry.ID)
 			if err == nil {
 				current := portraitValue(fresh, name)
 				draft.value = current
@@ -104,7 +105,7 @@ func (page *Page) number(
 			return true
 		}).
 		OnChange(func() {
-			parsed, err := inputparse.ParseInteger(draft.text)
+			parsed, err := input.ParseInteger(draft.text)
 			if err != nil || parsed < 0 || parsed > 255 {
 				draft.invalid = true
 				return
@@ -126,7 +127,7 @@ func (page *Page) number(
 
 func (page *Page) positionInputs(
 	c *ui.Context,
-	p *game.Portrait,
+	p *portrait.Portrait,
 	v *viewState,
 ) {
 	ui.Column(c).Gap(8).Children(func() {
@@ -163,7 +164,11 @@ func (page *Page) positionInputs(
 	})
 }
 
-func (page *Page) blinkInput(c *ui.Context, p *game.Portrait, v *viewState) {
+func (page *Page) blinkInput(
+	c *ui.Context,
+	p *portrait.Portrait,
+	v *viewState,
+) {
 	ui.Column(c).Gap(8).Children(func() {
 		ui.Text(c, locales.Label(blinkField)).Bold().FontSize(13)
 		label := fmt.Sprintf("%d", p.Blink)
@@ -193,7 +198,7 @@ func (page *Page) blinkInput(c *ui.Context, p *game.Portrait, v *viewState) {
 				} else if v.blink == locales.Label("portrait_blink_closed") {
 					value = 6
 				}
-				page.state.Err = page.state.Session.SetPortrait(
+				page.state.Err = page.state.Session.Portraits.Set(
 					p,
 					map[string]int64{blinkField: value},
 				)
@@ -201,7 +206,10 @@ func (page *Page) blinkInput(c *ui.Context, p *game.Portrait, v *viewState) {
 	})
 }
 
-func (page *Page) resourceAddress(c *ui.Context, resource game.RecordResource) {
+func (page *Page) resourceAddress(
+	c *ui.Context,
+	resource records.RecordResource,
+) {
 	address := fmt.Sprintf("0x%08X", resource.Address)
 	services := c.Services()
 	copyAddress := func() { services.WriteClipboard(address) }
@@ -226,7 +234,7 @@ func (page *Page) resourceAddress(c *ui.Context, resource game.RecordResource) {
 	)
 }
 
-func (page *Page) inspector(c *ui.Context, p *game.Portrait, v *viewState) {
+func (page *Page) inspector(c *ui.Context, p *portrait.Portrait, v *viewState) {
 	if len(p.Fields) > 0 {
 		page.positionInputs(c, p, v)
 		if p.HasEyes {

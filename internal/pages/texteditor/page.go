@@ -8,28 +8,30 @@ import (
 
 	"github.com/egoist/mygo/ui"
 
-	"github.com/woxQAQ/febuildergba-mygo/game"
+	"github.com/woxQAQ/febuildergba-mygo/game/records"
+	"github.com/woxQAQ/febuildergba-mygo/game/text"
 	"github.com/woxQAQ/febuildergba-mygo/internal/components"
+	"github.com/woxQAQ/febuildergba-mygo/internal/editor"
 	"github.com/woxQAQ/febuildergba-mygo/internal/locales"
 )
 
 type draft struct {
 	text, original string
 	revision       uint64
-	preview        *game.TextEdit
+	preview        *text.Edit
 	err            error
 }
 
 type Page struct {
-	state      *components.State
-	openRecord func(game.Kind, int)
+	state      *editor.State
+	openRecord func(records.Kind, int)
 	sidebar    float32
 	query      string
 	lastQuery  string
 	selected   int
 	list       ui.ListState
-	entries    []game.TextEntry
-	rows       []game.TextEntry
+	entries    []text.Entry
+	rows       []text.Entry
 	revision   uint64
 	indexed    bool
 	indexErr   error
@@ -38,7 +40,7 @@ type Page struct {
 	showHelp   bool
 }
 
-func New(state *components.State, openRecord func(game.Kind, int)) *Page {
+func New(state *editor.State, openRecord func(records.Kind, int)) *Page {
 	return &Page{
 		state:      state,
 		openRecord: openRecord,
@@ -61,7 +63,7 @@ func (p *Page) refresh() {
 		selectedID = p.rows[p.selected].ID
 	}
 	if changed {
-		p.entries, p.indexErr = p.state.Session.TextEntries()
+		p.entries, p.indexErr = p.state.Session.Texts.Entries()
 		p.revision, p.indexed = revision, true
 	}
 	if !changed && p.query == p.lastQuery {
@@ -102,7 +104,7 @@ func (p *Page) Open(id uint16) {
 		}
 	}
 	p.selected = -1
-	p.state.Err = game.ErrText
+	p.state.Err = text.ErrText
 }
 
 func (p *Page) View(c *ui.Context) {
@@ -151,7 +153,7 @@ func (p *Page) navigation(c *ui.Context) {
 	})
 }
 
-func (p *Page) draftFor(id uint16, value game.TextValue) *draft {
+func (p *Page) draftFor(id uint16, value text.Value) *draft {
 	d := p.drafts[id]
 	revision := p.state.Session.Document.State().Revision
 	if d == nil || (d.text == d.original && d.original != value.Content) {
@@ -175,7 +177,7 @@ func (p *Page) editor(c *ui.Context) {
 		return
 	}
 	id := p.rows[p.selected].ID
-	value, err := p.state.Session.TextByID(id)
+	value, err := p.state.Session.Texts.Read(id)
 	if err != nil {
 		ui.Text(c, components.ErrorText(err)).Padding(24)
 		return
@@ -201,7 +203,7 @@ func (p *Page) editor(c *ui.Context) {
 						FontSize(12).
 						TextColor(c.Theme().TextMuted).
 						Selectable()
-					ui.Text(c, strings.Join(p.state.Session.Adapter.TextCommands(), " ")).
+					ui.Text(c, strings.Join(p.state.Session.Texts.Commands(), " ")).
 						FontSize(12).
 						Selectable()
 				})
@@ -235,7 +237,7 @@ func (p *Page) editor(c *ui.Context) {
 				ui.Button(c, locales.PreviewText()).
 					Disabled(unavailable).
 					OnClick(func() {
-						d.preview, d.err = p.state.Session.PlanTextIDEdit(
+						d.preview, d.err = p.state.Session.Texts.PlanID(
 							id,
 							d.text,
 						)
@@ -261,13 +263,13 @@ func (p *Page) preview(c *ui.Context, id uint16, d *draft, unavailable bool) {
 		FontSize(12)
 	ui.Scroll(c.Key("text-uses")).MaxHeight(140).Gap(4).Children(func() {
 		for _, use := range edit.Uses() {
-			ui.Button(c.Key(use), fmt.Sprintf("%s %02X · %s", locales.Label(string(use.Kind)), use.ID, locales.Label(use.Field))).
+			ui.Button(c.Key(use), fmt.Sprintf("%s %02X · %s", locales.Label(use.Kind), use.ID, locales.Label(use.Field))).
 				Disabled(p.state.Busy).
-				OnClick(func() { p.openRecord(use.Kind, use.ID) })
+				OnClick(func() { p.openRecord(records.Kind(use.Kind), use.ID) })
 		}
 	})
 	ui.Button(c, locales.ApplyText()).Disabled(unavailable).OnClick(func() {
-		if err := p.state.Session.ApplyTextEdit(edit); err != nil {
+		if err := p.state.Session.Texts.Apply(edit); err != nil {
 			d.err, d.preview = err, nil
 			return
 		}

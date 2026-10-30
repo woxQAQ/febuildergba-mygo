@@ -1,57 +1,65 @@
 package game
 
-const (
-	fe6ID  = "FE6"
-	fe7UID = "FE7U"
-	fe7JID = "FE7J"
-	fe8UID = "FE8U"
-	fe8JID = "FE8J"
+import (
+	"slices"
+
+	"github.com/woxQAQ/febuildergba-mygo/game/chapter"
+	"github.com/woxQAQ/febuildergba-mygo/game/event"
+	"github.com/woxQAQ/febuildergba-mygo/game/itemicon"
+	"github.com/woxQAQ/febuildergba-mygo/game/maps"
+	"github.com/woxQAQ/febuildergba-mygo/game/portrait"
+	"github.com/woxQAQ/febuildergba-mygo/game/records"
+	"github.com/woxQAQ/febuildergba-mygo/game/text"
+	"github.com/woxQAQ/febuildergba-mygo/space"
 )
 
-// gameFormat groups the locations and encodings consumed by the shared editors.
-type gameFormat struct {
-	id, header  string
-	minimum     int
-	tables      []tableRule
-	chapters    chapterFormat
-	deployments deploymentFormat
-	maps        mapFormat
-	text        textFormat
-	portraits   portraitFormat
-	icons       iconFormat
-	features    func([]byte) (map[byte]string, []string)
+// format groups the locations and encodings consumed by the shared editors.
+type format struct {
+	id, header string
+	minimum    int
+	tables     []records.Rule
+	chapters   chapter.Format
+	events     event.Format
+	maps       maps.Format
+	text       text.Format
+	portraits  portrait.Format
+	icons      itemicon.Format
+	features   func([]byte) (map[byte]string, []string)
 }
 
-func (g gameFormat) ID() string { return g.id }
-
-func (g gameFormat) Match(data []byte) bool {
+func (g format) Match(data []byte) bool {
 	return len(data) >= g.minimum && string(data[0xAC:0xB2]) == g.header
 }
 
-func (g gameFormat) Inspect(data []byte, layouts map[Kind]Layout) Inspection {
+func (g format) recordFormat(data []byte) records.Format {
 	var aliases map[byte]string
-	var result Inspection
+	var patches []string
 	if g.features != nil {
-		aliases, result.Patches = g.features(data)
+		aliases, patches = g.features(data)
 	}
-	nameOf := func(id uint16) (string, error) { return g.text.readName(data, id, aliases) }
-	for _, rule := range g.tableRules(data) {
-		layout, manual := layouts[rule.kind]
-		result.Tables = append(
-			result.Tables,
-			rule.read(data, layout, manual, nameOf),
-		)
+	return records.Format{
+		TextAliases: aliases,
+		Version:     g.id,
+		Rules:       g.tableRules(data),
+		Patches:     patches,
+		Protected:   g.chapterConfig().Ranges,
+		NameOf:      func(id uint16) (string, error) { return g.text.ReadName(data, id, aliases) },
 	}
-	return result
 }
 
-func (g gameFormat) Preview(data []byte, ref AssetRef) (Preview, error) {
-	switch ref.Kind {
-	case PortraitAsset:
-		return g.portraits.read(data, ref.ID)
-	case ItemIconAsset:
-		return g.icons.read(data, ref.ID)
-	default:
-		return Preview{}, ErrImage
+func (g format) chapterConfig() chapter.Config {
+	return chapter.Config{
+		Table: g.chapters, Events: g.events, Maps: g.maps, Text: g.text,
+		Reserved: []space.Range{
+			{Start: g.icons.Pointer, End: g.icons.Pointer + 4},
+			{Start: g.icons.Palette, End: g.icons.Palette + 4},
+			{Start: g.portraits.Pointer, End: g.portraits.Pointer + 4},
+		},
 	}
+}
+
+func (g format) tableRules(data []byte) []records.Rule {
+	rules := slices.Clone(g.tables)
+	textTable, _ := g.text.Table(data)
+	return append(rules, g.chapters.Rule(data, textTable.Count))
 }
