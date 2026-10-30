@@ -35,7 +35,7 @@ func (m *application) newWindow(session *game.Session) *mygo.Window {
 		Content: ui.View(a.View),
 	})
 	m.windows[win] = a
-	a.Actions.HistoryContextChanged = m.setMenu
+	a.Actions.MenuStateChanged = m.setMenu
 	a.Actions.Open = func() { m.openDialog(win, a) }
 	a.Actions.Save = func(as bool) { m.saveDocument(win, a, as) }
 	a.Actions.Reload = func() { reloadDocument(win, a) }

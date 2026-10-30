@@ -23,7 +23,7 @@
 
 ## 命令与验证
 
-命令以根目录 `justfile` 为准，环境与工具要求见[开发说明](docs/development.md)。
+命令以根目录 `justfile` 为准，在本仓库的 `devenv` 环境中执行。Go 工具链由 Nix 提供，不通过 Go 自动下载补齐版本；环境与工具要求见[开发说明](docs/development.md)。
 
 - 修改行为、算法或数据结构后运行相关测试和 `just check`；涉及文档历史或并发时运行 `just test-race`。纯布局、间距或样式调整无需专门测试。
 - 纯文档修改检查 diff 即可，无需启动 UI、模拟器或执行 ROM 回归。

@@ -109,7 +109,7 @@ func (a *form) descriptions(
 		label := locales.Label(strings.TrimSuffix(field.ID, "_id"))
 		ui.Column(c.Key(field.ID + "-editor")).Gap(6).Children(func() {
 			if err == nil && value.ID == 0 {
-				ui.Row(c).Gap(8).AlignItems(ui.Center).Children(func() {
+				ui.Row(c).Wrap().Gap(8).AlignItems(ui.Center).Children(func() {
 					ui.Text(c, label).Bold()
 					ui.Text(c, locales.TextNeedsId()).
 						TextColor(c.Theme().TextMuted).

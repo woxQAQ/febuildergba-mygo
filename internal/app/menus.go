@@ -15,6 +15,7 @@ func (m *application) setMenu() {
 			Click: func(_ *mygo.MenuItem, w *mygo.Window) {
 				if a := m.windows[w]; a != nil {
 					run(a)
+					w.Invalidate()
 				}
 			},
 		}
@@ -32,7 +33,32 @@ func (m *application) setMenu() {
 	if a := m.windows[mygo.FocusedWindow()]; a == nil || a.UsesTextHistory() {
 		undo = &mygo.MenuItem{Label: locales.Undo(), Role: mygo.RoleUndo}
 		redo = &mygo.MenuItem{Label: locales.Redo(), Role: mygo.RoleRedo}
+	} else {
+		history := a.Editor.History()
+		undo.Disabled, redo.Disabled = history.Undo == nil, history.Redo == nil
+		if a.Editor.DraftHistory != nil {
+			undo.Label, redo.Label = locales.MapUndo(), locales.MapRedo()
+		}
 	}
+	zoomIn := action(
+		locales.ZoomIn(),
+		"CmdOrCtrl+Plus",
+		func(a *pages.Workspace) { a.ZoomIn() },
+	)
+	zoomOut := action(
+		locales.ZoomOut(),
+		"CmdOrCtrl+-",
+		func(a *pages.Workspace) { a.ZoomOut() },
+	)
+	resetZoom := action(
+		locales.ResetZoom(),
+		"CmdOrCtrl+0",
+		func(a *pages.Workspace) { a.ResetZoom() },
+	)
+	a := m.windows[mygo.FocusedWindow()]
+	zoomIn.Disabled = a == nil || !a.CanZoomIn()
+	zoomOut.Disabled = a == nil || !a.CanZoomOut()
+	resetZoom.Disabled = a == nil || a.ZoomPercent() == 100
 	open := &mygo.MenuItem{
 		Label:       locales.Open(),
 		Accelerator: "CmdOrCtrl+O",
@@ -70,6 +96,10 @@ func (m *application) setMenu() {
 			{Role: mygo.RolePaste},
 			{Role: mygo.RoleSelectAll},
 		}},
+		{
+			Label:   locales.ViewMenu(),
+			Submenu: []*mygo.MenuItem{zoomIn, zoomOut, resetZoom},
+		},
 		{Role: mygo.RoleWindowMenu},
 	}))
 }

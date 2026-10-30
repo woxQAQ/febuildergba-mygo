@@ -19,17 +19,17 @@ import (
 
 type mapChangesState struct {
 	mapPainter
-	data                              *maps.ChangesDraft
-	preview                           *maps.ChangesEdit
-	selected, lastSelected            int
-	list, referenceList               ui.ListState
-	referenceSelected                 int
-	fields                            [5]string
-	showBase, showReferences, details bool
-	references                        maps.ChangeReferences
-	editFocus, reviewFocus            ui.Handle
-	err, imageErr                     error
-	revision                          uint64
+	data                                 *maps.ChangesDraft
+	preview                              *maps.ChangesEdit
+	selected, lastSelected               int
+	list, referenceList                  ui.ListState
+	referenceSelected                    int
+	fields                               [5]string
+	showBase, showReferences, details    bool
+	references                           maps.ChangeReferences
+	editFocus, reviewFocus, historyFocus ui.Handle
+	err, imageErr                        error
+	revision                             uint64
 }
 
 func (v *Page) changeDraft(
@@ -188,115 +188,127 @@ func (v *Page) mapChangesEditor(
 	}
 	stale := !entry.data.Current(state.Session.Maps)
 	disabled := state.Busy || stale
-	ui.Column(c.Key("map-changes-editor")).Gap(12).Children(func() {
-		if stale {
-			ui.Text(c, locales.DeployStale()).TextColor(c.Theme().Danger)
-		}
-		undo := func() {
-			if entry.data.Undo() {
-				entry.refresh()
-				entry.editFocus.Focus(c)
+	if entry.restoreFocus {
+		entry.editFocus.Focus(c)
+		entry.restoreFocus = false
+	}
+	ui.Column(c.Key("map-changes-editor")).
+		Bind(&entry.historyFocus).
+		Gap(12).
+		Children(func() {
+			if stale {
+				ui.Text(c, locales.DeployStale()).TextColor(c.Theme().Danger)
 			}
-		}
-		redo := func() {
-			if entry.data.Redo() {
-				entry.refresh()
-				entry.editFocus.Focus(c)
+			undo := func() {
+				if !state.Busy && entry.data.Current(state.Session.Maps) &&
+					entry.data.Undo() {
+					entry.refresh()
+					entry.restoreFocus = true
+				}
 			}
-		}
-		if !disabled {
-			if entry.data.CanUndo() {
-				c.OnShortcut(ui.Cmd, ui.KeyZ, undo)
+			redo := func() {
+				if !state.Busy && entry.data.Current(state.Session.Maps) &&
+					entry.data.Redo() {
+					entry.refresh()
+					entry.restoreFocus = true
+				}
 			}
-			if entry.data.CanRedo() {
-				c.OnShortcut(ui.Cmd|ui.Shift, ui.KeyZ, redo)
+			entry.historyActive = entry.historyFocus.FocusWithin(c) ||
+				(entry.historyActive && !c.Root().FocusWithin())
+			if entry.historyActive {
+				state.DraftHistory = &editor.History{}
+				if !disabled && entry.data.CanUndo() {
+					state.DraftHistory.Undo = undo
+				}
+				if !disabled && entry.data.CanRedo() {
+					state.DraftHistory.Redo = redo
+				}
 			}
-		}
-		if entry.preview != nil {
-			v.changeReview(c, state, row, entry, jump)
-			return
-		}
-		ui.Row(c).Wrap().Gap(8).AlignItems(ui.Center).Children(func() {
-			ui.Button(c, locales.MapUndo()).
-				Disabled(disabled || !entry.data.CanUndo()).
-				OnClick(undo)
-			ui.Button(c, locales.MapRedo()).
-				Disabled(disabled || !entry.data.CanRedo()).
-				OnClick(redo)
-			ui.Button(c, locales.MapChangesReview()).
-				Disabled(disabled || entry.pending() || !entry.data.Modified()).
-				OnClick(func() {
-					entry.preview, state.Err = state.Session.Maps.PlanChanges(
-						entry.data,
-					)
-					entry.details = false
-					if state.Err == nil {
-						entry.reviewFocus.Focus(c)
-					}
-				})
-			ui.Button(c, locales.MapChangesReload()).
-				Disabled(state.Busy).
-				OnClick(func() { delete(v.changeDrafts, row.ID) })
-			if entry.data.Modified() {
-				ui.Text(c, locales.MapChangesDraft()).
+			if entry.preview != nil {
+				v.changeReview(c, state, row, entry, jump)
+				return
+			}
+			ui.Row(c).Wrap().Gap(8).AlignItems(ui.Center).Children(func() {
+				ui.Button(c, locales.MapUndo()).
+					Disabled(disabled || !entry.data.CanUndo()).
+					OnClick(undo)
+				ui.Button(c, locales.MapRedo()).
+					Disabled(disabled || !entry.data.CanRedo()).
+					OnClick(redo)
+				ui.Button(c, locales.MapChangesReview()).
+					Disabled(disabled || entry.pending() || !entry.data.Modified()).
+					OnClick(func() {
+						entry.preview, state.Err = state.Session.Maps.PlanChanges(
+							entry.data,
+						)
+						entry.details = false
+						if state.Err == nil {
+							entry.reviewFocus.Focus(c)
+						}
+					})
+				ui.Button(c, locales.MapChangesReload()).
+					Disabled(state.Busy).
+					OnClick(func() { delete(v.changeDrafts, row.ID) })
+				if entry.data.Modified() {
+					ui.Text(c, locales.MapChangesDraft()).
+						FontSize(12).
+						TextColor(c.Theme().TextMuted)
+				}
+			})
+			v.changeRows(c, state, entry, disabled, openHex)
+			if len(entry.data.Entries()) > 0 {
+				entry.properties(c, state, disabled)
+			}
+			ui.Row(c).Wrap().Gap(12).AlignItems(ui.Center).Children(func() {
+				ui.Tabs(c.Key("change-tools"), &entry.tool, locales.MapBrush(), locales.MapRectangle(), locales.MapEyedropper(), locales.MapPan()).
+					Label(locales.MapTools()).
+					Tooltip(locales.MapChangePaintHelp()).
+					Disabled(disabled || entry.pending())
+				ui.Image(c, entry.brush).Size(32, 32).Shrink(0)
+				ui.Textf(c, "%s 0x%04X", locales.MapTile(), entry.tile.Tile).
+					FontFeatures("tnum")
+				ui.Button(c, locales.MapChangeKeepCell()).
+					Disabled(disabled).
+					OnClick(func() { entry.tile = maps.Cell{}; entry.brush = nil })
+				ui.Checkbox(c, &entry.showBase, locales.MapChangeShowBase()).
+					Bind(&entry.editFocus).
+					Disabled(disabled || entry.pending()).
+					OnChange(entry.refresh)
+			})
+			if entry.tile.Tile == 0 {
+				ui.Text(c, locales.MapChangeZero()).
 					FontSize(12).
 					TextColor(c.Theme().TextMuted)
 			}
-		})
-		v.changeRows(c, state, entry, disabled, openHex)
-		if len(entry.data.Entries()) > 0 {
-			entry.properties(c, state, disabled)
-		}
-		ui.Row(c).Wrap().Gap(12).AlignItems(ui.Center).Children(func() {
-			ui.Tabs(c.Key("change-tools"), &entry.tool, locales.MapBrush(), locales.MapRectangle(), locales.MapEyedropper(), locales.MapPan()).
-				Label(locales.MapTools()).
-				Tooltip(locales.MapChangePaintHelp()).
-				Disabled(disabled || entry.pending())
-			ui.Image(c, entry.brush).Size(32, 32).Shrink(0)
-			ui.Textf(c, "%s 0x%04X", locales.MapTile(), entry.tile.Tile).
-				FontFeatures("tnum")
-			ui.Button(c, locales.MapChangeKeepCell()).
-				Disabled(disabled).
-				OnClick(func() { entry.tile = maps.Cell{}; entry.brush = nil })
-			ui.Checkbox(c, &entry.showBase, locales.MapChangeShowBase()).
-				Bind(&entry.editFocus).
+			ui.Row(c.Key("change-workspace")).
+				Wrap().
+				Gap(16).
+				AlignItems(ui.Start).
+				Children(func() {
+					ui.Column(c.Key("change-drawing")).
+						Width(360).
+						Grow(1).
+						MaxWidthPercent(100).
+						Children(func() { entry.drawing(c, state, disabled || entry.pending()) })
+					ui.Column(c.Key("change-palette")).
+						Width(514).
+						MaxWidthPercent(100).
+						Gap(6).
+						Children(func() { entry.palette(c, disabled || entry.pending()) })
+				})
+			ui.Checkbox(c, &entry.showReferences, locales.MapChangesReferences()).
 				Disabled(disabled || entry.pending()).
-				OnChange(entry.refresh)
+				OnChange(func() {
+					if entry.showReferences {
+						entry.references, state.Err = state.Session.Maps.References(
+							entry.data,
+						)
+					}
+				})
+			if entry.showReferences {
+				v.changeReferences(c, state, entry, entry.references)
+			}
 		})
-		if entry.tile.Tile == 0 {
-			ui.Text(c, locales.MapChangeZero()).
-				FontSize(12).
-				TextColor(c.Theme().TextMuted)
-		}
-		ui.Row(c.Key("change-workspace")).
-			Wrap().
-			Gap(16).
-			AlignItems(ui.Start).
-			Children(func() {
-				ui.Column(c.Key("change-drawing")).
-					Width(360).
-					Grow(1).
-					MaxWidthPercent(100).
-					Children(func() { entry.drawing(c, state, disabled || entry.pending()) })
-				ui.Column(c.Key("change-palette")).
-					Width(514).
-					MaxWidthPercent(100).
-					Gap(6).
-					Children(func() { entry.palette(c, disabled || entry.pending()) })
-			})
-		ui.Checkbox(c, &entry.showReferences, locales.MapChangesReferences()).
-			Disabled(disabled || entry.pending()).
-			OnChange(func() {
-				if entry.showReferences {
-					entry.references, state.Err = state.Session.Maps.References(
-						entry.data,
-					)
-				}
-			})
-		if entry.showReferences {
-			v.changeReferences(c, state, entry, entry.references)
-		}
-	})
 }
 
 func (v *Page) changeRows(

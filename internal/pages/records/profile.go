@@ -115,48 +115,58 @@ func (a *form) profileIdentity(
 		tracks = []ui.Track{ui.Fixed(352), ui.Fr(1)}
 	}
 	ui.Column(c.Key("identity")).MaxWidth(800).Gap(12).Children(func() {
-		ui.Row(c.Key("heading")).Gap(16).AlignItems(ui.Start).Children(func() {
-			ui.Column(c).Width(136).Shrink(0).Gap(6).Children(func() {
-				ui.Row(c).Gap(8).AlignItems(ui.End).Children(func() {
-					if preview != nil && preview.bitmap != nil {
-						bounds := preview.resource.Image.Bounds()
-						scale := min(float32(1), 96/float32(bounds.Dx()))
-						ui.Image(c, preview.bitmap).
-							Size(float32(bounds.Dx())*scale, float32(bounds.Dy())*scale).
-							Label(row.Name + " " + locales.ImagePreview())
-					} else {
-						ui.Box(c).Size(96, 80).Background(c.Theme().Surface)
-					}
-					if preview != nil && preview.mini != nil {
-						ui.Image(c, preview.mini).
-							Size(32, 32).
-							Label(locales.Label("portrait_mini"))
-					}
-				})
-				if preview != nil && preview.source != nil &&
-					preview.source.Inherited {
-					ui.Textf(c, "%s %04X", locales.Label("portrait_inherit"), preview.ref.ID).
-						FontSize(12).
-						TextColor(c.Theme().TextMuted)
-				}
-			})
-			ui.Row(c).
-				Grow(1).
-				MinWidth(0).
-				Gap(8).
-				AlignItems(ui.Start).
-				Children(func() {
-					ui.Textf(c, "%02X", row.ID).
-						Padding(8, 0, 0, 0).
-						FontSize(13).
-						FontFeatures("tnum").
-						TextColor(c.Theme().TextMuted)
-					ui.Column(c).Grow(1).MinWidth(0).Gap(6).Children(func() {
-						a.nameEditor(c, kind, row)
-						a.descriptions(c, kind, row, table, 48)
+		ui.Row(c.Key("heading")).
+			Wrap().
+			Gap(16).
+			AlignItems(ui.Start).
+			Children(func() {
+				ui.Column(c).Width(136).Shrink(0).Gap(6).Children(func() {
+					ui.Row(c).Gap(8).AlignItems(ui.End).Children(func() {
+						if preview != nil && preview.bitmap != nil {
+							bounds := preview.resource.Image.Bounds()
+							scale := min(float32(1), 96/float32(bounds.Dx()))
+							ui.Image(c, preview.bitmap).
+								Size(float32(bounds.Dx())*scale, float32(bounds.Dy())*scale).
+								Label(row.Name + " " + locales.ImagePreview())
+						} else {
+							ui.Box(c).Size(96, 80).Background(c.Theme().Surface)
+						}
+						if preview != nil && preview.mini != nil {
+							ui.Image(c, preview.mini).
+								Size(32, 32).
+								Label(locales.Label("portrait_mini"))
+						}
 					})
+					if preview != nil && preview.source != nil &&
+						preview.source.Inherited {
+						ui.Textf(c, "%s %04X", locales.Label("portrait_inherit"), preview.ref.ID).
+							FontSize(12).
+							TextColor(c.Theme().TextMuted)
+					}
 				})
-		})
+				ui.Row(c).
+					Width(260).
+					MaxWidthPercent(100).
+					Grow(1).
+					MinWidth(0).
+					Gap(8).
+					AlignItems(ui.Start).
+					Children(func() {
+						ui.Textf(c, "%02X", row.ID).
+							Padding(8, 0, 0, 0).
+							FontSize(13).
+							FontFeatures("tnum").
+							TextColor(c.Theme().TextMuted)
+						ui.Column(c).
+							Grow(1).
+							MinWidth(0).
+							Gap(6).
+							Children(func() {
+								a.nameEditor(c, kind, row)
+								a.descriptions(c, kind, row, table, 48)
+							})
+					})
+			})
 		ui.Grid(c.Key("fields")).ColumnTracks(tracks...).GapX(20).GapY(8).
 			AlignItems(ui.Start).Children(func() {
 			field := "class_id"

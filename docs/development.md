@@ -4,7 +4,11 @@
 
 ## 环境与命令
 
-使用 `go.mod` 指定的 Go 版本和 MyGo 工具。MyGo 通过 `go tool mygo` 调用，lint 与 Go 格式化需要 PATH 中的 `golangci-lint`，文档格式化使用 `oxfmt`。不需要旧版 Windows/.NET 运行环境。生成旧版来源索引前，先初始化固定子模块：
+安装 Nix 和 devenv 后，在仓库根目录执行 `devenv shell`。`devenv.nix` 声明 Go、`just`、`golangci-lint` 和 `oxfmt`，`devenv.lock` 固定 Nix 输入；现有命令都在该环境中运行。也可通过 `devenv shell just check` 直接执行单条命令。使用 direnv 时，执行 `direnv allow` 后由 `.envrc` 加载相同环境。
+
+环境设置 `GOTOOLCHAIN=local`，Go 只使用 Nix 提供的工具链，不自动下载其他版本。既有终端、语言服务器和 `mygo dev` 进程不会自动继承新环境，需要从 `devenv` 环境重新启动。提升 `go.mod` 的 Go 要求时，须核对 `devenv.nix` 选择的 Go 系列和锁定的 Nixpkgs 版本；修改输入后通过 `devenv update` 更新锁文件，并在环境中运行 `go version` 确认。
+
+MyGo 版本由 `go.mod` 锁定，通过 `go tool mygo` 调用。lint 与 Go 格式化使用 `golangci-lint`，文档格式化使用 `oxfmt`。不需要旧版 Windows/.NET 运行环境。生成旧版来源索引前，先初始化固定子模块：
 
 ```sh
 git submodule update --init FEBuilderGBA

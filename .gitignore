@@ -1,5 +1,9 @@
 .DS_Store
 /.cache/
+/.devenv*
+/.direnv/
+/devenv.local.nix
+/devenv.local.yaml
 /build/
 /.mygo/
 /.rom/

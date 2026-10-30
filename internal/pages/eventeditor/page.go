@@ -92,7 +92,7 @@ type Page struct {
 	site           int
 	query          string
 	selected       int
-	sidebar        float32
+	sidebar        components.Sidebar
 	list           ui.ListState
 	entries, rows  []event.ScriptEntry
 	err            error
@@ -111,7 +111,6 @@ func New(
 		openHex:        openHex,
 		openText:       openText,
 		openDeployment: openDeployment,
-		sidebar:        330,
 		drafts:         make(map[int]*draftState),
 	}
 }
@@ -178,8 +177,12 @@ func (page *Page) Open(chapter, site int) {
 
 func (page *Page) View(c *ui.Context) {
 	page.refresh()
-	ui.Split(c, &page.sidebar, func() { page.navigation(c) }, func() { page.editor(c) }).
-		Grow(1)
+	page.sidebar.Render(
+		c,
+		330,
+		func() { page.navigation(c) },
+		func() { page.editor(c) },
+	)
 }
 
 func (page *Page) navigation(c *ui.Context) {

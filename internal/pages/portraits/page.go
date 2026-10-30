@@ -44,7 +44,7 @@ type Page struct {
 	actions                  components.AssetActions
 	openRecord               func(records.Kind, int)
 	openHex                  func(int, int)
-	sidebar                  float32
+	sidebar                  components.Sidebar
 	query                    string
 	selected                 int
 	list                     ui.ListState
@@ -72,7 +72,6 @@ func New(
 		actions:    actions,
 		openRecord: openRecord,
 		openHex:    openHex,
-		sidebar:    244,
 		selected:   -1,
 		views:      make(map[int]*viewState),
 		thumbnails: make(map[int]*ui.Bitmap),
@@ -143,8 +142,12 @@ func (page *Page) Open(id int) {
 
 func (page *Page) View(c *ui.Context) {
 	page.refresh()
-	ui.Split(c, &page.sidebar, func() { page.navigation(c) }, func() { page.detail(c) }).
-		Grow(1)
+	page.sidebar.Render(
+		c,
+		244,
+		func() { page.navigation(c) },
+		func() { page.detail(c) },
+	)
 }
 
 func (page *Page) navigation(c *ui.Context) {
@@ -291,7 +294,7 @@ func (page *Page) detail(c *ui.Context) {
 					)
 				}
 			})
-		if width-page.sidebar >= 820 {
+		if width-page.sidebar.Width() >= 820 {
 			ui.Row(c).Grow(1).AlignItems(ui.Stretch).Children(func() {
 				ui.Scroll(c.Key("workspace")).
 					Grow(1).

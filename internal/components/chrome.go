@@ -28,7 +28,7 @@ func ApplyTheme(c *ui.Context) {
 	c.SetTheme(&t)
 }
 
-func Header(c *ui.Context, state *editor.State) {
+func Header(c *ui.Context, state *editor.State, controls func()) {
 	t := c.Theme()
 	bar := c.TitleBar()
 	ui.Row(c).Height(max(HeaderHeight, bar.Height)).Shrink(0).
@@ -57,6 +57,7 @@ func Header(c *ui.Context, state *editor.State) {
 				})
 				ui.Box(c).Width(1).Height(16).Background(t.Border)
 			}
+			controls()
 			language, tag := "EN", "en"
 			if i18n.Base(i18n.Locale()) != "zh" {
 				language, tag = "中文", "zh-Hans"

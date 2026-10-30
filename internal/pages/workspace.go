@@ -23,29 +23,33 @@ const HeaderHeight = components.HeaderHeight
 
 // Actions connects page intent to the owning desktop window.
 type Actions struct {
-	Open                  func()
-	Save                  func(bool)
-	Reload                func()
-	Run                   func()
-	ImportPNG             func(func([]byte, error))
-	ExportPNG             func(graphics.Ref)
-	HistoryContextChanged func()
+	Open             func()
+	Save             func(bool)
+	Reload           func()
+	Run              func()
+	ImportPNG        func(func([]byte, error))
+	ExportPNG        func(graphics.Ref)
+	MenuStateChanged func()
 }
 
 type Workspace struct {
-	Editor      *editor.State
-	Actions     Actions
-	tab         int
-	records     *recordspage.Page
-	hex         *hexeditor.Page
-	texts       *texteditor.Page
-	scripts     *eventeditor.Page
-	portraits   *portraits.Page
-	textHistory bool
+	Editor    *editor.State
+	Actions   Actions
+	tab       int
+	records   *recordspage.Page
+	hex       *hexeditor.Page
+	texts     *texteditor.Page
+	scripts   *eventeditor.Page
+	portraits *portraits.Page
+	zoomLevel int
+	menuState struct {
+		text, draft, undo, redo bool
+		zoom                    int
+	}
 }
 
 func New() *Workspace {
-	w := &Workspace{Editor: &editor.State{}}
+	w := &Workspace{Editor: &editor.State{}, zoomLevel: 1}
 	w.hex = hexeditor.New(w.Editor)
 	w.texts = texteditor.New(
 		w.Editor,
@@ -131,11 +135,14 @@ func (w *Workspace) UsesTextHistory() bool {
 }
 
 func (w *Workspace) View(c *ui.Context) {
+	c.SetZoom(float32(w.ZoomPercent()) / 100)
+	w.zoomShortcuts(c)
 	state := w.Editor
 	state.TextFocused = false
+	state.DraftHistory = nil
 	components.ApplyTheme(c)
 	ui.Column(c).Fill().Children(func() {
-		components.Header(c, state)
+		components.Header(c, state, func() { w.zoomControl(c) })
 		components.ErrorBanner(c, state)
 		if state.Session == nil {
 			empty(c)
@@ -153,7 +160,9 @@ func (w *Workspace) View(c *ui.Context) {
 			locales.ScriptEditor(),
 			locales.PortraitTable(),
 		)
-		ui.Tabs(c, &w.tab, labels...)
+		ui.ScrollHorizontal(c.Key("workspace-tabs")).Shrink(0).Children(func() {
+			ui.Tabs(c, &w.tab, labels...).Shrink(0)
+		})
 		if w.tab >= len(records.Kinds) {
 			w.records.Deactivate()
 		}
@@ -171,22 +180,27 @@ func (w *Workspace) View(c *ui.Context) {
 		}
 		components.StatusBar(c, state, w.Actions.Run)
 	})
-	if textHistory := w.UsesTextHistory(); textHistory != w.textHistory {
-		w.textHistory = textHistory
-		if w.Actions.HistoryContextChanged != nil {
-			w.Actions.HistoryContextChanged()
+	history := state.History()
+	context := struct {
+		text, draft, undo, redo bool
+		zoom                    int
+	}{
+		text: w.UsesTextHistory(), draft: state.DraftHistory != nil,
+		undo: history.Undo != nil, redo: history.Redo != nil,
+		zoom: w.ZoomPercent(),
+	}
+	if context != w.menuState {
+		w.menuState = context
+		if w.Actions.MenuStateChanged != nil {
+			w.Actions.MenuStateChanged()
 		}
 	}
 	if state.Busy {
 		return
 	}
 	if !state.TextFocused {
-		if c.Shortcut(ui.Cmd, ui.KeyZ) {
-			state.Undo()
-		}
-		if c.Shortcut(ui.Cmd|ui.Shift, ui.KeyZ) {
-			state.Redo()
-		}
+		c.OnShortcut(ui.Cmd, ui.KeyZ, state.Undo)
+		c.OnShortcut(ui.Cmd|ui.Shift, ui.KeyZ, state.Redo)
 	}
 	if c.Shortcut(ui.Cmd, ui.KeyO) && w.Actions.Open != nil {
 		w.Actions.Open()

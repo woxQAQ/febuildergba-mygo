@@ -1,11 +1,11 @@
 module github.com/woxQAQ/febuildergba-mygo
 
-go 1.27.1
+go 1.27.3
 
 tool github.com/egoist/mygo/cmd/mygo
 
 require (
-	github.com/egoist/mygo v0.6.3
+	github.com/egoist/mygo v0.7.3
 	golang.org/x/text v0.43.0
 )
 

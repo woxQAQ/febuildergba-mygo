@@ -28,14 +28,14 @@ func (v *View) path(
 		return r.X + (float32(point.X)+0.5)*cell, r.Y + (float32(point.Y)+0.5)*cell
 	}
 	p.Clip(r, 0, func() {
-		previous := path.Start
+		x, y := center(path.Start)
+		line := (&ui.Path{}).MoveTo(x, y).Cap(ui.RoundCap).Join(ui.RoundJoin)
 		for _, point := range path.Steps {
-			x1, y1 := center(previous)
-			x2, y2 := center(point)
-			p.Line(x1, y1, x2, y2, 4, ui.RGB(255, 255, 255))
-			p.Line(x1, y1, x2, y2, 2, accent)
-			previous = point
+			x, y := center(point)
+			line.LineTo(x, y)
 		}
+		p.StrokePath(line, 4, ui.RGB(255, 255, 255))
+		p.StrokePath(line, 2, accent)
 		for index, point := range path.Steps {
 			if _, valid := v.resource.Cell(point.X, point.Y); !valid {
 				continue

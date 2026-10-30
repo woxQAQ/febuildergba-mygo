@@ -6974,6 +6974,56 @@ func (msgs Messages) Edit() string {
 	return Catalog.Format(msgs.locale, "edit", nil)
 }
 
+// ViewMenu says "View"
+// in the language the app shows.
+func ViewMenu() string { return In(i18n.Locale()).ViewMenu() }
+
+// ViewMenu says "View"
+// in the language of msgs.
+func (msgs Messages) ViewMenu() string {
+	return Catalog.Format(msgs.locale, "view_menu", nil)
+}
+
+// InterfaceZoom says "Interface zoom"
+// in the language the app shows.
+func InterfaceZoom() string { return In(i18n.Locale()).InterfaceZoom() }
+
+// InterfaceZoom says "Interface zoom"
+// in the language of msgs.
+func (msgs Messages) InterfaceZoom() string {
+	return Catalog.Format(msgs.locale, "interface_zoom", nil)
+}
+
+// ZoomIn says "Zoom in"
+// in the language the app shows.
+func ZoomIn() string { return In(i18n.Locale()).ZoomIn() }
+
+// ZoomIn says "Zoom in"
+// in the language of msgs.
+func (msgs Messages) ZoomIn() string {
+	return Catalog.Format(msgs.locale, "zoom_in", nil)
+}
+
+// ZoomOut says "Zoom out"
+// in the language the app shows.
+func ZoomOut() string { return In(i18n.Locale()).ZoomOut() }
+
+// ZoomOut says "Zoom out"
+// in the language of msgs.
+func (msgs Messages) ZoomOut() string {
+	return Catalog.Format(msgs.locale, "zoom_out", nil)
+}
+
+// ResetZoom says "Actual size (100%)"
+// in the language the app shows.
+func ResetZoom() string { return In(i18n.Locale()).ResetZoom() }
+
+// ResetZoom says "Actual size (100%)"
+// in the language of msgs.
+func (msgs Messages) ResetZoom() string {
+	return Catalog.Format(msgs.locale, "reset_zoom", nil)
+}
+
 // NoEmulator says "mGBA was not found. Install an emulator or set FEBUILDER_EMULATOR to its executable path."
 // in the language the app shows.
 func NoEmulator() string { return In(i18n.Locale()).NoEmulator() }

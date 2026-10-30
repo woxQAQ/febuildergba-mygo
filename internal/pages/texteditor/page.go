@@ -25,7 +25,7 @@ type draft struct {
 type Page struct {
 	state      *editor.State
 	openRecord func(records.Kind, int)
-	sidebar    float32
+	sidebar    components.Sidebar
 	query      string
 	lastQuery  string
 	selected   int
@@ -44,7 +44,6 @@ func New(state *editor.State, openRecord func(records.Kind, int)) *Page {
 	return &Page{
 		state:      state,
 		openRecord: openRecord,
-		sidebar:    330,
 		drafts:     make(map[uint16]*draft),
 	}
 }
@@ -109,8 +108,7 @@ func (p *Page) Open(id uint16) {
 
 func (p *Page) View(c *ui.Context) {
 	p.refresh()
-	ui.Split(c, &p.sidebar, func() { p.navigation(c) }, func() { p.editor(c) }).
-		Grow(1)
+	p.sidebar.Render(c, 330, func() { p.navigation(c) }, func() { p.editor(c) })
 }
 
 func (p *Page) navigation(c *ui.Context) {
@@ -194,20 +192,19 @@ func (p *Page) editor(c *ui.Context) {
 			ui.Checkbox(c, &p.showRaw, locales.RawText())
 			ui.Checkbox(c, &p.showHelp, locales.TextControlReference())
 		})
-		if p.showHelp {
-			ui.Scroll(c.Key("command-help")).
-				Height(120).
-				Gap(6).
-				Children(func() {
-					ui.Text(c, locales.TextControlHelp()).
-						FontSize(12).
-						TextColor(c.Theme().TextMuted).
-						Selectable()
-					ui.Text(c, strings.Join(p.state.Session.Texts.Commands(), " ")).
-						FontSize(12).
-						Selectable()
-				})
-		}
+		ui.Scroll(c.Key("command-help")).
+			Hidden(!p.showHelp).
+			Height(120).
+			Gap(6).
+			Children(func() {
+				ui.Text(c, locales.TextControlHelp()).
+					FontSize(12).
+					TextColor(c.Theme().TextMuted).
+					Selectable()
+				ui.Text(c, strings.Join(p.state.Session.Texts.Commands(), " ")).
+					FontSize(12).
+					Selectable()
+			})
 		components.TextDraft(
 			p.state,
 			ui.TextArea(c.Key(d), &d.text).
@@ -218,14 +215,13 @@ func (p *Page) editor(c *ui.Context) {
 				Disabled(p.state.Busy).
 				OnChange(func() { d.preview, d.err = nil, nil }),
 		)
-		if p.showRaw {
-			raw := value.Raw
-			ui.TextArea(c.Key("raw-text"), &raw).
-				ReadOnly(true).
-				Height(100).
-				Font("monospace").
-				Label(locales.RawText())
-		}
+		raw := value.Raw
+		ui.TextArea(c.Key("raw-text"), &raw).
+			Hidden(!p.showRaw).
+			ReadOnly(true).
+			Height(100).
+			Font("monospace").
+			Label(locales.RawText())
 		if stale {
 			ui.Text(c, locales.TextDraftStale()).TextColor(c.Theme().Danger)
 		} else if !value.Editable {

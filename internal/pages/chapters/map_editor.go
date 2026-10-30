@@ -16,12 +16,13 @@ import (
 )
 
 type mapPainter struct {
-	image, tileset maps.Preview
-	bitmap, brush  *ui.Bitmap
-	view           mapview.View
-	scroll         ui.ScrollState
-	tool           int
-	tile           maps.Cell
+	image, tileset              maps.Preview
+	bitmap, brush               *ui.Bitmap
+	view                        mapview.View
+	scroll                      ui.ScrollState
+	tool                        int
+	tile                        maps.Cell
+	restoreFocus, historyActive bool
 }
 
 type mapState struct {
@@ -32,7 +33,7 @@ type mapState struct {
 	address                                 int
 	err                                     error
 	resizing, details                       bool
-	editFocus, reviewFocus                  ui.Handle
+	editFocus, reviewFocus, historyFocus    ui.Handle
 	resizeWidth, resizeHeight, anchorChoice string
 	anchor                                  maps.Anchor
 	impactList                              ui.ListState
@@ -110,48 +111,55 @@ func (v *Page) mapEditor(
 	}
 	stale := !entry.data.Current(state.Session.Maps)
 	disabled := state.Busy || stale
-	ui.Column(c.Key("map-editor")).Gap(12).Children(func() {
-		if stale {
-			ui.Text(c, locales.DeployStale()).TextColor(c.Theme().Danger)
-		}
-		v.mapActions(c, state, row, entry, disabled)
-		if entry.preview != nil {
-			v.mapPreview(c, state, row, entry, jump, openHex)
-			return
-		}
-		if entry.resizing {
-			entry.resizeControls(c, state, disabled)
-		}
-		ui.Row(c).Wrap().Gap(12).AlignItems(ui.Center).Children(func() {
-			ui.Tabs(c.Key("map-tools"), &entry.tool, locales.MapBrush(), locales.MapRectangle(), locales.MapEyedropper(), locales.MapPan()).
-				Label(locales.MapTools()).
-				Tooltip(locales.MapEditHelp()).
-				Disabled(disabled)
-			ui.Image(c, entry.brush).Size(32, 32).Shrink(0)
-			ui.Textf(c, "%s 0x%04X · %s 0x%02X", locales.MapTile(), entry.tile.Tile, locales.MapTerrain(), entry.tile.Terrain).
-				FontFeatures("tnum")
-		})
-		ui.Row(c.Key("map-workspace")).
-			Wrap().
-			Gap(16).
-			AlignItems(ui.Start).
-			Children(func() {
-				ui.Column(c.Key("map-drawing")).
-					Width(360).
-					Grow(1).
-					MaxWidthPercent(100).
-					Children(func() {
-						entry.drawing(c, state, disabled)
-					})
-				ui.Column(c.Key("map-palette")).
-					Width(514).
-					MaxWidthPercent(100).
-					Gap(6).
-					Children(func() {
-						entry.palette(c, disabled)
-					})
+	if entry.restoreFocus {
+		entry.editFocus.Focus(c)
+		entry.restoreFocus = false
+	}
+	ui.Column(c.Key("map-editor")).
+		Bind(&entry.historyFocus).
+		Gap(12).
+		Children(func() {
+			if stale {
+				ui.Text(c, locales.DeployStale()).TextColor(c.Theme().Danger)
+			}
+			v.mapActions(c, state, row, entry, disabled)
+			if entry.preview != nil {
+				v.mapPreview(c, state, row, entry, jump, openHex)
+				return
+			}
+			if entry.resizing {
+				entry.resizeControls(c, state, disabled)
+			}
+			ui.Row(c).Wrap().Gap(12).AlignItems(ui.Center).Children(func() {
+				ui.Tabs(c.Key("map-tools"), &entry.tool, locales.MapBrush(), locales.MapRectangle(), locales.MapEyedropper(), locales.MapPan()).
+					Label(locales.MapTools()).
+					Tooltip(locales.MapEditHelp()).
+					Disabled(disabled)
+				ui.Image(c, entry.brush).Size(32, 32).Shrink(0)
+				ui.Textf(c, "%s 0x%04X · %s 0x%02X", locales.MapTile(), entry.tile.Tile, locales.MapTerrain(), entry.tile.Terrain).
+					FontFeatures("tnum")
 			})
-	})
+			ui.Row(c.Key("map-workspace")).
+				Wrap().
+				Gap(16).
+				AlignItems(ui.Start).
+				Children(func() {
+					ui.Column(c.Key("map-drawing")).
+						Width(360).
+						Grow(1).
+						MaxWidthPercent(100).
+						Children(func() {
+							entry.drawing(c, state, disabled)
+						})
+					ui.Column(c.Key("map-palette")).
+						Width(514).
+						MaxWidthPercent(100).
+						Gap(6).
+						Children(func() {
+							entry.palette(c, disabled)
+						})
+				})
+		})
 }
 
 func (entry *mapState) drawing(
@@ -249,23 +257,29 @@ func (v *Page) mapActions(
 	disabled bool,
 ) {
 	undo := func() {
-		if entry.data.Undo() {
+		if !state.Busy && entry.data.Current(state.Session.Maps) &&
+			entry.data.Undo() {
 			entry.refresh()
-			entry.editFocus.Focus(c)
+			entry.restoreFocus = true
 		}
 	}
 	redo := func() {
-		if entry.data.Redo() {
+		if !state.Busy && entry.data.Current(state.Session.Maps) &&
+			entry.data.Redo() {
 			entry.refresh()
-			entry.editFocus.Focus(c)
+			entry.restoreFocus = true
 		}
 	}
-	if !disabled {
-		if entry.data.CanUndo() {
-			c.OnShortcut(ui.Cmd, ui.KeyZ, undo)
+	// Disabling stale controls can clear focus; it must not select ROM history.
+	entry.historyActive = entry.historyFocus.FocusWithin(c) ||
+		(entry.historyActive && !c.Root().FocusWithin())
+	if entry.historyActive {
+		state.DraftHistory = &editor.History{}
+		if !disabled && entry.data.CanUndo() {
+			state.DraftHistory.Undo = undo
 		}
-		if entry.data.CanRedo() {
-			c.OnShortcut(ui.Cmd|ui.Shift, ui.KeyZ, redo)
+		if !disabled && entry.data.CanRedo() {
+			state.DraftHistory.Redo = redo
 		}
 	}
 	if entry.preview != nil {

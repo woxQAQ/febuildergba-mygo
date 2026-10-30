@@ -16,7 +16,7 @@ import (
 
 type pane struct {
 	query       string
-	sidebar     float32
+	sidebar     components.Sidebar
 	selected    int
 	initialized bool
 	list        ui.ListState
@@ -29,7 +29,6 @@ type Page struct {
 	state      *editor.State
 	panes      []pane
 	tab        int
-	sidebar    float32
 	form       *form
 	selectKind func(records.Kind)
 }
@@ -43,7 +42,6 @@ func New(
 ) *Page {
 	a := &Page{
 		state:      state,
-		sidebar:    330,
 		selectKind: selectKind,
 		panes:      make([]pane, len(records.Kinds)),
 	}
@@ -65,16 +63,17 @@ func (a *Page) View(c *ui.Context, tab int) {
 		a.Deactivate()
 	}
 	pane := &a.panes[tab]
-	if pane.sidebar == 0 {
-		pane.sidebar = 330
-		if records.Kinds[tab] == records.Units ||
-			records.Kinds[tab] == records.Classes {
-			pane.sidebar = 260
-		}
+	initial := float32(330)
+	if records.Kinds[tab] == records.Units ||
+		records.Kinds[tab] == records.Classes {
+		initial = 260
 	}
-	a.sidebar = pane.sidebar
-	ui.Split(c, &pane.sidebar, func() { a.records(c) }, func() { a.details(c) }).
-		Grow(1)
+	pane.sidebar.Render(
+		c,
+		initial,
+		func() { a.records(c) },
+		func() { a.details(c) },
+	)
 }
 
 func (a *Page) details(c *ui.Context) {
@@ -98,7 +97,7 @@ func (a *Page) details(c *ui.Context) {
 		ui.Text(c, locales.NoResults()).Padding(24)
 		return
 	}
-	a.form.View(c, kind, rows[selected], table, a.sidebar)
+	a.form.View(c, kind, rows[selected], table, a.panes[a.tab].sidebar.Width())
 }
 
 func (a *Page) rows() []records.Row {
