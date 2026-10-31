@@ -180,8 +180,18 @@ type Conditions struct {
 	Table            Table
 	Events           []Condition
 	ranges           []space.Range
+	payload          space.Range
 	format           Format
 	ending           *Condition
+}
+
+// PayloadRegion is the condition list's own extent, without the resources its
+// events reference.
+func (c Conditions) PayloadRegion() (space.Range, bool) {
+	if c.payload == (space.Range{}) {
+		return space.Range{}, false
+	}
+	return c.payload, true
 }
 
 func (f Format) eventStride(table Table, kind int) int {
@@ -235,10 +245,8 @@ func (f Format) readEvents(
 			return result, ErrEventConditions
 		}
 		if gba.Uint32(data, at) == 0 {
-			result.ranges = append(
-				result.ranges,
-				space.Range{Start: result.Address, End: at + 4},
-			)
+			result.payload = space.Range{Start: result.Address, End: at + 4}
+			result.ranges = append(result.ranges, result.payload)
 			return result, nil
 		}
 		kind := int(gba.Uint16(data, at))

@@ -14,7 +14,6 @@ import (
 	"github.com/woxQAQ/febuildergba-mygo/game/support"
 	"github.com/woxQAQ/febuildergba-mygo/game/text"
 	"github.com/woxQAQ/febuildergba-mygo/game/worldmap"
-	"github.com/woxQAQ/febuildergba-mygo/space"
 )
 
 // format groups the locations and encodings consumed by the shared editors.
@@ -50,7 +49,6 @@ func (g format) recordFormat(data []byte) records.Format {
 		Version:     g.id,
 		Rules:       g.tableRules(data),
 		Patches:     patches,
-		Protected:   g.chapterConfig().Ranges,
 		NameOf:      func(id uint16) (string, error) { return g.text.ReadName(data, id, aliases) },
 	}
 }
@@ -58,12 +56,7 @@ func (g format) recordFormat(data []byte) records.Format {
 func (g format) chapterConfig() chapter.Config {
 	return chapter.Config{
 		Table: g.chapters, Events: g.events, Maps: g.maps, Text: g.text,
-		Shops: g.shops, External: g.nativeRanges,
-		Reserved: []space.Range{
-			{Start: g.icons.Pointer, End: g.icons.Pointer + 4},
-			{Start: g.icons.Palette, End: g.icons.Palette + 4},
-			{Start: g.portraits.Pointer, End: g.portraits.Pointer + 4},
-		},
+		Shops: g.shops,
 	}
 }
 

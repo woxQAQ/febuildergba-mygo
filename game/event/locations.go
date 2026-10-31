@@ -296,6 +296,21 @@ func (d *ConditionDraft) validateLocation(record eventRecord) error {
 
 // Non-script resources are protected only after their own bounded terminator
 // is found. Unknown targets remain opaque and never enter the script scanner.
+// InventoryRegion reports the confirmed inventory extent referenced by a
+// location event. Discovery warnings belong to the reading path and are not
+// recorded here.
+func (c Condition) InventoryRegion(data []byte) (space.Range, bool) {
+	if c.OperandKind != ShopTarget && c.OperandKind != RandomRewardTarget {
+		return space.Range{}, false
+	}
+	probe := c
+	regions := locationResources(data, &probe)
+	if len(regions) == 0 {
+		return space.Range{}, false
+	}
+	return regions[0], true
+}
+
 func locationResources(data []byte, condition *Condition) []space.Range {
 	if condition.OperandKind != ShopTarget &&
 		condition.OperandKind != RandomRewardTarget {

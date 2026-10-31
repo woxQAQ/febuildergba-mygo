@@ -18,25 +18,10 @@ func terrainClasses(table records.Table) []terrain.Class {
 			Name:    row.Name,
 			Address: row.Address,
 			Length:  table.Stride,
+			Host:    recordOwner(records.Classes, row.ID),
 		}
 	}
 	return result
-}
-
-func (g format) terrainRanges(data []byte) []space.Range {
-	for _, rule := range g.tables {
-		if rule.Kind != records.Classes {
-			continue
-		}
-		table := rule.Read(
-			data,
-			records.Layout{},
-			false,
-			func(uint16) (string, error) { return "", nil },
-		)
-		return terrain.ForVersion(g.id).Ranges(data, terrainClasses(table))
-	}
-	return nil
 }
 
 func (s *Session) terrainClasses(data []byte) ([]terrain.Class, error) {
@@ -52,30 +37,11 @@ func (s *Session) terrainClasses(data []byte) ([]terrain.Class, error) {
 	return nil, edit.ErrLayout
 }
 
-func (s *Session) terrainRanges(data []byte) []space.Range {
-	classes, _ := s.terrainClasses(data)
-	return terrain.ForVersion(s.format.id).Ranges(data, classes)
-}
-
 func (s *Session) terrainSource() terrain.Source {
 	return terrain.Source{
 		Classes: s.terrainClasses,
-		ProtectPointer: func(data []byte, ref terrain.Reference) error {
-			if err := s.protectRecordPointer(
-				data,
-				ref.Pointer,
-				records.Classes,
-				ref.Class.ID,
-				ref.Pointer-ref.Class.Address,
-			); err != nil {
-				return err
-			}
-			for _, region := range append(append(s.format.shopRanges(data), s.format.quotes.Ranges(data)...), s.supportRanges(data)...) {
-				if ref.Pointer < region.End && region.Start < ref.Pointer+4 {
-					return edit.ErrLayout
-				}
-			}
-			return nil
+		ProtectPointer: func(data []byte, owner space.Owner, site int) error {
+			return s.guardPointer(data, owner, site, edit.ErrLayout)
 		},
 	}
 }

@@ -10,16 +10,10 @@ import (
 	"github.com/woxQAQ/febuildergba-mygo/space"
 )
 
-var (
-	ErrTable = fault.Code{
-		ID:   "game.invalid_terrain",
-		Kind: fault.InvalidData,
-	}
-	ErrReferences = fault.Code{
-		ID:   "game.terrain_reference_conflict",
-		Kind: fault.Conflict,
-	}
-)
+var ErrTable = fault.Code{
+	ID:   "game.invalid_terrain",
+	Kind: fault.InvalidData,
+}
 
 type Kind string
 
@@ -76,10 +70,13 @@ func ForVersion(id string) Format {
 func (f Format) Count() int        { return f.count }
 func (f Format) Columns() []Column { return slices.Clone(f.columns) }
 
-// Class describes the current record layout, including manual table locations.
+// Class describes the current record layout, including manual table
+// locations. Host names the containing record, so the session can tell an
+// owner's own pointer from damage.
 type Class struct {
 	ID, Address, Length int
 	Name                string
+	Host                space.Owner
 }
 
 type Reference struct {
@@ -135,23 +132,38 @@ func (f Format) Read(data []byte, class Class) []Table {
 	return result
 }
 
-func (f Format) Ranges(data []byte, classes []Class) []space.Range {
-	var result []space.Range
+// Claims declares each class's column pointers (hosted by the class record)
+// and their payloads. Slot is the column index, so two columns or two classes
+// aliasing one position conflict instead of silently sharing it.
+func (f Format) Claims(data []byte, classes []Class) []space.Claim {
+	var result []space.Claim
 	for _, class := range classes {
-		for _, table := range f.Read(data, class) {
+		for slot, table := range f.Read(data, class) {
+			owner := space.Owner{Resource: "terrain", ID: class.ID, Slot: slot}
 			if table.Pointer >= 0xC0 && gba.Within(data, table.Pointer, 4) &&
 				table.Pointer+4 <= class.Address+class.Length {
 				result = append(
 					result,
-					space.Range{Start: table.Pointer, End: table.Pointer + 4},
+					space.Claim{
+						Range: space.Range{
+							Start: table.Pointer,
+							End:   table.Pointer + 4,
+						},
+						Owner: owner,
+						Host:  class.Host,
+						Site:  true,
+					},
 				)
 			}
 			if table.Address >= 0xC0 && table.Address < len(data) {
 				result = append(
 					result,
-					space.Range{
-						Start: table.Address,
-						End:   min(table.Address+f.count, len(data)),
+					space.Claim{
+						Range: space.Range{
+							Start: table.Address,
+							End:   min(table.Address+f.count, len(data)),
+						},
+						Owner: owner,
 					},
 				)
 			}

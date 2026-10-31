@@ -343,7 +343,10 @@ func (s *Editor) PlanConditions(
 		return nil, edit.ErrValue
 	}
 	site := d.original.Pointer
-	if err = s.resourcePointer(site); err != nil {
+	if err = s.resourcePointer(
+		ConditionsOwner(site, d.original.Table),
+		site,
+	); err != nil {
 		return nil, err
 	}
 	appender := space.NewAppender(len(s.image.Data))
@@ -508,7 +511,7 @@ func (f Format) reinforcementScript() []byte {
 }
 
 // Resource pointers are four-byte writes, distinct from the immutable appended
-// resources. A corrupted graph cannot authorize overwriting record tables.
-func (s *Editor) resourcePointer(site int) error {
-	return s.source.ProtectPointer(s.image.Data, site)
+// resources. A corrupted graph cannot authorize overwriting claimed resources.
+func (s *Editor) resourcePointer(owner space.Owner, site int) error {
+	return s.source.ProtectPointer(s.image.Data, owner, site)
 }

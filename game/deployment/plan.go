@@ -49,21 +49,18 @@ func (s *Editor) Plan(
 	if err = draft.Validate(); err != nil {
 		return nil, err
 	}
-	// The selected site is the only existing range changed. Reject a damaged
-	// event graph that aliases the header, known record tables, or their roots.
+	// The selected site is the only existing range changed. The claim check
+	// rejects a damaged event graph aliasing any confirmed resource.
 	site := draft.group.Pointer
-	for _, table := range s.records.Tables() {
-		if table.Pointer >= 0 && site < table.Pointer+4 &&
-			site+4 > table.Pointer {
-			return nil, ErrDeployment
-		}
-		if table.Err == nil {
-			for _, row := range table.Rows {
-				if site < row.Address+table.Stride && site+4 > row.Address {
-					return nil, ErrDeployment
-				}
-			}
-		}
+	if s.source.ProtectPointer == nil {
+		return nil, edit.ErrLayout
+	}
+	if err = s.source.ProtectPointer(
+		s.image.Data,
+		Owner(site),
+		site,
+	); err != nil {
+		return nil, err
 	}
 	appender := space.NewAppender(len(s.image.Data))
 	content := draft.Payload(appender.Next())

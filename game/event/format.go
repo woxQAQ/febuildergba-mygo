@@ -2,6 +2,7 @@ package event
 
 import (
 	"github.com/woxQAQ/febuildergba-mygo/game/deployment"
+	"github.com/woxQAQ/febuildergba-mygo/space"
 )
 
 const HeaderField = "chapter_events_id"
@@ -88,6 +89,38 @@ func FE6(root int) Format {
 }
 
 func (f Format) Root() int { return f.root }
+
+// Opening is the header offset of the opening script pointer, or -1 where the
+// version has none.
+func (f Format) Opening() int { return f.opening }
+
+// EndingOffset is the header offset of the ending script pointer.
+func (f Format) EndingOffset() int { return f.ending }
+
+// The owner identities below are shared with the chapter coordinator, which
+// declares the matching claims; writers pass them to the write guard. Chapter
+// resources are identified by their native pointer site, so chapters aliasing
+// one event list declare identical claims instead of conflicting.
+
+// RootOwner owns the chapter event list root pointer.
+func RootOwner() space.Owner { return space.Owner{Resource: "events", ID: -1} }
+
+// HeaderOwner owns one event header. The identity is a native position: the
+// header address for the header itself, or the entry position for the event
+// list entry when the header is unreadable.
+func HeaderOwner(header int) space.Owner {
+	return space.Owner{Resource: "events", ID: header}
+}
+
+// ConditionsOwner owns one condition table pointer and payload.
+func ConditionsOwner(site int, table Table) space.Owner {
+	return space.Owner{Resource: "event.conditions", ID: site, Slot: int(table)}
+}
+
+// ScriptOwner owns one script pointer site.
+func ScriptOwner(site int) space.Owner {
+	return space.Owner{Resource: "event.script", ID: site}
+}
 
 func (f Format) HeaderSize() int {
 	last := f.slots[len(f.slots)-1].offset + 4

@@ -18,6 +18,7 @@ import (
 	"github.com/woxQAQ/febuildergba-mygo/game/terrain"
 	"github.com/woxQAQ/febuildergba-mygo/game/text"
 	"github.com/woxQAQ/febuildergba-mygo/rom"
+	"github.com/woxQAQ/febuildergba-mygo/space"
 )
 
 // Session assembles the editors for one document and the detected game version.
@@ -39,6 +40,9 @@ type Session struct {
 	Supports    *support.Editor
 	Terrain     *terrain.Editor
 	format      format
+	context     *edit.Context
+	claimsStamp edit.Stamp
+	claimsCache []space.Claim
 }
 
 func Open(path string) (session *Session, err error) {
@@ -53,7 +57,7 @@ func Open(path string) (session *Session, err error) {
 			continue
 		}
 		context := edit.New(doc, format.Match)
-		s := &Session{Document: doc, format: format}
+		s := &Session{Document: doc, format: format, context: context}
 		s.Bytes = edit.NewBytes(context)
 		s.Texts = text.New(
 			context,
@@ -66,12 +70,32 @@ func Open(path string) (session *Session, err error) {
 				references.Uses = append(
 					references.Uses,
 					format.supports.TextUses(data, id)...)
+				// A text entry lives inside the text table, so the table's own
+				// claim cannot guard its entries against other domains.
+				var external []space.Range
+				for _, claim := range s.claims(data) {
+					if claim.Owner.Resource != "text" {
+						external = append(external, claim.Range)
+					}
+				}
+				references.Ranges = external
 				return references
 			},
 		)
-		s.Records = records.New(context, format.recordFormat, s.Texts)
+		s.Records = records.New(
+			context,
+			func(data []byte) records.Format {
+				resolved := format.recordFormat(data)
+				resolved.Protected = func(data []byte) []space.Range {
+					return space.ClaimRanges(s.claims(data))
+				}
+				return resolved
+			},
+			s.Texts,
+		)
 		chapterConfig := format.chapterConfig()
 		chapterConfig.InventoryUses = s.inventoryUses
+		chapterConfig.ProtectPointer = s.protectPointer
 		s.Chapters = chapter.New(context, chapterConfig, s.Records)
 		s.Events, s.Deployments, s.Maps = s.Chapters.Events, s.Chapters.Deployments, s.Chapters.Maps
 		s.Shops = shop.NewEditor(context, format.shops, s.shopSource())
@@ -87,13 +111,15 @@ func Open(path string) (session *Session, err error) {
 			format.portraits,
 			format.genericPortraitFormat(),
 			s.Records,
-			format.chapterConfig().Ranges,
+			func(data []byte) []space.Range {
+				return space.ClaimRanges(s.claims(data))
+			},
 		)
 		s.Sprites = sprite.New(context, format.id)
 		s.Images = graphics.New(context, map[graphics.Kind]graphics.Backend{
 			graphics.Portrait: format.portraits,
 			graphics.ItemIcon: format.icons,
-		}, format.imageReferences(s.Records))
+		}, s.imageReferences)
 		s.Refresh()
 		return s, nil
 	}

@@ -62,7 +62,7 @@ func (s *Editor) ImageReferences(
 	ref graphics.Ref,
 ) graphics.References {
 	definition := s.source(data)
-	result := graphics.References{Ranges: definition.Protected(data)}
+	var result graphics.References
 	for _, rule := range definition.Rules {
 		result.Sites = append(result.Sites, rule.Pointers...)
 	}
@@ -77,6 +77,7 @@ func (s *Editor) ImageReferences(
 				End:   table.Address + table.Stride*table.Count,
 			},
 		)
+
 		for _, row := range table.Rows {
 			for _, field := range table.Fields {
 				if field.Asset == ref.Kind &&

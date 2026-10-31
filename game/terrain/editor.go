@@ -11,7 +11,7 @@ import (
 
 type Source struct {
 	Classes        func([]byte) ([]Class, error)
-	ProtectPointer func([]byte, Reference) error
+	ProtectPointer func(data []byte, owner space.Owner, site int) error
 }
 
 type Editor struct {
@@ -175,27 +175,17 @@ func (e *Editor) Plan(d *Draft) (result *Plan, err error) {
 		}
 		move := Move{Reference: table.Reference}
 		for _, other := range tables {
-			if other.Pointer == table.Pointer &&
-				(other.Class.ID != table.Class.ID || other.Kind != table.Kind) {
-				return nil, ErrReferences
-			}
-			// A pointer write must not alter any table payload, even an invalid
-			// table's readable prefix. Payload overlap alone is safe: sources stay.
-			if other.Address >= 0xC0 && other.Address < len(image.Data) &&
-				table.Pointer < min(
-					other.Address+e.format.count,
-					len(image.Data),
-				) && other.Address < table.Pointer+4 {
-				return nil, ErrReferences
-			}
 			if other.Err == nil && !other.Empty && !pending[other.Pointer] &&
 				other.Address < table.Address+e.format.count && table.Address < other.Address+e.format.count {
 				move.Shared = append(move.Shared, other.Reference)
 			}
 		}
+		// The claim check rejects aliased pointers and payload overlaps,
+		// including another class or column declaring the same position.
 		if err = e.source.ProtectPointer(
 			image.Data,
-			table.Reference,
+			space.Owner{Resource: "terrain", ID: table.Class.ID, Slot: i},
+			table.Pointer,
 		); err != nil {
 			return nil, err
 		}

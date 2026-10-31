@@ -48,49 +48,75 @@ func (g Config) Conditions(
 	return event.Conditions{}, edit.ErrLayout
 }
 
-// Ranges protects typed chapter resources and external pointer sites from
-// reuse or from a damaged unrelated table targeting their live bytes.
-func (g Config) Ranges(data []byte) []space.Range {
-	var result []space.Range
-	if g.External != nil {
-		result = append(result, g.External(data)...)
-	}
-	add := func(start, length int) {
+// Claims declares the typed chapter resources a damaged unrelated table must
+// not overwrite: event list roots and headers, condition tables and their
+// script operand sites, and deployment groups. The chapter table comes from
+// the session's effective layout so manual layouts protect their real rows.
+func (g Config) Claims(data []byte, chapters *records.Table) []space.Claim {
+	var claims []space.Claim
+	add := func(start, length int, owner space.Owner) {
 		if start >= 0xC0 && length > 0 && gba.Within(data, start, length) {
-			result = append(
-				result,
-				space.Range{Start: start, End: start + length},
+			claims = append(
+				claims,
+				space.Claim{
+					Range: space.Range{Start: start, End: start + length},
+					Owner: owner,
+				},
 			)
 		}
 	}
-	add(g.Events.Root(), 4)
+	addSite := func(site int, owner, host space.Owner) {
+		if site >= 0xC0 && gba.Within(data, site, 4) {
+			claims = append(
+				claims,
+				space.Claim{
+					Range: space.Range{Start: site, End: site + 4},
+					Owner: owner,
+					Host:  host,
+					Site:  true,
+				},
+			)
+		}
+	}
+	addSite(g.Events.Root(), event.RootOwner(), space.Owner{})
 	list, valid := gba.Pointer(data, g.Events.Root())
-	if !valid {
-		return result
+	if !valid || chapters == nil || chapters.Err != nil {
+		return claims
 	}
 	seen := make(map[int]bool)
-	textTable, _ := g.Text.Table(data)
-	rule := g.Table.Rule(data, textTable.Count)
-	table := rule.Read(
-		data,
-		records.Layout{},
-		false,
-		func(uint16) (string, error) { return "", nil },
-	)
-	if table.Err != nil {
-		return result
-	}
-	for _, row := range table.Rows {
-		for _, field := range table.Fields {
-			if field.ID == event.HeaderField {
-				entry := list + int(field.Value(data, row.Address))*4
-				add(entry, 4)
-				if header, valid := gba.Pointer(data, entry); valid {
-					add(header, g.Events.HeaderSize())
-				}
+	for _, row := range chapters.Rows {
+		header := -1
+		headerOwner := space.Owner{}
+		for _, field := range chapters.Fields {
+			if field.ID != event.HeaderField {
+				continue
 			}
+			entry := list + int(field.Value(data, row.Address))*4
+			if at, ok := gba.Pointer(data, entry); ok {
+				// Chapters whose entries point at one header declare identical
+				// claims; the header address is the shared owner's identity.
+				header = at
+				headerOwner = event.HeaderOwner(header)
+				add(header, g.Events.HeaderSize(), headerOwner)
+				if opening := g.Events.Opening(); opening >= 0 {
+					addSite(
+						header+opening,
+						event.ScriptOwner(header+opening),
+						headerOwner,
+					)
+				}
+				addSite(
+					header+g.Events.EndingOffset(),
+					event.ScriptOwner(header+g.Events.EndingOffset()),
+					headerOwner,
+				)
+			}
+			addSite(entry, event.HeaderOwner(entry), space.Owner{})
 		}
 		var groups []deployment.Group
+		// groupHosts remembers which condition list hosts a reinforcement
+		// group's pointer; header slots and script-born groups keep none.
+		groupHosts := make(map[int]space.Owner)
 		for _, kind := range event.Tables() {
 			conditions, err := g.Conditions(
 				data,
@@ -101,33 +127,64 @@ func (g Config) Ranges(data []byte) []space.Range {
 			if err != nil {
 				continue
 			}
-			result = append(result, conditions.Regions()...)
+			owner := event.ConditionsOwner(conditions.Pointer, kind)
+			addSite(conditions.Pointer, owner, headerOwner)
+			endingSite := -1
+			if kind == event.AlwaysEvents && header >= 0 {
+				endingSite = header + g.Events.EndingOffset()
+			}
+			for _, region := range conditions.Regions() {
+				if region.Start == endingSite && region.End == endingSite+4 {
+					// The ending script site is claimed by its script owner.
+					continue
+				}
+				add(region.Start, region.End-region.Start, owner)
+			}
+			for _, condition := range conditions.Events {
+				// Script operand sites are declared so a script relocation may
+				// rewrite them; the condition list payload hosts them.
+				if condition.OperandKind == event.ConditionScript {
+					site := condition.Address + 4
+					addSite(site, event.ScriptOwner(site), owner)
+				}
+				for _, group := range condition.Groups {
+					groupHosts[group.Pointer] = owner
+					groups = append(groups, group)
+				}
+			}
 			if ending, ok := conditions.Ending(); ok {
 				groups = append(groups, ending.Groups...)
 			}
-			for _, event := range conditions.Events {
-				groups = append(groups, event.Groups...)
-			}
 		}
-		deployment, err := g.Deployments(data, row.ID, row.Address)
+		deployments, err := g.Deployments(data, row.ID, row.Address)
 		if err == nil {
-			result = append(result, deployment.Regions()...)
-			groups = append(groups, deployment.Groups...)
+			groups = append(groups, deployments.Groups...)
 		}
 		for _, group := range groups {
-			add(group.Pointer, 4)
+			host := groupHosts[group.Pointer]
+			if header >= 0 && group.Pointer >= header &&
+				group.Pointer+4 <= header+g.Events.HeaderSize() {
+				host = headerOwner
+			}
+			addSite(group.Pointer, deployment.Owner(group.Pointer), host)
 			if group.Address == 0 || seen[group.Address] {
 				continue
 			}
 			seen[group.Address] = true
 			for _, region := range group.Regions() {
-				add(region.Start, region.End-region.Start)
+				add(
+					region.Start,
+					region.End-region.Start,
+					deployment.Owner(group.Pointer),
+				)
 			}
 		}
 	}
-	return result
+	return claims
 }
 
+// checkResourcePointer is the minimal record-table guard used when a config
+// has no session claim check, such as in isolated coordinator tests.
 func checkResourcePointer(data []byte, tables []records.Table, site int) error {
 	if site < 0xC0 || site%4 != 0 || !gba.Within(data, site, 4) {
 		return event.ErrEventConditions

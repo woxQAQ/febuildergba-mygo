@@ -164,7 +164,10 @@ func (s *Editor) scriptWritePlan(
 ) (space.Plan, error) {
 	entry := draft.Entry()
 	if structural {
-		if err := s.resourcePointer(entry.Pointer); err != nil {
+		if err := s.resourcePointer(
+			ScriptOwner(entry.Pointer),
+			entry.Pointer,
+		); err != nil {
 			return space.Plan{}, err
 		}
 		if _, err := appender.Add(content, entry.Pointer); err != nil {

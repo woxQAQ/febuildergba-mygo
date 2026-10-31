@@ -1,15 +1,39 @@
 package chapter
 
 import (
+	"github.com/woxQAQ/febuildergba-mygo/fault"
 	"github.com/woxQAQ/febuildergba-mygo/game/deployment"
 	"github.com/woxQAQ/febuildergba-mygo/game/event"
 	"github.com/woxQAQ/febuildergba-mygo/game/records"
+	"github.com/woxQAQ/febuildergba-mygo/space"
 )
 
 func (s *Editor) deploymentSource() deployment.Source {
 	return deployment.Source{
 		Candidates: s.deploymentCandidates,
 		Uses:       s.deploymentUses,
+		ProtectPointer: func(data []byte, owner space.Owner, site int) error {
+			if err := s.format.protect(
+				data,
+				s.records,
+				owner,
+				site,
+			); err != nil {
+				return fault.New(
+					deployment.ErrDeployment,
+					"game.protect_deployment_pointer",
+					fault.Context{
+						Range: &fault.Range{
+							Offset: site,
+							Length: 4,
+							Size:   len(data),
+						},
+					},
+					err,
+				)
+			}
+			return nil
+		},
 	}
 }
 

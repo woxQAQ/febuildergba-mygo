@@ -5,6 +5,7 @@ import (
 	"github.com/woxQAQ/febuildergba-mygo/game/edit"
 	"github.com/woxQAQ/febuildergba-mygo/game/event"
 	"github.com/woxQAQ/febuildergba-mygo/game/maps"
+	"github.com/woxQAQ/febuildergba-mygo/space"
 )
 
 func (s *Editor) mapSource() maps.Source {
@@ -28,10 +29,14 @@ func (s *Editor) mapSource() maps.Source {
 	}
 }
 
+// mapProtection guards a map PLIST entry with every claimed resource. No map
+// claim declares the site, so any overlap conflicts; a map's own PLIST
+// siblings are checked by the maps package itself.
 func (s *Editor) mapProtection(data []byte, site int) error {
-	if err := checkResourcePointer(
+	if err := s.format.protect(
 		data,
-		s.records.Inspect(data).Tables,
+		s.records,
+		space.Owner{Resource: "maps"},
 		site,
 	); err != nil {
 		return fault.New(
@@ -40,29 +45,6 @@ func (s *Editor) mapProtection(data []byte, site int) error {
 			fault.Context{},
 			err,
 		)
-	}
-	g := s.format
-	overlap := func(at, length int) bool { return at >= 0xC0 && length > 0 && site < at+length && at < site+4 }
-	for _, at := range []int{g.Text.Pointer, g.Text.RootPointer, g.Text.TreePointer} {
-		if overlap(at, 4) {
-			return edit.ErrLayout
-		}
-	}
-	for _, region := range g.Reserved {
-		if overlap(region.Start, region.End-region.Start) {
-			return edit.ErrLayout
-		}
-	}
-	if table, err := g.Text.Table(
-		data,
-	); err == nil &&
-		overlap(table.Address, table.Count*4) {
-		return edit.ErrLayout
-	}
-	for _, region := range g.Ranges(data) {
-		if overlap(region.Start, region.End-region.Start) {
-			return edit.ErrLayout
-		}
 	}
 	return nil
 }

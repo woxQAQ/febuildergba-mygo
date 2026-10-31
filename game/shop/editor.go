@@ -13,7 +13,7 @@ import (
 // overwriting unrelated live resources. Unresolved owners remain diagnostics.
 type Source struct {
 	References     func([]byte) ([]Reference, []error)
-	ProtectPointer func([]byte, Reference) error
+	ProtectPointer func(data []byte, owner space.Owner, site int) error
 }
 
 type Entry struct {
@@ -181,7 +181,8 @@ func (s *Editor) Plan(d *EntryDraft) (*EntryEdit, error) {
 	}
 	if err := s.source.ProtectPointer(
 		s.image.Data,
-		d.entry.Reference,
+		d.entry.Key.Owner(),
+		d.entry.Pointer,
 	); err != nil {
 		return nil, err
 	}

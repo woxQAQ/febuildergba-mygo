@@ -2,8 +2,7 @@
 package chapter
 
 import (
-	"slices"
-
+	"github.com/woxQAQ/febuildergba-mygo/fault"
 	"github.com/woxQAQ/febuildergba-mygo/game/deployment"
 	"github.com/woxQAQ/febuildergba-mygo/game/edit"
 	"github.com/woxQAQ/febuildergba-mygo/game/event"
@@ -16,16 +15,16 @@ import (
 )
 
 // Config connects the native chapter table to its event, map and text formats.
-// Reserved contains confirmed external resources which chapter edits must protect.
+// ProtectPointer is the session's claim check; when it is nil, only record
+// tables are protected.
 type Config struct {
-	Table         Format
-	Events        event.Format
-	Maps          maps.Format
-	Text          text.Format
-	Reserved      []space.Range
-	Shops         shop.Format
-	External      func([]byte) []space.Range
-	InventoryUses func([]byte, int) []shop.Reference
+	Table          Format
+	Events         event.Format
+	Maps           maps.Format
+	Text           text.Format
+	Shops          shop.Format
+	ProtectPointer func(data []byte, owner space.Owner, site int) error
+	InventoryUses  func([]byte, int) []shop.Reference
 }
 
 // Editor coordinates shared chapter resources. The native editors retain their
@@ -46,7 +45,6 @@ func New(
 	config Config,
 	records *records.Editor,
 ) *Editor {
-	config.Reserved = slices.Clone(config.Reserved)
 	s := &Editor{context: context, format: config, records: records}
 	s.Deployments = deployment.New(context, records, s.deploymentSource())
 	s.Maps = maps.New(context, config.Maps, records, s.mapSource())
@@ -60,23 +58,45 @@ func New(
 			DefaultShop:   config.Shops.Default,
 			InventoryUses: config.InventoryUses,
 			ResolveMap:    s.Maps.ResolveTarget,
-			ProtectPointer: func(data []byte, site int) error {
-				if config.External != nil {
-					for _, region := range config.External(data) {
-						if site < region.End && region.Start < site+4 {
-							return event.ErrEventConditions
-						}
-					}
+			ProtectPointer: func(data []byte, owner space.Owner, site int) error {
+				err := config.protect(data, records, owner, site)
+				if err != nil {
+					return fault.New(
+						event.ErrEventConditions,
+						"game.protect_event_pointer",
+						fault.Context{
+							Range: &fault.Range{
+								Offset: site,
+								Length: 4,
+								Size:   len(data),
+							},
+						},
+						err,
+					)
 				}
-				return checkResourcePointer(
-					data,
-					records.Inspect(data).Tables,
-					site,
-				)
+				return nil
 			},
 		},
 	)
 	return s
+}
+
+// protect runs the session claim check, falling back to record tables alone
+// when the config has none.
+func (g Config) protect(
+	data []byte,
+	recordsEditor *records.Editor,
+	owner space.Owner,
+	site int,
+) error {
+	if g.ProtectPointer == nil {
+		return checkResourcePointer(
+			data,
+			recordsEditor.Inspect(data).Tables,
+			site,
+		)
+	}
+	return g.ProtectPointer(data, owner, site)
 }
 
 func (s *Editor) Refresh() {

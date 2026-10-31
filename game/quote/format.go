@@ -309,21 +309,22 @@ func readTable(data []byte, r rule, site int) (result Table) {
 	return
 }
 
-func (f Format) Ranges(data []byte) []space.Range {
-	ranges := f.resourceRanges(data)
+// Claims declares each table's consumer pointers, payload and terminator,
+// plus the declared script prefixes. Script prefixes are protected without
+// claiming their full extent.
+func (f Format) Claims(data []byte) []space.Claim {
+	var result []space.Claim
 	for _, r := range f.rules {
+		owner := space.Owner{Resource: string(r.kind)}
 		for _, site := range r.pointers {
-			ranges = append(ranges, space.Range{Start: site, End: site + 4})
-		}
-	}
-	return ranges
-}
-
-// Declared script prefixes are protected without claiming their full extent.
-func (f Format) resourceRanges(data []byte) []space.Range {
-	var ranges []space.Range
-	for _, r := range f.rules {
-		for _, site := range r.pointers {
+			result = append(
+				result,
+				space.Claim{
+					Range: space.Range{Start: site, End: site + 4},
+					Owner: owner,
+					Site:  true,
+				},
+			)
 			table := readTable(data, r, site)
 			for _, entry := range table.Entries {
 				for _, field := range r.fields {
@@ -335,34 +336,43 @@ func (f Format) resourceRanges(data []byte) []space.Range {
 						entry.Address+field.Offset,
 					); valid && at >= 0xC0 &&
 						gba.Within(data, at, 4) {
-						ranges = append(
-							ranges,
-							space.Range{Start: at, End: at + 4},
+						result = append(
+							result,
+							space.Claim{
+								Range: space.Range{Start: at, End: at + 4},
+								Owner: owner,
+							},
 						)
 					}
 				}
 			}
 			if table.Address != 0 && len(table.Entries) > 0 {
-				ranges = append(
-					ranges,
-					space.Range{
-						Start: table.Address,
-						End:   table.Address + len(table.Entries)*r.stride,
+				result = append(
+					result,
+					space.Claim{
+						Range: space.Range{
+							Start: table.Address,
+							End:   table.Address + len(table.Entries)*r.stride,
+						},
+						Owner: owner,
 					},
 				)
 			}
 			if table.Err == nil {
-				ranges = append(
-					ranges,
-					space.Range{
-						Start: table.Address + len(table.Entries)*r.stride,
-						End:   table.Address + (len(table.Entries)+1)*r.stride,
+				result = append(
+					result,
+					space.Claim{
+						Range: space.Range{
+							Start: table.Address + len(table.Entries)*r.stride,
+							End:   table.Address + (len(table.Entries)+1)*r.stride,
+						},
+						Owner: owner,
 					},
 				)
 			}
 		}
 	}
-	return ranges
+	return result
 }
 
 func (f Format) TextUses(data []byte, id uint16) []text.Use {

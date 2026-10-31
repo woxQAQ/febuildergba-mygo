@@ -75,9 +75,12 @@ func FE8(japanese bool) Format {
 	return Format{7, 24, 16, 2, true, pointers}
 }
 
+// Unit is a character record's support entry. Host names the containing
+// record, so the session can tell an owner's own pointer from damage.
 type Unit struct {
 	ID, Pointer int
 	Name        string
+	Host        space.Owner
 }
 
 type Relationship struct{ Unit, Initial, Growth uint8 }
@@ -186,28 +189,58 @@ func (f Format) talks(data []byte) talkTable {
 	return t
 }
 
-func (f Format) Ranges(data []byte, units []Unit) []space.Range {
-	var result []space.Range
+// Claims declares every byte this format owns: each character's support
+// pointer (hosted by the character record) and payload, and the shared talk
+// table with its native consumer pointers. The talk table uses the zero ID,
+// which no character record can hold.
+func (f Format) Claims(data []byte, units []Unit) []space.Claim {
+	var result []space.Claim
 	for _, unit := range units {
+		owner := space.Owner{Resource: "support", ID: unit.ID}
 		result = append(
 			result,
-			space.Range{Start: unit.Pointer, End: unit.Pointer + 4},
+			space.Claim{
+				Range: space.Range{Start: unit.Pointer, End: unit.Pointer + 4},
+				Owner: owner,
+				Host:  unit.Host,
+				Site:  true,
+			},
 		)
 		if r := f.Read(data, unit); r.Address != 0 {
 			result = append(
 				result,
-				space.Range{Start: r.Address, End: r.Address + f.size},
+				space.Claim{
+					Range: space.Range{
+						Start: r.Address,
+						End:   r.Address + f.size,
+					},
+					Owner: owner,
+				},
 			)
 		}
 	}
 	for _, site := range f.pointers {
-		result = append(result, space.Range{Start: site, End: site + 4})
+		owner := space.Owner{Resource: "support"}
+		result = append(
+			result,
+			space.Claim{
+				Range: space.Range{Start: site, End: site + 4},
+				Owner: owner,
+				Site:  true,
+			},
+		)
 		t := f.talksAt(data, site)
 		length := len(t.rows)*f.talkSize + len(t.terminator)
 		if t.address != 0 && length > 0 {
 			result = append(
 				result,
-				space.Range{Start: t.address, End: t.address + length},
+				space.Claim{
+					Range: space.Range{
+						Start: t.address,
+						End:   t.address + length,
+					},
+					Owner: owner,
+				},
 			)
 		}
 	}

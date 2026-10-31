@@ -6,19 +6,16 @@ import (
 	"github.com/woxQAQ/febuildergba-mygo/game/event"
 	"github.com/woxQAQ/febuildergba-mygo/game/records"
 	"github.com/woxQAQ/febuildergba-mygo/game/shop"
-	"github.com/woxQAQ/febuildergba-mygo/game/worldmap"
 	"github.com/woxQAQ/febuildergba-mygo/gba"
 	"github.com/woxQAQ/febuildergba-mygo/space"
 )
 
-func (g format) shopRanges(data []byte) []space.Range {
-	return append(g.shops.Ranges(data), g.worldmap.Ranges(data)...)
-}
-
 func (s *Session) shopSource() shop.Source {
 	return shop.Source{
-		References:     s.shopReferences,
-		ProtectPointer: s.protectShopPointer,
+		References: s.shopReferences,
+		ProtectPointer: func(data []byte, owner space.Owner, site int) error {
+			return s.guardPointer(data, owner, site, edit.ErrLayout)
+		},
 	}
 }
 
@@ -119,51 +116,4 @@ func (s *Session) inventoryUses(data []byte, address int) []shop.Reference {
 		}
 	}
 	return result
-}
-
-func (s *Session) protectShopPointer(data []byte, ref shop.Reference) error {
-	g := s.format
-	site := ref.Pointer
-	if err := s.protectResourcePointer(data, site); err != nil {
-		return err
-	}
-	overlap := func(at, length int) bool { return at >= 0xC0 && length > 0 && site < at+length && at < site+4 }
-	for _, region := range append(g.quotes.Ranges(data), s.supportRanges(data)...) {
-		if overlap(region.Start, region.End-region.Start) {
-			return edit.ErrLayout
-		}
-	}
-	for _, region := range g.shops.Ranges(data) {
-		if (ref.Key.Origin == shop.Default || ref.Key.Origin == shop.Preparation) &&
-			region.Start == site &&
-			region.End == site+4 {
-			continue
-		}
-		if overlap(region.Start, region.End-region.Start) {
-			return edit.ErrLayout
-		}
-	}
-	nodes, err := g.worldmap.Nodes(data)
-	if err != nil && ref.Key.Origin == shop.WorldMap {
-		return err
-	}
-	for _, node := range nodes {
-		ownsNode := ref.Key.Origin == shop.WorldMap && ref.Key.ID == node.ID &&
-			ref.Key.Slot >= 0 &&
-			ref.Key.Slot < len(node.Shops) &&
-			node.Shops[ref.Key.Slot] == site
-		if !ownsNode && overlap(node.Address, worldmap.NodeSize) {
-			return edit.ErrLayout
-		}
-		for _, pointer := range node.Shops {
-			if at, valid := gba.Pointer(
-				data,
-				pointer,
-			); valid &&
-				overlap(at, shop.PayloadSize) {
-				return edit.ErrLayout
-			}
-		}
-	}
-	return nil
 }

@@ -15,7 +15,7 @@ import (
 type Source struct {
 	Units func([]byte) ([]Unit, error)
 	// owner is the character whose pointer may change, or zero for dialog.
-	ProtectPointer func(data []byte, site, owner int) error
+	ProtectPointer func(data []byte, owner space.Owner, site int) error
 	ValidateText   func([]byte, uint16) error
 }
 
@@ -360,33 +360,14 @@ func (e *Editor) plan(
 		}
 	}
 	appender := space.NewAppender(len(image.Data))
-	resources := e.format.Ranges(image.Data, units)
 	appendResource := func(payload []byte, move Move) error {
 		for _, site := range move.Pointers {
-			if move.Unit != 0 && slices.Contains(e.format.pointers, site) {
-				return edit.ErrLayout
-			}
-			if move.Unit == 0 {
-				for _, unit := range units {
-					if unit.Pointer == site {
-						return edit.ErrLayout
-					}
-				}
-			}
-			for _, region := range resources {
-				// Only the selected character pointer or native consumer owns
-				// this four-byte interval. Payload intersections still fail.
-				if region.Start == site && region.End == site+4 {
-					continue
-				}
-				if site < region.End && region.Start < site+4 {
-					return edit.ErrLayout
-				}
-			}
+			// The claim check rejects a character pointer aliasing a native
+			// talk consumer, another owner's payload, or the reverse.
 			if err := e.source.ProtectPointer(
 				image.Data,
+				space.Owner{Resource: "support", ID: move.Unit},
 				site,
-				move.Unit,
 			); err != nil {
 				return err
 			}

@@ -6,27 +6,14 @@ import (
 	"github.com/woxQAQ/febuildergba-mygo/space"
 )
 
-func (g format) nativeRanges(data []byte) []space.Range {
-	ranges := append(g.shopRanges(data), g.quotes.Ranges(data)...)
-	ranges = append(ranges, g.supportRanges(data)...)
-	return append(ranges, g.terrainRanges(data)...)
-}
-
 func (s *Session) quoteSource() quote.Source {
 	return quote.Source{
-		ProtectPointer: s.protectQuotePointer,
-		ValidateText:   func(data []byte, id uint16) error { _, err := s.format.text.Read(data, id); return err },
+		ProtectPointer: func(data []byte, owner space.Owner, site int) error {
+			return s.guardPointer(data, owner, site, edit.ErrLayout)
+		},
+		ValidateText: func(data []byte, id uint16) error {
+			_, err := s.format.text.Read(data, id)
+			return err
+		},
 	}
-}
-
-func (s *Session) protectQuotePointer(data []byte, site int) error {
-	if err := s.protectResourcePointer(data, site); err != nil {
-		return err
-	}
-	for _, region := range append(s.format.shopRanges(data), s.supportRanges(data)...) {
-		if site < region.End && region.Start < site+4 {
-			return edit.ErrLayout
-		}
-	}
-	return nil
 }

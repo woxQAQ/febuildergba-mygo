@@ -12,7 +12,7 @@ import (
 )
 
 type Source struct {
-	ProtectPointer func([]byte, int) error
+	ProtectPointer func(data []byte, owner space.Owner, site int) error
 	ValidateText   func([]byte, uint16) error
 }
 type Editor struct {
@@ -264,14 +264,9 @@ func (s *Editor) Plan(d *Draft) (result *Plan, err error) {
 	if s.source.ProtectPointer == nil {
 		return nil, edit.ErrLayout
 	}
-	resources := s.format.resourceRanges(image.Data)
+	owner := space.Owner{Resource: string(d.table.Kind)}
 	for _, site := range d.table.Pointers {
-		for _, region := range resources {
-			if site < region.End && region.Start < site+4 {
-				return nil, edit.ErrLayout
-			}
-		}
-		if err = s.source.ProtectPointer(image.Data, site); err != nil {
+		if err = s.source.ProtectPointer(image.Data, owner, site); err != nil {
 			return nil, err
 		}
 	}

@@ -9,13 +9,14 @@ import (
 	"github.com/woxQAQ/febuildergba-mygo/game/shop"
 	"github.com/woxQAQ/febuildergba-mygo/game/text"
 	"github.com/woxQAQ/febuildergba-mygo/rom"
+	"github.com/woxQAQ/febuildergba-mygo/space"
 )
 
 // Source resolves chapter resources after the event interpreter has established
 // their native operands and context.
 type Source struct {
 	ResolveMap     func(int, maps.Target) (maps.Change, error)
-	ProtectPointer func([]byte, int) error
+	ProtectPointer func(data []byte, owner space.Owner, site int) error
 	DefaultShop    func([]byte) (*shop.Draft, error)
 	InventoryUses  func([]byte, int) []shop.Reference
 }

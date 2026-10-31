@@ -390,10 +390,8 @@ func TestTerrainConflictingResourcesAndCapacity(t *testing.T) {
 			}
 			before := s.Document.Snapshot()
 			_, err := s.Terrain.Plan(d)
-			wanted := error(terrain.ErrReferences)
-			if mode == "record-alias" || mode == "native-pointer-alias" {
-				wanted = edit.ErrLayout
-			}
+			// Payload and record aliases now surface as claim conflicts.
+			wanted := error(edit.ErrLayout)
 			if mode == "capacity" {
 				wanted = space.ErrCapacity
 			}

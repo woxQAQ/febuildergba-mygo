@@ -22,6 +22,21 @@ type Key struct {
 	ID, Slot int
 }
 
+// Owner names the claim identity of one reference. World-map slots belong to
+// their node; the loader defaults stand alone.
+func (k Key) Owner() space.Owner {
+	switch k.Origin {
+	case WorldMap:
+		return space.Owner{Resource: "worldmap.shop", ID: k.ID, Slot: k.Slot}
+	case Preparation:
+		return space.Owner{Resource: "shop.preparation"}
+	case Default:
+		return space.Owner{Resource: "shop.default"}
+	default:
+		return space.Owner{Resource: "shop.chapter", ID: k.ID, Slot: k.Slot}
+	}
+}
+
 // Reference describes a confirmed pointer site. Chapter references are edited
 // with their location table by the event editor.
 type Reference struct {
@@ -68,12 +83,19 @@ func (f Format) Default(data []byte) (*Draft, error) {
 	return nil, ErrInventory
 }
 
-func (f Format) Ranges(data []byte) []space.Range {
-	var result []space.Range
+// Claims declares the loader default and preparation pointers and their
+// inventories. Chapter and world-map references are claimed by their hosts.
+func (f Format) Claims(data []byte) []space.Claim {
+	var result []space.Claim
 	for _, ref := range f.References() {
+		owner := ref.Key.Owner()
 		result = append(
 			result,
-			space.Range{Start: ref.Pointer, End: ref.Pointer + 4},
+			space.Claim{
+				Range: space.Range{Start: ref.Pointer, End: ref.Pointer + 4},
+				Owner: owner,
+				Site:  true,
+			},
 		)
 		if at, valid := gba.Pointer(
 			data,
@@ -82,7 +104,10 @@ func (f Format) Ranges(data []byte) []space.Range {
 			gba.Within(data, at, PayloadSize) {
 			result = append(
 				result,
-				space.Range{Start: at, End: at + PayloadSize},
+				space.Claim{
+					Range: space.Range{Start: at, End: at + PayloadSize},
+					Owner: owner,
+				},
 			)
 		}
 	}
