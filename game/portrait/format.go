@@ -1,7 +1,6 @@
 package portrait
 
 import (
-	"bytes"
 	"image"
 	"image/draw"
 
@@ -18,26 +17,40 @@ const (
 	HalfBody
 )
 
-func FE8UMode(data []byte) Mode {
-	if gba.Within(data, 0x55D2, 6) &&
-		bytes.Equal(
-			data[0x55D2:0x55D8],
-			[]byte{0xC0, 0x46, 0x01, 0xB0, 0x03, 0x4B},
-		) {
-		return Exceed
+// Layout is the native portrait record structure of one generation.
+type Layout struct {
+	Stride                   int
+	CardMarker, CardPointer  int
+	StateOffset, MouthOffset int
+}
+
+// FE6Layout is the FE6 portrait record: a card pointer first and no native
+// talking state.
+func FE6Layout() Layout {
+	return Layout{
+		Stride:      16,
+		CardMarker:  4,
+		CardPointer: 0,
+		StateOffset: -1,
+		MouthOffset: -1,
 	}
-	if gba.Within(data, 0x8540, 2) &&
-		(gba.Uint16(data, 0x8540) == 0x1C0A || gba.Uint16(data, 0x8540) == 0x3A01) {
-		return HalfBody
+}
+
+// FE7Layout is the portrait record layout shared by FE7 and FE8.
+func FE7Layout() Layout {
+	return Layout{
+		Stride:      28,
+		CardMarker:  0,
+		CardPointer: 16,
+		StateOffset: 24,
+		MouthOffset: 22,
 	}
-	return Standard
 }
 
 type Format struct {
-	Pointer, Stride          int
-	CardMarker, CardPointer  int
-	StateOffset, MouthOffset int
-	Mode                     func([]byte) Mode
+	Layout
+	Pointer int
+	Mode    func([]byte) Mode
 }
 
 func (f Format) Preview(data []byte, id int) (graphics.Preview, error) {

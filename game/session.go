@@ -109,7 +109,7 @@ func Open(path string) (session *Session, err error) {
 		s.Portraits = portrait.New(
 			context,
 			format.portraits,
-			format.genericPortraitFormat(),
+			format.genericPortraits,
 			s.Records,
 			func(data []byte) []space.Range {
 				return space.ClaimRanges(s.claims(data))

@@ -122,12 +122,13 @@ func fe7uFormat() format {
 			RootPointer: 0x6B8,
 		},
 		portraits: portrait.Format{
-			Pointer:     0x6B30,
-			Stride:      28,
-			CardMarker:  0,
-			CardPointer: 16,
-			StateOffset: 24,
-			MouthOffset: 22,
+			Layout:  portrait.FE7Layout(),
+			Pointer: 0x6B30,
+		},
+		genericPortraits: portrait.GenericFormat{
+			Pointer: 0x75C0,
+			Hook:    0x7598,
+			Count:   6,
 		},
 		icons: itemicon.Format{
 			Pointer:  0x4E20,

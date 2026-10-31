@@ -2,26 +2,8 @@ package game
 
 import (
 	"github.com/woxQAQ/febuildergba-mygo/game/graphics"
-	"github.com/woxQAQ/febuildergba-mygo/game/portrait"
-	"github.com/woxQAQ/febuildergba-mygo/game/version"
 	"github.com/woxQAQ/febuildergba-mygo/space"
 )
-
-func (g format) genericPortraitFormat() portrait.GenericFormat {
-	switch g.id {
-	case version.FE6:
-		return portrait.GenericFormat{Pointer: 0x8DF0, Hook: 0x8DB8, Count: 7}
-	case version.FE7U:
-		return portrait.GenericFormat{Pointer: 0x75C0, Hook: 0x7598, Count: 6}
-	case version.FE7J:
-		return portrait.GenericFormat{Pointer: 0x7450, Hook: 0x7428, Count: 6}
-	case version.FE8U:
-		return portrait.GenericFormat{Pointer: 0x5F94, Hook: 0x5F6C, Count: 8}
-	case version.FE8J:
-		return portrait.GenericFormat{Pointer: 0x5E98, Hook: 0x5E70, Count: 8}
-	}
-	return portrait.GenericFormat{}
-}
 
 // imageReferences protects confirmed resources against an asset write. The
 // claimed ranges exclude the asset's own root pointer: the item-icon pointer

@@ -142,12 +142,13 @@ func fe8jFormat() format {
 			Names:       text.FE8JNames,
 		},
 		portraits: portrait.Format{
-			Pointer:     0x542C,
-			Stride:      28,
-			CardMarker:  0,
-			CardPointer: 16,
-			StateOffset: 24,
-			MouthOffset: 22,
+			Layout:  portrait.FE7Layout(),
+			Pointer: 0x542C,
+		},
+		genericPortraits: portrait.GenericFormat{
+			Pointer: 0x5E98,
+			Hook:    0x5E70,
+			Count:   8,
 		},
 		icons: itemicon.Format{
 			Pointer:  0x36D4,

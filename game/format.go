@@ -28,11 +28,13 @@ type format struct {
 	maps       maps.Format
 	text       text.Format
 	portraits  portrait.Format
-	icons      itemicon.Format
-	supports   support.Format
-	quotes     quote.Format
-	terrain    terrain.Format
-	sprites    sprite.Format
+	// genericPortraits locates the version's generic mini-portrait table.
+	genericPortraits portrait.GenericFormat
+	icons            itemicon.Format
+	supports         support.Format
+	quotes           quote.Format
+	terrain          terrain.Format
+	sprites          sprite.Format
 	// classAnimationOffset is the class record's battle-animation pointer
 	// position, 48 in FE6 and 52 in the later generations.
 	classAnimationOffset int

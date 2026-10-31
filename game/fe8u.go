@@ -17,6 +17,7 @@ import (
 	"github.com/woxQAQ/febuildergba-mygo/game/text"
 	"github.com/woxQAQ/febuildergba-mygo/game/version"
 	"github.com/woxQAQ/febuildergba-mygo/game/worldmap"
+	"github.com/woxQAQ/febuildergba-mygo/gba"
 )
 
 // Locations follow ROMFE8U and the table initializers in the pinned legacy
@@ -146,13 +147,14 @@ func fe8uFormat() format {
 			RootPointer: 0x6DC,
 		},
 		portraits: portrait.Format{
-			Pointer:     0x5524,
-			Stride:      28,
-			CardMarker:  0,
-			CardPointer: 16,
-			StateOffset: 24,
-			MouthOffset: 22,
-			Mode:        portrait.FE8UMode,
+			Layout:  portrait.FE7Layout(),
+			Pointer: 0x5524,
+			Mode:    fe8uPortraitMode,
+		},
+		genericPortraits: portrait.GenericFormat{
+			Pointer: 0x5F94,
+			Hook:    0x5F6C,
+			Count:   8,
 		},
 		icons: itemicon.Format{
 			Pointer:  0x36B4,
@@ -183,11 +185,28 @@ func fe8uFeatures(data []byte) (map[byte]string, []string) {
 		) {
 		patches = append(patches, "Str/Mag split")
 	}
-	switch portrait.FE8UMode(data) {
+	switch fe8uPortraitMode(data) {
 	case portrait.Exceed:
 		patches = append(patches, "MUG_EXCEED")
 	case portrait.HalfBody:
 		patches = append(patches, "HALFBODY")
 	}
 	return aliases, patches
+}
+
+// fe8uPortraitMode detects the FE8U portrait patches by their native
+// instruction signatures.
+func fe8uPortraitMode(data []byte) portrait.Mode {
+	if gba.Within(data, 0x55D2, 6) &&
+		bytes.Equal(
+			data[0x55D2:0x55D8],
+			[]byte{0xC0, 0x46, 0x01, 0xB0, 0x03, 0x4B},
+		) {
+		return portrait.Exceed
+	}
+	if gba.Within(data, 0x8540, 2) &&
+		(gba.Uint16(data, 0x8540) == 0x1C0A || gba.Uint16(data, 0x8540) == 0x3A01) {
+		return portrait.HalfBody
+	}
+	return portrait.Standard
 }

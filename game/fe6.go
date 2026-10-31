@@ -120,12 +120,13 @@ func fe6Format() format {
 			Names:       text.FE6Names,
 		},
 		portraits: portrait.Format{
-			Pointer:     0x7FD8,
-			Stride:      16,
-			CardMarker:  4,
-			CardPointer: 0,
-			StateOffset: -1,
-			MouthOffset: -1,
+			Layout:  portrait.FE6Layout(),
+			Pointer: 0x7FD8,
+		},
+		genericPortraits: portrait.GenericFormat{
+			Pointer: 0x8DF0,
+			Hook:    0x8DB8,
+			Count:   7,
 		},
 		icons: itemicon.Format{
 			Pointer:  0x4CEC,
