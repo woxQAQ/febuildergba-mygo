@@ -1,7 +1,6 @@
 package shop
 
 import (
-	"encoding/binary"
 	"slices"
 
 	"github.com/woxQAQ/febuildergba-mygo/game/edit"
@@ -145,7 +144,7 @@ func (s *Editor) NewDraft(key Key) (*EntryDraft, error) {
 // EntryEdit freezes both the appended inventory and its one selected pointer.
 // Known uses describe sharing before the change, not a complete ROM reference index.
 type EntryEdit struct {
-	plan                 *edit.Plan
+	commit               *edit.Plan
 	before, after, count int
 	uses, affected       []Reference
 }
@@ -153,14 +152,14 @@ type EntryEdit struct {
 func (p *EntryEdit) Before() int           { return p.before }
 func (p *EntryEdit) After() int            { return p.after }
 func (p *EntryEdit) Count() int            { return p.count }
-func (p *EntryEdit) Size() int             { return p.plan.Size() }
+func (p *EntryEdit) Size() int             { return p.commit.Size() }
 func (p *EntryEdit) Uses() []Reference     { return slices.Clone(p.uses) }
 func (p *EntryEdit) Affected() []Reference { return slices.Clone(p.affected) }
 
 func (p *EntryEdit) Current(
 	s *Editor,
 ) bool {
-	return p != nil && p.plan.Current(s.context)
+	return p != nil && p.commit.Current(s.context)
 }
 
 func (s *Editor) Plan(d *EntryDraft) (*EntryEdit, error) {
@@ -186,24 +185,19 @@ func (s *Editor) Plan(d *EntryDraft) (*EntryEdit, error) {
 	); err != nil {
 		return nil, err
 	}
-	allocation, err := space.PlanAppend(
-		len(s.image.Data),
-		d.inventory.Payload(),
-	)
+	appender := space.NewAppender(len(s.image.Data))
+	after, err := appender.Add(d.inventory.Payload(), d.entry.Pointer)
 	if err != nil {
 		return nil, err
 	}
-	pointer := uint32(
-		0x08000000 + allocation.Destination.Start,
-	) // #nosec G115 -- PlanAppend bounds the destination by ROM MaxSize.
-	allocation.Edit.Changes = append(allocation.Edit.Changes, rom.Change{
-		Offset: d.entry.Pointer,
-		Data:   binary.LittleEndian.AppendUint32(nil, pointer),
-	})
 	result := &EntryEdit{
-		plan:   edit.NewPlan(d.binding, "Edit shop inventory", allocation.Edit),
+		commit: edit.NewPlan(
+			d.binding,
+			"Edit shop inventory",
+			appender.Plan().Edit,
+		),
 		before: d.entry.Address,
-		after:  allocation.Destination.Start,
+		after:  after,
 		count:  d.inventory.Count(),
 	}
 	for _, entry := range s.entries {
@@ -222,5 +216,5 @@ func (s *Editor) Apply(plan *EntryEdit) error {
 	if plan == nil {
 		return rom.ErrStale
 	}
-	return plan.plan.Apply(s.context)
+	return plan.commit.Apply(s.context)
 }

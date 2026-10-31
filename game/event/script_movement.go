@@ -6,7 +6,6 @@ import (
 
 	"github.com/woxQAQ/febuildergba-mygo/game/edit"
 	"github.com/woxQAQ/febuildergba-mygo/game/records"
-	"github.com/woxQAQ/febuildergba-mygo/rom"
 	"github.com/woxQAQ/febuildergba-mygo/space"
 )
 
@@ -222,11 +221,11 @@ func (d *ScriptDraft) SetMovement(
 }
 
 func (d *ScriptDraft) prepareMovements(
-	size int,
-) (*ScriptDraft, rom.Edit, error) {
+	appender *space.Appender,
+) (*ScriptDraft, int, error) {
 	prepared := *d
 	prepared.rows = cloneScriptRows(d.rows)
-	edit := rom.Edit{Size: size}
+	movements := 0
 	for index := range prepared.rows {
 		row := &prepared.rows[index]
 		for _, field := range prepared.Fields(index) {
@@ -236,20 +235,19 @@ func (d *ScriptDraft) prepareMovements(
 			}
 			raw, err := packScriptMovement(steps)
 			if err != nil {
-				return nil, rom.Edit{}, err
+				return nil, 0, err
 			}
-			plan, err := space.PlanAppend(edit.Size, raw)
+			destination, err := appender.Add(raw)
 			if err != nil {
-				return nil, rom.Edit{}, err
+				return nil, 0, err
 			}
 			field.put(
 				row.instruction.Raw,
-				int64(0x08000000+plan.Destination.Start),
+				int64(0x08000000+destination),
 			)
-			edit.Size = plan.Edit.Size
-			edit.Changes = append(edit.Changes, plan.Edit.Changes...)
+			movements++
 		}
 		row.movements = nil
 	}
-	return &prepared, edit, nil
+	return &prepared, movements, nil
 }

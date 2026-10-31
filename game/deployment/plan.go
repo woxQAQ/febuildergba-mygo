@@ -1,7 +1,6 @@
 package deployment
 
 import (
-	"encoding/binary"
 	"slices"
 
 	"github.com/woxQAQ/febuildergba-mygo/fault"
@@ -17,7 +16,7 @@ type Use struct {
 }
 
 type Edit struct {
-	binding                         edit.Stamp
+	commit                          *edit.Plan
 	chapter, pointer, before, after int
 	plan                            space.Plan
 	uses                            []Use
@@ -38,8 +37,11 @@ func (s *Editor) Plan(
 ) (result *Edit, err error) {
 	defer func() { err = fault.Wrap(err, "game.plan_deployment", fault.Context{Resource: Resource}) }()
 	s.Refresh()
-	if draft == nil || !draft.Current(s) {
+	if draft == nil {
 		return nil, rom.ErrStale
+	}
+	if err = draft.binding.Check(s.context); err != nil {
+		return nil, err
 	}
 	if !draft.Modified() {
 		return nil, edit.ErrValue
@@ -63,23 +65,14 @@ func (s *Editor) Plan(
 			}
 		}
 	}
-	content := draft.Payload((len(s.image.Data) + 3) &^ 3)
-	plan, err := space.PlanAppend(len(s.image.Data), content)
-	if err != nil {
+	appender := space.NewAppender(len(s.image.Data))
+	content := draft.Payload(appender.Next())
+	if _, err = appender.Add(content, site); err != nil {
 		return nil, err
 	}
-	plan.Edit.Changes = append(
-		plan.Edit.Changes,
-		rom.Change{
-			Offset: site,
-			Data: binary.LittleEndian.AppendUint32(
-				nil,
-				uint32(0x08000000+plan.Destination.Start),
-			),
-		},
-	) // #nosec G115 -- PlanAppend bounds addresses by MaxSize.
+	plan := appender.Plan()
 	result = &Edit{
-		binding: s.context.Bind(s.image.Revision),
+		commit:  edit.NewPlan(draft.binding, Resource, plan.Edit),
 		chapter: draft.chapter,
 		pointer: site,
 		before:  len(draft.group.records),
@@ -104,14 +97,7 @@ func (s *Editor) Apply(edit *Edit) (err error) {
 	if edit == nil {
 		return rom.ErrStale
 	}
-	if err := edit.binding.Check(s.context); err != nil {
-		return err
-	}
-	if err := s.context.Document().ApplyEdit(
-		edit.binding.Revision(),
-		Resource,
-		edit.plan.Edit,
-	); err != nil {
+	if err := edit.commit.Apply(s.context); err != nil {
 		return err
 	}
 	s.Refresh()

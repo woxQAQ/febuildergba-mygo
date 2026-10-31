@@ -2,7 +2,6 @@ package text
 
 import (
 	"bytes"
-	"encoding/binary"
 	"slices"
 
 	"github.com/woxQAQ/febuildergba-mygo/fault"
@@ -24,20 +23,11 @@ func (g Format) plan(
 	if err != nil {
 		return space.Plan{}, err
 	}
-	plan, err := space.PlanAppend(len(data), encoded)
-	if err != nil {
+	appender := space.NewAppender(len(data))
+	if _, err := appender.Add(encoded, entry); err != nil {
 		return space.Plan{}, err
 	}
-	value := uint32(
-		0x08000000 + plan.Destination.Start,
-	) // #nosec G115 -- PlanAppend bounds addresses by MaxSize.
-	plan.Edit.Changes = append(
-		plan.Edit.Changes,
-		rom.Change{
-			Offset: entry,
-			Data:   binary.LittleEndian.AppendUint32(nil, value),
-		},
-	)
+	plan := appender.Plan()
 	prospective := bytes.Repeat([]byte{0xFF}, plan.Edit.Size)
 	copy(prospective, data)
 	for _, change := range plan.Edit.Changes {

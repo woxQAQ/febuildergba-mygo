@@ -255,7 +255,7 @@ type Move struct {
 }
 
 type Plan struct {
-	plan    *edit.Plan
+	commit  *edit.Plan
 	moves   []Move
 	missing []Unit
 }
@@ -263,9 +263,9 @@ type Plan struct {
 func (p *Plan) Current(
 	e *Editor,
 ) bool {
-	return p != nil && p.plan.Current(e.context)
+	return p != nil && p.commit.Current(e.context)
 }
-func (p *Plan) Size() int { return p.plan.Size() }
+func (p *Plan) Size() int { return p.commit.Size() }
 func (p *Plan) Moves() []Move {
 	result := slices.Clone(p.moves)
 	for i := range result {
@@ -359,7 +359,7 @@ func (e *Editor) plan(
 			}
 		}
 	}
-	change := rom.Edit{Size: len(image.Data)}
+	appender := space.NewAppender(len(image.Data))
 	resources := e.format.Ranges(image.Data, units)
 	appendResource := func(payload []byte, move Move) error {
 		for _, site := range move.Pointers {
@@ -391,25 +391,11 @@ func (e *Editor) plan(
 				return err
 			}
 		}
-		allocation, err := space.PlanAppend(change.Size, payload)
+		destination, err := appender.Add(payload, move.Pointers...)
 		if err != nil {
 			return err
 		}
-		change.Size = allocation.Edit.Size
-		change.Changes = append(change.Changes, allocation.Edit.Changes...)
-		move.After = allocation.Destination.Start
-		pointer := uint32(
-			0x08000000 + move.After,
-		) // #nosec G115 -- PlanAppend bounds the destination.
-		for _, site := range move.Pointers {
-			change.Changes = append(
-				change.Changes,
-				rom.Change{
-					Offset: site,
-					Data:   binary.LittleEndian.AppendUint32(nil, pointer),
-				},
-			)
-		}
+		move.After = destination
 		result.moves = append(result.moves, move)
 		return nil
 	}
@@ -470,7 +456,7 @@ func (e *Editor) plan(
 			return nil, err
 		}
 	}
-	result.plan = edit.NewPlan(binding, "Edit supports", change)
+	result.commit = edit.NewPlan(binding, "Edit supports", appender.Plan().Edit)
 	return result, nil
 }
 
@@ -478,5 +464,5 @@ func (e *Editor) Apply(plan *Plan) error {
 	if plan == nil {
 		return rom.ErrStale
 	}
-	return plan.plan.Apply(e.context)
+	return plan.commit.Apply(e.context)
 }

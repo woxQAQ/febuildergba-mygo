@@ -1,7 +1,6 @@
 package terrain
 
 import (
-	"encoding/binary"
 	"slices"
 
 	"github.com/woxQAQ/febuildergba-mygo/fault"
@@ -120,16 +119,16 @@ type Move struct {
 }
 
 type Plan struct {
-	plan  *edit.Plan
-	moves []Move
+	commit *edit.Plan
+	moves  []Move
 }
 
 func (p *Plan) Current(
 	e *Editor,
 ) bool {
-	return p != nil && p.plan.Current(e.context)
+	return p != nil && p.commit.Current(e.context)
 }
-func (p *Plan) Size() int { return p.plan.Size() }
+func (p *Plan) Size() int { return p.commit.Size() }
 func (p *Plan) Moves() []Move {
 	result := slices.Clone(p.moves)
 	for i := range result {
@@ -169,7 +168,7 @@ func (e *Editor) Plan(d *Draft) (result *Plan, err error) {
 		}
 	}
 	result = &Plan{}
-	change := rom.Edit{Size: len(image.Data)}
+	appender := space.NewAppender(len(image.Data))
 	for i, table := range d.tables {
 		if !pending[table.Pointer] {
 			continue
@@ -212,26 +211,18 @@ func (e *Editor) Plan(d *Draft) (result *Plan, err error) {
 				)
 			}
 		}
-		allocation, err := space.PlanAppend(change.Size, payload)
+		destination, err := appender.Add(payload, table.Pointer)
 		if err != nil {
 			return nil, err
 		}
-		move.Destination = allocation.Destination.Start
-		change.Size = allocation.Edit.Size
-		change.Changes = append(change.Changes, allocation.Edit.Changes...)
-		pointer := uint32(
-			0x08000000 + move.Destination,
-		) // #nosec G115 -- PlanAppend bounds the address.
-		change.Changes = append(
-			change.Changes,
-			rom.Change{
-				Offset: table.Pointer,
-				Data:   binary.LittleEndian.AppendUint32(nil, pointer),
-			},
-		)
+		move.Destination = destination
 		result.moves = append(result.moves, move)
 	}
-	result.plan = edit.NewPlan(d.binding, "Edit class terrain tables", change)
+	result.commit = edit.NewPlan(
+		d.binding,
+		"Edit class terrain tables",
+		appender.Plan().Edit,
+	)
 	return result, nil
 }
 
@@ -239,5 +230,5 @@ func (e *Editor) Apply(plan *Plan) error {
 	if plan == nil {
 		return rom.ErrStale
 	}
-	return plan.plan.Apply(e.context)
+	return plan.commit.Apply(e.context)
 }

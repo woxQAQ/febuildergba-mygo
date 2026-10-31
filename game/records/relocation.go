@@ -12,11 +12,11 @@ import (
 
 // TableMove is an immutable preview tied to one document revision.
 type TableMove struct {
-	binding edit.Stamp
-	kind    Kind
-	source  space.Range
-	plan    space.Plan
-	refs    int
+	commit *edit.Plan
+	kind   Kind
+	source space.Range
+	plan   space.Plan
+	refs   int
 }
 
 func (m *TableMove) Source() int { return m.source.Start }
@@ -29,7 +29,7 @@ func (m *TableMove) Size() int { return m.plan.Edit.Size }
 
 func (m *TableMove) ReferenceCount() int { return m.refs }
 
-func (m *TableMove) Revision() uint64 { return m.binding.Revision() }
+func (m *TableMove) Revision() uint64 { return m.commit.Revision() }
 
 // PlanTableMove appends by default. Reusing existing bytes requires declared
 // free ranges.
@@ -83,11 +83,15 @@ func (s *Editor) PlanTableMove(
 		return nil, edit.ErrLayout
 	}
 	return &TableMove{
-		binding: s.context.BindBytes(s.image.Revision),
-		kind:    kind,
-		source:  move.Source,
-		plan:    plan,
-		refs:    len(move.References),
+		commit: edit.NewPlan(
+			s.context.BindBytes(s.image.Revision),
+			"move."+string(kind),
+			plan.Edit,
+		),
+		kind:   kind,
+		source: move.Source,
+		plan:   plan,
+		refs:   len(move.References),
 	}, nil
 }
 
@@ -97,17 +101,15 @@ func (s *Editor) ApplyTableMove(move *TableMove) (err error) {
 		ctx.Table = string(move.kind)
 	}
 	defer func() { err = fault.Wrap(err, "game.apply_table_move", ctx) }()
-	if move == nil || !move.binding.SameDocument(s.context) {
+	if move == nil {
 		return rom.ErrStale
 	}
+	// Byte-bound moves keep their own precondition: a table under manual
+	// layout cannot be relocated by an automatic plan.
 	if _, manual := s.layouts[move.kind]; manual {
 		return edit.ErrLayout
 	}
-	if err := s.context.Document().ApplyEdit(
-		move.binding.Revision(),
-		"move."+string(move.kind),
-		move.plan.Edit,
-	); err != nil {
+	if err := move.commit.Apply(s.context); err != nil {
 		return err
 	}
 	s.Refresh()

@@ -17,7 +17,7 @@ import (
 // MapChangesEdit appends a frozen table and only changed tile payloads. The
 // selected PLIST entry is the sole existing write site; scripts stay intact.
 type ChangesEdit struct {
-	binding                                  edit.Stamp
+	commit                                   *edit.Plan
 	plan                                     space.Plan
 	source, pointer, before, after, payloads int
 	uses                                     []Use
@@ -104,8 +104,11 @@ func (s *Editor) PlanChanges(
 ) (result *ChangesEdit, err error) {
 	defer func() { err = fault.Wrap(err, "game.plan_map_changes", fault.Context{Resource: ChangesField}) }()
 	s.Refresh()
-	if draft == nil || !draft.Current(s) {
+	if draft == nil {
 		return nil, rom.ErrStale
+	}
+	if err = draft.base.binding.Check(s.context); err != nil {
+		return nil, err
 	}
 	if !draft.Modified() {
 		return nil, edit.ErrValue
@@ -136,7 +139,8 @@ func (s *Editor) PlanChanges(
 	}
 	content := make([]byte, len(draft.rows)*12)
 	content = append(content, draft.original.terminator...)
-	destination := (len(s.image.Data) + 3) &^ 3
+	appender := space.NewAppender(len(s.image.Data))
+	destination := appender.Next()
 	payloads := 0
 	for index, row := range draft.rows {
 		header := row.header
@@ -157,24 +161,16 @@ func (s *Editor) PlanChanges(
 		}
 		copy(content[index*12:], header[:])
 	}
-	plan, err := space.PlanAppend(len(s.image.Data), content)
-	if err != nil {
+	if _, err = appender.Add(content, draft.original.pointer); err != nil {
 		return nil, err
 	}
-	updated := binary.LittleEndian.AppendUint32(
-		nil,
-		uint32(0x08000000+plan.Destination.Start),
-	) // #nosec G115 -- PlanAppend bounds the ROM address.
-	plan.Edit.Changes = append(
-		plan.Edit.Changes,
-		rom.Change{Offset: draft.original.pointer, Data: updated},
-	)
+	plan := appender.Plan()
 	references := s.source.References(draft, uses)
-	if !draft.Current(s) {
-		return nil, rom.ErrStale
+	if err = draft.base.binding.Check(s.context); err != nil {
+		return nil, err
 	}
 	return &ChangesEdit{
-		binding:    draft.base.binding,
+		commit:     edit.NewPlan(draft.base.binding, ChangesField, plan.Edit),
 		plan:       plan,
 		source:     draft.original.address,
 		pointer:    draft.original.pointer,
@@ -254,17 +250,10 @@ func (s *Editor) ApplyChanges(edit *ChangesEdit) (err error) {
 	if edit == nil {
 		return rom.ErrStale
 	}
-	if err = edit.binding.Check(s.context); err != nil {
-		return err
-	}
 	if !edit.Applicable() {
 		return ErrMapChangeReference
 	}
-	if err = s.context.Document().ApplyEdit(
-		edit.binding.Revision(),
-		ChangesField,
-		edit.plan.Edit,
-	); err != nil {
+	if err = edit.commit.Apply(s.context); err != nil {
 		return err
 	}
 	s.Refresh()

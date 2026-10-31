@@ -305,7 +305,7 @@ func (d *ConditionDraft) Deployment(index int) *deployment.Draft {
 }
 
 type ConditionEdit struct {
-	binding                         edit.Stamp
+	commit                          *edit.Plan
 	chapter, pointer, before, after int
 	plan                            space.Plan
 	uses                            []int
@@ -333,8 +333,11 @@ func (s *Editor) PlanConditions(
 		)
 	}()
 	s.Refresh()
-	if d == nil || !d.Current(s) {
+	if d == nil {
 		return nil, rom.ErrStale
+	}
+	if err = d.binding.Check(s.context); err != nil {
+		return nil, err
 	}
 	if !d.Modified() {
 		return nil, edit.ErrValue
@@ -343,7 +346,8 @@ func (s *Editor) PlanConditions(
 	if err = s.resourcePointer(site); err != nil {
 		return nil, err
 	}
-	base := (len(s.image.Data) + 3) &^ 3
+	appender := space.NewAppender(len(s.image.Data))
+	base := appender.Next()
 	var content []byte
 	offsets := make([]int, len(d.records))
 	for i, record := range d.records {
@@ -419,22 +423,16 @@ func (s *Editor) PlanConditions(
 			uint32(0x08000000+base+scriptOffset),
 		) // #nosec G115 -- PlanAppend bounds the complete resource before application.
 	}
-	plan, err := space.PlanAppend(len(s.image.Data), content)
-	if err != nil {
+	if _, err = appender.Add(content, site); err != nil {
 		return nil, err
 	}
-	plan.Edit.Changes = append(
-		plan.Edit.Changes,
-		rom.Change{
-			Offset: site,
-			Data: binary.LittleEndian.AppendUint32(
-				nil,
-				uint32(0x08000000+plan.Destination.Start),
-			),
-		},
-	) // #nosec G115 -- PlanAppend bounds ROM addresses.
+	plan := appender.Plan()
 	result = &ConditionEdit{
-		binding:     s.context.Bind(s.image.Revision),
+		commit: edit.NewPlan(
+			d.binding,
+			eventConditionsResource,
+			plan.Edit,
+		),
 		chapter:     d.chapter,
 		pointer:     site,
 		before:      len(d.original.Events),
@@ -467,14 +465,7 @@ func (s *Editor) ApplyConditions(edit *ConditionEdit) (err error) {
 	if edit == nil {
 		return rom.ErrStale
 	}
-	if err := edit.binding.Check(s.context); err != nil {
-		return err
-	}
-	if err := s.context.Document().ApplyEdit(
-		edit.binding.Revision(),
-		eventConditionsResource,
-		edit.plan.Edit,
-	); err != nil {
+	if err := edit.commit.Apply(s.context); err != nil {
 		return err
 	}
 	s.Refresh()

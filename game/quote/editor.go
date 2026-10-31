@@ -2,7 +2,6 @@ package quote
 
 import (
 	"bytes"
-	"encoding/binary"
 	"slices"
 
 	"github.com/woxQAQ/febuildergba-mygo/fault"
@@ -226,7 +225,7 @@ func (d *Draft) Modified() bool {
 }
 
 type Plan struct {
-	plan                 *edit.Plan
+	commit               *edit.Plan
 	kind                 Kind
 	before, after, count int
 	pointers             []int
@@ -237,14 +236,14 @@ func (p *Plan) Kind() Kind      { return p.kind }
 func (p *Plan) Before() int     { return p.before }
 func (p *Plan) After() int      { return p.after }
 func (p *Plan) Count() int      { return p.count }
-func (p *Plan) Size() int       { return p.plan.Size() }
+func (p *Plan) Size() int       { return p.commit.Size() }
 func (p *Plan) Pointers() []int { return slices.Clone(p.pointers) }
 func (p *Plan) Shared() []Kind  { return slices.Clone(p.shared) }
 
 func (p *Plan) Current(
 	s *Editor,
 ) bool {
-	return p != nil && p.plan.Current(s.context)
+	return p != nil && p.commit.Current(s.context)
 }
 
 func (s *Editor) Plan(d *Draft) (result *Plan, err error) {
@@ -315,31 +314,20 @@ func (s *Editor) Plan(d *Draft) (result *Plan, err error) {
 		payload = append(payload, row.Raw...)
 	}
 	payload = append(payload, d.table.terminator...)
-	allocation, err := space.PlanAppend(len(image.Data), payload)
+	appender := space.NewAppender(len(image.Data))
+	after, err := appender.Add(payload, d.table.Pointers...)
 	if err != nil {
 		return nil, err
 	}
-	pointer := uint32(
-		0x08000000 + allocation.Destination.Start,
-	) // #nosec G115 -- PlanAppend bounds the destination by ROM MaxSize.
-	for _, site := range d.table.Pointers {
-		allocation.Edit.Changes = append(
-			allocation.Edit.Changes,
-			rom.Change{
-				Offset: site,
-				Data:   binary.LittleEndian.AppendUint32(nil, pointer),
-			},
-		)
-	}
 	result = &Plan{
-		plan: edit.NewPlan(
+		commit: edit.NewPlan(
 			d.binding,
 			"Edit battle and defeat dialog",
-			allocation.Edit,
+			appender.Plan().Edit,
 		),
 		kind:     d.Kind(),
 		before:   d.table.Address,
-		after:    allocation.Destination.Start,
+		after:    after,
 		count:    len(d.rows),
 		pointers: slices.Clone(d.table.Pointers),
 	}
@@ -355,5 +343,5 @@ func (s *Editor) Apply(plan *Plan) error {
 	if plan == nil {
 		return rom.ErrStale
 	}
-	return plan.plan.Apply(s.context)
+	return plan.commit.Apply(s.context)
 }

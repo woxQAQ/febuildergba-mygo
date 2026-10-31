@@ -99,6 +99,76 @@ func PlanAppend(size int, content []byte) (result Plan, err error) {
 	}, nil
 }
 
+// Appender accumulates appended payloads and the pointer sites that must
+// reference each payload start into one plan. Planning never changes the
+// input bytes.
+type Appender struct {
+	size       int
+	edit       rom.Edit
+	start, end int
+	appended   bool
+}
+
+// NewAppender starts an append plan at the current document end.
+func NewAppender(size int) *Appender {
+	return &Appender{size: size, edit: rom.Edit{Size: size}}
+}
+
+// Next is the aligned destination the next Add would use.
+func (a *Appender) Next() int {
+	return (a.edit.Size + 3) &^ 3
+}
+
+// Add appends content and schedules every site to reference the appended
+// payload start. It returns the payload destination. Sites must be aligned
+// pointer locations inside the current document.
+func (a *Appender) Add(content []byte, sites ...int) (int, error) {
+	allocation, err := PlanAppend(a.edit.Size, content)
+	if err != nil {
+		return 0, err
+	}
+	for _, site := range sites {
+		if site < 0 || site%4 != 0 || site+4 > a.size {
+			return 0, fault.Wrap(
+				ErrRange,
+				"space.repoint",
+				fault.Context{
+					Range: &fault.Range{Offset: site, Length: 4, Size: a.size},
+				},
+			)
+		}
+	}
+	a.edit.Size = allocation.Edit.Size
+	a.edit.Changes = append(a.edit.Changes, allocation.Edit.Changes...)
+	pointer := uint32(
+		0x08000000 + allocation.Destination.Start,
+	) // #nosec G115 -- PlanAppend bounds the destination by ROM MaxSize.
+	for _, site := range sites {
+		a.edit.Changes = append(
+			a.edit.Changes,
+			rom.Change{
+				Offset: site,
+				Data:   binary.LittleEndian.AppendUint32(nil, pointer),
+			},
+		)
+	}
+	if !a.appended {
+		a.start = allocation.Destination.Start
+		a.appended = true
+	}
+	a.end = allocation.Destination.End
+	return allocation.Destination.Start, nil
+}
+
+// Plan freezes the accumulated writes. Destination spans every appended
+// payload and is empty when nothing was appended.
+func (a *Appender) Plan() Plan {
+	return Plan{
+		Destination: Range{Start: a.start, End: a.end},
+		Edit:        a.edit,
+	}
+}
+
 // PlanMove preserves the source and updates only explicitly selected
 // references.
 // Internal references are rewritten in the copy, leaving the original intact.

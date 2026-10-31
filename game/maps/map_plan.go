@@ -1,7 +1,6 @@
 package maps
 
 import (
-	"encoding/binary"
 	"image"
 	"slices"
 
@@ -23,7 +22,7 @@ type Use struct {
 // MapEdit owns an immutable compressed layout and one pointer update. All
 // chapters using that pointer entry change together; independent entries stay.
 type Edit struct {
-	binding                               edit.Stamp
+	commit                                *edit.Plan
 	source, destination, pointer, changed int
 	uses                                  []Use
 	plan                                  space.Plan
@@ -47,8 +46,11 @@ func (e *Edit) Uses() []Use { return slices.Clone(e.uses) }
 func (s *Editor) Plan(draft *Draft) (result *Edit, err error) {
 	defer func() { err = fault.Wrap(err, "game.plan_map", fault.Context{Resource: LayoutField}) }()
 	s.Refresh()
-	if draft == nil || !draft.Current(s) {
+	if draft == nil {
 		return nil, rom.ErrStale
+	}
+	if err = draft.binding.Check(s.context); err != nil {
+		return nil, err
 	}
 	if !draft.Modified() {
 		return nil, edit.ErrValue
@@ -72,19 +74,11 @@ func (s *Editor) Plan(draft *Draft) (result *Edit, err error) {
 	if err != nil {
 		return nil, err
 	}
-	plan, err := space.PlanAppend(len(s.image.Data), compressed)
-	if err != nil {
+	appender := space.NewAppender(len(s.image.Data))
+	if _, err = appender.Add(compressed, draft.pointer); err != nil {
 		return nil, err
 	}
-	updated := binary.LittleEndian.AppendUint32(
-		nil,
-		// #nosec G115 -- PlanAppend bounds the destination to the GBA ROM address space.
-		uint32(0x08000000+plan.Destination.Start),
-	)
-	plan.Edit.Changes = append(
-		plan.Edit.Changes,
-		rom.Change{Offset: draft.pointer, Data: updated},
-	)
+	plan := appender.Plan()
 	impacts, warnings := s.source.Resize(
 		Resize{
 			Before: draft.originalSize(),
@@ -92,11 +86,11 @@ func (s *Editor) Plan(draft *Draft) (result *Edit, err error) {
 			Uses:   uses,
 		},
 	)
-	if !draft.Current(s) {
-		return nil, rom.ErrStale
+	if err = draft.binding.Check(s.context); err != nil {
+		return nil, err
 	}
 	return &Edit{
-		binding:     draft.binding,
+		commit:      edit.NewPlan(draft.binding, LayoutField, plan.Edit),
 		source:      draft.address,
 		destination: plan.Destination.Start,
 		pointer:     draft.pointer,
@@ -115,14 +109,7 @@ func (s *Editor) Apply(edit *Edit) (err error) {
 	if edit == nil {
 		return rom.ErrStale
 	}
-	if err = edit.binding.Check(s.context); err != nil {
-		return err
-	}
-	if err = s.context.Document().ApplyEdit(
-		edit.binding.Revision(),
-		LayoutField,
-		edit.plan.Edit,
-	); err != nil {
+	if err = edit.commit.Apply(s.context); err != nil {
 		return err
 	}
 	s.Refresh()

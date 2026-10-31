@@ -2,7 +2,6 @@ package graphics
 
 import (
 	"bytes"
-	"encoding/binary"
 	"image"
 	"image/draw"
 	"image/png"
@@ -73,10 +72,13 @@ func (s *Editor) Plan(ref Ref, content []byte) (result *Edit, err error) {
 	if !validTargets(s.image.Data, encoding.Parts, references) {
 		return nil, edit.ErrLayout
 	}
-	plan, err := Append(len(s.image.Data), encoding.Parts)
-	if err != nil {
-		return nil, err
+	appender := space.NewAppender(len(s.image.Data))
+	for _, part := range encoding.Parts {
+		if _, err := appender.Add(part.Data, part.Pointer); err != nil {
+			return nil, err
+		}
 	}
+	plan := appender.Plan()
 	for _, region := range references.Ranges {
 		for _, change := range plan.Edit.Changes {
 			if change.Offset < region.End &&
@@ -106,11 +108,14 @@ func (s *Editor) Plan(ref Ref, content []byte) (result *Edit, err error) {
 		return nil, ErrImage
 	}
 	return &Edit{
-		binding: s.binding,
-		ref:     ref,
-		plan:    plan,
-		uses:    slices.Clone(references.Uses),
-		image:   decoded,
+		commit: edit.NewPlan(
+			s.binding,
+			"asset."+string(ref.Kind),
+			plan.Edit,
+		),
+		ref:   ref,
+		uses:  slices.Clone(references.Uses),
+		image: decoded,
 	}, nil
 }
 
@@ -124,11 +129,7 @@ func (s *Editor) Apply(plan *Edit) (err error) {
 	if plan == nil {
 		return rom.ErrStale
 	}
-	return plan.binding.Apply(
-		s.context,
-		"asset."+string(plan.ref.Kind),
-		plan.plan.Edit,
-	)
+	return plan.commit.Apply(s.context)
 }
 
 func validTargets(
@@ -189,16 +190,15 @@ type Use struct {
 // state. Other asset IDs retain their existing pointers, even when their old
 // data aliases.
 type Edit struct {
-	binding edit.Stamp
-	ref     Ref
-	uses    []Use
-	plan    space.Plan
-	image   *image.RGBA
+	commit *edit.Plan
+	ref    Ref
+	uses   []Use
+	image  *image.RGBA
 }
 
 func (e *Edit) Ref() Ref { return e.ref }
 
-func (e *Edit) Revision() uint64 { return e.binding.Revision() }
+func (e *Edit) Revision() uint64 { return e.commit.Revision() }
 
 func (e *Edit) Uses() []Use { return slices.Clone(e.uses) }
 
@@ -213,36 +213,4 @@ func (e *Edit) Image() *image.RGBA {
 type Replacement struct {
 	Pointer int
 	Data    []byte
-}
-
-func Append(
-	size int,
-	resources []Replacement,
-) (space.Plan, error) {
-	plan := space.Plan{Edit: rom.Edit{Size: size}}
-	for _, resource := range resources {
-		allocation, err := space.PlanAppend(plan.Edit.Size, resource.Data)
-		if err != nil {
-			return space.Plan{}, err
-		}
-		address := uint32(
-			0x08000000 + allocation.Destination.Start,
-		) // #nosec G115 -- PlanAppend enforces the ROM size limit.
-		plan.Edit.Size = allocation.Edit.Size
-		plan.Edit.Changes = append(
-			plan.Edit.Changes,
-			allocation.Edit.Changes...)
-		plan.Edit.Changes = append(
-			plan.Edit.Changes,
-			rom.Change{
-				Offset: resource.Pointer,
-				Data:   binary.LittleEndian.AppendUint32(nil, address),
-			},
-		)
-		if plan.Destination.Start == 0 {
-			plan.Destination.Start = allocation.Destination.Start
-		}
-		plan.Destination.End = allocation.Destination.End
-	}
-	return plan, nil
 }

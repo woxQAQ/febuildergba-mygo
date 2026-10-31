@@ -2,7 +2,6 @@ package event
 
 import (
 	"bytes"
-	"encoding/binary"
 	"slices"
 
 	"github.com/woxQAQ/febuildergba-mygo/fault"
@@ -21,13 +20,12 @@ type ScriptUse struct {
 
 // ScriptEdit is one immutable parameter patch or append-and-pointer operation.
 type ScriptEdit struct {
-	binding                     edit.Stamp
+	commit                      *edit.Plan
 	source, destination, length int
 	relocated                   bool
 	before, after               int
 	uses                        []ScriptUse
 	movements                   int
-	edit                        rom.Edit
 }
 
 func (edit *ScriptEdit) MovementCount() int { return edit.movements }
@@ -51,8 +49,11 @@ func (s *Editor) PlanScriptEdit(
 ) (result *ScriptEdit, err error) {
 	defer func() { err = fault.Wrap(err, "game.plan_script", fault.Context{Resource: scriptResource}) }()
 	s.Refresh()
-	if draft == nil || !draft.Current(s) {
+	if draft == nil {
 		return nil, rom.ErrStale
+	}
+	if err = draft.binding.Check(s.context); err != nil {
+		return nil, err
 	}
 	if !draft.Modified() {
 		return nil, edit.ErrValue
@@ -68,7 +69,8 @@ func (s *Editor) PlanScriptEdit(
 	if current.Entry.Address != entry.Address {
 		return nil, rom.ErrStale
 	}
-	draft, resources, err := draft.prepareMovements(len(s.image.Data))
+	appender := space.NewAppender(len(s.image.Data))
+	draft, movements, err := draft.prepareMovements(appender)
 	if err != nil {
 		return nil, err
 	}
@@ -83,26 +85,25 @@ func (s *Editor) PlanScriptEdit(
 	}
 	destination := entry.Address
 	if structural {
-		destination = (resources.Size + 3) &^ 3
+		destination = appender.Next()
 	}
 	content, positions, err := draft.scriptContent(destination, structural)
 	if err != nil {
 		return nil, err
 	}
-	edit, err := s.scriptWritePlan(
+	write, err := s.scriptWritePlan(
 		draft,
+		appender,
 		destination,
 		content,
 		structural,
-		resources.Size,
 	)
 	if err != nil {
 		return nil, err
 	}
-	edit.Changes = append(resources.Changes, edit.Changes...)
-	prospective := bytes.Repeat([]byte{0xFF}, edit.Size)
+	prospective := bytes.Repeat([]byte{0xFF}, write.Edit.Size)
 	copy(prospective, s.image.Data)
-	for _, change := range edit.Changes {
+	for _, change := range write.Edit.Changes {
 		copy(prospective[change.Offset:], change.Data)
 	}
 	if err = s.validateScriptEdit(
@@ -114,15 +115,14 @@ func (s *Editor) PlanScriptEdit(
 		return nil, err
 	}
 	result = &ScriptEdit{
-		binding:     s.context.Bind(s.image.Revision),
+		commit:      edit.NewPlan(draft.binding, scriptResource, write.Edit),
 		source:      entry.Address,
 		destination: destination,
 		length:      len(content),
-		movements:   len(resources.Changes),
+		movements:   movements,
 		relocated:   structural,
 		before:      len(draft.original.rows),
 		after:       len(draft.rows),
-		edit:        edit,
 	}
 	result.uses = s.scriptUses(entry, structural, draft.originalLength())
 	if err = s.validateSharedMapChangeScript(
@@ -132,8 +132,8 @@ func (s *Editor) PlanScriptEdit(
 	); err != nil {
 		return nil, err
 	}
-	if !draft.Current(s) {
-		return nil, rom.ErrStale
+	if err = draft.binding.Check(s.context); err != nil {
+		return nil, err
 	}
 	return result, nil
 }
@@ -157,46 +157,35 @@ func (d *ScriptDraft) labelsChanged(structural bool) bool {
 
 func (s *Editor) scriptWritePlan(
 	draft *ScriptDraft,
+	appender *space.Appender,
 	destination int,
 	content []byte,
 	structural bool,
-	baseSize int,
-) (rom.Edit, error) {
+) (space.Plan, error) {
 	entry := draft.Entry()
 	if structural {
 		if err := s.resourcePointer(entry.Pointer); err != nil {
-			return rom.Edit{}, err
+			return space.Plan{}, err
 		}
-		plan, err := space.PlanAppend(baseSize, content)
-		if err != nil {
-			return rom.Edit{}, err
+		if _, err := appender.Add(content, entry.Pointer); err != nil {
+			return space.Plan{}, err
 		}
-		plan.Edit.Changes = append(
-			plan.Edit.Changes,
-			rom.Change{
-				Offset: entry.Pointer,
-				Data: binary.LittleEndian.AppendUint32(
-					nil,
-					uint32(0x08000000+destination),
-				),
-			},
-		) // #nosec G115 -- PlanAppend bounds the destination.
-		return plan.Edit, nil
+		return appender.Plan(), nil
 	}
 	if err := s.scriptWriteRange(
 		entry.Address,
 		entry.Address+len(content),
 	); err != nil {
-		return rom.Edit{}, err
+		return space.Plan{}, err
 	}
-	edit := rom.Edit{Size: baseSize}
+	plan := appender.Plan()
 	for index, row := range draft.rows {
 		if !bytes.Equal(
 			row.instruction.Raw,
 			draft.original.rows[index].instruction.Raw,
 		) {
-			edit.Changes = append(
-				edit.Changes,
+			plan.Edit.Changes = append(
+				plan.Edit.Changes,
 				rom.Change{
 					Offset: row.instruction.Address,
 					Data:   bytes.Clone(row.instruction.Raw),
@@ -204,7 +193,7 @@ func (s *Editor) scriptWritePlan(
 			)
 		}
 	}
-	return edit, nil
+	return plan, nil
 }
 
 func (s *Editor) validateScriptEdit(
@@ -358,14 +347,7 @@ func (s *Editor) ApplyScriptEdit(edit *ScriptEdit) (err error) {
 	if edit == nil {
 		return rom.ErrStale
 	}
-	if err = edit.binding.Check(s.context); err != nil {
-		return err
-	}
-	if err = s.context.Document().ApplyEdit(
-		edit.binding.Revision(),
-		scriptResource,
-		edit.edit,
-	); err != nil {
+	if err = edit.commit.Apply(s.context); err != nil {
 		return err
 	}
 	s.Refresh()
