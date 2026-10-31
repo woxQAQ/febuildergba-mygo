@@ -38,6 +38,8 @@ type format struct {
 	// classAnimationOffset is the class record's battle-animation pointer
 	// position, 48 in FE6 and 52 in the later generations.
 	classAnimationOffset int
+	traits               []records.RecordTrait
+	weaponThresholds     []int64
 	shops                shop.Format
 	worldmap             worldmap.Format
 	features             func([]byte) (map[byte]string, []string)
@@ -55,9 +57,10 @@ func (g format) recordFormat(data []byte) records.Format {
 	}
 	return records.Format{
 		TextAliases:          aliases,
-		Version:              g.id,
 		Rules:                g.tableRules(data),
 		Patches:              patches,
+		Traits:               g.traits,
+		WeaponThresholds:     g.weaponThresholds,
 		Terrain:              g.terrain,
 		ClassAnimationOffset: g.classAnimationOffset,
 		NameOf:               func(id uint16) (string, error) { return g.text.ReadName(data, id, aliases) },

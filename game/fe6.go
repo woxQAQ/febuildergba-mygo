@@ -33,7 +33,7 @@ func fe6Format() format {
 				Count:    226,
 				Probe:    0x2C,
 				Skip:     48,
-				Fields:   records.UnitFields(version.FE6),
+				Fields:   records.FE6UnitFields(),
 			},
 			{
 				Kind:     records.Classes,
@@ -57,6 +57,8 @@ func fe6Format() format {
 			Standing: []int{0x21C74}, Palette: 0x100968,
 			Weapons: 0x750DC, WeaponPalette: 0x750E4, WeaponX: 6, WeaponY: 8,
 		},
+		traits:               records.FE6Traits(),
+		weaponThresholds:     records.FE6WeaponThresholds(),
 		classAnimationOffset: 48,
 		terrain:              terrain.FE6Layout(),
 		supports: support.Format{

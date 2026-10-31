@@ -47,7 +47,7 @@ func fe8jFormat() format {
 				FirstID: 1,
 				Count:   255,
 				Probe:   0x2C,
-				Fields:  records.UnitFields(version.FE8J),
+				Fields:  records.FE8UnitFields(),
 			},
 			{
 				Kind:     records.Classes,
@@ -81,6 +81,8 @@ func fe8jFormat() format {
 			Palette: 0x5C7340,
 			Weapons: 0x9FEFC, WeaponPalette: 0x93450, WeaponX: 3, WeaponY: 0,
 		},
+		traits:               records.FE8Traits(),
+		weaponThresholds:     records.FE7WeaponThresholds(),
 		classAnimationOffset: 52,
 		terrain:              terrain.FE7Layout(),
 		supports: support.Format{

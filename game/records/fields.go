@@ -3,7 +3,6 @@ package records
 import (
 	"github.com/woxQAQ/febuildergba-mygo/game/graphics"
 	"github.com/woxQAQ/febuildergba-mygo/game/text"
-	"github.com/woxQAQ/febuildergba-mygo/game/version"
 )
 
 // Field groups describe presentation-independent sections of a record schema.
@@ -90,7 +89,9 @@ var WeaponNames = []string{
 	"dark",
 }
 
-func UnitFields(versionID string) []Field {
+// unitFieldsBase is the shared character record layout; the generations
+// append their own trailing fields.
+func unitFieldsBase() []Field {
 	f := append(
 		common(),
 		NumericField("id", GroupGeneral, 4, 1),
@@ -135,20 +136,35 @@ func UnitFields(versionID string) []Field {
 			},
 			false,
 		)...)
-	if versionID == version.FE8U || versionID == version.FE8J {
-		f = append(f, NumericField("visit_group", GroupGeneral, 48, 1))
+	return f
+}
+
+func animationPaletteFields() []Field {
+	return []Field{
+		NumericField("animation_palette_a", GroupGeneral, 35, 1),
+		NumericField("animation_palette_b", GroupGeneral, 36, 1),
 	}
-	if versionID == version.FE7U || versionID == version.FE7J {
-		f = append(f, NumericField("talk_tone", GroupGeneral, 48, 1))
-	}
-	if versionID == version.FE6 || versionID == version.FE7U ||
-		versionID == version.FE7J {
-		f = append(
-			f,
-			NumericField("animation_palette_a", GroupGeneral, 35, 1),
-			NumericField("animation_palette_b", GroupGeneral, 36, 1),
-		)
-	}
+}
+
+func FE6UnitFields() []Field {
+	f := append(unitFieldsBase(), animationPaletteFields()...)
+	return append(f, Flags(40))
+}
+
+func FE7UnitFields() []Field {
+	f := append(
+		unitFieldsBase(),
+		NumericField("talk_tone", GroupGeneral, 48, 1),
+	)
+	f = append(f, animationPaletteFields()...)
+	return append(f, Flags(40))
+}
+
+func FE8UnitFields() []Field {
+	f := append(
+		unitFieldsBase(),
+		NumericField("visit_group", GroupGeneral, 48, 1),
+	)
 	return append(f, Flags(40))
 }
 

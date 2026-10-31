@@ -10,7 +10,6 @@ import (
 	"github.com/woxQAQ/febuildergba-mygo/game"
 	"github.com/woxQAQ/febuildergba-mygo/game/edit"
 	"github.com/woxQAQ/febuildergba-mygo/game/records"
-	"github.com/woxQAQ/febuildergba-mygo/game/version"
 	"github.com/woxQAQ/febuildergba-mygo/internal/testutil"
 )
 
@@ -119,7 +118,7 @@ func TestRecordAbilityWorkflow(t *testing.T) {
 				s.Refresh()
 			}
 			switch fixture.Name {
-			case version.FE6:
+			case "FE6":
 				if err := s.Records.Set(
 					records.Classes,
 					[]int{1},

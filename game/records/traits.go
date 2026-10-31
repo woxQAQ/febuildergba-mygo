@@ -4,7 +4,6 @@ import (
 	"slices"
 
 	"github.com/woxQAQ/febuildergba-mygo/game/edit"
-	"github.com/woxQAQ/febuildergba-mygo/game/version"
 )
 
 // RecordTrait describes one native attribute bit. Labels and help are locale
@@ -56,32 +55,55 @@ func (s *Editor) RecordTraits(kind Kind) []RecordTrait {
 	if kind != Units && kind != Classes {
 		return nil
 	}
-	names := slices.Clone(commonTraits)
-	switch s.definition.Version {
-	case version.FE6:
-		names[16], names[18], names[19] = "roy_lock", "dragon_lock", "zephiel_lock"
-		for bit := 25; bit < 32; bit++ {
-			names[bit] = unknownTrait
-		}
-	case version.FE7U, version.FE7J:
-		names[18], names[19], names[27] = "dragon_lock", "morph", "drop_item"
-		names[28], names[29] = "eliwood_lock", "hector_lock"
-	}
-	result := make([]RecordTrait, len(names))
-	for bit, name := range names {
-		help := "trait_" + name + "_help"
-		if bit == 6 && s.definition.Version == version.FE6 {
-			help = "trait_critical_fe6_help"
-		}
+	return slices.Clone(s.definition.Traits)
+}
+
+func commonTraitTable() []RecordTrait {
+	result := make([]RecordTrait, len(commonTraits))
+	for bit, name := range commonTraits {
 		result[bit] = RecordTrait{
 			Bit:   bit,
 			Label: "trait_" + name,
-			Help:  help,
+			Help:  "trait_" + name + "_help",
 			Known: name != unknownTrait,
 		}
 	}
 	return result
 }
+
+func renameTraits(table []RecordTrait, names map[int]string) {
+	for bit, name := range names {
+		table[bit].Label = "trait_" + name
+		table[bit].Help = "trait_" + name + "_help"
+		table[bit].Known = name != unknownTrait
+	}
+}
+
+// FE6Traits is the FE6 flag-bit vocabulary, including its distinct critical
+// help and the absent FE8 lock bits.
+func FE6Traits() []RecordTrait {
+	result := commonTraitTable()
+	renameTraits(result, map[int]string{
+		16: "roy_lock", 18: "dragon_lock", 19: "zephiel_lock",
+		25: unknownTrait, 26: unknownTrait, 27: unknownTrait, 28: unknownTrait,
+		29: unknownTrait, 30: unknownTrait, 31: unknownTrait,
+	})
+	result[6].Help = "trait_critical_fe6_help"
+	return result
+}
+
+// FE7Traits is the FE7 flag-bit vocabulary.
+func FE7Traits() []RecordTrait {
+	result := commonTraitTable()
+	renameTraits(result, map[int]string{
+		18: "dragon_lock", 19: "morph", 27: "drop_item",
+		28: "eliwood_lock", 29: "hector_lock",
+	})
+	return result
+}
+
+// FE8Traits is the shared FE8 flag-bit vocabulary.
+func FE8Traits() []RecordTrait { return commonTraitTable() }
 
 // SetRecordTrait changes a confirmed bit and preserves the remaining 31 bits.
 func (s *Editor) SetRecordTrait(kind Kind, id, bit int, on bool) error {

@@ -4,7 +4,6 @@ import (
 	"slices"
 
 	"github.com/woxQAQ/febuildergba-mygo/game/edit"
-	"github.com/woxQAQ/febuildergba-mygo/game/version"
 )
 
 // WeaponSkill retains the exact stored weapon EXP alongside its native rank.
@@ -20,9 +19,16 @@ type WeaponSkill struct {
 var weaponRanks = []string{"none", "E", "D", "C", "B", "A", "S"}
 
 func (s *Editor) weaponThresholds() []int64 {
-	if s.definition.Version == version.FE6 {
-		return []int64{0, 1, 51, 101, 151, 201, 251}
-	}
+	return s.definition.WeaponThresholds
+}
+
+// FE6WeaponThresholds are FE6's native weapon rank minima.
+func FE6WeaponThresholds() []int64 {
+	return []int64{0, 1, 51, 101, 151, 201, 251}
+}
+
+// FE7WeaponThresholds are the rank minima shared by FE7 and FE8.
+func FE7WeaponThresholds() []int64 {
 	return []int64{0, 1, 31, 71, 121, 181, 251}
 }
 

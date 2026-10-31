@@ -77,13 +77,13 @@ type Inspection struct {
 // Version selection and chapter resource discovery supply these concrete rules.
 type Format struct {
 	TextAliases map[byte]string
-	Version     string
 	Rules       []Rule
 	NameOf      func(uint16) (string, error)
 	Patches     []string
 	Protected   func([]byte) []space.Range
-	// Terrain is the generation's terrain column layout; ClassAnimationOffset
-	// is the class record's battle-animation pointer offset.
+	// The generation's named variants, selected by the version file.
+	Traits               []RecordTrait
+	WeaponThresholds     []int64
 	Terrain              terrain.Format
 	ClassAnimationOffset int
 }
