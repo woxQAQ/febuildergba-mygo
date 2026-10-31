@@ -11,6 +11,7 @@ import (
 	"github.com/woxQAQ/febuildergba-mygo/game/quote"
 	"github.com/woxQAQ/febuildergba-mygo/game/records"
 	"github.com/woxQAQ/febuildergba-mygo/game/shop"
+	"github.com/woxQAQ/febuildergba-mygo/game/sprite"
 	"github.com/woxQAQ/febuildergba-mygo/game/support"
 	"github.com/woxQAQ/febuildergba-mygo/game/terrain"
 	"github.com/woxQAQ/febuildergba-mygo/game/text"
@@ -68,6 +69,21 @@ func fe8uFormat() format {
 				PointerFields: []int{12},
 				Fields:        records.ItemFields(),
 			},
+		},
+		sprites: sprite.Format{
+			Standing: []int{
+				0x26730,
+				0x267B0,
+				0x26838,
+				0x26C88,
+				0x28064,
+				0x27F74,
+			},
+			Palette:       0x59EE20,
+			Weapons:       0x9DC5C,
+			WeaponPalette: 0x91178,
+			WeaponX:       3,
+			WeaponY:       0,
 		},
 		classAnimationOffset: 52,
 		terrain:              terrain.FE7Layout(),

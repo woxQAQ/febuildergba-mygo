@@ -115,7 +115,7 @@ func Open(path string) (session *Session, err error) {
 				return space.ClaimRanges(s.claims(data))
 			},
 		)
-		s.Sprites = sprite.New(context, format.id)
+		s.Sprites = sprite.New(context, format.sprites)
 		s.Images = graphics.New(context, map[graphics.Kind]graphics.Backend{
 			graphics.Portrait: format.portraits,
 			graphics.ItemIcon: format.icons,

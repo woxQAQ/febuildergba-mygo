@@ -11,6 +11,7 @@ import (
 	"github.com/woxQAQ/febuildergba-mygo/game/quote"
 	"github.com/woxQAQ/febuildergba-mygo/game/records"
 	"github.com/woxQAQ/febuildergba-mygo/game/shop"
+	"github.com/woxQAQ/febuildergba-mygo/game/sprite"
 	"github.com/woxQAQ/febuildergba-mygo/game/support"
 	"github.com/woxQAQ/febuildergba-mygo/game/terrain"
 	"github.com/woxQAQ/febuildergba-mygo/game/text"
@@ -31,6 +32,7 @@ type format struct {
 	supports   support.Format
 	quotes     quote.Format
 	terrain    terrain.Format
+	sprites    sprite.Format
 	// classAnimationOffset is the class record's battle-animation pointer
 	// position, 48 in FE6 and 52 in the later generations.
 	classAnimationOffset int
