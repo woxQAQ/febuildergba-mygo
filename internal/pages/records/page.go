@@ -30,6 +30,7 @@ type Page struct {
 	panes      []pane
 	tab        int
 	form       *form
+	thumbnails components.Thumbnails
 	selectKind func(records.Kind)
 }
 
@@ -53,6 +54,7 @@ func (a *Page) Reset() {
 	a.panes = make([]pane, len(records.Kinds))
 	a.tab = 0
 	a.form.Reset()
+	a.thumbnails = components.Thumbnails{}
 }
 
 func (a *Page) Deactivate() { a.form.chapter.Deactivate() }
@@ -153,7 +155,23 @@ func (a *Page) records(c *ui.Context) {
 			if col == 0 {
 				ui.Textf(c, "%02X", rows[row].ID).FontFeatures("tnum")
 			} else {
-				ui.Text(c, rows[row].Name).SingleLine()
+				kind := records.Kinds[a.tab]
+				ui.Row(c).Gap(6).AlignItems(ui.Center).Children(func() {
+					switch kind {
+					case records.Units:
+						portrait := a.thumbnails.Portrait(
+							a.state.Session,
+							rows[row].ID,
+						)
+						if portrait.Available() {
+							portrait.View(c, 32, rows[row].Name)
+						}
+					case records.Classes:
+						a.thumbnails.Standing(a.state.Session, rows[row].ID).
+							Inline(c, 22, rows[row].Name)
+					}
+					ui.Text(c, rows[row].Name).SingleLine().Grow(1).MinWidth(0)
+				})
 			}
 		}).Grow(1).Label(locales.Label(string(records.Kinds[a.tab])))
 		ui.Text(c, locales.RecordSummary(len(rows))).
@@ -161,7 +179,27 @@ func (a *Page) records(c *ui.Context) {
 	})
 }
 
-func (a *Page) SetSupportOpener(open func(int)) { a.form.openSupport = open }
+func (a *Page) SetDefeatView(
+	view func(*ui.Context, int, float32, bool),
+) {
+	a.form.defeatView = view
+}
+
+func (a *Page) OpenDefeat(id int) {
+	a.Open(records.Units, id)
+	a.form.profileFor(records.Units, id).section = 3
+}
+
+func (a *Page) SetSupportTalkOpener(
+	open func(int, int),
+) {
+	a.form.openSupportTalk = open
+}
+
+func (a *Page) OpenSupport(id int) {
+	a.Open(records.Units, id)
+	a.form.profileFor(records.Units, id).section = 2
+}
 
 func (a *Page) SetPortraitOpener(
 	open func(int),

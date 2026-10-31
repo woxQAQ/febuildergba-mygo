@@ -55,13 +55,76 @@ func (e *Editor) Talks() ([]Talk, error) {
 	return table.rows, table.err
 }
 
+// TalkDraft edits the native dialog table independently of character
+// relationship records. Pair identities and table order remain unchanged.
+type TalkDraft struct {
+	binding edit.Stamp
+	format  Format
+	table   talkTable
+	rows    []Talk
+}
+
+func (e *Editor) talkDraft(image rom.Snapshot) *TalkDraft {
+	table := e.format.talks(image.Data)
+	return &TalkDraft{
+		binding: e.context.Bind(image.Revision),
+		format:  e.format,
+		table:   table,
+		rows:    cloneTalks(table.rows),
+	}
+}
+
+func (e *Editor) NewTalkDraft() (*TalkDraft, error) {
+	image := e.context.Document().Snapshot()
+	if err := e.context.Validate(image.Data); err != nil {
+		return nil, err
+	}
+	draft := e.talkDraft(image)
+	if draft.table.err != nil {
+		return nil, draft.table.err
+	}
+	return draft, nil
+}
+
+func (d *TalkDraft) Current(
+	e *Editor,
+) bool {
+	return d != nil && d.binding.Current(e.context)
+}
+func (d *TalkDraft) Talks() []Talk { return cloneTalks(d.rows) }
+func (d *TalkDraft) Modified() bool {
+	for i, row := range d.rows {
+		if !bytes.Equal(row.Raw, d.table.rows[i].Raw) {
+			return true
+		}
+	}
+	return false
+}
+
+func (d *TalkDraft) SetText(index, rank int, id uint16) error {
+	if d.table.err != nil {
+		return d.table.err
+	}
+	if index < 0 || index >= len(d.rows) || rank < 0 || rank >= 3 {
+		return edit.ErrValue
+	}
+	row := &d.rows[index]
+	row.Texts[rank] = uint32(id)
+	at := 4 + rank*d.format.textWidth
+	if d.format.textWidth == 2 {
+		binary.LittleEndian.PutUint16(row.Raw[at:], id)
+	} else {
+		binary.LittleEndian.PutUint32(row.Raw[at:], uint32(id))
+	}
+	return nil
+}
+
 type Draft struct {
 	binding       edit.Stamp
 	format        Format
 	record        Record
 	original, raw []byte
-	table         talkTable
-	talks         []Talk
+	talks         *TalkDraft
 }
 
 func (e *Editor) NewDraft(id int) (*Draft, error) {
@@ -85,15 +148,13 @@ func (e *Editor) NewDraft(id int) (*Draft, error) {
 		if r.Empty {
 			raw = make([]byte, e.format.size)
 		}
-		table := e.format.talks(image.Data)
 		return &Draft{
 			binding:  e.context.Bind(image.Revision),
 			format:   e.format,
 			record:   r,
 			original: raw,
 			raw:      bytes.Clone(raw),
-			table:    table,
-			talks:    cloneTalks(table.rows),
+			talks:    e.talkDraft(image),
 		}, nil
 	}
 	return nil, edit.ErrValue
@@ -107,7 +168,7 @@ func (d *Draft) Current(
 func (d *Draft) Unit() Unit                    { return d.record.Unit }
 func (d *Draft) Address() int                  { return d.record.Address }
 func (d *Draft) Capacity() int                 { return d.format.capacity }
-func (d *Draft) TalkError() error              { return d.table.err }
+func (d *Draft) TalkError() error              { return d.talks.table.err }
 func (d *Draft) Raw() []byte                   { return bytes.Clone(d.raw) }
 func (d *Draft) Relationships() []Relationship { return d.relationships(d.raw) }
 func (d *Draft) relationships(raw []byte) []Relationship {
@@ -162,7 +223,7 @@ func (d *Draft) Remove(index int) error {
 // pairs. Text replacement does not add, remove or reorder native entries.
 func (d *Draft) Talks() []Talk {
 	var result []Talk
-	for _, row := range d.talks {
+	for _, row := range d.talks.rows {
 		if int(row.Unit) == d.record.ID || int(row.Partner) == d.record.ID {
 			result = append(result, row)
 		}
@@ -171,36 +232,20 @@ func (d *Draft) Talks() []Talk {
 }
 
 func (d *Draft) SetText(index, rank int, id uint16) error {
-	if d.table.err != nil {
-		return d.table.err
+	if d.talks.table.err != nil {
+		return d.talks.table.err
 	}
-	if index < 0 || index >= len(d.talks) || rank < 0 || rank >= 3 {
+	if index < 0 || index >= len(d.talks.rows) {
 		return edit.ErrValue
 	}
-	row := &d.talks[index]
+	row := d.talks.rows[index]
 	if int(row.Unit) != d.record.ID && int(row.Partner) != d.record.ID {
 		return edit.ErrValue
 	}
-	row.Texts[rank] = uint32(id)
-	at := 4 + rank*d.format.textWidth
-	if d.format.textWidth == 2 {
-		binary.LittleEndian.PutUint16(row.Raw[at:], id)
-	} else {
-		binary.LittleEndian.PutUint32(row.Raw[at:], uint32(id))
-	}
-	return nil
+	return d.talks.SetText(index, rank, id)
 }
 
-func (d *Draft) talksModified() bool {
-	for i, row := range d.talks {
-		if !bytes.Equal(row.Raw, d.table.rows[i].Raw) {
-			return true
-		}
-	}
-	return false
-}
-
-func (d *Draft) Modified() bool { return !bytes.Equal(d.raw, d.original) || d.talksModified() }
+func (d *Draft) Modified() bool { return !bytes.Equal(d.raw, d.original) || d.talks.Modified() }
 
 type Move struct {
 	Unit          int // Zero denotes the global dialog table.
@@ -231,19 +276,36 @@ func (p *Plan) Moves() []Move {
 }
 func (p *Plan) Missing() []Unit { return slices.Clone(p.missing) }
 
-func (e *Editor) Plan(d *Draft, synchronize bool) (result *Plan, err error) {
-	defer func() { err = fault.Wrap(err, "support.plan", fault.Context{Resource: "support"}) }()
+func (e *Editor) Plan(d *Draft, synchronize bool) (*Plan, error) {
 	if d == nil {
 		return nil, rom.ErrStale
 	}
-	if err = d.binding.Check(e.context); err != nil {
+	return e.plan(d.binding, d, d.talks, synchronize)
+}
+
+func (e *Editor) PlanTalks(d *TalkDraft) (*Plan, error) {
+	if d == nil {
+		return nil, rom.ErrStale
+	}
+	return e.plan(d.binding, nil, d, false)
+}
+
+func (e *Editor) plan(
+	binding edit.Stamp,
+	d *Draft,
+	talks *TalkDraft,
+	synchronize bool,
+) (result *Plan, err error) {
+	defer func() { err = fault.Wrap(err, "support.plan", fault.Context{Resource: "support"}) }()
+	if err = binding.Check(e.context); err != nil {
 		return nil, err
 	}
 	image := e.context.Document().Snapshot()
 	if err = e.context.Validate(image.Data); err != nil {
 		return nil, err
 	}
-	if !d.Modified() || e.source.ProtectPointer == nil {
+	if (d == nil || !d.Modified()) && !talks.Modified() ||
+		e.source.ProtectPointer == nil {
 		return nil, edit.ErrValue
 	}
 	units, err := e.source.Units(image.Data)
@@ -256,7 +318,7 @@ func (e *Editor) Plan(d *Draft, synchronize bool) (result *Plan, err error) {
 	}
 	pending := map[int][]byte{}
 	result = &Plan{}
-	if !bytes.Equal(d.raw, d.original) {
+	if d != nil && !bytes.Equal(d.raw, d.original) {
 		pending[d.record.ID] = d.raw
 		seen := map[uint8]bool{}
 		original := d.relationships(d.original)
@@ -375,14 +437,14 @@ func (e *Editor) Plan(d *Draft, synchronize bool) (result *Plan, err error) {
 			return nil, err
 		}
 	}
-	if d.talksModified() {
-		if d.table.err != nil {
-			return nil, d.table.err
+	if talks.Modified() {
+		if talks.table.err != nil {
+			return nil, talks.table.err
 		}
 		var payload []byte
-		for i, row := range d.talks {
+		for i, row := range talks.rows {
 			for rank, id := range row.Texts {
-				if id == d.table.rows[i].Texts[rank] || id == 0 {
+				if id == talks.table.rows[i].Texts[rank] || id == 0 {
 					continue
 				}
 				if id > 65535 || e.source.ValidateText == nil {
@@ -397,18 +459,18 @@ func (e *Editor) Plan(d *Draft, synchronize bool) (result *Plan, err error) {
 			}
 			payload = append(payload, row.Raw...)
 		}
-		payload = append(payload, d.table.terminator...)
+		payload = append(payload, talks.table.terminator...)
 		if err = appendResource(
 			payload,
 			Move{
-				Before:   d.table.address,
+				Before:   talks.table.address,
 				Pointers: slices.Clone(e.format.pointers),
 			},
 		); err != nil {
 			return nil, err
 		}
 	}
-	result.plan = edit.NewPlan(d.binding, "Edit supports", change)
+	result.plan = edit.NewPlan(binding, "Edit supports", change)
 	return result, nil
 }
 

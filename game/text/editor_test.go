@@ -23,7 +23,7 @@ func TestTextIDWorkflow(t *testing.T) {
 			s := testutil.Open(t, testutil.TextFixtureFor(version))
 			entries, err := s.Texts.Entries()
 			if err != nil || len(entries) != 6 || entries[3].ID != 4 ||
-				entries[3].Content != testutil.OriginalDescription {
+				entries[3].Content != testutil.OriginalDescription || entries[3].Plain != "A\nB" {
 				t.Fatalf("existing IDs were not indexed: %+v, %v", entries, err)
 			}
 			entries[3].Content = "changed copy"
@@ -65,6 +65,7 @@ func TestTextIDWorkflow(t *testing.T) {
 			}
 			value, err := s.Texts.Read(4)
 			if err != nil || value.Content != content ||
+				value.Plain != "AB\n" ||
 				value.Raw != "AB[0x0080][0x0021][0x0010][0x0041]\n[0x001F]" ||
 				!slices.Equal(
 					value.ControlCodes(),
@@ -296,7 +297,10 @@ func TestTextIndexRetainsUnreadableEntries(t *testing.T) {
 	value, err := s.Texts.Read(4)
 	if err != nil || value.Editable ||
 		!errors.Is(value.ReadOnlyReason, text.ErrTextControl) ||
-		!strings.Contains(value.Raw, "[0x0080][0x0026]") {
+		!strings.Contains(
+			value.Raw,
+			"[0x0080][0x0026]",
+		) || !strings.Contains(value.Plain, "[0x0080][0x0026]") {
 		t.Fatalf(
 			"unknown controls were not preserved with a reason: %+v, %v",
 			value,

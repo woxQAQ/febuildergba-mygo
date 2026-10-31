@@ -48,6 +48,7 @@ type Workspace struct {
 	portraits *portraits.Page
 	shops     *shops.Page
 	quotes    *quotes.Page
+	defeats   map[int]*quotes.Page
 	supports  *supports.Page
 	zoomLevel int
 	menuState struct {
@@ -99,9 +100,18 @@ func New() *Workspace {
 	w.records.SetPortraitOpener(w.OpenPortrait)
 	w.shops = shops.New(w.Editor, w.records.OpenShop, w.openHex)
 	w.quotes = quotes.New(w.Editor, w.records.Open, w.openText, w.openHex)
-	w.supports = supports.New(w.Editor, w.records.Open, w.openText, w.openHex)
-	w.records.SetSupportOpener(
-		func(id int) { w.tab = len(records.Kinds) + 6; w.supports.Open(id) },
+	w.defeats = make(map[int]*quotes.Page)
+	w.records.SetDefeatView(
+		func(c *ui.Context, id int, available float32, raw bool) { w.defeat(id).ViewDefeat(c, available, raw) },
+	)
+	w.supports = supports.New(
+		w.Editor,
+		w.records.OpenSupport,
+		w.openText,
+		w.openHex,
+	)
+	w.records.SetSupportTalkOpener(
+		func(unit, partner int) { w.tab = len(records.Kinds) + 6; w.supports.OpenPair(unit, partner) },
 	)
 	w.scripts = eventeditor.New(
 		w.Editor,
@@ -123,12 +133,41 @@ func (w *Workspace) SetSession(session *game.Session) {
 	w.portraits.Reset()
 	w.shops.Reset()
 	w.quotes.Reset()
+	w.defeats = make(map[int]*quotes.Page)
 	w.supports.Reset()
 	w.tab = 0
 }
 
+func (w *Workspace) defeat(id int) *quotes.Page {
+	page := w.defeats[id]
+	if page == nil {
+		page = quotes.New(w.Editor, w.records.Open, w.openText, w.openHex)
+		page.ForUnit(id)
+		w.defeats[id] = page
+	}
+	return page
+}
+
 // OpenQuote navigates from a text use to its owning native table row.
 func (w *Workspace) OpenQuote(kind quote.Kind, index int) {
+	if kind == quote.Death || kind == quote.DeathLyn ||
+		kind == quote.DeathOther {
+		draft, err := w.Editor.Session.Quotes.NewDraft(kind)
+		if err == nil {
+			value, readErr := draft.Value(index, quote.Unit)
+			id := int(value)
+			units := w.Editor.Session.Records.Table(records.Units)
+			if readErr == nil && units != nil && units.Err == nil &&
+				slices.ContainsFunc(
+					units.Rows,
+					func(row records.Row) bool { return row.ID == id },
+				) {
+				w.records.OpenDefeat(id)
+				w.defeat(id).Open(kind, index)
+				return
+			}
+		}
+	}
 	w.tab = len(records.Kinds) + 5
 	w.quotes.Open(kind, index)
 }
@@ -197,7 +236,7 @@ func (w *Workspace) View(c *ui.Context) {
 			locales.PortraitTable(),
 			locales.ShopEntries(),
 			locales.QuoteEditor(),
-			locales.SupportEditor(),
+			locales.SupportDialogues(),
 		)
 		ui.ScrollHorizontal(c.Key("workspace-tabs")).Shrink(0).Children(func() {
 			ui.Tabs(c, &w.tab, labels...).Shrink(0)

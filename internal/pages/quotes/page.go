@@ -27,14 +27,16 @@ type (
 		invalid bool
 	}
 	tableState struct {
-		draft    *quote.Draft
-		preview  *quote.Plan
-		err      error
-		inputs   map[fieldKey]*valueInput
-		rows     []quote.Entry
-		filtered []int
-		selected int
-		list     ui.ListState
+		draft        *quote.Draft
+		preview      *quote.Plan
+		err          error
+		inputs       map[fieldKey]*valueInput
+		rows         []quote.Entry
+		filtered     []int
+		selected     int
+		list         ui.ListState
+		recordChoice string
+		choiceID     uint64
 	}
 )
 
@@ -72,6 +74,11 @@ type Page struct {
 	textChoices    []string
 	textIDs        map[string]uint32
 	textRevision   uint64
+	unit           int
+	extraKind      quote.Kind
+	thumbnails     components.Thumbnails
+	battleScope    int
+	scopeChoice    string
 }
 
 func New(
@@ -82,6 +89,7 @@ func New(
 ) *Page {
 	return &Page{
 		state:      state,
+		unit:       -1,
 		openRecord: openRecord,
 		openText:   openText,
 		openHex:    openHex,
@@ -90,13 +98,17 @@ func New(
 }
 
 func (p *Page) Reset() {
-	state, record, text, hex, sidebar := p.state, p.openRecord, p.openText, p.openHex, p.sidebar
+	state, record, text, hex, sidebar, unit := p.state, p.openRecord, p.openText, p.openHex, p.sidebar, p.unit
 	*p = *New(state, record, text, hex)
-	p.sidebar = sidebar
+	p.sidebar, p.unit = sidebar, unit
 }
 
 func (p *Page) Open(kind quote.Kind, index int) {
-	p.tables = p.state.Session.Quotes.Tables()
+	p.battleScope, p.scopeChoice = 0, ""
+	if p.unit < 0 && defeatTable(kind) {
+		p.extraKind = kind
+	}
+	p.refreshTables()
 	for i, table := range p.tables {
 		if table.Kind == kind {
 			p.category = i
@@ -113,7 +125,8 @@ func (p *Page) Open(kind quote.Kind, index int) {
 					}
 				}
 			}
-			entry.list = ui.ListState{}
+			physical := entry.selected
+			p.selectIndex(entry, physical)
 			return
 		}
 	}
@@ -151,27 +164,24 @@ func (p *Page) name(kind records.Kind, id uint32) string {
 
 func (p *Page) caption(entry *tableState, index int) string {
 	id, _ := entry.draft.Value(index, quote.Unit)
-	caption := fmt.Sprintf(
-		"%03X · %02X %s",
-		index,
-		id,
-		p.name(records.Units, id),
-	)
+	caption := p.unitName(id)
 	if other, err := entry.draft.Value(index, quote.Opponent); err == nil {
-		caption += fmt.Sprintf(
-			" / %02X %s",
-			other,
-			p.name(records.Units, other),
-		)
+		caption += " ↔ " + p.unitName(other)
 	}
-	if text, err := entry.draft.Value(
-		index,
-		quote.Text,
-	); err == nil &&
-		text != 0 {
-		caption += fmt.Sprintf(" · %04X", text)
+	if p.unit >= 0 {
+		return caption + " " + p.conditions(entry, index)
 	}
 	return caption
+}
+
+func (p *Page) unitName(id uint32) string {
+	if id == 0 {
+		return locales.QuoteUnspecifiedSide()
+	}
+	if name := p.name(records.Units, id); name != "" {
+		return name
+	}
+	return locales.QuoteUnknownUnit()
 }
 
 func (p *Page) filter(entry *tableState) {
@@ -187,6 +197,12 @@ func (p *Page) filter(entry *tableState) {
 	query := strings.ToLower(strings.TrimSpace(p.query))
 	id, idErr := strconv.ParseUint(strings.TrimPrefix(query, "0x"), 16, 32)
 	for i := range entry.rows {
+		if p.unit >= 0 {
+			unit, err := entry.draft.Value(i, quote.Unit)
+			if err != nil || int(unit) != p.unit {
+				continue
+			}
+		}
 		matches := query == "" ||
 			strings.Contains(strings.ToLower(p.caption(entry, i)), query) ||
 			idErr == nil && id == uint64(i)
@@ -195,7 +211,7 @@ func (p *Page) filter(entry *tableState) {
 			matches = matches ||
 				idErr == nil && err == nil && uint64(value) == id
 		}
-		if matches {
+		if matches && p.matchesBattle(entry, i) {
 			entry.filtered = append(entry.filtered, i)
 		}
 	}
@@ -209,7 +225,7 @@ func (p *Page) filter(entry *tableState) {
 }
 
 func (p *Page) View(c *ui.Context) {
-	p.tables = p.state.Session.Quotes.Tables()
+	p.refreshTables()
 	if len(p.tables) == 0 {
 		return
 	}
@@ -226,23 +242,29 @@ func (p *Page) View(c *ui.Context) {
 }
 
 func (p *Page) navigation(c *ui.Context, entry *tableState) {
-	ui.Column(c).Fill().Padding(12).Gap(8).Children(func() {
+	ui.Column(c.Key("navigation")).Fill().Padding(12).Gap(8).Children(func() {
 		labels := make([]string, len(p.tables))
 		for i, table := range p.tables {
-			labels[i] = locales.Label(string(table.Kind))
+			labels[i] = p.tableLabel(table.Kind)
 		}
 		if !slices.Contains(labels, p.categoryChoice) {
 			p.categoryChoice = labels[p.category]
 		}
-		ui.Select(c, &p.categoryChoice, labels).
-			Label(locales.QuoteTable()).
-			Disabled(p.state.Busy).
-			OnChange(func() {
-				if index := slices.Index(labels, p.categoryChoice); index >= 0 {
-					p.category = index
-					p.query = ""
-				}
-			})
+		if len(p.tables) > 1 {
+			ui.Select(c, &p.categoryChoice, labels).
+				Label(locales.QuoteTable()).
+				Disabled(p.state.Busy).
+				OnChange(func() {
+					if index := slices.Index(
+						labels,
+						p.categoryChoice,
+					); index >= 0 {
+						p.category = index
+						p.query = ""
+					}
+				})
+		}
+		p.battleFilter(c, entry)
 		components.TextDraft(
 			p.state,
 			ui.TextInput(c, &p.query).
@@ -253,13 +275,12 @@ func (p *Page) navigation(c *ui.Context, entry *tableState) {
 		)
 		entry.list.Selected = &entry.selected
 		entry.list.Key = func(index int) any { return entry.rows[entry.filtered[index]].ID }
-		ui.Table(c.Key(entry), &entry.list, []ui.TableColumn{{ID: "quote", Title: locales.QuoteRecords()}}, len(entry.filtered), func(row, _ int) {
-			caption := p.caption(entry, entry.filtered[row])
-			ui.Text(c, caption).FontSize(13).SingleLine().Tooltip(caption)
+		list := ui.Table(c.Key(entry), &entry.list, []ui.TableColumn{{ID: "quote", Title: locales.QuoteRecords()}}, len(entry.filtered), func(row, _ int) {
+			p.listRow(c, entry, entry.filtered[row])
 		}).
-			Grow(1).
 			Label(locales.QuoteRecords()).
 			Disabled(p.state.Busy)
+		list.Grow(1)
 		// Keyed lists can clear selection when a deleted row disappears.
 		entry.selected = min(max(0, entry.selected), len(entry.filtered)-1)
 		if len(entry.filtered) == 0 {
@@ -275,7 +296,7 @@ func (p *Page) detail(c *ui.Context, table quote.Table, entry *tableState) {
 	stale := entry.draft == nil || !entry.draft.Current(s.Quotes)
 	ui.Scroll(c.Key(entry)).Fill().Children(func() {
 		ui.Column(c).Padding(16).Gap(12).Children(func() {
-			ui.Text(c, locales.Label(string(table.Kind))).FontSize(18).Bold()
+			ui.Text(c, p.tableLabel(table.Kind)).FontSize(18).Bold()
 			if entry.err != nil {
 				ui.Text(c, components.ErrorText(entry.err)).
 					TextColor(c.Theme().Danger).
@@ -315,40 +336,14 @@ func (p *Page) detail(c *ui.Context, table quote.Table, entry *tableState) {
 							index,
 							field,
 							stale || state.Busy,
+							360,
 						)
 					}
 					for _, field := range []string{quote.Text, quote.FinalText} {
-						id, err := entry.draft.Value(index, field)
-						if err != nil || id == 0 || id > 65535 {
-							continue
-						}
-						text, err := s.Texts.Value(
-							uint16(id),
-						) // #nosec G115 -- ID is bounded above.
-						if err != nil {
-							ui.Text(c, components.ErrorText(err)).
-								TextColor(c.Theme().Danger)
-						} else {
-							ui.Text(c, locales.Label(field)).FontSize(12).Bold()
-							ui.Scroll(c.Key("preview-" + field)).
-								Height(112).
-								Children(func() {
-									ui.Text(c, text.Content).
-										Selectable().
-										FontSize(13)
-								})
-						}
+						p.textPreview(c, entry, index, field)
 					}
 					if p.advanced {
-						ui.Textf(c, "% X", row.Raw).
-							Selectable().
-							Font("monospace").
-							FontSize(12)
-						ui.Row(c).Children(func() {
-							ui.Button(c, locales.QuoteRaw()).
-								Disabled(state.Busy || row.Address < 0).
-								OnClick(func() { p.openHex(row.Address, len(row.Raw)) })
-						})
+						p.rawRecord(c, row)
 					}
 				})
 			}
@@ -357,21 +352,64 @@ func (p *Page) detail(c *ui.Context, table quote.Table, entry *tableState) {
 	})
 }
 
+func (p *Page) textPreview(
+	c *ui.Context,
+	entry *tableState,
+	index int,
+	field string,
+) {
+	id, err := entry.draft.Value(index, field)
+	if err != nil || id == 0 || id > 65535 {
+		return
+	}
+	value, err := p.state.Session.Texts.Value(
+		uint16(id),
+	) // #nosec G115 -- ID bounds checked above.
+	if err != nil {
+		ui.Text(c, components.ErrorText(err)).TextColor(c.Theme().Danger)
+		return
+	}
+	content := strings.TrimSpace(value.Plain)
+	if p.advanced {
+		content = value.Content
+	}
+	if content == "" {
+		content = locales.QuoteControlOnly()
+	}
+	ui.Text(c, content).
+		Selectable().
+		FontSize(13).
+		MaxWidth(720).
+		Label(locales.QuoteReadingPreview())
+}
+
+func (p *Page) rawRecord(c *ui.Context, row quote.Entry) {
+	ui.Textf(c, "% X", row.Raw).Selectable().Font("monospace").FontSize(12)
+	ui.Row(c).Children(func() {
+		ui.Button(c, locales.QuoteRaw()).
+			Disabled(p.state.Busy || row.Address < 0).
+			OnClick(func() { p.openHex(row.Address, len(row.Raw)) })
+	})
+}
+
 func (p *Page) structure(c *ui.Context, entry *tableState, disabled bool) {
 	index := entry.index()
 	ui.Row(c).Wrap().Gap(6).Children(func() {
 		ui.Button(c, locales.QuoteAdd()).
-			Disabled(disabled || len(entry.rows) >= quote.MaxEntries).
+			Disabled(disabled || len(entry.rows) >= quote.MaxEntries || p.unit == 0 || p.unit > 255).
 			OnClick(func() {
-				p.state.Err = entry.draft.Add()
+				p.state.Err = p.addRecord(entry)
+				if p.state.Err == nil && p.unit >= 0 {
+					p.state.Err = entry.draft.Set(
+						len(entry.draft.Entries())-1,
+						quote.Unit,
+						uint32(p.unit),
+					) // #nosec G115 -- Character IDs are bounded by the enabled action.
+				}
 				if p.state.Err == nil {
 					entry.preview = nil
 					p.query = ""
-					entry.filtered = nil
-					entry.rows = entry.draft.Entries()
-					entry.selected = len(entry.rows) - 1
-					entry.list = ui.ListState{}
-					entry.list.ScrollTo(entry.selected, ui.Center)
+					p.selectIndex(entry, len(entry.draft.Entries())-1)
 				}
 			})
 		ui.Button(c, locales.QuoteCopy()).
@@ -381,10 +419,7 @@ func (p *Page) structure(c *ui.Context, entry *tableState, disabled bool) {
 				if p.state.Err == nil {
 					entry.preview = nil
 					p.query = ""
-					entry.filtered = nil
-					entry.rows = entry.draft.Entries()
-					entry.selected = index + 1
-					entry.list = ui.ListState{}
+					p.selectIndex(entry, index+1)
 				}
 			})
 		ui.Button(c, locales.QuoteDelete()).
@@ -398,17 +433,25 @@ func (p *Page) structure(c *ui.Context, entry *tableState, disabled bool) {
 					entry.list = ui.ListState{}
 				}
 			})
+		if p.unit >= 0 && len(entry.filtered) < 2 {
+			return
+		}
 		for _, direction := range []int{-1, 1} {
 			label, caption := "↑", locales.MoveUp()
 			if direction > 0 {
 				label, caption = "↓", locales.MoveDown()
 			}
+			destination := -1
+			if position := entry.selected + direction; position >= 0 &&
+				position < len(entry.filtered) {
+				destination = entry.filtered[position]
+			}
 			ui.Button(c.Key(direction), label).
 				Label(caption).
 				Tooltip(caption + "\n" + locales.QuoteOrderHelp()).
-				Disabled(disabled || index < 0 || index+direction < 0 || index+direction >= len(entry.rows)).
+				Disabled(disabled || index < 0 || destination < 0).
 				OnClick(func() {
-					p.state.Err = entry.draft.Move(index, index+direction)
+					p.state.Err = entry.draft.Move(index, destination)
 					if p.state.Err == nil {
 						entry.preview = nil
 					}
@@ -471,7 +514,7 @@ func (p *Page) choices(field quote.Field) ([]string, map[string]uint32) {
 						continue
 					}
 					content := []rune(
-						strings.ReplaceAll(entry.Content, "\n", " "),
+						strings.ReplaceAll(entry.Plain, "\n", " "),
 					)
 					if len(content) > 48 {
 						content = append(content[:48], '…')
@@ -530,7 +573,12 @@ func fieldLabel(kind quote.Kind, field string) string {
 
 func (p *Page) fieldHelp(kind quote.Kind, field string) string {
 	switch field {
-	case quote.Unit, quote.Opponent, quote.Text, quote.FinalText, quote.Route:
+	case quote.Unit, quote.Opponent:
+		if kind == quote.Battle && p.state.Session.Quotes.Version() == 8 {
+			return locales.QuoteFe8ViewsHelp() + "\n" + locales.QuoteReferenceHelp()
+		}
+		return locales.QuoteReferenceHelp()
+	case quote.Text, quote.FinalText, quote.Route:
 		return locales.QuoteReferenceHelp()
 	case quote.Chapter:
 		help := fmt.Sprintf(
@@ -559,6 +607,7 @@ func (p *Page) field(
 	index int,
 	field quote.Field,
 	disabled bool,
+	width float32,
 ) {
 	value, _ := entry.draft.Value(index, field.ID)
 	extended := !field.Editable(entry.rows[index].Raw)
@@ -590,7 +639,7 @@ func (p *Page) field(
 				components.TextDraft(
 					p.state,
 					ui.Combobox(c, &current.text, labels).
-						Width(360).
+						Width(max(100, width)).
 						MaxWidthPercent(100).
 						Label(locales.QuoteEditor()+" / "+label).
 						Tooltip(help).
@@ -604,6 +653,8 @@ func (p *Page) field(
 									chosen,
 								)
 								current.invalid = p.state.Err != nil
+							} else {
+								current.invalid = true
 							}
 						}),
 				)
@@ -611,7 +662,7 @@ func (p *Page) field(
 				control := components.TextDraft(
 					p.state,
 					ui.TextInput(c, &current.text).
-						Width(200).
+						Width(min(200, max(100, width))).
 						MaxWidthPercent(100).
 						Label(locales.QuoteEditor()+" / "+label).
 						Tooltip(help).
@@ -679,6 +730,11 @@ func (p *Page) field(
 					OnClick(func() { p.openHex(int(value)-0x08000000, 16) })
 			}
 		})
+		if current.invalid {
+			ui.Text(c, locales.QuoteInvalidInput()).
+				FontSize(12).
+				TextColor(c.Theme().Danger)
+		}
 		if defeatTable(entry.draft.Kind()) {
 			if field.ID == quote.Flag && value == 0x65 {
 				ui.Text(c, locales.QuoteDeathHelp()).FontSize(12)
@@ -704,6 +760,22 @@ func (p *Page) actions(c *ui.Context, entry *tableState, stale bool) {
 		return
 	}
 	ui.Row(c).Wrap().Gap(8).Children(func() {
+		if invalid {
+			ui.Button(c, locales.QuoteInvalidInput()).
+				Disabled(p.state.Busy).
+				OnClick(func() {
+					for index, row := range entry.rows {
+						for key, input := range entry.inputs {
+							if key.row == row.ID && input.invalid {
+								p.query = ""
+								p.battleScope, p.scopeChoice = 0, ""
+								p.selectIndex(entry, index)
+								return
+							}
+						}
+					}
+				})
+		}
 		if entry.draft != nil {
 			ui.Button(c, locales.QuotePreview()).
 				Disabled(p.state.Busy || stale || !modified || invalid).

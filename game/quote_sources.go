@@ -7,9 +7,9 @@ import (
 )
 
 func (g format) nativeRanges(data []byte) []space.Range {
-	return append(
-		append(g.shopRanges(data), g.quotes.Ranges(data)...),
-		g.supportRanges(data)...)
+	ranges := append(g.shopRanges(data), g.quotes.Ranges(data)...)
+	ranges = append(ranges, g.supportRanges(data)...)
+	return append(ranges, g.terrainRanges(data)...)
 }
 
 func (s *Session) quoteSource() quote.Source {

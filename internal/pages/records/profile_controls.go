@@ -214,7 +214,7 @@ func (a *form) profileRank(
 	if weapon.Inherited && weapon.ReferenceError != nil {
 		rank = "?"
 	}
-	help := locales.RecordWeaponsHelp()
+	help := locales.Label(weapon.Weapon) + "\n" + locales.RecordWeaponsHelp()
 	if weapon.Inherited {
 		help += "\n" + locales.RecordInherit() + " " + rank
 	}
@@ -232,8 +232,18 @@ func (a *form) profileRank(
 		control.Background(c.Theme().SurfaceHover)
 	}
 	control.Children(func() {
-		ui.Textf(c, "%s %s ▾", locales.Label(weapon.Weapon), rank).
-			FontSize(12).TextAlign(ui.End).Grow(1)
+		ui.Row(c).Gap(4).AlignItems(ui.Center).Children(func() {
+			icon := a.thumbnails.Weapon(
+				a.state.Session,
+				slices.Index(records.WeaponNames, weapon.Weapon),
+			)
+			if icon.Available() {
+				icon.View(c, 16, locales.Label(weapon.Weapon))
+			} else {
+				ui.Text(c, locales.Label(weapon.Weapon)).FontSize(12)
+			}
+			ui.Textf(c, "%s ▾", rank).FontSize(12).TextAlign(ui.End).Grow(1)
+		})
 	})
 	control.PopoverMenuButton(func(menu *ui.Menu) {
 		for _, option := range []string{"none", "E", "D", "C", "B", "A", "S"} {

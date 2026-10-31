@@ -22,6 +22,8 @@ type (
 		targetInput      ui.Handle
 		target           string
 		choices          map[string]*choiceDraft
+		terrain          terrainState
+		support          supportState
 	}
 )
 
@@ -75,11 +77,24 @@ func (a *form) profile(
 						ui.Text(c, components.ErrorText(preview.err)).
 							TextColor(c.Theme().Danger)
 					}
+					sections := []string{
+						locales.RecordAbilities(),
+						locales.RecordRelated(),
+					}
+					if kind == records.Classes {
+						sections = append(sections, locales.TerrainEditor())
+					} else {
+						sections = append(
+							sections,
+							locales.SupportEditor(),
+							locales.Label("quote_death"),
+						)
+					}
 					ui.Row(c.Key("profile-toolbar")).
-						Gap(12).
+						Wrap().Gap(12).
 						AlignItems(ui.Center).
 						Children(func() {
-							ui.Tabs(c.Key("profile-section"), &entry.section, locales.RecordAbilities(), locales.RecordRelated()).
+							ui.Tabs(c.Key("profile-section"), &entry.section, sections...).
 								Label(locales.RecordSections())
 							ui.Box(c).Grow(1)
 							ui.Checkbox(c.Key("raw"), &a.showRaw, locales.Advanced()).
@@ -89,6 +104,20 @@ func (a *form) profile(
 						a.profileAbilities(c, kind, row, table, entry)
 						a.profileWeapons(c, kind, row, table)
 						a.profileTraits(c, kind, row)
+					} else if entry.section == 2 && kind == records.Classes {
+						a.profileTerrain(c, row, entry)
+					} else if entry.section == 3 && kind == records.Units {
+						if a.defeatView != nil {
+							width, _ := c.Size()
+							a.defeatView(
+								c,
+								row.ID,
+								width-a.sidebar-32,
+								a.showRaw,
+							)
+						}
+					} else if entry.section == 2 {
+						a.profileSupports(c, row, entry)
 					} else {
 						a.profileRelated(c, kind, row, table, entry)
 					}
@@ -330,11 +359,6 @@ func (a *form) profileRelated(
 	}
 	ui.Column(c).Gap(6).Children(func() {
 		ui.Text(c, locales.RecordResourceLinks()).Bold().FontSize(13)
-		if kind == records.Units && a.openSupport != nil {
-			ui.Button(c, locales.SupportEditor()).
-				Disabled(a.state.Busy).
-				OnClick(func() { a.openSupport(row.ID) })
-		}
 		for _, link := range links {
 			ui.Row(c.Key(link.Label)).
 				Wrap().

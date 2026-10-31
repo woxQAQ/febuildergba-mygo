@@ -30,6 +30,18 @@
 
 FE8 路径使用同一固定提交的 [muctrl.h](https://github.com/FireEmblemUniverse/fireemblem8u/blob/04d1edb163d14bd10777a065697e1a9f17be65f2/include/muctrl.h) 和 [muctrl.c](https://github.com/FireEmblemUniverse/fireemblem8u/blob/04d1edb163d14bd10777a065697e1a9f17be65f2/src/muctrl.c)，核对 `REDA`、`CopyEventMoveREDAs`、`MuCtr_ExecREDA_807A358` 的绝对目标、缓冲区和等待语义；条件事件参考 [eventinfo.c](https://github.com/FireEmblemUniverse/fireemblem8u/blob/04d1edb163d14bd10777a065697e1a9f17be65f2/src/eventinfo.c) 中的 `EvCheck02_TURN` 等执行逻辑。
 
+## 列表缩略图与武器类别图标
+
+五版入口、我方调色板地址、形状及武器裁图依据固定旧版提交 `8e3557912ddab708d11bf85ad311b41bb6630fd1` 的 `ROMFE6JP.cs`、`ROMFE7U.cs`、`ROMFE7JP.cs`、`ROMFE8U.cs`、`ROMFE8JP.cs`、[ImageUnitWaitIconFrom.cs](https://github.com/FEBuilderGBA/FEBuilderGBA/blob/8e3557912ddab708d11bf85ad311b41bb6630fd1/FEBuilderGBA/ImageUnitWaitIconFrom.cs) 和 [ImageSystemIconForm.cs](https://github.com/FEBuilderGBA/FEBuilderGBA/blob/8e3557912ddab708d11bf85ad311b41bb6630fd1/FEBuilderGBA/ImageSystemIconForm.cs)。旧版 FE8 的候选入口选择只用于只读读取。
+
+原生编号掩码、三种帧尺寸和首帧 tile 顺序交叉核对：
+
+- `StanHash/fe6@f9ea5f67f3f1048ca9836d7350077231ba54b589`：[include/unitsprite.h](https://github.com/StanHash/fe6/blob/f9ea5f67f3f1048ca9836d7350077231ba54b589/include/unitsprite.h) 的 `GetUnitSpriteInfo` 与 [src/unitsprite.c](https://github.com/StanHash/fe6/blob/f9ea5f67f3f1048ca9836d7350077231ba54b589/src/unitsprite.c)。
+- `StanHash/fe7_us@5c8b3c5e254e00f0f3458b9772c27e1a5a326e3b`：[asm/code.s](https://github.com/StanHash/fe7_us/blob/5c8b3c5e254e00f0f3458b9772c27e1a5a326e3b/asm/code.s) 的 `func_08024D60`（`7F` 掩码、8 字节步长和形状分支）及后续图块复制函数。
+- `FireEmblemUniverse/fireemblem8u@04d1edb163d14bd10777a065697e1a9f17be65f2`：[src/bmudisp.c](https://github.com/FireEmblemUniverse/fireemblem8u/blob/04d1edb163d14bd10777a065697e1a9f17be65f2/src/bmudisp.c) 的 `GetInfo`、`StartUiSMS` 和 `ApplyUnitSpriteImage*`。
+
+日版入口同时按固定旧版定义和动态 ROM 资源读取核对，不以美版反编译证明所有日版补丁的消费者。格式与读取边界见[图像参考](reference/text-and-images.md#列表缩略图与武器类别图标)。
+
 ## 地图布局
 
 地图布局写入依据旧版基线的 `MapEditorForm.WriteMapData`：宽、高各一字节，逐格 16 位小端图块值，整体 LZ77 压缩，再更新地图 PLIST 项。`MapPointerForm.GetBasePointer` 及五版 `ROMFE*` 定义各资源类型的实时列表入口，用于区分共用列表、拆分列表和跨资源类型的入口冲突。
@@ -83,6 +95,16 @@ FE6／FE7 坐标未命中退回事件参数，FE8 则返回事件错误。FE7 �
 世界地图原生结构核对 FE8 同一固定提交的 [include/worldmap.h](https://github.com/FireEmblemUniverse/fireemblem8u/blob/04d1edb163d14bd10777a065697e1a9f17be65f2/include/worldmap.h) 中 `GMapNodeData`、[include/constants/worldmap.h](https://github.com/FireEmblemUniverse/fireemblem8u/blob/04d1edb163d14bd10777a065697e1a9f17be65f2/include/constants/worldmap.h) 的 `NODE_MAX = 0x1D`，以及 [src/worldmap_node_data.c](https://github.com/FireEmblemUniverse/fireemblem8u/blob/04d1edb163d14bd10777a065697e1a9f17be65f2/src/worldmap_node_data.c)／[src/worldmap_shop_data.c](https://github.com/FireEmblemUniverse/fireemblem8u/blob/04d1edb163d14bd10777a065697e1a9f17be65f2/src/worldmap_shop_data.c)。节点步长 32、货物指针 +12／+16／+20、名称 ID +28，另与固定旧版 `WorldMapPointForm.Init`／`GetShopAddr` 及日版根指针对照。
 
 [src/worldmap_path.c](https://github.com/FireEmblemUniverse/fireemblem8u/blob/04d1edb163d14bd10777a065697e1a9f17be65f2/src/worldmap_path.c) 的 `WMMenu_IsArmoryAvailable`／`WMMenu_IsVendorAvailable`／`WMMenu_IsSecretShopAvailable` 直接读货物首个半字判定菜单，秘密商店另查通关标志；[src/worldmap_basemenu.c](https://github.com/FireEmblemUniverse/fireemblem8u/blob/04d1edb163d14bd10777a065697e1a9f17be65f2/src/worldmap_basemenu.c) 的进入函数将对应列表交给加载器。FE8J 原生 `0xC14B4`／`0xC14EC`／`0xC1524` 的相同指令段交叉确认节点乘 32、三个字段偏移及半字读取与零值分支；不能把零指针当成已关闭的节点商店。
+
+## 职业移动与地形
+
+旧版入口为固定基线的 `ClassForm.cs`、`ClassFE6Form.cs`、`MoveCostForm.cs`、`MoveCostFE6Form.cs`；后两者分别声明 65 与 51 个地形项，职业页提供普通／雨雪移动和回避／防御／魔防指针。
+
+- FE6，`StanHash/fe6@f9ea5f67f3f1048ca9836d7350077231ba54b589`：[include/unit.h](https://github.com/StanHash/fe6/blob/f9ea5f67f3f1048ca9836d7350077231ba54b589/include/unit.h) 的职业结构、[include/constants/terrains.h](https://github.com/StanHash/fe6/blob/f9ea5f67f3f1048ca9836d7350077231ba54b589/include/constants/terrains.h) 的地形编号，以及 [src/unit.c](https://github.com/StanHash/fe6/blob/f9ea5f67f3f1048ca9836d7350077231ba54b589/src/unit.c)／[src/mapwork.c](https://github.com/StanHash/fe6/blob/f9ea5f67f3f1048ca9836d7350077231ba54b589/src/mapwork.c) 的移动表读取；只有一列职业移动入口。
+- FE7U，`StanHash/fe7_us@5c8b3c5e254e00f0f3458b9772c27e1a5a326e3b`：[include/unit.h](https://github.com/StanHash/fe7_us/blob/5c8b3c5e254e00f0f3458b9772c27e1a5a326e3b/include/unit.h)、[include/constants/terrain.h](https://github.com/StanHash/fe7_us/blob/5c8b3c5e254e00f0f3458b9772c27e1a5a326e3b/include/constants/terrain.h) 与 [asm/code.s](https://github.com/StanHash/fe7_us/blob/5c8b3c5e254e00f0f3458b9772c27e1a5a326e3b/asm/code.s) 的 `GetUnitMovementCost` 及调用后的字节符号扩展／非正检查。
+- FE8，`FireEmblemUniverse/fireemblem8u@04d1edb163d14bd10777a065697e1a9f17be65f2`：[include/bmunit.h](https://github.com/FireEmblemUniverse/fireemblem8u/blob/04d1edb163d14bd10777a065697e1a9f17be65f2/include/bmunit.h)、[include/constants/terrains.h](https://github.com/FireEmblemUniverse/fireemblem8u/blob/04d1edb163d14bd10777a065697e1a9f17be65f2/include/constants/terrains.h)、[src/data_terrains.c](https://github.com/FireEmblemUniverse/fireemblem8u/blob/04d1edb163d14bd10777a065697e1a9f17be65f2/src/data_terrains.c)，以及 [src/bmunit.c](https://github.com/FireEmblemUniverse/fireemblem8u/blob/04d1edb163d14bd10777a065697e1a9f17be65f2/src/bmunit.c)／[src/bmidoten.c](https://github.com/FireEmblemUniverse/fireemblem8u/blob/04d1edb163d14bd10777a065697e1a9f17be65f2/src/bmidoten.c)：有符号表、按天气取表、−1 不可通行及独立弩车移动来源。
+
+FE7J／FE8J 的偏移和长度另对照固定旧版日版适配及当前 ROM 文件流程。五版文件检查验证各列可读、按所选指针独立写入及保存重开，不代表所有日版／改版移动消费者或游戏内战斗已经验证。详细布局及保留规则见[地形参考](reference/terrain.md)。
 
 ## 支援关系与对话
 

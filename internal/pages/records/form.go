@@ -26,8 +26,10 @@ type form struct {
 	openText              func(uint16)
 	openScript            func(int, int)
 	openPortrait          func(int)
-	openSupport           func(int)
+	openSupportTalk       func(int, int)
 	imageEditor           components.AssetEditor
+	thumbnails            components.Thumbnails
+	defeatView            func(*ui.Context, int, float32, bool)
 	jump                  func(records.Kind, int)
 	assets                components.AssetActions
 }
@@ -68,15 +70,30 @@ func (a *form) OpenDeployment(
 
 func (a *form) Reset() {
 	a.ClearDrafts()
+	a.profiles = nil
 	a.preview = assetPreview{}
 	a.imageEditor = components.AssetEditor{}
+	a.thumbnails = components.Thumbnails{}
 	a.chapter = chapters.Page{}
 }
 
 func (a *form) ClearDrafts() {
 	a.drafts = nil
 	a.texts = nil
+	profiles := a.profiles
 	a.profiles = nil
+	// Layout changes invalidate resource drafts without discarding pending input.
+	for key, entry := range profiles {
+		if entry.terrain.draft != nil &&
+			(entry.terrain.draft.Modified() || entry.terrain.invalid()) ||
+			entry.support.draft != nil &&
+				(entry.support.draft.Modified() || entry.support.invalid()) {
+			retained := a.profileFor(key.Kind, key.Record)
+			retained.section = entry.section
+			retained.terrain = entry.terrain
+			retained.support = entry.support
+		}
+	}
 }
 
 func (a *form) View(

@@ -31,6 +31,7 @@ type Table struct {
 type Entry struct {
 	ID       uint16
 	Content  string
+	Plain    string
 	Editable bool
 	Err      error
 }

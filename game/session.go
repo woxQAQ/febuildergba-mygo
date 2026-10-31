@@ -13,7 +13,9 @@ import (
 	"github.com/woxQAQ/febuildergba-mygo/game/quote"
 	"github.com/woxQAQ/febuildergba-mygo/game/records"
 	"github.com/woxQAQ/febuildergba-mygo/game/shop"
+	"github.com/woxQAQ/febuildergba-mygo/game/sprite"
 	"github.com/woxQAQ/febuildergba-mygo/game/support"
+	"github.com/woxQAQ/febuildergba-mygo/game/terrain"
 	"github.com/woxQAQ/febuildergba-mygo/game/text"
 	"github.com/woxQAQ/febuildergba-mygo/rom"
 )
@@ -26,6 +28,7 @@ type Session struct {
 	Records     *records.Editor
 	Texts       *text.Editor
 	Portraits   *portrait.Editor
+	Sprites     *sprite.Reader
 	Images      *graphics.Editor
 	Chapters    *chapter.Editor
 	Events      *event.Editor
@@ -34,6 +37,7 @@ type Session struct {
 	Shops       *shop.Editor
 	Quotes      *quote.Editor
 	Supports    *support.Editor
+	Terrain     *terrain.Editor
 	format      format
 }
 
@@ -73,6 +77,11 @@ func Open(path string) (session *Session, err error) {
 		s.Shops = shop.NewEditor(context, format.shops, s.shopSource())
 		s.Quotes = quote.New(context, format.quotes, s.quoteSource())
 		s.Supports = support.New(context, format.supports, s.supportSource())
+		s.Terrain = terrain.New(
+			context,
+			terrain.ForVersion(format.id),
+			s.terrainSource(),
+		)
 		s.Portraits = portrait.New(
 			context,
 			format.portraits,
@@ -80,6 +89,7 @@ func Open(path string) (session *Session, err error) {
 			s.Records,
 			format.chapterConfig().Ranges,
 		)
+		s.Sprites = sprite.New(context, format.id)
 		s.Images = graphics.New(context, map[graphics.Kind]graphics.Backend{
 			graphics.Portrait: format.portraits,
 			graphics.ItemIcon: format.icons,

@@ -96,6 +96,7 @@ func (s *Editor) Entries() (entries []Entry, err error) {
 			Entry{
 				ID:       textID,
 				Content:  value.Content,
+				Plain:    value.Plain,
 				Editable: value.Editable && !table.Recovered,
 				Err:      readErr,
 			},

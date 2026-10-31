@@ -18,8 +18,11 @@ type textUnit struct {
 // TextValue retains native units alongside readable commands and raw markers.
 // Newlines are literal; literal brackets and backslashes are escaped.
 type Value struct {
-	ID             uint16
-	Content        string
+	ID      uint16
+	Content string
+	// Plain omits presentation controls while retaining line breaks, dynamic
+	// substitutions and unknown markers. It is a reading aid, not game rendering.
+	Plain          string
 	Raw            string
 	Editable       bool
 	ReadOnlyReason error
@@ -54,13 +57,15 @@ func (f Format) decodeCharacters(raw []byte) (string, bool) {
 var escapeText = strings.NewReplacer("\\", "\\\\", "[", "\\[")
 
 func (f Format) textValue(units []textUnit, reason error) Value {
-	content, valid := f.renderText(units, true)
-	raw, _ := f.renderText(units, false)
+	content, valid := f.renderText(units, commandText)
+	raw, _ := f.renderText(units, rawText)
+	plain, _ := f.renderText(units, plainText)
 	if !valid {
 		reason = ErrTextEncoding
 	}
 	return Value{
 		Content:        content,
+		Plain:          plain,
 		Raw:            raw,
 		Editable:       reason == nil,
 		ReadOnlyReason: reason,

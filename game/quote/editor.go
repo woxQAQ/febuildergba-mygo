@@ -72,6 +72,7 @@ type (
 		table      Table
 		rows       []row
 		nextID     uint64
+		version    int
 		anyChapter uint32
 	}
 )
@@ -91,6 +92,7 @@ func (s *Editor) NewDraft(kind Kind) (*Draft, error) {
 		draft := &Draft{
 			binding:    s.context.Bind(image.Revision),
 			table:      table,
+			version:    s.format.version,
 			anyChapter: s.format.anyChapter,
 			nextID:     uint64(len(table.Entries) + 1),
 		}

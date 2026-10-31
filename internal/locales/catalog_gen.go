@@ -34,6 +34,76 @@ type Messages struct{ locale string }
 // source language.
 func In(locale string) Messages { return Messages{locale} }
 
+// SupportAllDialogues says "All dialogue entries"
+// in the language the app shows.
+func SupportAllDialogues() string { return In(i18n.Locale()).SupportAllDialogues() }
+
+// SupportAllDialogues says "All dialogue entries"
+// in the language of msgs.
+func (msgs Messages) SupportAllDialogues() string {
+	return Catalog.Format(msgs.locale, "support_all_dialogues", nil)
+}
+
+// SupportViewDialogues says "View this character’s dialogue"
+// in the language the app shows.
+func SupportViewDialogues() string { return In(i18n.Locale()).SupportViewDialogues() }
+
+// SupportViewDialogues says "View this character’s dialogue"
+// in the language of msgs.
+func (msgs Messages) SupportViewDialogues() string {
+	return Catalog.Format(msgs.locale, "support_view_dialogues", nil)
+}
+
+// SupportTalkLink says "Dialogue"
+// in the language the app shows.
+func SupportTalkLink() string { return In(i18n.Locale()).SupportTalkLink() }
+
+// SupportTalkLink says "Dialogue"
+// in the language of msgs.
+func (msgs Messages) SupportTalkLink() string {
+	return Catalog.Format(msgs.locale, "support_talk_link", nil)
+}
+
+// SupportRemove says "Remove"
+// in the language the app shows.
+func SupportRemove() string { return In(i18n.Locale()).SupportRemove() }
+
+// SupportRemove says "Remove"
+// in the language of msgs.
+func (msgs Messages) SupportRemove() string {
+	return Catalog.Format(msgs.locale, "support_remove", nil)
+}
+
+// SupportInvalidInput says "Review invalid input"
+// in the language the app shows.
+func SupportInvalidInput() string { return In(i18n.Locale()).SupportInvalidInput() }
+
+// SupportInvalidInput says "Review invalid input"
+// in the language of msgs.
+func (msgs Messages) SupportInvalidInput() string {
+	return Catalog.Format(msgs.locale, "support_invalid_input", nil)
+}
+
+// SupportTalkApplyHelp says "Only the dialogue changes listed here will be applied. Character relationships remain unchanged."
+// in the language the app shows.
+func SupportTalkApplyHelp() string { return In(i18n.Locale()).SupportTalkApplyHelp() }
+
+// SupportTalkApplyHelp says "Only the dialogue changes listed here will be applied. Character relationships remain unchanged."
+// in the language of msgs.
+func (msgs Messages) SupportTalkApplyHelp() string {
+	return Catalog.Format(msgs.locale, "support_talk_apply_help", nil)
+}
+
+// SupportStale says "The ROM or layout changed. Discard and reload this draft before applying."
+// in the language the app shows.
+func SupportStale() string { return In(i18n.Locale()).SupportStale() }
+
+// SupportStale says "The ROM or layout changed. Discard and reload this draft before applying."
+// in the language of msgs.
+func (msgs Messages) SupportStale() string {
+	return Catalog.Format(msgs.locale, "support_stale", nil)
+}
+
 // SupportPreview says "Preview support changes"
 // in the language the app shows.
 func SupportPreview() string { return In(i18n.Locale()).SupportPreview() }
@@ -74,21 +144,21 @@ func (msgs Messages) SupportTalk() string {
 	return Catalog.Format(msgs.locale, "support_talk", nil)
 }
 
-// SupportSearch says "Search character name or hexadecimal ID"
+// SupportSearch says "Search names, IDs or #entry"
 // in the language the app shows.
 func SupportSearch() string { return In(i18n.Locale()).SupportSearch() }
 
-// SupportSearch says "Search character name or hexadecimal ID"
+// SupportSearch says "Search names, IDs or #entry"
 // in the language of msgs.
 func (msgs Messages) SupportSearch() string {
 	return Catalog.Format(msgs.locale, "support_search", nil)
 }
 
-// SupportOpenUnit says "Open character"
+// SupportOpenUnit says "Open character supports"
 // in the language the app shows.
 func SupportOpenUnit() string { return In(i18n.Locale()).SupportOpenUnit() }
 
-// SupportOpenUnit says "Open character"
+// SupportOpenUnit says "Open character supports"
 // in the language of msgs.
 func (msgs Messages) SupportOpenUnit() string {
 	return Catalog.Format(msgs.locale, "support_open_unit", nil)
@@ -154,11 +224,11 @@ func (msgs Messages) SupportDialogues() string {
 	return Catalog.Format(msgs.locale, "support_dialogues", nil)
 }
 
-// SupportNoDialogue says "No existing dialogue entry references this character."
+// SupportNoDialogue says "No matching support dialogue."
 // in the language the app shows.
 func SupportNoDialogue() string { return In(i18n.Locale()).SupportNoDialogue() }
 
-// SupportNoDialogue says "No existing dialogue entry references this character."
+// SupportNoDialogue says "No matching support dialogue."
 // in the language of msgs.
 func (msgs Messages) SupportNoDialogue() string {
 	return Catalog.Format(msgs.locale, "support_no_dialogue", nil)
@@ -244,11 +314,11 @@ func (msgs Messages) SupportA() string {
 	return Catalog.Format(msgs.locale, "support_a", nil)
 }
 
-// SupportPreviewHelp says "Apply all listed relationships and dialogue changes as one undoable operation. Old data and independent pointers are …"
+// SupportPreviewHelp says "Apply this character’s relationships and any selected reverse synchronization together. Independent pointers retain…"
 // in the language the app shows.
 func SupportPreviewHelp() string { return In(i18n.Locale()).SupportPreviewHelp() }
 
-// SupportPreviewHelp says "Apply all listed relationships and dialogue changes as one undoable operation. Old data and independent pointers are …"
+// SupportPreviewHelp says "Apply this character’s relationships and any selected reverse synchronization together. Independent pointers retain…"
 // in the language of msgs.
 func (msgs Messages) SupportPreviewHelp() string {
 	return Catalog.Format(msgs.locale, "support_preview_help", nil)
@@ -10236,11 +10306,11 @@ func (msgs Messages) PortraitTable() string {
 	return Catalog.Format(msgs.locale, "portrait_table", nil)
 }
 
-// OpenPortraitTable says "Open portrait table"
+// OpenPortraitTable says "Open portraits"
 // in the language the app shows.
 func OpenPortraitTable() string { return In(i18n.Locale()).OpenPortraitTable() }
 
-// OpenPortraitTable says "Open portrait table"
+// OpenPortraitTable says "Open portraits"
 // in the language of msgs.
 func (msgs Messages) OpenPortraitTable() string {
 	return Catalog.Format(msgs.locale, "open_portrait_table", nil)
@@ -12348,14 +12418,184 @@ func (msgs Messages) ScriptBranchDeployedHelp() string {
 	return Catalog.Format(msgs.locale, "script_branch_deployed_help", nil)
 }
 
-// QuoteEditor says "Battle & defeat dialogue"
+// QuoteEditor says "Battle dialogue"
 // in the language the app shows.
 func QuoteEditor() string { return In(i18n.Locale()).QuoteEditor() }
 
-// QuoteEditor says "Battle & defeat dialogue"
+// QuoteEditor says "Battle dialogue"
 // in the language of msgs.
 func (msgs Messages) QuoteEditor() string {
 	return Catalog.Format(msgs.locale, "quote_editor", nil)
+}
+
+// QuoteView says "Filter dialogue"
+// in the language the app shows.
+func QuoteView() string { return In(i18n.Locale()).QuoteView() }
+
+// QuoteView says "Filter dialogue"
+// in the language of msgs.
+func (msgs Messages) QuoteView() string {
+	return Catalog.Format(msgs.locale, "quote_view", nil)
+}
+
+// QuoteAttackerOnly says "As attacker"
+// in the language the app shows.
+func QuoteAttackerOnly() string { return In(i18n.Locale()).QuoteAttackerOnly() }
+
+// QuoteAttackerOnly says "As attacker"
+// in the language of msgs.
+func (msgs Messages) QuoteAttackerOnly() string {
+	return Catalog.Format(msgs.locale, "quote_attacker_only", nil)
+}
+
+// QuoteDefenderOnly says "As defender"
+// in the language the app shows.
+func QuoteDefenderOnly() string { return In(i18n.Locale()).QuoteDefenderOnly() }
+
+// QuoteDefenderOnly says "As defender"
+// in the language of msgs.
+func (msgs Messages) QuoteDefenderOnly() string {
+	return Catalog.Format(msgs.locale, "quote_defender_only", nil)
+}
+
+// QuoteInactive says "Neither side specified (inactive)"
+// in the language the app shows.
+func QuoteInactive() string { return In(i18n.Locale()).QuoteInactive() }
+
+// QuoteInactive says "Neither side specified (inactive)"
+// in the language of msgs.
+func (msgs Messages) QuoteInactive() string {
+	return Catalog.Format(msgs.locale, "quote_inactive", nil)
+}
+
+// QuoteOrdinary says "Ordinary"
+// in the language the app shows.
+func QuoteOrdinary() string { return In(i18n.Locale()).QuoteOrdinary() }
+
+// QuoteOrdinary says "Ordinary"
+// in the language of msgs.
+func (msgs Messages) QuoteOrdinary() string {
+	return Catalog.Format(msgs.locale, "quote_ordinary", nil)
+}
+
+// QuoteLynScripts says "Lyn scripts"
+// in the language the app shows.
+func QuoteLynScripts() string { return In(i18n.Locale()).QuoteLynScripts() }
+
+// QuoteLynScripts says "Lyn scripts"
+// in the language of msgs.
+func (msgs Messages) QuoteLynScripts() string {
+	return Catalog.Format(msgs.locale, "quote_lyn_scripts", nil)
+}
+
+// QuoteOtherScripts says "Other scripts"
+// in the language the app shows.
+func QuoteOtherScripts() string { return In(i18n.Locale()).QuoteOtherScripts() }
+
+// QuoteOtherScripts says "Other scripts"
+// in the language of msgs.
+func (msgs Messages) QuoteOtherScripts() string {
+	return Catalog.Format(msgs.locale, "quote_other_scripts", nil)
+}
+
+// QuoteAllBattles says "All battle dialogue"
+// in the language the app shows.
+func QuoteAllBattles() string { return In(i18n.Locale()).QuoteAllBattles() }
+
+// QuoteAllBattles says "All battle dialogue"
+// in the language of msgs.
+func (msgs Messages) QuoteAllBattles() string {
+	return Catalog.Format(msgs.locale, "quote_all_battles", nil)
+}
+
+// QuotePairs says "Character pairs"
+// in the language the app shows.
+func QuotePairs() string { return In(i18n.Locale()).QuotePairs() }
+
+// QuotePairs says "Character pairs"
+// in the language of msgs.
+func (msgs Messages) QuotePairs() string {
+	return Catalog.Format(msgs.locale, "quote_pairs", nil)
+}
+
+// QuoteSingles says "Individual characters"
+// in the language the app shows.
+func QuoteSingles() string { return In(i18n.Locale()).QuoteSingles() }
+
+// QuoteSingles says "Individual characters"
+// in the language of msgs.
+func (msgs Messages) QuoteSingles() string {
+	return Catalog.Format(msgs.locale, "quote_singles", nil)
+}
+
+// QuoteFe8ViewsHelp says "FE8 uses one battle table. Individual records retain attacker/defender roles; the triangle condition can apply to pai…"
+// in the language the app shows.
+func QuoteFe8ViewsHelp() string { return In(i18n.Locale()).QuoteFe8ViewsHelp() }
+
+// QuoteFe8ViewsHelp says "FE8 uses one battle table. Individual records retain attacker/defender roles; the triangle condition can apply to pai…"
+// in the language of msgs.
+func (msgs Messages) QuoteFe8ViewsHelp() string {
+	return Catalog.Format(msgs.locale, "quote_fe8_views_help", nil)
+}
+
+// QuoteNoDefeat says "This character has no defeat dialogue."
+// in the language the app shows.
+func QuoteNoDefeat() string { return In(i18n.Locale()).QuoteNoDefeat() }
+
+// QuoteNoDefeat says "This character has no defeat dialogue."
+// in the language of msgs.
+func (msgs Messages) QuoteNoDefeat() string {
+	return Catalog.Format(msgs.locale, "quote_no_defeat", nil)
+}
+
+// QuoteControlOnly says "(Control commands only)"
+// in the language the app shows.
+func QuoteControlOnly() string { return In(i18n.Locale()).QuoteControlOnly() }
+
+// QuoteControlOnly says "(Control commands only)"
+// in the language of msgs.
+func (msgs Messages) QuoteControlOnly() string {
+	return Catalog.Format(msgs.locale, "quote_control_only", nil)
+}
+
+// QuoteReadingPreview says "Dialogue reading preview"
+// in the language the app shows.
+func QuoteReadingPreview() string { return In(i18n.Locale()).QuoteReadingPreview() }
+
+// QuoteReadingPreview says "Dialogue reading preview"
+// in the language of msgs.
+func (msgs Messages) QuoteReadingPreview() string {
+	return Catalog.Format(msgs.locale, "quote_reading_preview", nil)
+}
+
+// QuoteUnknownUnit says "Unknown character"
+// in the language the app shows.
+func QuoteUnknownUnit() string { return In(i18n.Locale()).QuoteUnknownUnit() }
+
+// QuoteUnknownUnit says "Unknown character"
+// in the language of msgs.
+func (msgs Messages) QuoteUnknownUnit() string {
+	return Catalog.Format(msgs.locale, "quote_unknown_unit", nil)
+}
+
+// QuoteUnspecifiedSide says "Unspecified"
+// in the language the app shows.
+func QuoteUnspecifiedSide() string { return In(i18n.Locale()).QuoteUnspecifiedSide() }
+
+// QuoteUnspecifiedSide says "Unspecified"
+// in the language of msgs.
+func (msgs Messages) QuoteUnspecifiedSide() string {
+	return Catalog.Format(msgs.locale, "quote_unspecified_side", nil)
+}
+
+// QuoteInvalidInput says "Review invalid input"
+// in the language the app shows.
+func QuoteInvalidInput() string { return In(i18n.Locale()).QuoteInvalidInput() }
+
+// QuoteInvalidInput says "Review invalid input"
+// in the language of msgs.
+func (msgs Messages) QuoteInvalidInput() string {
+	return Catalog.Format(msgs.locale, "quote_invalid_input", nil)
 }
 
 // QuoteTable says "Dialogue table"
@@ -12936,4 +13176,866 @@ func QuoteExtendedUnit() string { return In(i18n.Locale()).QuoteExtendedUnit() }
 // in the language of msgs.
 func (msgs Messages) QuoteExtendedUnit() string {
 	return Catalog.Format(msgs.locale, "quote_extended_unit", nil)
+}
+
+// TerrainEditor says "Movement & terrain"
+// in the language the app shows.
+func TerrainEditor() string { return In(i18n.Locale()).TerrainEditor() }
+
+// TerrainEditor says "Movement & terrain"
+// in the language of msgs.
+func (msgs Messages) TerrainEditor() string {
+	return Catalog.Format(msgs.locale, "terrain_editor", nil)
+}
+
+// TerrainSearch says "Terrain name or hex ID"
+// in the language the app shows.
+func TerrainSearch() string { return In(i18n.Locale()).TerrainSearch() }
+
+// TerrainSearch says "Terrain name or hex ID"
+// in the language of msgs.
+func (msgs Messages) TerrainSearch() string {
+	return Catalog.Format(msgs.locale, "terrain_search", nil)
+}
+
+// TerrainName says "Terrain"
+// in the language the app shows.
+func TerrainName() string { return In(i18n.Locale()).TerrainName() }
+
+// TerrainName says "Terrain"
+// in the language of msgs.
+func (msgs Messages) TerrainName() string {
+	return Catalog.Format(msgs.locale, "terrain_name", nil)
+}
+
+// TerrainPreview says "Preview terrain changes"
+// in the language the app shows.
+func TerrainPreview() string { return In(i18n.Locale()).TerrainPreview() }
+
+// TerrainPreview says "Preview terrain changes"
+// in the language of msgs.
+func (msgs Messages) TerrainPreview() string {
+	return Catalog.Format(msgs.locale, "terrain_preview", nil)
+}
+
+// TerrainApply says "Apply terrain changes"
+// in the language the app shows.
+func TerrainApply() string { return In(i18n.Locale()).TerrainApply() }
+
+// TerrainApply says "Apply terrain changes"
+// in the language of msgs.
+func (msgs Messages) TerrainApply() string {
+	return Catalog.Format(msgs.locale, "terrain_apply", nil)
+}
+
+// TerrainReload says "Discard and reload"
+// in the language the app shows.
+func TerrainReload() string { return In(i18n.Locale()).TerrainReload() }
+
+// TerrainReload says "Discard and reload"
+// in the language of msgs.
+func (msgs Messages) TerrainReload() string {
+	return Catalog.Format(msgs.locale, "terrain_reload", nil)
+}
+
+// TerrainStale says "The document or class layout changed. Your draft is retained; reload before editing."
+// in the language the app shows.
+func TerrainStale() string { return In(i18n.Locale()).TerrainStale() }
+
+// TerrainStale says "The document or class layout changed. Your draft is retained; reload before editing."
+// in the language of msgs.
+func (msgs Messages) TerrainStale() string {
+	return Catalog.Format(msgs.locale, "terrain_stale", nil)
+}
+
+// TerrainHelp says "Edit values, then preview and apply."
+// in the language the app shows.
+func TerrainHelp() string { return In(i18n.Locale()).TerrainHelp() }
+
+// TerrainHelp says "Edit values, then preview and apply."
+// in the language of msgs.
+func (msgs Messages) TerrainHelp() string {
+	return Catalog.Format(msgs.locale, "terrain_help", nil)
+}
+
+// TerrainScope says "Class tables only. Ballista movement, terrain healing and custom engine rules use separate data."
+// in the language the app shows.
+func TerrainScope() string { return In(i18n.Locale()).TerrainScope() }
+
+// TerrainScope says "Class tables only. Ballista movement, terrain healing and custom engine rules use separate data."
+// in the language of msgs.
+func (msgs Messages) TerrainScope() string {
+	return Catalog.Format(msgs.locale, "terrain_scope", nil)
+}
+
+// TerrainRange says "Enter a signed byte: −128…127."
+// in the language the app shows.
+func TerrainRange() string { return In(i18n.Locale()).TerrainRange() }
+
+// TerrainRange says "Enter a signed byte: −128…127."
+// in the language of msgs.
+func (msgs Messages) TerrainRange() string {
+	return Catalog.Format(msgs.locale, "terrain_range", nil)
+}
+
+// TerrainMovementHelp says "Movement cost (−128…127). −1 (FF) is the native impassable value. Zero and other negative values are retained; …"
+// in the language the app shows.
+func TerrainMovementHelp() string { return In(i18n.Locale()).TerrainMovementHelp() }
+
+// TerrainMovementHelp says "Movement cost (−128…127). −1 (FF) is the native impassable value. Zero and other negative values are retained; …"
+// in the language of msgs.
+func (msgs Messages) TerrainMovementHelp() string {
+	return Catalog.Format(msgs.locale, "terrain_movement_help", nil)
+}
+
+// TerrainBonusHelp says "Signed terrain bonus (−128…127). Negative values reduce the corresponding stat."
+// in the language the app shows.
+func TerrainBonusHelp() string { return In(i18n.Locale()).TerrainBonusHelp() }
+
+// TerrainBonusHelp says "Signed terrain bonus (−128…127). Negative values reduce the corresponding stat."
+// in the language of msgs.
+func (msgs Messages) TerrainBonusHelp() string {
+	return Catalog.Format(msgs.locale, "terrain_bonus_help", nil)
+}
+
+// TerrainImpassable says "Impassable (−1 / FF)"
+// in the language the app shows.
+func TerrainImpassable() string { return In(i18n.Locale()).TerrainImpassable() }
+
+// TerrainImpassable says "Impassable (−1 / FF)"
+// in the language of msgs.
+func (msgs Messages) TerrainImpassable() string {
+	return Catalog.Format(msgs.locale, "terrain_impassable", nil)
+}
+
+// TerrainEmpty says "No table is assigned; this column is unavailable."
+// in the language the app shows.
+func TerrainEmpty() string { return In(i18n.Locale()).TerrainEmpty() }
+
+// TerrainEmpty says "No table is assigned; this column is unavailable."
+// in the language of msgs.
+func (msgs Messages) TerrainEmpty() string {
+	return Catalog.Format(msgs.locale, "terrain_empty", nil)
+}
+
+// TerrainShared says "These entries keep their existing values:"
+// in the language the app shows.
+func TerrainShared() string { return In(i18n.Locale()).TerrainShared() }
+
+// TerrainShared says "These entries keep their existing values:"
+// in the language of msgs.
+func (msgs Messages) TerrainShared() string {
+	return Catalog.Format(msgs.locale, "terrain_shared", nil)
+}
+
+// TerrainSharedHelp says "Known class entries sharing or overlapping this data. Custom consumers outside the class table are not fully indexed."
+// in the language the app shows.
+func TerrainSharedHelp() string { return In(i18n.Locale()).TerrainSharedHelp() }
+
+// TerrainSharedHelp says "Known class entries sharing or overlapping this data. Custom consumers outside the class table are not fully indexed."
+// in the language of msgs.
+func (msgs Messages) TerrainSharedHelp() string {
+	return Catalog.Format(msgs.locale, "terrain_shared_help", nil)
+}
+
+// TerrainApplyHelp says "Only the changed columns of this class are updated, together in one undo step."
+// in the language the app shows.
+func TerrainApplyHelp() string { return In(i18n.Locale()).TerrainApplyHelp() }
+
+// TerrainApplyHelp says "Only the changed columns of this class are updated, together in one undo step."
+// in the language of msgs.
+func (msgs Messages) TerrainApplyHelp() string {
+	return Catalog.Format(msgs.locale, "terrain_apply_help", nil)
+}
+
+// TerrainNamesHelp says "Names follow native terrain IDs. Modified ROMs may use different names; unknown IDs remain editable."
+// in the language the app shows.
+func TerrainNamesHelp() string { return In(i18n.Locale()).TerrainNamesHelp() }
+
+// TerrainNamesHelp says "Names follow native terrain IDs. Modified ROMs may use different names; unknown IDs remain editable."
+// in the language of msgs.
+func (msgs Messages) TerrainNamesHelp() string {
+	return Catalog.Format(msgs.locale, "terrain_names_help", nil)
+}
+
+// TerrainColumnMoveNormal says "Normal cost"
+// in the language the app shows.
+func TerrainColumnMoveNormal() string { return In(i18n.Locale()).TerrainColumnMoveNormal() }
+
+// TerrainColumnMoveNormal says "Normal cost"
+// in the language of msgs.
+func (msgs Messages) TerrainColumnMoveNormal() string {
+	return Catalog.Format(msgs.locale, "terrain_column_move_normal", nil)
+}
+
+// TerrainColumnMoveRain says "Rain cost"
+// in the language the app shows.
+func TerrainColumnMoveRain() string { return In(i18n.Locale()).TerrainColumnMoveRain() }
+
+// TerrainColumnMoveRain says "Rain cost"
+// in the language of msgs.
+func (msgs Messages) TerrainColumnMoveRain() string {
+	return Catalog.Format(msgs.locale, "terrain_column_move_rain", nil)
+}
+
+// TerrainColumnMoveSnow says "Snow cost"
+// in the language the app shows.
+func TerrainColumnMoveSnow() string { return In(i18n.Locale()).TerrainColumnMoveSnow() }
+
+// TerrainColumnMoveSnow says "Snow cost"
+// in the language of msgs.
+func (msgs Messages) TerrainColumnMoveSnow() string {
+	return Catalog.Format(msgs.locale, "terrain_column_move_snow", nil)
+}
+
+// TerrainColumnTerrainAvoid says "Avoid"
+// in the language the app shows.
+func TerrainColumnTerrainAvoid() string { return In(i18n.Locale()).TerrainColumnTerrainAvoid() }
+
+// TerrainColumnTerrainAvoid says "Avoid"
+// in the language of msgs.
+func (msgs Messages) TerrainColumnTerrainAvoid() string {
+	return Catalog.Format(msgs.locale, "terrain_column_terrain_avoid", nil)
+}
+
+// TerrainColumnTerrainDefense says "Defense"
+// in the language the app shows.
+func TerrainColumnTerrainDefense() string { return In(i18n.Locale()).TerrainColumnTerrainDefense() }
+
+// TerrainColumnTerrainDefense says "Defense"
+// in the language of msgs.
+func (msgs Messages) TerrainColumnTerrainDefense() string {
+	return Catalog.Format(msgs.locale, "terrain_column_terrain_defense", nil)
+}
+
+// TerrainColumnTerrainResistance says "Resistance"
+// in the language the app shows.
+func TerrainColumnTerrainResistance() string {
+	return In(i18n.Locale()).TerrainColumnTerrainResistance()
+}
+
+// TerrainColumnTerrainResistance says "Resistance"
+// in the language of msgs.
+func (msgs Messages) TerrainColumnTerrainResistance() string {
+	return Catalog.Format(msgs.locale, "terrain_column_terrain_resistance", nil)
+}
+
+// GameInvalidTerrain says "The terrain table pointer or extent is invalid."
+// in the language the app shows.
+func GameInvalidTerrain() string { return In(i18n.Locale()).GameInvalidTerrain() }
+
+// GameInvalidTerrain says "The terrain table pointer or extent is invalid."
+// in the language of msgs.
+func (msgs Messages) GameInvalidTerrain() string {
+	return Catalog.Format(msgs.locale, "game_invalid_terrain", nil)
+}
+
+// GameTerrainReferenceConflict says "A terrain pointer overlaps another resource or has conflicting owners."
+// in the language the app shows.
+func GameTerrainReferenceConflict() string { return In(i18n.Locale()).GameTerrainReferenceConflict() }
+
+// GameTerrainReferenceConflict says "A terrain pointer overlaps another resource or has conflicting owners."
+// in the language of msgs.
+func (msgs Messages) GameTerrainReferenceConflict() string {
+	return Catalog.Format(msgs.locale, "game_terrain_reference_conflict", nil)
+}
+
+// TerrainUnknown says "Unknown"
+// in the language the app shows.
+func TerrainUnknown() string { return In(i18n.Locale()).TerrainUnknown() }
+
+// TerrainUnknown says "Unknown"
+// in the language of msgs.
+func (msgs Messages) TerrainUnknown() string {
+	return Catalog.Format(msgs.locale, "terrain_unknown", nil)
+}
+
+// TerrainPlains says "Plains"
+// in the language the app shows.
+func TerrainPlains() string { return In(i18n.Locale()).TerrainPlains() }
+
+// TerrainPlains says "Plains"
+// in the language of msgs.
+func (msgs Messages) TerrainPlains() string {
+	return Catalog.Format(msgs.locale, "terrain_plains", nil)
+}
+
+// TerrainRoad says "Road"
+// in the language the app shows.
+func TerrainRoad() string { return In(i18n.Locale()).TerrainRoad() }
+
+// TerrainRoad says "Road"
+// in the language of msgs.
+func (msgs Messages) TerrainRoad() string {
+	return Catalog.Format(msgs.locale, "terrain_road", nil)
+}
+
+// TerrainVillage says "Village"
+// in the language the app shows.
+func TerrainVillage() string { return In(i18n.Locale()).TerrainVillage() }
+
+// TerrainVillage says "Village"
+// in the language of msgs.
+func (msgs Messages) TerrainVillage() string {
+	return Catalog.Format(msgs.locale, "terrain_village", nil)
+}
+
+// TerrainVillageClosed says "Closed village"
+// in the language the app shows.
+func TerrainVillageClosed() string { return In(i18n.Locale()).TerrainVillageClosed() }
+
+// TerrainVillageClosed says "Closed village"
+// in the language of msgs.
+func (msgs Messages) TerrainVillageClosed() string {
+	return Catalog.Format(msgs.locale, "terrain_village_closed", nil)
+}
+
+// TerrainHouse says "House"
+// in the language the app shows.
+func TerrainHouse() string { return In(i18n.Locale()).TerrainHouse() }
+
+// TerrainHouse says "House"
+// in the language of msgs.
+func (msgs Messages) TerrainHouse() string {
+	return Catalog.Format(msgs.locale, "terrain_house", nil)
+}
+
+// TerrainArmory says "Armory"
+// in the language the app shows.
+func TerrainArmory() string { return In(i18n.Locale()).TerrainArmory() }
+
+// TerrainArmory says "Armory"
+// in the language of msgs.
+func (msgs Messages) TerrainArmory() string {
+	return Catalog.Format(msgs.locale, "terrain_armory", nil)
+}
+
+// TerrainVendor says "Vendor"
+// in the language the app shows.
+func TerrainVendor() string { return In(i18n.Locale()).TerrainVendor() }
+
+// TerrainVendor says "Vendor"
+// in the language of msgs.
+func (msgs Messages) TerrainVendor() string {
+	return Catalog.Format(msgs.locale, "terrain_vendor", nil)
+}
+
+// TerrainArena says "Arena"
+// in the language the app shows.
+func TerrainArena() string { return In(i18n.Locale()).TerrainArena() }
+
+// TerrainArena says "Arena"
+// in the language of msgs.
+func (msgs Messages) TerrainArena() string {
+	return Catalog.Format(msgs.locale, "terrain_arena", nil)
+}
+
+// TerrainFort says "Fort"
+// in the language the app shows.
+func TerrainFort() string { return In(i18n.Locale()).TerrainFort() }
+
+// TerrainFort says "Fort"
+// in the language of msgs.
+func (msgs Messages) TerrainFort() string {
+	return Catalog.Format(msgs.locale, "terrain_fort", nil)
+}
+
+// TerrainCastleGate says "Castle gate"
+// in the language the app shows.
+func TerrainCastleGate() string { return In(i18n.Locale()).TerrainCastleGate() }
+
+// TerrainCastleGate says "Castle gate"
+// in the language of msgs.
+func (msgs Messages) TerrainCastleGate() string {
+	return Catalog.Format(msgs.locale, "terrain_castle_gate", nil)
+}
+
+// TerrainForest says "Forest"
+// in the language the app shows.
+func TerrainForest() string { return In(i18n.Locale()).TerrainForest() }
+
+// TerrainForest says "Forest"
+// in the language of msgs.
+func (msgs Messages) TerrainForest() string {
+	return Catalog.Format(msgs.locale, "terrain_forest", nil)
+}
+
+// TerrainThicket says "Thicket"
+// in the language the app shows.
+func TerrainThicket() string { return In(i18n.Locale()).TerrainThicket() }
+
+// TerrainThicket says "Thicket"
+// in the language of msgs.
+func (msgs Messages) TerrainThicket() string {
+	return Catalog.Format(msgs.locale, "terrain_thicket", nil)
+}
+
+// TerrainSand says "Sand"
+// in the language the app shows.
+func TerrainSand() string { return In(i18n.Locale()).TerrainSand() }
+
+// TerrainSand says "Sand"
+// in the language of msgs.
+func (msgs Messages) TerrainSand() string {
+	return Catalog.Format(msgs.locale, "terrain_sand", nil)
+}
+
+// TerrainDesert says "Desert"
+// in the language the app shows.
+func TerrainDesert() string { return In(i18n.Locale()).TerrainDesert() }
+
+// TerrainDesert says "Desert"
+// in the language of msgs.
+func (msgs Messages) TerrainDesert() string {
+	return Catalog.Format(msgs.locale, "terrain_desert", nil)
+}
+
+// TerrainRiver says "River"
+// in the language the app shows.
+func TerrainRiver() string { return In(i18n.Locale()).TerrainRiver() }
+
+// TerrainRiver says "River"
+// in the language of msgs.
+func (msgs Messages) TerrainRiver() string {
+	return Catalog.Format(msgs.locale, "terrain_river", nil)
+}
+
+// TerrainMountain says "Mountain"
+// in the language the app shows.
+func TerrainMountain() string { return In(i18n.Locale()).TerrainMountain() }
+
+// TerrainMountain says "Mountain"
+// in the language of msgs.
+func (msgs Messages) TerrainMountain() string {
+	return Catalog.Format(msgs.locale, "terrain_mountain", nil)
+}
+
+// TerrainPeak says "Peak"
+// in the language the app shows.
+func TerrainPeak() string { return In(i18n.Locale()).TerrainPeak() }
+
+// TerrainPeak says "Peak"
+// in the language of msgs.
+func (msgs Messages) TerrainPeak() string {
+	return Catalog.Format(msgs.locale, "terrain_peak", nil)
+}
+
+// TerrainBridge says "Bridge"
+// in the language the app shows.
+func TerrainBridge() string { return In(i18n.Locale()).TerrainBridge() }
+
+// TerrainBridge says "Bridge"
+// in the language of msgs.
+func (msgs Messages) TerrainBridge() string {
+	return Catalog.Format(msgs.locale, "terrain_bridge", nil)
+}
+
+// TerrainDrawbridge says "Drawbridge"
+// in the language the app shows.
+func TerrainDrawbridge() string { return In(i18n.Locale()).TerrainDrawbridge() }
+
+// TerrainDrawbridge says "Drawbridge"
+// in the language of msgs.
+func (msgs Messages) TerrainDrawbridge() string {
+	return Catalog.Format(msgs.locale, "terrain_drawbridge", nil)
+}
+
+// TerrainSea says "Sea"
+// in the language the app shows.
+func TerrainSea() string { return In(i18n.Locale()).TerrainSea() }
+
+// TerrainSea says "Sea"
+// in the language of msgs.
+func (msgs Messages) TerrainSea() string {
+	return Catalog.Format(msgs.locale, "terrain_sea", nil)
+}
+
+// TerrainLake says "Lake"
+// in the language the app shows.
+func TerrainLake() string { return In(i18n.Locale()).TerrainLake() }
+
+// TerrainLake says "Lake"
+// in the language of msgs.
+func (msgs Messages) TerrainLake() string {
+	return Catalog.Format(msgs.locale, "terrain_lake", nil)
+}
+
+// TerrainFloor says "Floor"
+// in the language the app shows.
+func TerrainFloor() string { return In(i18n.Locale()).TerrainFloor() }
+
+// TerrainFloor says "Floor"
+// in the language of msgs.
+func (msgs Messages) TerrainFloor() string {
+	return Catalog.Format(msgs.locale, "terrain_floor", nil)
+}
+
+// TerrainMagicFloor says "Magic floor"
+// in the language the app shows.
+func TerrainMagicFloor() string { return In(i18n.Locale()).TerrainMagicFloor() }
+
+// TerrainMagicFloor says "Magic floor"
+// in the language of msgs.
+func (msgs Messages) TerrainMagicFloor() string {
+	return Catalog.Format(msgs.locale, "terrain_magic_floor", nil)
+}
+
+// TerrainFence says "Fence"
+// in the language the app shows.
+func TerrainFence() string { return In(i18n.Locale()).TerrainFence() }
+
+// TerrainFence says "Fence"
+// in the language of msgs.
+func (msgs Messages) TerrainFence() string {
+	return Catalog.Format(msgs.locale, "terrain_fence", nil)
+}
+
+// TerrainWall says "Wall"
+// in the language the app shows.
+func TerrainWall() string { return In(i18n.Locale()).TerrainWall() }
+
+// TerrainWall says "Wall"
+// in the language of msgs.
+func (msgs Messages) TerrainWall() string {
+	return Catalog.Format(msgs.locale, "terrain_wall", nil)
+}
+
+// TerrainDamagedWall says "Damaged wall"
+// in the language the app shows.
+func TerrainDamagedWall() string { return In(i18n.Locale()).TerrainDamagedWall() }
+
+// TerrainDamagedWall says "Damaged wall"
+// in the language of msgs.
+func (msgs Messages) TerrainDamagedWall() string {
+	return Catalog.Format(msgs.locale, "terrain_damaged_wall", nil)
+}
+
+// TerrainRubble says "Rubble"
+// in the language the app shows.
+func TerrainRubble() string { return In(i18n.Locale()).TerrainRubble() }
+
+// TerrainRubble says "Rubble"
+// in the language of msgs.
+func (msgs Messages) TerrainRubble() string {
+	return Catalog.Format(msgs.locale, "terrain_rubble", nil)
+}
+
+// TerrainPillar says "Pillar"
+// in the language the app shows.
+func TerrainPillar() string { return In(i18n.Locale()).TerrainPillar() }
+
+// TerrainPillar says "Pillar"
+// in the language of msgs.
+func (msgs Messages) TerrainPillar() string {
+	return Catalog.Format(msgs.locale, "terrain_pillar", nil)
+}
+
+// TerrainDoor says "Door"
+// in the language the app shows.
+func TerrainDoor() string { return In(i18n.Locale()).TerrainDoor() }
+
+// TerrainDoor says "Door"
+// in the language of msgs.
+func (msgs Messages) TerrainDoor() string {
+	return Catalog.Format(msgs.locale, "terrain_door", nil)
+}
+
+// TerrainThrone says "Throne"
+// in the language the app shows.
+func TerrainThrone() string { return In(i18n.Locale()).TerrainThrone() }
+
+// TerrainThrone says "Throne"
+// in the language of msgs.
+func (msgs Messages) TerrainThrone() string {
+	return Catalog.Format(msgs.locale, "terrain_throne", nil)
+}
+
+// TerrainEmptyChest says "Empty chest"
+// in the language the app shows.
+func TerrainEmptyChest() string { return In(i18n.Locale()).TerrainEmptyChest() }
+
+// TerrainEmptyChest says "Empty chest"
+// in the language of msgs.
+func (msgs Messages) TerrainEmptyChest() string {
+	return Catalog.Format(msgs.locale, "terrain_empty_chest", nil)
+}
+
+// TerrainChest says "Chest"
+// in the language the app shows.
+func TerrainChest() string { return In(i18n.Locale()).TerrainChest() }
+
+// TerrainChest says "Chest"
+// in the language of msgs.
+func (msgs Messages) TerrainChest() string {
+	return Catalog.Format(msgs.locale, "terrain_chest", nil)
+}
+
+// TerrainRoof says "Roof"
+// in the language the app shows.
+func TerrainRoof() string { return In(i18n.Locale()).TerrainRoof() }
+
+// TerrainRoof says "Roof"
+// in the language of msgs.
+func (msgs Messages) TerrainRoof() string {
+	return Catalog.Format(msgs.locale, "terrain_roof", nil)
+}
+
+// TerrainGate says "Gate"
+// in the language the app shows.
+func TerrainGate() string { return In(i18n.Locale()).TerrainGate() }
+
+// TerrainGate says "Gate"
+// in the language of msgs.
+func (msgs Messages) TerrainGate() string {
+	return Catalog.Format(msgs.locale, "terrain_gate", nil)
+}
+
+// TerrainChurch says "Church"
+// in the language the app shows.
+func TerrainChurch() string { return In(i18n.Locale()).TerrainChurch() }
+
+// TerrainChurch says "Church"
+// in the language of msgs.
+func (msgs Messages) TerrainChurch() string {
+	return Catalog.Format(msgs.locale, "terrain_church", nil)
+}
+
+// TerrainRuins says "Ruins"
+// in the language the app shows.
+func TerrainRuins() string { return In(i18n.Locale()).TerrainRuins() }
+
+// TerrainRuins says "Ruins"
+// in the language of msgs.
+func (msgs Messages) TerrainRuins() string {
+	return Catalog.Format(msgs.locale, "terrain_ruins", nil)
+}
+
+// TerrainCliff says "Cliff"
+// in the language the app shows.
+func TerrainCliff() string { return In(i18n.Locale()).TerrainCliff() }
+
+// TerrainCliff says "Cliff"
+// in the language of msgs.
+func (msgs Messages) TerrainCliff() string {
+	return Catalog.Format(msgs.locale, "terrain_cliff", nil)
+}
+
+// TerrainBallista says "Ballista"
+// in the language the app shows.
+func TerrainBallista() string { return In(i18n.Locale()).TerrainBallista() }
+
+// TerrainBallista says "Ballista"
+// in the language of msgs.
+func (msgs Messages) TerrainBallista() string {
+	return Catalog.Format(msgs.locale, "terrain_ballista", nil)
+}
+
+// TerrainLongBallista says "Long ballista"
+// in the language the app shows.
+func TerrainLongBallista() string { return In(i18n.Locale()).TerrainLongBallista() }
+
+// TerrainLongBallista says "Long ballista"
+// in the language of msgs.
+func (msgs Messages) TerrainLongBallista() string {
+	return Catalog.Format(msgs.locale, "terrain_long_ballista", nil)
+}
+
+// TerrainKillerBallista says "Killer ballista"
+// in the language the app shows.
+func TerrainKillerBallista() string { return In(i18n.Locale()).TerrainKillerBallista() }
+
+// TerrainKillerBallista says "Killer ballista"
+// in the language of msgs.
+func (msgs Messages) TerrainKillerBallista() string {
+	return Catalog.Format(msgs.locale, "terrain_killer_ballista", nil)
+}
+
+// TerrainShip says "Ship"
+// in the language the app shows.
+func TerrainShip() string { return In(i18n.Locale()).TerrainShip() }
+
+// TerrainShip says "Ship"
+// in the language of msgs.
+func (msgs Messages) TerrainShip() string {
+	return Catalog.Format(msgs.locale, "terrain_ship", nil)
+}
+
+// TerrainShipwreck says "Shipwreck"
+// in the language the app shows.
+func TerrainShipwreck() string { return In(i18n.Locale()).TerrainShipwreck() }
+
+// TerrainShipwreck says "Shipwreck"
+// in the language of msgs.
+func (msgs Messages) TerrainShipwreck() string {
+	return Catalog.Format(msgs.locale, "terrain_shipwreck", nil)
+}
+
+// TerrainStairs says "Stairs"
+// in the language the app shows.
+func TerrainStairs() string { return In(i18n.Locale()).TerrainStairs() }
+
+// TerrainStairs says "Stairs"
+// in the language of msgs.
+func (msgs Messages) TerrainStairs() string {
+	return Catalog.Format(msgs.locale, "terrain_stairs", nil)
+}
+
+// TerrainGlacier says "Glacier"
+// in the language the app shows.
+func TerrainGlacier() string { return In(i18n.Locale()).TerrainGlacier() }
+
+// TerrainGlacier says "Glacier"
+// in the language of msgs.
+func (msgs Messages) TerrainGlacier() string {
+	return Catalog.Format(msgs.locale, "terrain_glacier", nil)
+}
+
+// TerrainValley says "Valley"
+// in the language the app shows.
+func TerrainValley() string { return In(i18n.Locale()).TerrainValley() }
+
+// TerrainValley says "Valley"
+// in the language of msgs.
+func (msgs Messages) TerrainValley() string {
+	return Catalog.Format(msgs.locale, "terrain_valley", nil)
+}
+
+// TerrainSnag says "Snag"
+// in the language the app shows.
+func TerrainSnag() string { return In(i18n.Locale()).TerrainSnag() }
+
+// TerrainSnag says "Snag"
+// in the language of msgs.
+func (msgs Messages) TerrainSnag() string {
+	return Catalog.Format(msgs.locale, "terrain_snag", nil)
+}
+
+// TerrainSnagBridge says "Fallen-tree bridge"
+// in the language the app shows.
+func TerrainSnagBridge() string { return In(i18n.Locale()).TerrainSnagBridge() }
+
+// TerrainSnagBridge says "Fallen-tree bridge"
+// in the language of msgs.
+func (msgs Messages) TerrainSnagBridge() string {
+	return Catalog.Format(msgs.locale, "terrain_snag_bridge", nil)
+}
+
+// TerrainSky says "Sky"
+// in the language the app shows.
+func TerrainSky() string { return In(i18n.Locale()).TerrainSky() }
+
+// TerrainSky says "Sky"
+// in the language of msgs.
+func (msgs Messages) TerrainSky() string {
+	return Catalog.Format(msgs.locale, "terrain_sky", nil)
+}
+
+// TerrainDeeps says "Deeps"
+// in the language the app shows.
+func TerrainDeeps() string { return In(i18n.Locale()).TerrainDeeps() }
+
+// TerrainDeeps says "Deeps"
+// in the language of msgs.
+func (msgs Messages) TerrainDeeps() string {
+	return Catalog.Format(msgs.locale, "terrain_deeps", nil)
+}
+
+// TerrainVillageRuins says "Village ruins"
+// in the language the app shows.
+func TerrainVillageRuins() string { return In(i18n.Locale()).TerrainVillageRuins() }
+
+// TerrainVillageRuins says "Village ruins"
+// in the language of msgs.
+func (msgs Messages) TerrainVillageRuins() string {
+	return Catalog.Format(msgs.locale, "terrain_village_ruins", nil)
+}
+
+// TerrainInn says "Inn"
+// in the language the app shows.
+func TerrainInn() string { return In(i18n.Locale()).TerrainInn() }
+
+// TerrainInn says "Inn"
+// in the language of msgs.
+func (msgs Messages) TerrainInn() string {
+	return Catalog.Format(msgs.locale, "terrain_inn", nil)
+}
+
+// TerrainBarrel says "Barrel"
+// in the language the app shows.
+func TerrainBarrel() string { return In(i18n.Locale()).TerrainBarrel() }
+
+// TerrainBarrel says "Barrel"
+// in the language of msgs.
+func (msgs Messages) TerrainBarrel() string {
+	return Catalog.Format(msgs.locale, "terrain_barrel", nil)
+}
+
+// TerrainBone says "Bone"
+// in the language the app shows.
+func TerrainBone() string { return In(i18n.Locale()).TerrainBone() }
+
+// TerrainBone says "Bone"
+// in the language of msgs.
+func (msgs Messages) TerrainBone() string {
+	return Catalog.Format(msgs.locale, "terrain_bone", nil)
+}
+
+// TerrainDark says "Darkness"
+// in the language the app shows.
+func TerrainDark() string { return In(i18n.Locale()).TerrainDark() }
+
+// TerrainDark says "Darkness"
+// in the language of msgs.
+func (msgs Messages) TerrainDark() string {
+	return Catalog.Format(msgs.locale, "terrain_dark", nil)
+}
+
+// TerrainWater says "Water"
+// in the language the app shows.
+func TerrainWater() string { return In(i18n.Locale()).TerrainWater() }
+
+// TerrainWater says "Water"
+// in the language of msgs.
+func (msgs Messages) TerrainWater() string {
+	return Catalog.Format(msgs.locale, "terrain_water", nil)
+}
+
+// TerrainGunnels says "Gunnels"
+// in the language the app shows.
+func TerrainGunnels() string { return In(i18n.Locale()).TerrainGunnels() }
+
+// TerrainGunnels says "Gunnels"
+// in the language of msgs.
+func (msgs Messages) TerrainGunnels() string {
+	return Catalog.Format(msgs.locale, "terrain_gunnels", nil)
+}
+
+// TerrainDeck says "Deck"
+// in the language the app shows.
+func TerrainDeck() string { return In(i18n.Locale()).TerrainDeck() }
+
+// TerrainDeck says "Deck"
+// in the language of msgs.
+func (msgs Messages) TerrainDeck() string {
+	return Catalog.Format(msgs.locale, "terrain_deck", nil)
+}
+
+// TerrainBrace says "Brace"
+// in the language the app shows.
+func TerrainBrace() string { return In(i18n.Locale()).TerrainBrace() }
+
+// TerrainBrace says "Brace"
+// in the language of msgs.
+func (msgs Messages) TerrainBrace() string {
+	return Catalog.Format(msgs.locale, "terrain_brace", nil)
+}
+
+// TerrainMast says "Mast"
+// in the language the app shows.
+func TerrainMast() string { return In(i18n.Locale()).TerrainMast() }
+
+// TerrainMast says "Mast"
+// in the language of msgs.
+func (msgs Messages) TerrainMast() string {
+	return Catalog.Format(msgs.locale, "terrain_mast", nil)
 }

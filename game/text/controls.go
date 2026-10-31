@@ -193,16 +193,66 @@ func (g Format) readableControl(units []textUnit) (string, int) {
 	return "[" + command.name + "]", 1
 }
 
+type textDisplay uint8
+
+const (
+	rawText textDisplay = iota
+	commandText
+	plainText
+)
+
+// previewControl preserves dynamic substitutions and unknown commands rather
+// than presenting them as known dialog. Layout and animation controls vanish.
+func (g Format) previewControl(units []textUnit) (string, int) {
+	code := units[0].symbol
+	marker, consumed := g.readableControl(units)
+	if code == 0x80 {
+		if len(units) < 2 {
+			return marker, consumed
+		}
+		switch units[1].symbol {
+		case 5, 0x20, 0x22, 0x24:
+			return marker, consumed
+		}
+		if _, ok := g.command(units[1].symbol, true); ok {
+			return "", consumed
+		}
+		return fmt.Sprintf("[0x0080][0x%04X]", units[1].symbol), 2
+	}
+	if code == 0x10 && len(units) < 2 {
+		return marker, consumed
+	}
+	if _, ok := g.command(code, false); !ok {
+		return marker, consumed
+	}
+	switch code {
+	case 2:
+		return "\n\n", consumed
+	case 0x93:
+		return "“", consumed
+	case 0x94:
+		return "”", consumed
+	}
+	return "", consumed
+}
+
 // renderText retains native control units rather than flattening arguments
 // into printable bytes. Raw mode keeps each portrait argument 16 bits wide.
-func (g Format) renderText(units []textUnit, readable bool) (string, bool) {
+func (g Format) renderText(
+	units []textUnit,
+	display textDisplay,
+) (string, bool) {
 	var out strings.Builder
 	var span []byte
 	valid := true
 	flush := func() {
 		content, ok := g.decodeCharacters(span)
 		if ok {
-			out.WriteString(escapeText.Replace(content))
+			if display == plainText {
+				out.WriteString(content)
+			} else {
+				out.WriteString(escapeText.Replace(content))
+			}
 		} else {
 			valid = false
 			for _, b := range span {
@@ -225,8 +275,11 @@ func (g Format) renderText(units []textUnit, readable bool) (string, bool) {
 			out.WriteByte('\n')
 			continue
 		}
-		if readable {
+		if display != rawText {
 			marker, consumed := g.readableControl(units[i:])
+			if display == plainText {
+				marker, consumed = g.previewControl(units[i:])
+			}
 			out.WriteString(marker)
 			i += consumed - 1
 		} else {

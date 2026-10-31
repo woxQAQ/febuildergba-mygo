@@ -2,6 +2,7 @@ package records
 
 import (
 	"github.com/woxQAQ/febuildergba-mygo/game/edit"
+	"github.com/woxQAQ/febuildergba-mygo/game/terrain"
 	"github.com/woxQAQ/febuildergba-mygo/game/version"
 	"github.com/woxQAQ/febuildergba-mygo/gba"
 )
@@ -32,23 +33,21 @@ func (s *Editor) RecordResources(kind Kind, id int) ([]RecordResource, error) {
 	}
 	specs := []recordResourceSpec{{"record_support", 44, 4}}
 	if kind == Classes {
-		specs = []recordResourceSpec{
-			{"record_battle_animation", 52, 4},
-			{"record_move_normal", 56, 0x41},
-			{"record_move_rain", 60, 0x41},
-			{"record_move_snow", 64, 0x41},
-			{"record_terrain_avoid", 68, 0x41},
-			{"record_terrain_defense", 72, 0x41},
-			{"record_terrain_resistance", 76, 0x41},
-		}
+		animation := 52
 		if s.definition.Version == version.FE6 {
-			specs = []recordResourceSpec{
-				{"record_battle_animation", 48, 4},
-				{"record_move_normal", 52, 4},
-				{"record_terrain_avoid", 56, 4},
-				{"record_terrain_defense", 60, 4},
-				{"record_terrain_resistance", 64, 4},
-			}
+			animation = 48
+		}
+		specs = []recordResourceSpec{{"record_battle_animation", animation, 4}}
+		format := terrain.ForVersion(s.definition.Version)
+		for _, column := range format.Columns() {
+			specs = append(
+				specs,
+				recordResourceSpec{
+					"record_" + string(column.Kind),
+					column.Offset,
+					format.Count(),
+				},
+			)
 		}
 	}
 	var result []RecordResource
