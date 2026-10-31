@@ -34,6 +34,166 @@ type Messages struct{ locale string }
 // source language.
 func In(locale string) Messages { return Messages{locale} }
 
+// ShopInventory says "Shop inventory"
+// in the language the app shows.
+func ShopInventory() string { return In(i18n.Locale()).ShopInventory() }
+
+// ShopInventory says "Shop inventory"
+// in the language of msgs.
+func (msgs Messages) ShopInventory() string {
+	return Catalog.Format(msgs.locale, "shop_inventory", nil)
+}
+
+// ShopKind says "Shop type"
+// in the language the app shows.
+func ShopKind() string { return In(i18n.Locale()).ShopKind() }
+
+// ShopKind says "Shop type"
+// in the language of msgs.
+func (msgs Messages) ShopKind() string {
+	return Catalog.Format(msgs.locale, "shop_kind", nil)
+}
+
+// ShopArmory says "Armory"
+// in the language the app shows.
+func ShopArmory() string { return In(i18n.Locale()).ShopArmory() }
+
+// ShopArmory says "Armory"
+// in the language of msgs.
+func (msgs Messages) ShopArmory() string {
+	return Catalog.Format(msgs.locale, "shop_armory", nil)
+}
+
+// ShopVendor says "Vendor"
+// in the language the app shows.
+func ShopVendor() string { return In(i18n.Locale()).ShopVendor() }
+
+// ShopVendor says "Vendor"
+// in the language of msgs.
+func (msgs Messages) ShopVendor() string {
+	return Catalog.Format(msgs.locale, "shop_vendor", nil)
+}
+
+// ShopSecret says "Secret shop"
+// in the language the app shows.
+func ShopSecret() string { return In(i18n.Locale()).ShopSecret() }
+
+// ShopSecret says "Secret shop"
+// in the language of msgs.
+func (msgs Messages) ShopSecret() string {
+	return Catalog.Format(msgs.locale, "shop_secret", nil)
+}
+
+// ShopItem says "Item"
+// in the language the app shows.
+func ShopItem() string { return In(i18n.Locale()).ShopItem() }
+
+// ShopItem says "Item"
+// in the language of msgs.
+func (msgs Messages) ShopItem() string {
+	return Catalog.Format(msgs.locale, "shop_item", nil)
+}
+
+// ShopItemHelp says "Search by item name or hexadecimal ID (01–FF), then choose an item."
+// in the language the app shows.
+func ShopItemHelp() string { return In(i18n.Locale()).ShopItemHelp() }
+
+// ShopItemHelp says "Search by item name or hexadecimal ID (01–FF), then choose an item."
+// in the language of msgs.
+func (msgs Messages) ShopItemHelp() string {
+	return Catalog.Format(msgs.locale, "shop_item_help", nil)
+}
+
+// ShopAdd says "Add item"
+// in the language the app shows.
+func ShopAdd() string { return In(i18n.Locale()).ShopAdd() }
+
+// ShopAdd says "Add item"
+// in the language of msgs.
+func (msgs Messages) ShopAdd() string {
+	return Catalog.Format(msgs.locale, "shop_add", nil)
+}
+
+// ShopRemove says "Remove item"
+// in the language the app shows.
+func ShopRemove() string { return In(i18n.Locale()).ShopRemove() }
+
+// ShopRemove says "Remove item"
+// in the language of msgs.
+func (msgs Messages) ShopRemove() string {
+	return Catalog.Format(msgs.locale, "shop_remove", nil)
+}
+
+// ShopEmpty says "This shop has no items for sale."
+// in the language the app shows.
+func ShopEmpty() string { return In(i18n.Locale()).ShopEmpty() }
+
+// ShopEmpty says "This shop has no items for sale."
+// in the language of msgs.
+func (msgs Messages) ShopEmpty() string {
+	return Catalog.Format(msgs.locale, "shop_empty", nil)
+}
+
+// ShopExtra says "Second byte"
+// in the language the app shows.
+func ShopExtra() string { return In(i18n.Locale()).ShopExtra() }
+
+// ShopExtra says "Second byte"
+// in the language of msgs.
+func (msgs Messages) ShopExtra() string {
+	return Catalog.Format(msgs.locale, "shop_extra", nil)
+}
+
+// ShopExtraHelp says "Native shops refill durability from the item table. Patches may use this byte for durability or a skill ID. Existing …"
+// in the language the app shows.
+func ShopExtraHelp() string { return In(i18n.Locale()).ShopExtraHelp() }
+
+// ShopExtraHelp says "Native shops refill durability from the item table. Patches may use this byte for durability or a skill ID. Existing …"
+// in the language of msgs.
+func (msgs Messages) ShopExtraHelp() string {
+	return Catalog.Format(msgs.locale, "shop_extra_help", nil)
+}
+
+// ShopCapacityHelp says "Up to 20 items. The appended inventory includes the full native read buffer and terminator."
+// in the language the app shows.
+func ShopCapacityHelp() string { return In(i18n.Locale()).ShopCapacityHelp() }
+
+// ShopCapacityHelp says "Up to 20 items. The appended inventory includes the full native read buffer and terminator."
+// in the language of msgs.
+func (msgs Messages) ShopCapacityHelp() string {
+	return Catalog.Format(msgs.locale, "shop_capacity_help", nil)
+}
+
+// ShopPreviewScope says "Each edited location receives its own inventory. Chapters sharing its location-table pointer follow the change; other…"
+// in the language the app shows.
+func ShopPreviewScope() string { return In(i18n.Locale()).ShopPreviewScope() }
+
+// ShopPreviewScope says "Each edited location receives its own inventory. Chapters sharing its location-table pointer follow the change; other…"
+// in the language of msgs.
+func (msgs Messages) ShopPreviewScope() string {
+	return Catalog.Format(msgs.locale, "shop_preview_scope", nil)
+}
+
+// ShopKnownUses says "Known chapter uses of the previous inventory (preparation, world-map and custom references are not indexed):"
+// in the language the app shows.
+func ShopKnownUses() string { return In(i18n.Locale()).ShopKnownUses() }
+
+// ShopKnownUses says "Known chapter uses of the previous inventory (preparation, world-map and custom references are not indexed):"
+// in the language of msgs.
+func (msgs Messages) ShopKnownUses() string {
+	return Catalog.Format(msgs.locale, "shop_known_uses", nil)
+}
+
+// GameInvalidShopInventory says "Cannot edit this inventory: it needs an aligned ROM pointer, 42 readable bytes and an item-ID terminator within 20 it…"
+// in the language the app shows.
+func GameInvalidShopInventory() string { return In(i18n.Locale()).GameInvalidShopInventory() }
+
+// GameInvalidShopInventory says "Cannot edit this inventory: it needs an aligned ROM pointer, 42 readable bytes and an item-ID terminator within 20 it…"
+// in the language of msgs.
+func (msgs Messages) GameInvalidShopInventory() string {
+	return Catalog.Format(msgs.locale, "game_invalid_shop_inventory", nil)
+}
+
 // ChapterScripts says "Chapter scripts"
 // in the language the app shows.
 func ChapterScripts() string { return In(i18n.Locale()).ChapterScripts() }
@@ -394,11 +554,11 @@ func (msgs Messages) LocationApply() string {
 	return Catalog.Format(msgs.locale, "location_apply", nil)
 }
 
-// LocationScope says "Add a house, village, chest, door or seize point. Visits reference existing text; seize uses the chapter ending. Map …"
+// LocationScope says "Add a house, village, chest, door, seize point or shop. Visits reference existing text; seize uses the chapter ending…"
 // in the language the app shows.
 func LocationScope() string { return In(i18n.Locale()).LocationScope() }
 
-// LocationScope says "Add a house, village, chest, door or seize point. Visits reference existing text; seize uses the chapter ending. Map …"
+// LocationScope says "Add a house, village, chest, door, seize point or shop. Visits reference existing text; seize uses the chapter ending…"
 // in the language of msgs.
 func (msgs Messages) LocationScope() string {
 	return Catalog.Format(msgs.locale, "location_scope", nil)
@@ -414,11 +574,11 @@ func (msgs Messages) LocationHelp() string {
 	return Catalog.Format(msgs.locale, "location_help", nil)
 }
 
-// LocationPreviewScope says "Append the complete location table and any new dialogue scripts. Only chapters sharing this pointer entry change; ind…"
+// LocationPreviewScope says "Append the complete location table, new dialogue scripts and edited shop inventories. Only chapters sharing this poin…"
 // in the language the app shows.
 func LocationPreviewScope() string { return In(i18n.Locale()).LocationPreviewScope() }
 
-// LocationPreviewScope says "Append the complete location table and any new dialogue scripts. Only chapters sharing this pointer entry change; ind…"
+// LocationPreviewScope says "Append the complete location table, new dialogue scripts and edited shop inventories. Only chapters sharing this poin…"
 // in the language of msgs.
 func (msgs Messages) LocationPreviewScope() string {
 	return Catalog.Format(msgs.locale, "location_preview_scope", nil)

@@ -7,6 +7,7 @@ import (
 
 	"github.com/woxQAQ/febuildergba-mygo/game/edit"
 	"github.com/woxQAQ/febuildergba-mygo/game/records"
+	"github.com/woxQAQ/febuildergba-mygo/game/shop"
 	"github.com/woxQAQ/febuildergba-mygo/gba"
 	"github.com/woxQAQ/febuildergba-mygo/rom"
 	"github.com/woxQAQ/febuildergba-mygo/space"
@@ -53,6 +54,7 @@ type Location struct {
 	Position                           image.Point
 	Command, Item, Money               int
 	GoldItem, GoldMinimum, ItemMaximum int
+	ShopKind                           ShopKind
 }
 
 func (f Format) goldItem() int {
@@ -112,6 +114,9 @@ func (f Format) location(raw []byte) (Location, ConditionTarget) {
 		return location, ConditionScript
 	case kind == 10 && command >= shop && command <= shop+2:
 		location.Kind = Shop
+		location.ShopKind = ShopKind(
+			command - shop,
+		) // #nosec G115 -- Three confirmed native commands.
 		return location, ShopTarget
 	default:
 		return location, UnknownTarget
@@ -121,7 +126,7 @@ func (f Format) location(raw []byte) (Location, ConditionTarget) {
 func (d *ConditionDraft) locationFields(index int) []records.Field {
 	location, _ := d.original.format.location(d.records[index].raw)
 	switch location.Kind {
-	case House, Village, VillageCenter, Seize, Chest, Door, ScriptChest:
+	case House, Village, VillageCenter, Seize, Chest, Door, ScriptChest, Shop:
 	default:
 		return nil
 	}
@@ -184,6 +189,11 @@ func (d *ConditionDraft) AddLocation(s *Editor, kind LocationKind) error {
 		if f.kind == eventFE8 {
 			raw[10] = 0x14
 		}
+	case Shop:
+		raw[0], raw[10] = 10, byte(
+			f.shopCommand(Armory),
+		) // #nosec G115 -- Native tile command fits in a byte.
+		record.inventory = shop.New()
 	case Door:
 		raw[0], raw[4], raw[10] = 8, 1, 0x10
 		if f.kind == eventFE8 {
@@ -198,8 +208,8 @@ func (d *ConditionDraft) AddLocation(s *Editor, kind LocationKind) error {
 	return nil
 }
 
-// CopyLocation preserves the complete record and independently owns any new
-// dialog draft. Existing referenced resources remain shared.
+// CopyLocation preserves the complete record and independently owns generated
+// dialog and inventory drafts. Unmodified referenced resources remain shared.
 func (d *ConditionDraft) CopyLocation(index int) error {
 	if d.original.Table != LocationEvents || index < 0 ||
 		index >= len(d.records) {
@@ -213,6 +223,9 @@ func (d *ConditionDraft) CopyLocation(index int) error {
 	record.event.Address = 0
 	if record.message != nil {
 		record.message = new(*record.message)
+	}
+	if record.inventory != nil {
+		record.inventory = record.inventory.Clone()
 	}
 	d.records = append(d.records, record)
 	return nil
@@ -295,7 +308,12 @@ func locationResources(data []byte, condition *Condition) []space.Range {
 	}
 	for i := 0; i < 256 && gba.Within(data, at+i*2, 2); i++ {
 		if data[at+i*2] == 0 {
-			return []space.Range{{Start: at, End: at + i*2 + 2}}
+			end := at + i*2 + 2
+			if condition.OperandKind == ShopTarget &&
+				gba.Within(data, at, shop.PayloadSize) {
+				end = max(end, at+shop.PayloadSize)
+			}
+			return []space.Range{{Start: at, End: end}}
 		}
 	}
 	condition.Warnings = append(condition.Warnings, ErrEventConditions)

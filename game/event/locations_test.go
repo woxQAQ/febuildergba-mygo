@@ -82,8 +82,8 @@ func TestLocationEditingWorkflow(t *testing.T) {
 			if err != nil {
 				t.Fatal(err)
 			}
-			if len(d.Fields(6)) != 0 || len(d.Fields(8)) != 0 || d.Modified() {
-				t.Fatal("opaque location became editable")
+			if len(d.Fields(6)) != 3 || len(d.Fields(8)) != 0 || d.Modified() {
+				t.Fatal("shop coordinates or opaque location editability")
 			}
 			if err := d.SetLocationPosition(0, image.Pt(3, 4)); err != nil {
 				t.Fatal(err)

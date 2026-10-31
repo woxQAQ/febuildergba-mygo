@@ -58,6 +58,16 @@ FE6／FE7 坐标未命中退回事件参数，FE8 则返回事件错误。FE7 �
 
 金币数量以实际消费者为准：FE8 同一提交的 [src/eventscr.c](https://github.com/FireEmblemUniverse/fireemblem8u/blob/04d1edb163d14bd10777a065697e1a9f17be65f2/src/eventscr.c) 中 `EventScr_OpenChest` 在 255 处分流道具和金币，因此新金币至少为 256、新道具最多为 255；FE6 的 [src/event.c](https://github.com/StanHash/fe6/blob/f9ea5f67f3f1048ca9836d7350077231ba54b589/src/event.c) 中 `StartChestMoneyEvent`／`EventScr_MoneyChest` 和 FE7U 的 [asm/event.s](https://github.com/StanHash/fe7_us/blob/5c8b3c5e254e00f0f3458b9772c27e1a5a326e3b/asm/event.s) 中 `func_0800F044`／`func_0800F06C` 使用独立奖励脚本，不套用旧版界面统一的 256 提示。五版独立合成记录验证固定字节，动态 ROM 流程验证当前输入的条件修改和保存重开；这些检查不等于游戏内执行。
 
+## 商店货物
+
+旧版来源仍为子模块固定基线：`ItemShopForm.Init` 的双字节条目及低字节结束规则、`MakeShopListLow` 的章节／准备／世界地图入口、`B0_ValueChanged` 与 `PatchUtil.ItemUsingExtendsPatchLow` 的 IER 高字节解释。章节类型由 `EventCondForm.MakeShopPointerListBox` 和各版地点执行器交叉核对；原生容量与读取长度以实际游戏消费者为准：
+
+- FE6，`StanHash/fe6@f9ea5f67f3f1048ca9836d7350077231ba54b589`：[asm/code.s](https://github.com/StanHash/fe6/blob/f9ea5f67f3f1048ca9836d7350077231ba54b589/asm/code.s) 的 `func_fe6_08095E10`／`30`／`50` 传入商店类型 0／1／2，`func_fe6_08095E90` 从下标 0 复制到 `0x14`，每项调用 [src/item.c](https://github.com/StanHash/fe6/blob/f9ea5f67f3f1048ca9836d7350077231ba54b589/src/item.c) 的 `CreateItem`。
+- FE7U，`StanHash/fe7_us@5c8b3c5e254e00f0f3458b9772c27e1a5a326e3b`：[asm/code.s](https://github.com/StanHash/fe7_us/blob/5c8b3c5e254e00f0f3458b9772c27e1a5a326e3b/asm/code.s) 的 `func_080B03D4`／`03F4`／`0414` 和 `func_080B0454`，同样复制 21 个半字并调用 `CreateItem`；`func_080B0520` 扫描生成后的结束项。FE7J 对应原版循环以 `cmp #0x14`／`ble` 和双字节步进核对，与旧版日版地点类型定义组合使用。
+- FE8，`FireEmblemUniverse/fireemblem8u@04d1edb163d14bd10777a065697e1a9f17be65f2`：[src/bmshop.c](https://github.com/FireEmblemUniverse/fireemblem8u/blob/04d1edb163d14bd10777a065697e1a9f17be65f2/src/bmshop.c) 的 `StartShopScreen`／`UpdateShopItemCounts`，以及 [include/bmshop.h](https://github.com/FireEmblemUniverse/fireemblem8u/blob/04d1edb163d14bd10777a065697e1a9f17be65f2/include/bmshop.h) 的 20 项货物与紧随半字；[src/bmitem.c](https://github.com/FireEmblemUniverse/fireemblem8u/blob/04d1edb163d14bd10777a065697e1a9f17be65f2/src/bmitem.c) 的 `MakeNewItem` 按道具定义重建耐久。FE8J 由旧版准备商店指针处调用追踪到同类加载器，确认从 `0x14` 递减至 0 的 21 次双字节复制。
+
+因此新分配保留完整 42 字节读取范围，20 项之后必须有结束项；原货物高字节和结束项高字节保留，未知尾部留在原位置。日版原生字节核对和五版动态文件流程不替代游戏内购买验证。准备界面与世界地图入口的编辑仍单独安排。
+
 ## 事件剧情指令
 
 常用剧情指令沿用上表的固定提交，并与旧版事件目录交叉核对：

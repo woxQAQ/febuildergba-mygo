@@ -9,6 +9,7 @@ import (
 	"github.com/woxQAQ/febuildergba-mygo/game/deployment"
 	"github.com/woxQAQ/febuildergba-mygo/game/edit"
 	"github.com/woxQAQ/febuildergba-mygo/game/records"
+	"github.com/woxQAQ/febuildergba-mygo/game/shop"
 	"github.com/woxQAQ/febuildergba-mygo/gba"
 	"github.com/woxQAQ/febuildergba-mygo/rom"
 	"github.com/woxQAQ/febuildergba-mygo/space"
@@ -32,14 +33,16 @@ const (
 )
 
 type eventRecord struct {
-	event      Condition
-	raw        []byte
-	deployment *deployment.Draft
-	message    *uint16
+	event        Condition
+	raw          []byte
+	deployment   *deployment.Draft
+	message      *uint16
+	inventory    *shop.Draft
+	inventoryErr error
 }
 
-// EventDraft edits a complete condition list. Native scripts remain untouched;
-// new rows own either a deployment or a text ID and their generated script.
+// ConditionDraft edits a complete condition list. Native scripts remain untouched;
+// generated scripts and shop inventory drafts are committed with their references.
 type ConditionDraft struct {
 	binding  edit.Stamp
 	chapter  int
@@ -62,10 +65,19 @@ func (s *Editor) NewConditions(
 		original: resource,
 	}
 	for _, event := range resource.Events {
-		d.records = append(
-			d.records,
-			eventRecord{event: event, raw: bytes.Clone(event.Raw)},
-		)
+		record := eventRecord{event: event, raw: bytes.Clone(event.Raw)}
+		if table == LocationEvents && event.OperandKind == ShopTarget {
+			address, valid := gba.Pointer(s.image.Data, event.Address+4)
+			if valid {
+				record.inventory, record.inventoryErr = shop.Read(
+					s.image.Data,
+					address,
+				)
+			} else {
+				record.inventoryErr = shop.ErrInventory
+			}
+		}
+		d.records = append(d.records, record)
 	}
 	if table == AlwaysEvents || table == LocationEvents {
 		objectives := resource
@@ -87,6 +99,7 @@ func (d *ConditionDraft) Modified() bool {
 	}
 	for i, record := range d.records {
 		if record.deployment != nil || record.message != nil ||
+			(record.inventory != nil && record.inventory.Modified()) ||
 			!bytes.Equal(record.raw, d.original.Events[i].Raw) {
 			return true
 		}
@@ -291,6 +304,7 @@ type ConditionEdit struct {
 	chapter, pointer, before, after int
 	plan                            space.Plan
 	uses                            []int
+	inventories                     []InventoryChange
 }
 
 func (e *ConditionEdit) Destination() int { return e.plan.Destination.Start }
@@ -344,7 +358,24 @@ func (s *Editor) PlanConditions(
 		content = append(content, record.raw...)
 	}
 	content = append(content, 0, 0, 0, 0)
+	var inventories []InventoryChange
 	for i, record := range d.records {
+		if record.inventory != nil && record.inventory.Modified() {
+			for len(content)%2 != 0 {
+				content = append(content, 0)
+			}
+			address := base + len(content)
+			content = append(content, record.inventory.Payload()...)
+			binary.LittleEndian.PutUint32(
+				content[offsets[i]+4:],
+				uint32(0x08000000+address),
+			) // #nosec G115 -- PlanAppend bounds the complete payload.
+			inventories = append(inventories, InventoryChange{
+				Location: i, Before: record.inventory.Address(), After: address,
+				Count: record.inventory.Count(),
+				Uses:  s.inventoryUses(record.inventory.Address()),
+			})
+		}
 		if record.deployment == nil && record.message == nil {
 			continue
 		}
@@ -398,12 +429,13 @@ func (s *Editor) PlanConditions(
 		},
 	) // #nosec G115 -- PlanAppend bounds ROM addresses.
 	result = &ConditionEdit{
-		binding: s.context.Bind(s.image.Revision),
-		chapter: d.chapter,
-		pointer: site,
-		before:  len(d.original.Events),
-		after:   len(d.records),
-		plan:    plan,
+		binding:     s.context.Bind(s.image.Revision),
+		chapter:     d.chapter,
+		pointer:     site,
+		before:      len(d.original.Events),
+		after:       len(d.records),
+		plan:        plan,
+		inventories: inventories,
 	}
 	if chapters := s.records.Table(
 		records.Chapters,

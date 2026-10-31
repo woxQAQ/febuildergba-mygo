@@ -9,6 +9,7 @@ import (
 	"github.com/woxQAQ/febuildergba-mygo/game/deployment"
 	"github.com/woxQAQ/febuildergba-mygo/game/event"
 	"github.com/woxQAQ/febuildergba-mygo/game/records"
+	"github.com/woxQAQ/febuildergba-mygo/game/shop"
 	"github.com/woxQAQ/febuildergba-mygo/internal/components"
 	"github.com/woxQAQ/febuildergba-mygo/internal/components/mapview"
 	"github.com/woxQAQ/febuildergba-mygo/internal/editor"
@@ -32,6 +33,7 @@ type eventState struct {
 	textReference                string
 	location                     locationInteraction
 	locationScript               bool
+	shops                        map[*shop.Draft]*inventoryState
 }
 
 type eventLabels struct{ title, add, remove, scope, preview, reload, apply, previewScope, help string }
@@ -142,6 +144,11 @@ func (v *Page) eventDraft(
 
 func (e *eventState) invalid() bool {
 	for i := range e.data.Events() {
+		if inventory, err := e.data.Shop(i); err == nil {
+			if state := e.shops[inventory]; state != nil && state.invalid() {
+				return true
+			}
+		}
 		if id, created := e.data.Dialog(i); created && id == 0 {
 			return true
 		}
@@ -161,10 +168,12 @@ func (e *eventState) invalid() bool {
 
 func (e *eventState) removeSelected() error {
 	units := e.data.Deployment(e.selected)
+	inventory, _ := e.data.Shop(e.selected)
 	if err := e.data.Remove(e.selected); err != nil {
 		return err
 	}
 	delete(e.units, units)
+	delete(e.shops, inventory)
 	delete(e.generations, units)
 	inputs := make(map[inputKey]*numberDraft, len(e.inputs))
 	for key, draft := range e.inputs {
@@ -459,6 +468,21 @@ func (v *Page) eventActions(
 		for _, chapter := range preview.Uses() {
 			ui.Textf(c, "%02X %s", chapter, nameOf(state.Session, records.Chapters, chapter)).
 				FontSize(12)
+		}
+		for _, change := range preview.Inventories() {
+			ui.Textf(c, "%s %02X · %d/%d · 0x%08X → 0x%08X", locales.ShopInventory(), change.Location, change.Count, shop.MaxItems, change.Before, change.After).
+				FontSize(13).
+				Selectable()
+			ui.Text(c, locales.ShopPreviewScope()).
+				FontSize(12).
+				TextColor(c.Theme().TextMuted)
+			if len(change.Uses) > 0 {
+				ui.Text(c, locales.ShopKnownUses()).FontSize(12)
+				for _, use := range change.Uses {
+					ui.Textf(c, "%02X %s · %s %02X", use.Chapter, nameOf(state.Session, records.Chapters, use.Chapter), locales.LocationEvents(), use.Location).
+						FontSize(12)
+				}
+			}
 		}
 		applyButton := ui.Button
 		if table == event.LocationEvents {

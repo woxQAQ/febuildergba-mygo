@@ -192,6 +192,7 @@ func (v *Page) locationTools(
 					event.Chest,
 					event.Door,
 					event.Seize,
+					event.Shop,
 				}
 				labels := make([]string, len(kinds))
 				for i, kind := range kinds {
@@ -233,6 +234,7 @@ func (v *Page) placeLocation(
 			event.Chest,
 			event.Door,
 			event.Seize,
+			event.Shop,
 		}
 		index = len(entry.data.Events())
 		if state.Err = entry.data.AddLocation(
@@ -369,6 +371,8 @@ func (v *Page) locationInspector(
 						len(condition.Texts) > 0 {
 						title = locales.LocationDialogue()
 					}
+				case event.ShopTarget:
+					title = locales.ShopInventory()
 				case event.RewardTarget, event.RandomRewardTarget:
 					title = locales.LocationReward()
 				}
@@ -412,7 +416,9 @@ func (v *Page) locationInspector(
 					)
 				case event.RewardTarget:
 					v.locationReward(c, state, entry, condition, fields)
-				case event.ShopTarget, event.RandomRewardTarget:
+				case event.ShopTarget:
+					v.shopInventory(c, state, entry, condition, advanced)
+				case event.RandomRewardTarget:
 					ui.Text(c, locales.LocationResourceReadonly()).FontSize(13)
 				case event.NoTarget:
 					ui.Text(c, locales.LocationNativeAction()).FontSize(13)
