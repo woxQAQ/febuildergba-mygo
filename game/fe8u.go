@@ -9,8 +9,10 @@ import (
 	"github.com/woxQAQ/febuildergba-mygo/game/maps"
 	"github.com/woxQAQ/febuildergba-mygo/game/portrait"
 	"github.com/woxQAQ/febuildergba-mygo/game/records"
+	"github.com/woxQAQ/febuildergba-mygo/game/shop"
 	"github.com/woxQAQ/febuildergba-mygo/game/text"
 	"github.com/woxQAQ/febuildergba-mygo/game/version"
+	"github.com/woxQAQ/febuildergba-mygo/game/worldmap"
 )
 
 // Locations follow ROMFE8U and the table initializers in the pinned legacy
@@ -73,6 +75,11 @@ func fe8uFormat() format {
 			0xB5E68,
 		),
 		events: event.FE8(0x346DC, 0x9EE248, 0x592104),
+		shops: shop.Format{
+			DefaultPointer:     0xB42B0,
+			PreparationPointer: 0x99E64,
+		},
+		worldmap: worldmap.Format{Pointer: 0xBE84},
 		maps: maps.Format{
 			Graphics:    0x19968,
 			Palette:     0x1999C,

@@ -270,19 +270,20 @@
 | locations.links     | 关联脚本、文本与部署       | 已接入   | 已确认脚本入口参与导航与搬迁；章节商店货物已接入；FE8 随机奖励仍只读保护 |
 | locations.write     | 共享预览、历史与保存重开   | 已接入   | 完整表、新脚本与修改货物一次追加；保留独立引用，拒绝文档／修订／布局冲突 |
 
-## 五版章节商店
+## 商店
 
 版本前提、旧版依据与详细限制：[商店格式与引用](reference/chapters-and-events.md#五版章节商店)。
 
-| ID                | 能力                     | 实现状态 | 范围与缺口                                                                   |
-| ----------------- | ------------------------ | -------- | ---------------------------------------------------------------------------- |
-| shops.discovery   | 章节商店识别与入口       | 已接入   | 五版原生地点表；武器店、道具店及秘密商店                                     |
-| shops.locations   | 类型、位置及增删复制     | 已接入   | 地点页与地图联动；新增空商店，复制草稿独立                                   |
-| shops.inventory   | 货物替换、增删与排序     | 已接入   | 最多 20 项；保留第二字节及结束项高字节；高级原值编辑，不推断 IER 语义        |
-| shops.references  | 已知共享用途及独立引用   | 已接入   | 已确认章节使用处预览；每个修改地点独立追加，其他引用保留；全局引用未完整索引 |
-| shops.write       | 预览、原子历史与文件流程 | 已接入   | 地点表和货物统一提交；完整 42 字节读取范围；文档／修订／布局冲突与容量检查   |
-| shops.preparation | 准备界面商店入口         | 待实现   | 旧版 ItemShopForm.MakeShopListLow；原生入口与版本分别适配                    |
-| shops.worldmap    | FE8 世界地图商店入口     | 待实现   | 旧版 WorldMapPointForm.GetShopAddr；节点货物引用与界面待接入                 |
+| ID                | 能力                     | 实现状态 | 范围与缺口                                                                                            |
+| ----------------- | ------------------------ | -------- | ----------------------------------------------------------------------------------------------------- |
+| shops.discovery   | 统一商店列表与定位       | 已接入   | 五版章节、引擎默认货物，以及 FE8 准备／世界地图；按来源、名称及 ID 筛选                               |
+| shops.locations   | 类型、位置及增删复制     | 已接入   | 地点页与地图联动；新增空商店，复制草稿独立                                                            |
+| shops.inventory   | 货物替换、增删与排序     | 已接入   | 最多 20 项；保留第二字节及结束项高字节；高级原值编辑，不推断 IER 语义                                 |
+| shops.references  | 已知共享用途及独立引用   | 已接入   | 章节、准备、默认和世界地图引用及空指针回退；区分原共享与变化入口；脚本／自定义引用未完整索引          |
+| shops.write       | 预览、原子历史与文件流程 | 已接入   | 所选入口与完整 42 字节货物统一提交；章节入口另含地点表；文档／修订／布局冲突、保护与容量检查          |
+| shops.preparation | 准备界面商店入口         | 已接入   | FE8J/U；独立库存与空指针默认回退；FE6 旧同名地址归入默认货物，FE7 无此入口                            |
+| shops.defaults    | 引擎默认货物             | 已接入   | 五版加载器原生入口；修改影响所有空指针调用，已知回退入口参与预览                                      |
+| shops.worldmap    | FE8 世界地图商店入口     | 已接入   | 29 个原生节点的三类货物；初始化零指针槽、有效空列表关闭、仅改选定指针；节点扩展／道路／事件不在此范围 |
 
 ## 通用事件脚本
 
@@ -319,7 +320,7 @@
 | images.static      | 静态图像与调色板             | [ImagePortraitForm.cs](../FEBuilderGBA/FEBuilderGBA/ImagePortraitForm.cs)           | 调色板、压缩、空间       | 部分实现；头像、职业卡、图标；其他图像类型待实现                                             |
 | chapters.maps      | 章节、地图与部署             | [MapEditorForm.cs](../FEBuilderGBA/FEBuilderGBA/MapEditorForm.cs)                   | 图像、章节布局、空间     | 部分实现；已有绘制、尺寸、变化资源及脚本联动、共享检查与原子保存；素材、地形定义及扩章待实现 |
 | chapters.events    | 事件指令、模板和世界地图     | [EventScriptForm.cs](../FEBuilderGBA/FEBuilderGBA/EventScriptForm.cs)               | 事件指令定义、引用       | 部分实现；已确认条件及常用脚本；其余工作流待盘点                                             |
-| gameplay.tables    | 支援、商店、成长及规则表     | [SupportUnitForm.cs](../FEBuilderGBA/FEBuilderGBA/SupportUnitForm.cs)               | 表适配、引用             | 部分实现；章节商店已接入；支援、准备／世界地图商店及其他规则继续盘点                         |
+| gameplay.tables    | 支援、商店、成长及规则表     | [SupportUnitForm.cs](../FEBuilderGBA/FEBuilderGBA/SupportUnitForm.cs)               | 表适配、引用             | 部分实现；原生商店入口已接入；支援及其他规则继续盘点                                         |
 | patches.manage     | 社区补丁管理                 | [PatchForm.cs](../FEBuilderGBA/FEBuilderGBA/PatchForm.cs)                           | 检测、空间、工具         | 待实现；条件、依赖、配置、安装、卸载和回滚                                                   |
 | tools.assembly     | EA、ARM 与构建工具链         | [EventAssemblerForm.cs](../FEBuilderGBA/FEBuilderGBA/EventAssemblerForm.cs)         | 原生外部工具、操作导入   | 待实现；脚本、符号、工具协议和版本记录                                                       |
 | assets.animation   | 战斗、地图、魔法动画与 OAM   | [ImageBattleAnimeForm.cs](../FEBuilderGBA/FEBuilderGBA/ImageBattleAnimeForm.cs)     | OAM、压缩、图像、空间    | 待实现；资源、时序及外部格式仍需逐项盘点                                                     |
@@ -335,22 +336,22 @@
 
 以下能力从旧版独立入口补入。状态“待盘点”表示已找到来源，但版本、完整操作或对外格式尚未核完；“待实现”也只确认了所述操作，不表示整个来源文件已关闭盘点。全部入口均属于固定旧版基线，暂无对应完整新版工作流。
 
-| ID                 | 能力                   | 旧版来源                                                                                    | 实现状态 | 仍需核对                                                           |
-| ------------------ | ---------------------- | ------------------------------------------------------------------------------------------- | -------- | ------------------------------------------------------------------ |
-| events.battle-talk | 战斗对话表             | [EventBattleTalkForm.cs](../FEBuilderGBA/FEBuilderGBA/EventBattleTalkForm.cs)               | 待实现   | 已定位独立表；与章节普通对话分开核对版本                           |
-| events.death-talk  | 死亡对话及死亡标志     | [EventHaikuForm.cs](../FEBuilderGBA/FEBuilderGBA/EventHaikuForm.cs)                         | 待盘点   | 人物、文本、标志与各版本结束规则                                   |
-| worldmap.points    | 世界地图节点           | [WorldMapPointForm.cs](../FEBuilderGBA/FEBuilderGBA/WorldMapPointForm.cs)                   | 待盘点   | 节点字段、版本和引用                                               |
-| worldmap.paths     | 世界地图路线连接       | [WorldMapPathForm.cs](../FEBuilderGBA/FEBuilderGBA/WorldMapPathForm.cs)                     | 待实现   | 已定位路线表；路线资源和扩展需继续核对                             |
-| worldmap.movement  | 世界地图路径及移动编辑 | [WorldMapPathMoveEditorForm.cs](../FEBuilderGBA/FEBuilderGBA/WorldMapPathMoveEditorForm.cs) | 待盘点   | 图形路径、移动数据及写入流程                                       |
-| worldmap.events    | 世界地图事件入口       | [WorldMapEventPointerForm.cs](../FEBuilderGBA/FEBuilderGBA/WorldMapEventPointerForm.cs)     | 待盘点   | 版本入口、指令及脚本导入导出                                       |
-| gameplay.support   | 支援关系、对话与属性   | [SupportUnitForm.cs](../FEBuilderGBA/FEBuilderGBA/SupportUnitForm.cs)                       | 待盘点   | 联合核对 SupportTalk／SupportAttribute 及各版本                    |
-| gameplay.shops     | 商店货物编辑           | [ItemShopForm.cs](../FEBuilderGBA/FEBuilderGBA/ItemShopForm.cs)                             | 部分实现 | 章节入口及原生货物已接入；准备／世界地图、容量补丁及外部格式待接入 |
-| gameplay.arena     | 斗技场规则             | [ArenaClassForm.cs](../FEBuilderGBA/FEBuilderGBA/ArenaClassForm.cs)                         | 待盘点   | 联合核对敌方武器与联机参战限制                                     |
-| tools.flag-names   | 标志命名与附属信息     | [ToolFlagNameForm.cs](../FEBuilderGBA/FEBuilderGBA/ToolFlagNameForm.cs)                     | 待实现   | 已定位名称修改；保存、载入与兼容契约待细化                         |
-| tools.flag-uses    | 标志使用处查询         | [ToolUseFlagForm.cs](../FEBuilderGBA/FEBuilderGBA/ToolUseFlagForm.cs)                       | 待盘点   | 扫描范围、定位和未识别引用                                         |
-| tools.diff-patch   | ROM 差异生成 BIN 补丁  | [ToolDiffForm.cs](../FEBuilderGBA/FEBuilderGBA/ToolDiffForm.cs)                             | 待实现   | 已定位 PATCH 文本及二进制输出；多文件流程需细化                    |
-| text.translation   | ROM 翻译与字库处理     | [ToolTranslateROMForm.cs](../FEBuilderGBA/FEBuilderGBA/ToolTranslateROMForm.cs)             | 待盘点   | 与已有文本 ID 编辑分开核对工作流                                   |
-| tools.event-export | EA 事件导出            | [ToolExportEAEventForm.cs](../FEBuilderGBA/FEBuilderGBA/ToolExportEAEventForm.cs)           | 待盘点   | 导出范围、资源引用与格式兼容                                       |
+| ID                 | 能力                   | 旧版来源                                                                                    | 实现状态 | 仍需核对                                                                                    |
+| ------------------ | ---------------------- | ------------------------------------------------------------------------------------------- | -------- | ------------------------------------------------------------------------------------------- |
+| events.battle-talk | 战斗对话表             | [EventBattleTalkForm.cs](../FEBuilderGBA/FEBuilderGBA/EventBattleTalkForm.cs)               | 待实现   | 已定位独立表；与章节普通对话分开核对版本                                                    |
+| events.death-talk  | 死亡对话及死亡标志     | [EventHaikuForm.cs](../FEBuilderGBA/FEBuilderGBA/EventHaikuForm.cs)                         | 待盘点   | 人物、文本、标志与各版本结束规则                                                            |
+| worldmap.points    | 世界地图节点           | [WorldMapPointForm.cs](../FEBuilderGBA/FEBuilderGBA/WorldMapPointForm.cs)                   | 部分实现 | FE8 原生节点读取及商店引用写入见 shops.worldmap；其他字段编辑、增删及扩展继续盘点           |
+| worldmap.paths     | 世界地图路线连接       | [WorldMapPathForm.cs](../FEBuilderGBA/FEBuilderGBA/WorldMapPathForm.cs)                     | 待实现   | 已定位路线表；路线资源和扩展需继续核对                                                      |
+| worldmap.movement  | 世界地图路径及移动编辑 | [WorldMapPathMoveEditorForm.cs](../FEBuilderGBA/FEBuilderGBA/WorldMapPathMoveEditorForm.cs) | 待盘点   | 图形路径、移动数据及写入流程                                                                |
+| worldmap.events    | 世界地图事件入口       | [WorldMapEventPointerForm.cs](../FEBuilderGBA/FEBuilderGBA/WorldMapEventPointerForm.cs)     | 待盘点   | 版本入口、指令及脚本导入导出                                                                |
+| gameplay.support   | 支援关系、对话与属性   | [SupportUnitForm.cs](../FEBuilderGBA/FEBuilderGBA/SupportUnitForm.cs)                       | 待盘点   | 联合核对 SupportTalk／SupportAttribute 及各版本                                             |
+| gameplay.shops     | 商店货物编辑           | [ItemShopForm.cs](../FEBuilderGBA/FEBuilderGBA/ItemShopForm.cs)                             | 部分实现 | 章节、默认、FE8 准备／世界地图入口及原生货物已接入；容量补丁、外部格式与 IER 专用语义待接入 |
+| gameplay.arena     | 斗技场规则             | [ArenaClassForm.cs](../FEBuilderGBA/FEBuilderGBA/ArenaClassForm.cs)                         | 待盘点   | 联合核对敌方武器与联机参战限制                                                              |
+| tools.flag-names   | 标志命名与附属信息     | [ToolFlagNameForm.cs](../FEBuilderGBA/FEBuilderGBA/ToolFlagNameForm.cs)                     | 待实现   | 已定位名称修改；保存、载入与兼容契约待细化                                                  |
+| tools.flag-uses    | 标志使用处查询         | [ToolUseFlagForm.cs](../FEBuilderGBA/FEBuilderGBA/ToolUseFlagForm.cs)                       | 待盘点   | 扫描范围、定位和未识别引用                                                                  |
+| tools.diff-patch   | ROM 差异生成 BIN 补丁  | [ToolDiffForm.cs](../FEBuilderGBA/FEBuilderGBA/ToolDiffForm.cs)                             | 待实现   | 已定位 PATCH 文本及二进制输出；多文件流程需细化                                             |
+| text.translation   | ROM 翻译与字库处理     | [ToolTranslateROMForm.cs](../FEBuilderGBA/FEBuilderGBA/ToolTranslateROMForm.cs)             | 待盘点   | 与已有文本 ID 编辑分开核对工作流                                                            |
+| tools.event-export | EA 事件导出            | [ToolExportEAEventForm.cs](../FEBuilderGBA/FEBuilderGBA/ToolExportEAEventForm.cs)           | 待盘点   | 导出范围、资源引用与格式兼容                                                                |
 
 ## 新版工程事项
 
@@ -378,17 +379,17 @@
 
 默认测试使用独立构造的合成数据，调用实际文档和领域操作。可选集成测试（`tests/integration/real_rom_test.go`）动态发现 `.rom/` 中的输入，按可编辑入口验证通用流程，不绑定固定文件或内容；跳过项不计为通过。保存、重开等流程只操作临时副本。这些证据不包含游戏内执行验证。临时 UI 观察不作为永久回归，纯布局调整无需专门测试；规则见[测试说明](../tests/README.md)。
 
-| ID                      | 验证范围                                   | 证据入口                                                                                                                                                                                                                                                                                                                                                                                                                          |
-| ----------------------- | ------------------------------------------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| maps.validation         | 五版地图绘制、尺寸、影响与文件流程         | 地图读取（`game/maps/map_test.go`）、绘制与原子写入（`game/maps/editor_test.go`）、共享图块集与布局（`game/chapter/maps_test.go`）、尺寸工作流（`game/maps/resize_test.go`）、引用与原生边界（`game/chapter/resize_test.go`）、合成样本（`internal/testutil/maps.go`）、尺寸样本（`internal/testutil/map_resize.go`）、绘制文件流程（`tests/integration/maps_test.go`）、尺寸文件流程（`tests/integration/map_resize_test.go`）   |
-| maps.changes-validation | 五版变化表、脚本引用与文件闭环             | 资源与历史（`game/maps/changes_test.go`）、原生边界与上下文（`game/chapter/map_changes_test.go`）、脚本字节与校验（`game/chapter/script_maps_test.go`）、合成样本（`internal/testutil/map_changes.go`）、文件编辑（`tests/integration/map_changes_test.go`）、脚本到资源重开（`tests/integration/script_map_changes_test.go`）                                                                                                    |
-| locations.validation    | 五版地点编辑、类型化引用、裁剪与文件流程   | 地点工作流与边界（`game/event/locations_test.go`、`game/event/locations_context_test.go`）、尺寸影响（`game/chapter/locations_test.go`）、合成样本（`internal/testutil/locations.go`）、动态 ROM 条件编辑（`tests/integration/events_test.go`）                                                                                                                                                                                   |
-| shops.validation        | 五版章节商店、原生容量、独立引用与文件流程 | `game/event/shops_test.go`、`internal/testutil/shops.go`、`tests/integration/shops_test.go`；临时 UI 复核货物选择、排序、复制、非法输入和过期草稿；未执行游戏内购买验证                                                                                                                                                                                                                                                           |
-| paths.validation        | FE8 两版路径字节、文档历史与保存重开       | 路径流程（`game/deployment/paths_test.go`）、合成样本（`internal/testutil/paths.go`）                                                                                                                                                                                                                                                                                                                                             |
-| areas.validation        | 五版区域条件、事件写入与文件流程           | 区域流程（`game/event/areas_test.go`）、合成样本（`internal/testutil/areas.go`）                                                                                                                                                                                                                                                                                                                                                  |
-| talks.validation        | 五版人物对话、独立引用与文件流程           | 对话流程（`game/event/talks_test.go`）、合成样本（`internal/testutil/talks.go`）                                                                                                                                                                                                                                                                                                                                                  |
-| objectives.validation   | 五版胜败条件、脚本模板与文件流程           | 胜败流程（`game/event/objectives_test.go`）、合成样本（`internal/testutil/objectives.go`）                                                                                                                                                                                                                                                                                                                                        |
-| scripts.validation      | 五版指令字节、资源编辑与文件流程           | 基本脚本（`game/event/script_test.go`）、剧情（`game/event/scene_test.go`）、镜头（`game/event/camera_test.go`）、加载／队列（`game/event/loads_test.go`）、位段／控制／条件分支（`game/event/control_test.go`）、路线资源（`game/event/routes_test.go`）、手动移动及结束边界（`game/event/movement_test.go`）、动态文件流程（`tests/integration/scripts_test.go`）、路径文件流程（`tests/integration/scripts_movement_test.go`） |
+| ID                      | 验证范围                                                   | 证据入口                                                                                                                                                                                                                                                                                                                                                                                                                          |
+| ----------------------- | ---------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| maps.validation         | 五版地图绘制、尺寸、影响与文件流程                         | 地图读取（`game/maps/map_test.go`）、绘制与原子写入（`game/maps/editor_test.go`）、共享图块集与布局（`game/chapter/maps_test.go`）、尺寸工作流（`game/maps/resize_test.go`）、引用与原生边界（`game/chapter/resize_test.go`）、合成样本（`internal/testutil/maps.go`）、尺寸样本（`internal/testutil/map_resize.go`）、绘制文件流程（`tests/integration/maps_test.go`）、尺寸文件流程（`tests/integration/map_resize_test.go`）   |
+| maps.changes-validation | 五版变化表、脚本引用与文件闭环                             | 资源与历史（`game/maps/changes_test.go`）、原生边界与上下文（`game/chapter/map_changes_test.go`）、脚本字节与校验（`game/chapter/script_maps_test.go`）、合成样本（`internal/testutil/map_changes.go`）、文件编辑（`tests/integration/map_changes_test.go`）、脚本到资源重开（`tests/integration/script_map_changes_test.go`）                                                                                                    |
+| locations.validation    | 五版地点编辑、类型化引用、裁剪与文件流程                   | 地点工作流与边界（`game/event/locations_test.go`、`game/event/locations_context_test.go`）、尺寸影响（`game/chapter/locations_test.go`）、合成样本（`internal/testutil/locations.go`）、动态 ROM 条件编辑（`tests/integration/events_test.go`）                                                                                                                                                                                   |
+| shops.validation        | 五版章节与默认货物、FE8 准备／世界地图、独立引用与文件流程 | `game/event/shops_test.go`、`game/shop/entries_test.go`、`internal/testutil/native_shops.go`、`tests/integration/shops_test.go`；动态发现真实 ROM，按可用入口验证历史和重开；临时 UI 复核统一列表、初始化／关闭、货物选择、排序、非法输入、过期草稿及宽窄布局；未执行游戏内购买验证                                                                                                                                               |
+| paths.validation        | FE8 两版路径字节、文档历史与保存重开                       | 路径流程（`game/deployment/paths_test.go`）、合成样本（`internal/testutil/paths.go`）                                                                                                                                                                                                                                                                                                                                             |
+| areas.validation        | 五版区域条件、事件写入与文件流程                           | 区域流程（`game/event/areas_test.go`）、合成样本（`internal/testutil/areas.go`）                                                                                                                                                                                                                                                                                                                                                  |
+| talks.validation        | 五版人物对话、独立引用与文件流程                           | 对话流程（`game/event/talks_test.go`）、合成样本（`internal/testutil/talks.go`）                                                                                                                                                                                                                                                                                                                                                  |
+| objectives.validation   | 五版胜败条件、脚本模板与文件流程                           | 胜败流程（`game/event/objectives_test.go`）、合成样本（`internal/testutil/objectives.go`）                                                                                                                                                                                                                                                                                                                                        |
+| scripts.validation      | 五版指令字节、资源编辑与文件流程                           | 基本脚本（`game/event/script_test.go`）、剧情（`game/event/scene_test.go`）、镜头（`game/event/camera_test.go`）、加载／队列（`game/event/loads_test.go`）、位段／控制／条件分支（`game/event/control_test.go`）、路线资源（`game/event/routes_test.go`）、手动移动及结束边界（`game/event/movement_test.go`）、动态文件流程（`tests/integration/scripts_test.go`）、路径文件流程（`tests/integration/scripts_movement_test.go`） |
 
 其他领域测试位于对应包；样本构造规则见 [fixture 约定](../testdata/fixtures.md)，新增用例无需同步登记数量。
 

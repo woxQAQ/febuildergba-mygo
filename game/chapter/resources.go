@@ -48,10 +48,13 @@ func (g Config) Conditions(
 	return event.Conditions{}, edit.ErrLayout
 }
 
-// deploymentRanges protects typed deployment resources and pointer sites from
+// Ranges protects typed chapter resources and external pointer sites from
 // reuse or from a damaged unrelated table targeting their live bytes.
 func (g Config) Ranges(data []byte) []space.Range {
 	var result []space.Range
+	if g.External != nil {
+		result = append(result, g.External(data)...)
+	}
 	add := func(start, length int) {
 		if start >= 0xC0 && length > 0 && gba.Within(data, start, length) {
 			result = append(

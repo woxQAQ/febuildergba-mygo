@@ -9,6 +9,7 @@ import (
 	"github.com/woxQAQ/febuildergba-mygo/game/event"
 	"github.com/woxQAQ/febuildergba-mygo/game/maps"
 	"github.com/woxQAQ/febuildergba-mygo/game/records"
+	"github.com/woxQAQ/febuildergba-mygo/game/shop"
 	"github.com/woxQAQ/febuildergba-mygo/game/text"
 	"github.com/woxQAQ/febuildergba-mygo/rom"
 	"github.com/woxQAQ/febuildergba-mygo/space"
@@ -17,11 +18,14 @@ import (
 // Config connects the native chapter table to its event, map and text formats.
 // Reserved contains confirmed external resources which chapter edits must protect.
 type Config struct {
-	Table    Format
-	Events   event.Format
-	Maps     maps.Format
-	Text     text.Format
-	Reserved []space.Range
+	Table         Format
+	Events        event.Format
+	Maps          maps.Format
+	Text          text.Format
+	Reserved      []space.Range
+	Shops         shop.Format
+	External      func([]byte) []space.Range
+	InventoryUses func([]byte, int) []shop.Reference
 }
 
 // Editor coordinates shared chapter resources. The native editors retain their
@@ -53,8 +57,17 @@ func New(
 		records,
 		s.Deployments,
 		event.Source{
-			ResolveMap: s.Maps.ResolveTarget,
+			DefaultShop:   config.Shops.Default,
+			InventoryUses: config.InventoryUses,
+			ResolveMap:    s.Maps.ResolveTarget,
 			ProtectPointer: func(data []byte, site int) error {
+				if config.External != nil {
+					for _, region := range config.External(data) {
+						if site < region.End && region.Start < site+4 {
+							return event.ErrEventConditions
+						}
+					}
+				}
 				return checkResourcePointer(
 					data,
 					records.Inspect(data).Tables,

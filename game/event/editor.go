@@ -6,6 +6,7 @@ import (
 	"github.com/woxQAQ/febuildergba-mygo/game/edit"
 	"github.com/woxQAQ/febuildergba-mygo/game/maps"
 	"github.com/woxQAQ/febuildergba-mygo/game/records"
+	"github.com/woxQAQ/febuildergba-mygo/game/shop"
 	"github.com/woxQAQ/febuildergba-mygo/game/text"
 	"github.com/woxQAQ/febuildergba-mygo/rom"
 )
@@ -15,6 +16,8 @@ import (
 type Source struct {
 	ResolveMap     func(int, maps.Target) (maps.Change, error)
 	ProtectPointer func([]byte, int) error
+	DefaultShop    func([]byte) (*shop.Draft, error)
+	InventoryUses  func([]byte, int) []shop.Reference
 }
 
 type Editor struct {

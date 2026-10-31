@@ -15,6 +15,7 @@ import (
 	"github.com/woxQAQ/febuildergba-mygo/internal/pages/hexeditor"
 	"github.com/woxQAQ/febuildergba-mygo/internal/pages/portraits"
 	recordspage "github.com/woxQAQ/febuildergba-mygo/internal/pages/records"
+	"github.com/woxQAQ/febuildergba-mygo/internal/pages/shops"
 	"github.com/woxQAQ/febuildergba-mygo/internal/pages/texteditor"
 )
 
@@ -41,6 +42,7 @@ type Workspace struct {
 	texts     *texteditor.Page
 	scripts   *eventeditor.Page
 	portraits *portraits.Page
+	shops     *shops.Page
 	zoomLevel int
 	menuState struct {
 		text, draft, undo, redo bool
@@ -76,6 +78,7 @@ func New() *Workspace {
 	)
 	w.portraits = portraits.New(w.Editor, assets, w.records.Open, w.openHex)
 	w.records.SetPortraitOpener(w.OpenPortrait)
+	w.shops = shops.New(w.Editor, w.records.OpenShop, w.openHex)
 	w.scripts = eventeditor.New(
 		w.Editor,
 		w.openHex,
@@ -94,6 +97,7 @@ func (w *Workspace) SetSession(session *game.Session) {
 	w.texts.Reset()
 	w.scripts.Reset()
 	w.portraits.Reset()
+	w.shops.Reset()
 	w.tab = 0
 }
 
@@ -159,6 +163,7 @@ func (w *Workspace) View(c *ui.Context) {
 			locales.HexEditor(),
 			locales.ScriptEditor(),
 			locales.PortraitTable(),
+			locales.ShopEntries(),
 		)
 		ui.ScrollHorizontal(c.Key("workspace-tabs")).Shrink(0).Children(func() {
 			ui.Tabs(c, &w.tab, labels...).Shrink(0)
@@ -175,6 +180,8 @@ func (w *Workspace) View(c *ui.Context) {
 			w.scripts.View(c)
 		case len(records.Kinds) + 3:
 			w.portraits.View(c)
+		case len(records.Kinds) + 4:
+			w.shops.View(c)
 		default:
 			w.records.View(c, w.tab)
 		}

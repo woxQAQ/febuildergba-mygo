@@ -59,16 +59,10 @@ func (d *ConditionDraft) SetShopKind(index int, kind ShopKind) error {
 	return nil
 }
 
-// InventoryUse names a confirmed chapter reference to the old inventory. It is
-// not a complete index of preparation, world-map, script or custom references.
-type InventoryUse struct {
-	Chapter, Location int
-}
-
 // InventoryChange describes one independently allocated shop in the frozen plan.
 type InventoryChange struct {
 	Location, Before, After, Count int
-	Uses                           []InventoryUse
+	Uses                           []shop.Reference
 }
 
 func (e *ConditionEdit) Inventories() []InventoryChange {
@@ -79,15 +73,18 @@ func (e *ConditionEdit) Inventories() []InventoryChange {
 	return result
 }
 
-func (s *Editor) inventoryUses(address int) []InventoryUse {
+func (s *Editor) inventoryUses(address int) []shop.Reference {
 	if address == 0 {
 		return nil
+	}
+	if s.source.InventoryUses != nil {
+		return s.source.InventoryUses(s.image.Data, address)
 	}
 	table := s.records.Table(records.Chapters)
 	if table == nil || table.Err != nil {
 		return nil
 	}
-	var result []InventoryUse
+	var result []shop.Reference
 	for _, row := range table.Rows {
 		conditions, err := s.Conditions(row.ID, LocationEvents)
 		if err != nil {
@@ -104,7 +101,16 @@ func (s *Editor) inventoryUses(address int) []InventoryUse {
 				at == address {
 				result = append(
 					result,
-					InventoryUse{Chapter: row.ID, Location: i},
+					shop.Reference{
+						Key: shop.Key{
+							Origin: shop.Chapter,
+							ID:     row.ID,
+							Slot:   i,
+						},
+						Pointer: condition.Address + 4,
+						Name:    row.Name,
+						Kind:    int(condition.Location.ShopKind),
+					},
 				)
 			}
 		}

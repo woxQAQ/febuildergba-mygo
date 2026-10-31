@@ -11,6 +11,7 @@ import (
 	"github.com/woxQAQ/febuildergba-mygo/game/maps"
 	"github.com/woxQAQ/febuildergba-mygo/game/portrait"
 	"github.com/woxQAQ/febuildergba-mygo/game/records"
+	"github.com/woxQAQ/febuildergba-mygo/game/shop"
 	"github.com/woxQAQ/febuildergba-mygo/game/text"
 	"github.com/woxQAQ/febuildergba-mygo/rom"
 )
@@ -28,6 +29,7 @@ type Session struct {
 	Events      *event.Editor
 	Deployments *deployment.Editor
 	Maps        *maps.Editor
+	Shops       *shop.Editor
 	format      format
 }
 
@@ -51,8 +53,11 @@ func Open(path string) (session *Session, err error) {
 			func(data []byte, id uint16) text.References { return s.Records.TextReferences(data, id) },
 		)
 		s.Records = records.New(context, format.recordFormat, s.Texts)
-		s.Chapters = chapter.New(context, format.chapterConfig(), s.Records)
+		chapterConfig := format.chapterConfig()
+		chapterConfig.InventoryUses = s.inventoryUses
+		s.Chapters = chapter.New(context, chapterConfig, s.Records)
 		s.Events, s.Deployments, s.Maps = s.Chapters.Events, s.Chapters.Deployments, s.Chapters.Maps
+		s.Shops = shop.NewEditor(context, format.shops, s.shopSource())
 		s.Portraits = portrait.New(
 			context,
 			format.portraits,

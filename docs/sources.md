@@ -66,7 +66,23 @@ FE6／FE7 坐标未命中退回事件参数，FE8 则返回事件错误。FE7 �
 - FE7U，`StanHash/fe7_us@5c8b3c5e254e00f0f3458b9772c27e1a5a326e3b`：[asm/code.s](https://github.com/StanHash/fe7_us/blob/5c8b3c5e254e00f0f3458b9772c27e1a5a326e3b/asm/code.s) 的 `func_080B03D4`／`03F4`／`0414` 和 `func_080B0454`，同样复制 21 个半字并调用 `CreateItem`；`func_080B0520` 扫描生成后的结束项。FE7J 对应原版循环以 `cmp #0x14`／`ble` 和双字节步进核对，与旧版日版地点类型定义组合使用。
 - FE8，`FireEmblemUniverse/fireemblem8u@04d1edb163d14bd10777a065697e1a9f17be65f2`：[src/bmshop.c](https://github.com/FireEmblemUniverse/fireemblem8u/blob/04d1edb163d14bd10777a065697e1a9f17be65f2/src/bmshop.c) 的 `StartShopScreen`／`UpdateShopItemCounts`，以及 [include/bmshop.h](https://github.com/FireEmblemUniverse/fireemblem8u/blob/04d1edb163d14bd10777a065697e1a9f17be65f2/include/bmshop.h) 的 20 项货物与紧随半字；[src/bmitem.c](https://github.com/FireEmblemUniverse/fireemblem8u/blob/04d1edb163d14bd10777a065697e1a9f17be65f2/src/bmitem.c) 的 `MakeNewItem` 按道具定义重建耐久。FE8J 由旧版准备商店指针处调用追踪到同类加载器，确认从 `0x14` 递减至 0 的 21 次双字节复制。
 
-因此新分配保留完整 42 字节读取范围，20 项之后必须有结束项；原货物高字节和结束项高字节保留，未知尾部留在原位置。日版原生字节核对和五版动态文件流程不替代游戏内购买验证。准备界面与世界地图入口的编辑仍单独安排。
+因此新分配保留完整 42 字节读取范围，20 项之后必须有结束项；原货物高字节和结束项高字节保留，未知尾部留在原位置。日版原生字节核对和五版动态文件流程不替代游戏内购买验证。
+
+默认货物从上述加载器的空指针分支定位；FE8 准备界面另查同一固定提交的 [src/prep_itemscreen.c](https://github.com/FireEmblemUniverse/fireemblem8u/blob/04d1edb163d14bd10777a065697e1a9f17be65f2/src/prep_itemscreen.c) 中 `StartPrepArmory`／`gPrepShopInventory`。以下值是保存指针的 ROM 偏移，内容按当前 ROM 读取：
+
+| 版本 | 引擎默认货物指针 | 准备商店指针 | 世界地图节点表指针 |
+| ---- | ---------------- | ------------ | ------------------ |
+| FE6  | 0x95F10          | 无           | 无                 |
+| FE7U | 0xB04D4          | 无           | 无                 |
+| FE7J | 0xB12FC          | 无           | 无                 |
+| FE8U | 0xB42B0          | 0x99E64      | 0xBE84             |
+| FE8J | 0xB8E38          | 0x9C144      | 0xC8DC0            |
+
+旧版 FE6 配置将 `0x95F10` 命名为 `item_shop_hensei_pointer`；原生 `func_fe6_08095E90` 的零参数分支确认它是加载器默认列表。FE7J 以对应复制循环前的默认列表字面量核对；FE8J 从准备调用跟踪到加载器，并以其 PC 相对加载定位默认列表字面量。
+
+世界地图原生结构核对 FE8 同一固定提交的 [include/worldmap.h](https://github.com/FireEmblemUniverse/fireemblem8u/blob/04d1edb163d14bd10777a065697e1a9f17be65f2/include/worldmap.h) 中 `GMapNodeData`、[include/constants/worldmap.h](https://github.com/FireEmblemUniverse/fireemblem8u/blob/04d1edb163d14bd10777a065697e1a9f17be65f2/include/constants/worldmap.h) 的 `NODE_MAX = 0x1D`，以及 [src/worldmap_node_data.c](https://github.com/FireEmblemUniverse/fireemblem8u/blob/04d1edb163d14bd10777a065697e1a9f17be65f2/src/worldmap_node_data.c)／[src/worldmap_shop_data.c](https://github.com/FireEmblemUniverse/fireemblem8u/blob/04d1edb163d14bd10777a065697e1a9f17be65f2/src/worldmap_shop_data.c)。节点步长 32、货物指针 +12／+16／+20、名称 ID +28，另与固定旧版 `WorldMapPointForm.Init`／`GetShopAddr` 及日版根指针对照。
+
+[src/worldmap_path.c](https://github.com/FireEmblemUniverse/fireemblem8u/blob/04d1edb163d14bd10777a065697e1a9f17be65f2/src/worldmap_path.c) 的 `WMMenu_IsArmoryAvailable`／`WMMenu_IsVendorAvailable`／`WMMenu_IsSecretShopAvailable` 直接读货物首个半字判定菜单，秘密商店另查通关标志；[src/worldmap_basemenu.c](https://github.com/FireEmblemUniverse/fireemblem8u/blob/04d1edb163d14bd10777a065697e1a9f17be65f2/src/worldmap_basemenu.c) 的进入函数将对应列表交给加载器。FE8J 原生 `0xC14B4`／`0xC14EC`／`0xC1524` 的相同指令段交叉确认节点乘 32、三个字段偏移及半字读取与零值分支；不能把零指针当成已关闭的节点商店。
 
 ## 事件剧情指令
 

@@ -1,4 +1,4 @@
-// Package shop edits native two-byte inventories independently of their references.
+// Package shop edits native two-byte inventories and confirmed shop entries.
 package shop
 
 import (

@@ -56,6 +56,10 @@ func (a *form) OpenMapChange(chapter, id int) {
 	a.chapter.OpenMapChange(a.state, chapter, id)
 }
 
+func (a *form) OpenShop(chapter, location int) {
+	a.chapter.OpenShop(a.state, chapter, location)
+}
+
 func (a *form) OpenDeployment(
 	chapter, site int,
 ) {

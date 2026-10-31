@@ -7,8 +7,10 @@ import (
 	"github.com/woxQAQ/febuildergba-mygo/game/maps"
 	"github.com/woxQAQ/febuildergba-mygo/game/portrait"
 	"github.com/woxQAQ/febuildergba-mygo/game/records"
+	"github.com/woxQAQ/febuildergba-mygo/game/shop"
 	"github.com/woxQAQ/febuildergba-mygo/game/text"
 	"github.com/woxQAQ/febuildergba-mygo/game/version"
+	"github.com/woxQAQ/febuildergba-mygo/game/worldmap"
 )
 
 // Locations follow ROMFE8JP; field layouts are shared with FE8U.
@@ -69,6 +71,11 @@ func fe8jFormat() format {
 		},
 		chapters: chapter.FE8(0xBAB1C, 0x34534, 0xBA9EC, 0xBAD44, 0xBAEAC),
 		events:   event.FE8(0x345E4, 0xA60380, 0x5B9EE8),
+		shops: shop.Format{
+			DefaultPointer:     0xB8E38,
+			PreparationPointer: 0x9C144,
+		},
+		worldmap: worldmap.Format{Pointer: 0xC8DC0},
 		maps: maps.Format{
 			Graphics:    0x19640,
 			Palette:     0x19674,

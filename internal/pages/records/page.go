@@ -178,6 +178,11 @@ func (a *Page) OpenMapChange(chapter, id int) {
 	a.form.OpenMapChange(chapter, id)
 }
 
+func (a *Page) OpenShop(chapter, location int) {
+	a.Open(records.Chapters, chapter)
+	a.form.OpenShop(chapter, location)
+}
+
 func (a *Page) OpenDeployment(chapter, site int) {
 	a.Open(records.Chapters, chapter)
 	a.form.OpenDeployment(chapter, site)

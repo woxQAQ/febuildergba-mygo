@@ -73,6 +73,7 @@ func TestROMWorkflows(t *testing.T) {
 					func(t *testing.T, s *game.Session) { editEvents(t, s, event.LocationEvents) },
 				},
 				{"shops", editShops},
+				{"native-shops", editNativeShops},
 				{"scripts", editScript},
 				{"script-scenes", editScriptScene},
 				{"script-focus", editScriptFocus},

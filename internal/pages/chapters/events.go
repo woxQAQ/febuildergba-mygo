@@ -12,6 +12,7 @@ import (
 	"github.com/woxQAQ/febuildergba-mygo/game/shop"
 	"github.com/woxQAQ/febuildergba-mygo/internal/components"
 	"github.com/woxQAQ/febuildergba-mygo/internal/components/mapview"
+	"github.com/woxQAQ/febuildergba-mygo/internal/components/shopview"
 	"github.com/woxQAQ/febuildergba-mygo/internal/editor"
 	"github.com/woxQAQ/febuildergba-mygo/internal/locales"
 )
@@ -33,7 +34,7 @@ type eventState struct {
 	textReference                string
 	location                     locationInteraction
 	locationScript               bool
-	shops                        map[*shop.Draft]*inventoryState
+	shops                        map[*shop.Draft]*shopview.View
 }
 
 type eventLabels struct{ title, add, remove, scope, preview, reload, apply, previewScope, help string }
@@ -145,7 +146,7 @@ func (v *Page) eventDraft(
 func (e *eventState) invalid() bool {
 	for i := range e.data.Events() {
 		if inventory, err := e.data.Shop(i); err == nil {
-			if state := e.shops[inventory]; state != nil && state.invalid() {
+			if state := e.shops[inventory]; state != nil && state.Invalid() {
 				return true
 			}
 		}
@@ -479,7 +480,7 @@ func (v *Page) eventActions(
 			if len(change.Uses) > 0 {
 				ui.Text(c, locales.ShopKnownUses()).FontSize(12)
 				for _, use := range change.Uses {
-					ui.Textf(c, "%02X %s · %s %02X", use.Chapter, nameOf(state.Session, records.Chapters, use.Chapter), locales.LocationEvents(), use.Location).
+					ui.Text(c, shopview.Caption(use)).
 						FontSize(12)
 				}
 			}

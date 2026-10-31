@@ -7,6 +7,7 @@ import (
 	"github.com/woxQAQ/febuildergba-mygo/game/maps"
 	"github.com/woxQAQ/febuildergba-mygo/game/portrait"
 	"github.com/woxQAQ/febuildergba-mygo/game/records"
+	"github.com/woxQAQ/febuildergba-mygo/game/shop"
 	"github.com/woxQAQ/febuildergba-mygo/game/text"
 	"github.com/woxQAQ/febuildergba-mygo/game/version"
 )
@@ -50,6 +51,7 @@ func fe6Format() format {
 		},
 		chapters: chapter.FE6(),
 		events:   event.FE6(0x2BBCC),
+		shops:    shop.Format{DefaultPointer: 0x95F10},
 		maps: maps.Format{
 			Graphics:    0x18AE4,
 			Palette:     0x18B18,

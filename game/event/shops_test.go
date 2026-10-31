@@ -93,13 +93,18 @@ func TestChapterShopWorkflow(t *testing.T) {
 				!slices.Equal(plan.Uses(), []int{0}) {
 				t.Fatal("inventory preview or independent header scope")
 			}
-			wantUses := []event.InventoryUse{
-				{Chapter: 0, Location: 6},
-				{Chapter: 0, Location: 11},
-				{Chapter: 1, Location: 6},
-				{Chapter: 1, Location: 11},
+			wantUses := []shop.Key{
+				{Origin: shop.Chapter, ID: 0, Slot: 6},
+				{Origin: shop.Chapter, ID: 0, Slot: 11},
+				{Origin: shop.Chapter, ID: 1, Slot: 6},
+				{Origin: shop.Chapter, ID: 1, Slot: 11},
 			}
-			if !slices.Equal(plan.Inventories()[0].Uses, wantUses) {
+			sameUse := func(ref shop.Reference, key shop.Key) bool { return ref.Key == key }
+			if !slices.EqualFunc(
+				plan.Inventories()[0].Uses,
+				wantUses,
+				sameUse,
+			) {
 				t.Fatalf(
 					"known inventory references: %+v",
 					plan.Inventories()[0].Uses,
@@ -112,8 +117,12 @@ func TestChapterShopWorkflow(t *testing.T) {
 			if err := inventory.SetItem(0, 8); err != nil {
 				t.Fatal(err)
 			}
-			plan.Inventories()[0].Uses[0].Chapter = 99
-			if !slices.Equal(plan.Inventories()[0].Uses, wantUses) {
+			plan.Inventories()[0].Uses[0].Key.ID = 99
+			if !slices.EqualFunc(
+				plan.Inventories()[0].Uses,
+				wantUses,
+				sameUse,
+			) {
 				t.Fatal("returned preview details expose the immutable plan")
 			}
 			if err := s.Events.ApplyConditions(plan); err != nil {

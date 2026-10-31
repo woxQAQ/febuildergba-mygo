@@ -34,6 +34,286 @@ type Messages struct{ locale string }
 // source language.
 func In(locale string) Messages { return Messages{locale} }
 
+// ShopRaw says "Inventory bytes"
+// in the language the app shows.
+func ShopRaw() string { return In(i18n.Locale()).ShopRaw() }
+
+// ShopRaw says "Inventory bytes"
+// in the language of msgs.
+func (msgs Messages) ShopRaw() string {
+	return Catalog.Format(msgs.locale, "shop_raw", nil)
+}
+
+// ShopEntries says "Shops"
+// in the language the app shows.
+func ShopEntries() string { return In(i18n.Locale()).ShopEntries() }
+
+// ShopEntries says "Shops"
+// in the language of msgs.
+func (msgs Messages) ShopEntries() string {
+	return Catalog.Format(msgs.locale, "shop_entries", nil)
+}
+
+// ShopAll says "All"
+// in the language the app shows.
+func ShopAll() string { return In(i18n.Locale()).ShopAll() }
+
+// ShopAll says "All"
+// in the language of msgs.
+func (msgs Messages) ShopAll() string {
+	return Catalog.Format(msgs.locale, "shop_all", nil)
+}
+
+// ShopChapter says "Chapter"
+// in the language the app shows.
+func ShopChapter() string { return In(i18n.Locale()).ShopChapter() }
+
+// ShopChapter says "Chapter"
+// in the language of msgs.
+func (msgs Messages) ShopChapter() string {
+	return Catalog.Format(msgs.locale, "shop_chapter", nil)
+}
+
+// ShopPreparation says "Preparation shop"
+// in the language the app shows.
+func ShopPreparation() string { return In(i18n.Locale()).ShopPreparation() }
+
+// ShopPreparation says "Preparation shop"
+// in the language of msgs.
+func (msgs Messages) ShopPreparation() string {
+	return Catalog.Format(msgs.locale, "shop_preparation", nil)
+}
+
+// ShopDefault says "Engine default inventory"
+// in the language the app shows.
+func ShopDefault() string { return In(i18n.Locale()).ShopDefault() }
+
+// ShopDefault says "Engine default inventory"
+// in the language of msgs.
+func (msgs Messages) ShopDefault() string {
+	return Catalog.Format(msgs.locale, "shop_default", nil)
+}
+
+// ShopWorldmap says "World map"
+// in the language the app shows.
+func ShopWorldmap() string { return In(i18n.Locale()).ShopWorldmap() }
+
+// ShopWorldmap says "World map"
+// in the language of msgs.
+func (msgs Messages) ShopWorldmap() string {
+	return Catalog.Format(msgs.locale, "shop_worldmap", nil)
+}
+
+// ShopSource says "Shop source"
+// in the language the app shows.
+func ShopSource() string { return In(i18n.Locale()).ShopSource() }
+
+// ShopSource says "Shop source"
+// in the language of msgs.
+func (msgs Messages) ShopSource() string {
+	return Catalog.Format(msgs.locale, "shop_source", nil)
+}
+
+// ShopSearch says "Search chapter, node name or hexadecimal ID"
+// in the language the app shows.
+func ShopSearch() string { return In(i18n.Locale()).ShopSearch() }
+
+// ShopSearch says "Search chapter, node name or hexadecimal ID"
+// in the language of msgs.
+func (msgs Messages) ShopSearch() string {
+	return Catalog.Format(msgs.locale, "shop_search", nil)
+}
+
+// ShopNoEntries says "No shop entries match this filter. Preparation and world-map shops are available in FE8 only."
+// in the language the app shows.
+func ShopNoEntries() string { return In(i18n.Locale()).ShopNoEntries() }
+
+// ShopNoEntries says "No shop entries match this filter. Preparation and world-map shops are available in FE8 only."
+// in the language of msgs.
+func (msgs Messages) ShopNoEntries() string {
+	return Catalog.Format(msgs.locale, "shop_no_entries", nil)
+}
+
+// ShopIncomplete says "Unresolved entry sources"
+// in the language the app shows.
+func ShopIncomplete() string { return In(i18n.Locale()).ShopIncomplete() }
+
+// ShopIncomplete says "Unresolved entry sources"
+// in the language of msgs.
+func (msgs Messages) ShopIncomplete() string {
+	return Catalog.Format(msgs.locale, "shop_incomplete", nil)
+}
+
+// ShopVersionHelp says "FE6, FE7 and FE8 support chapter shops and engine defaults. FE8 also has preparation and world-map shops."
+// in the language the app shows.
+func ShopVersionHelp() string { return In(i18n.Locale()).ShopVersionHelp() }
+
+// ShopVersionHelp says "FE6, FE7 and FE8 support chapter shops and engine defaults. FE8 also has preparation and world-map shops."
+// in the language of msgs.
+func (msgs Messages) ShopVersionHelp() string {
+	return Catalog.Format(msgs.locale, "shop_version_help", nil)
+}
+
+// ShopUsesDefault says "This entry uses the engine default inventory. Editing gives it an independent inventory."
+// in the language the app shows.
+func ShopUsesDefault() string { return In(i18n.Locale()).ShopUsesDefault() }
+
+// ShopUsesDefault says "This entry uses the engine default inventory. Editing gives it an independent inventory."
+// in the language of msgs.
+func (msgs Messages) ShopUsesDefault() string {
+	return Catalog.Format(msgs.locale, "shop_uses_default", nil)
+}
+
+// ShopDefaultHelp says "Changing the default affects every shop call with a null inventory, including unindexed scripts and custom callers. S…"
+// in the language the app shows.
+func ShopDefaultHelp() string { return In(i18n.Locale()).ShopDefaultHelp() }
+
+// ShopDefaultHelp says "Changing the default affects every shop call with a null inventory, including unindexed scripts and custom callers. S…"
+// in the language of msgs.
+func (msgs Messages) ShopDefaultHelp() string {
+	return Catalog.Format(msgs.locale, "shop_default_help", nil)
+}
+
+// ShopWorldmapHelp says "Closing a shop writes a valid empty inventory. Access still depends on node state and progress; native secret shops a…"
+// in the language the app shows.
+func ShopWorldmapHelp() string { return In(i18n.Locale()).ShopWorldmapHelp() }
+
+// ShopWorldmapHelp says "Closing a shop writes a valid empty inventory. Access still depends on node state and progress; native secret shops a…"
+// in the language of msgs.
+func (msgs Messages) ShopWorldmapHelp() string {
+	return Catalog.Format(msgs.locale, "shop_worldmap_help", nil)
+}
+
+// ShopNullHelp says "This node entry has a null pointer, which does not represent a closed shop. Initialize its inventory first."
+// in the language the app shows.
+func ShopNullHelp() string { return In(i18n.Locale()).ShopNullHelp() }
+
+// ShopNullHelp says "This node entry has a null pointer, which does not represent a closed shop. Initialize its inventory first."
+// in the language of msgs.
+func (msgs Messages) ShopNullHelp() string {
+	return Catalog.Format(msgs.locale, "shop_null_help", nil)
+}
+
+// ShopHidden says "This node shop has an empty inventory and is hidden by the native menu."
+// in the language the app shows.
+func ShopHidden() string { return In(i18n.Locale()).ShopHidden() }
+
+// ShopHidden says "This node shop has an empty inventory and is hidden by the native menu."
+// in the language of msgs.
+func (msgs Messages) ShopHidden() string {
+	return Catalog.Format(msgs.locale, "shop_hidden", nil)
+}
+
+// ShopOpenChapter says "Open chapter locations and position"
+// in the language the app shows.
+func ShopOpenChapter() string { return In(i18n.Locale()).ShopOpenChapter() }
+
+// ShopOpenChapter says "Open chapter locations and position"
+// in the language of msgs.
+func (msgs Messages) ShopOpenChapter() string {
+	return Catalog.Format(msgs.locale, "shop_open_chapter", nil)
+}
+
+// ShopClear says "Clear inventory"
+// in the language the app shows.
+func ShopClear() string { return In(i18n.Locale()).ShopClear() }
+
+// ShopClear says "Clear inventory"
+// in the language of msgs.
+func (msgs Messages) ShopClear() string {
+	return Catalog.Format(msgs.locale, "shop_clear", nil)
+}
+
+// ShopClose says "Close this node shop"
+// in the language the app shows.
+func ShopClose() string { return In(i18n.Locale()).ShopClose() }
+
+// ShopClose says "Close this node shop"
+// in the language of msgs.
+func (msgs Messages) ShopClose() string {
+	return Catalog.Format(msgs.locale, "shop_close", nil)
+}
+
+// ShopInitialize says "Initialize inventory"
+// in the language the app shows.
+func ShopInitialize() string { return In(i18n.Locale()).ShopInitialize() }
+
+// ShopInitialize says "Initialize inventory"
+// in the language of msgs.
+func (msgs Messages) ShopInitialize() string {
+	return Catalog.Format(msgs.locale, "shop_initialize", nil)
+}
+
+// ShopPreview says "Preview shop edit"
+// in the language the app shows.
+func ShopPreview() string { return In(i18n.Locale()).ShopPreview() }
+
+// ShopPreview says "Preview shop edit"
+// in the language of msgs.
+func (msgs Messages) ShopPreview() string {
+	return Catalog.Format(msgs.locale, "shop_preview", nil)
+}
+
+// ShopApply says "Apply shop edit"
+// in the language the app shows.
+func ShopApply() string { return In(i18n.Locale()).ShopApply() }
+
+// ShopApply says "Apply shop edit"
+// in the language of msgs.
+func (msgs Messages) ShopApply() string {
+	return Catalog.Format(msgs.locale, "shop_apply", nil)
+}
+
+// ShopEntryScope says "Append an independent inventory and update the selected entry; retain the old inventory and independent references."
+// in the language the app shows.
+func ShopEntryScope() string { return In(i18n.Locale()).ShopEntryScope() }
+
+// ShopEntryScope says "Append an independent inventory and update the selected entry; retain the old inventory and independent references."
+// in the language of msgs.
+func (msgs Messages) ShopEntryScope() string {
+	return Catalog.Format(msgs.locale, "shop_entry_scope", nil)
+}
+
+// ShopAffected says "Known entries affected by this edit:"
+// in the language the app shows.
+func ShopAffected() string { return In(i18n.Locale()).ShopAffected() }
+
+// ShopAffected says "Known entries affected by this edit:"
+// in the language of msgs.
+func (msgs Messages) ShopAffected() string {
+	return Catalog.Format(msgs.locale, "shop_affected", nil)
+}
+
+// ShopKnownEntries says "Known uses of the original inventory:"
+// in the language the app shows.
+func ShopKnownEntries() string { return In(i18n.Locale()).ShopKnownEntries() }
+
+// ShopKnownEntries says "Known uses of the original inventory:"
+// in the language of msgs.
+func (msgs Messages) ShopKnownEntries() string {
+	return Catalog.Format(msgs.locale, "shop_known_entries", nil)
+}
+
+// ShopReferenceLimit says "This list covers readable chapter, preparation, default and world-map entries. Scripts and custom references are not …"
+// in the language the app shows.
+func ShopReferenceLimit() string { return In(i18n.Locale()).ShopReferenceLimit() }
+
+// ShopReferenceLimit says "This list covers readable chapter, preparation, default and world-map entries. Scripts and custom references are not …"
+// in the language of msgs.
+func (msgs Messages) ShopReferenceLimit() string {
+	return Catalog.Format(msgs.locale, "shop_reference_limit", nil)
+}
+
+// GameInvalidWorldmapNodes says "The world-map node table needs an aligned ROM pointer and readable space for all 29 native nodes. Other shops can sti…"
+// in the language the app shows.
+func GameInvalidWorldmapNodes() string { return In(i18n.Locale()).GameInvalidWorldmapNodes() }
+
+// GameInvalidWorldmapNodes says "The world-map node table needs an aligned ROM pointer and readable space for all 29 native nodes. Other shops can sti…"
+// in the language of msgs.
+func (msgs Messages) GameInvalidWorldmapNodes() string {
+	return Catalog.Format(msgs.locale, "game_invalid_worldmap_nodes", nil)
+}
+
 // ShopInventory says "Shop inventory"
 // in the language the app shows.
 func ShopInventory() string { return In(i18n.Locale()).ShopInventory() }
@@ -174,11 +454,11 @@ func (msgs Messages) ShopPreviewScope() string {
 	return Catalog.Format(msgs.locale, "shop_preview_scope", nil)
 }
 
-// ShopKnownUses says "Known chapter uses of the previous inventory (preparation, world-map and custom references are not indexed):"
+// ShopKnownUses says "Known uses of the previous inventory (scripts and custom references are not fully indexed):"
 // in the language the app shows.
 func ShopKnownUses() string { return In(i18n.Locale()).ShopKnownUses() }
 
-// ShopKnownUses says "Known chapter uses of the previous inventory (preparation, world-map and custom references are not indexed):"
+// ShopKnownUses says "Known uses of the previous inventory (scripts and custom references are not fully indexed):"
 // in the language of msgs.
 func (msgs Messages) ShopKnownUses() string {
 	return Catalog.Format(msgs.locale, "shop_known_uses", nil)

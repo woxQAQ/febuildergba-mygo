@@ -68,7 +68,12 @@ func (s *Editor) NewConditions(
 		record := eventRecord{event: event, raw: bytes.Clone(event.Raw)}
 		if table == LocationEvents && event.OperandKind == ShopTarget {
 			address, valid := gba.Pointer(s.image.Data, event.Address+4)
-			if valid {
+			if gba.Uint32(s.image.Data, event.Address+4) == 0 &&
+				s.source.DefaultShop != nil {
+				record.inventory, record.inventoryErr = s.source.DefaultShop(
+					s.image.Data,
+				)
+			} else if valid {
 				record.inventory, record.inventoryErr = shop.Read(
 					s.image.Data,
 					address,
