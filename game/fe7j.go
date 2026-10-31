@@ -90,9 +90,15 @@ func fe7jFormat() format {
 				},
 			},
 		},
-		chapters: chapter.FE7(0x31A6C, false),
-		events:   event.FE7(0x31B18, false),
-		shops:    shop.Format{DefaultPointer: 0xB12FC},
+		chapters: chapter.Format{
+			Layout:   chapter.FE7Layout(),
+			Pointers: []int{0x31A6C},
+		},
+		events: event.Format{
+			Layout: event.FE7JLayout(),
+			Root:   0x31B18, Defeat: 0xD6F71C, Rout: 0x0807AA5D,
+		},
+		shops: shop.Format{DefaultPointer: 0xB12FC},
 		maps: maps.Format{
 			Graphics:    0x19618,
 			Palette:     0x1964C,

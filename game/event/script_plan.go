@@ -374,7 +374,7 @@ func (s *Editor) scriptWriteRange(start, end int) error {
 			return edit.ErrLayout
 		}
 	}
-	for _, at := range []int{s.text.Pointer, s.text.TreePointer, s.text.RootPointer, format.root} {
+	for _, at := range []int{s.text.Pointer, s.text.TreePointer, s.text.RootPointer, format.Root} {
 		if overlap(at, 4) {
 			return edit.ErrLayout
 		}
@@ -389,7 +389,7 @@ func (s *Editor) scriptWriteRange(start, end int) error {
 	if chapters == nil || chapters.Err != nil {
 		return edit.ErrLayout
 	}
-	list, valid := gba.Pointer(s.image.Data, format.root)
+	list, valid := gba.Pointer(s.image.Data, format.Root)
 	if !valid {
 		return edit.ErrLayout
 	}

@@ -98,8 +98,14 @@ func fe8jFormat() format {
 				},
 			},
 		},
-		chapters: chapter.FE8(0xBAB1C, 0x34534, 0xBA9EC, 0xBAD44, 0xBAEAC),
-		events:   event.FE8(0x345E4, 0xA60380, 0x5B9EE8),
+		chapters: chapter.Format{
+			Layout:   chapter.FE8Layout(),
+			Pointers: []int{0xBAB1C, 0x34534, 0xBA9EC, 0xBAD44, 0xBAEAC},
+		},
+		events: event.Format{
+			Layout: event.FE8Layout(),
+			Root:   0x345E4, LoadHelper: 0xA60380, Defeat: 0x5B9EE8,
+		},
 		shops: shop.Format{
 			DefaultPointer:     0xB8E38,
 			PreparationPointer: 0x9C144,

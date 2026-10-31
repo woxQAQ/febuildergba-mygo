@@ -12,24 +12,21 @@ type deploymentSlot struct {
 	offset, faction int
 }
 
-type Format struct {
-	root, opening        int
-	units                deployment.Format
-	ending, defeat, rout int
-	kind                 deploymentEventKind
-	loadHelper           int
-	slots                []deploymentSlot
+// Layout is the native event structure of one generation: unit record shape,
+// header offsets and deployment slots. Addresses stay in the version files.
+type Layout struct {
+	units           deployment.Format
+	opening, ending int
+	kind            deploymentEventKind
+	slots           []deploymentSlot
 }
 
-func FE8(root, helper, defeat int) Format {
-	return Format{
-		root:       root,
-		units:      deployment.Format{Stride: 20},
-		opening:    72,
-		ending:     76,
-		defeat:     defeat,
-		kind:       eventFE8,
-		loadHelper: helper,
+func FE8Layout() Layout {
+	return Layout{
+		units:   deployment.Format{Stride: 20},
+		opening: 72,
+		ending:  76,
+		kind:    eventFE8,
 		slots: []deploymentSlot{
 			{"deploy_player_normal", 40, 0},
 			{"deploy_player_hard", 44, 0},
@@ -43,22 +40,11 @@ func FE8(root, helper, defeat int) Format {
 	}
 }
 
-func FE7(root int, english bool) Format {
-	kind := eventFE7J
-	if english {
-		kind = eventFE7U
-	}
-	defeat, rout := 0xD6F71C, 0x0807AA5D
-	if kind == eventFE7U {
-		defeat, rout = 0xCA749C, 0x08079FE9
-	}
-	return Format{
-		root:    root,
+func fe7Layout(kind deploymentEventKind) Layout {
+	return Layout{
 		units:   deployment.Format{Stride: 16},
 		opening: 56,
 		ending:  60,
-		defeat:  defeat,
-		rout:    rout,
 		kind:    kind,
 		slots: []deploymentSlot{
 			{"deploy_eliwood_enemy_normal", 24, 2},
@@ -73,14 +59,14 @@ func FE7(root int, english bool) Format {
 	}
 }
 
-func FE6(root int) Format {
-	return Format{
-		root:    root,
+func FE7JLayout() Layout { return fe7Layout(eventFE7J) }
+func FE7ULayout() Layout { return fe7Layout(eventFE7U) }
+
+func FE6Layout() Layout {
+	return Layout{
 		units:   deployment.Format{Stride: 16},
 		opening: -1,
 		ending:  24,
-		defeat:  0x66AC6C,
-		rout:    0x0806C2F9,
 		kind:    eventFE6,
 		slots: []deploymentSlot{
 			{"deploy_enemy", 16, 2}, {"deploy_player", 20, 0},
@@ -88,7 +74,15 @@ func FE6(root int) Format {
 	}
 }
 
-func (f Format) Root() int { return f.root }
+// Format combines a generation's layout with the version's confirmed
+// addresses: the event list root, the load helper, and the defeat/rout code
+// sites used by native conditions.
+type Format struct {
+	Layout
+	Root         int
+	LoadHelper   int
+	Defeat, Rout int
+}
 
 // Opening is the header offset of the opening script pointer, or -1 where the
 // version has none.

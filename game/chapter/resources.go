@@ -78,8 +78,8 @@ func (g Config) Claims(data []byte, chapters *records.Table) []space.Claim {
 			)
 		}
 	}
-	addSite(g.Events.Root(), event.RootOwner(), space.Owner{})
-	list, valid := gba.Pointer(data, g.Events.Root())
+	addSite(g.Events.Root, event.RootOwner(), space.Owner{})
+	list, valid := gba.Pointer(data, g.Events.Root)
 	if !valid || chapters == nil || chapters.Err != nil {
 		return claims
 	}

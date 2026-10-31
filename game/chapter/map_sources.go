@@ -14,7 +14,7 @@ func (s *Editor) mapSource() maps.Source {
 		Bindings: []maps.Binding{
 			{
 				Field:    event.HeaderField,
-				Root:     g.Events.Root(),
+				Root:     g.Events.Root,
 				Length:   g.Events.HeaderSize(),
 				Optional: true,
 			},

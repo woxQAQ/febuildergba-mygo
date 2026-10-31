@@ -88,9 +88,15 @@ func fe7uFormat() format {
 				},
 			},
 		},
-		chapters: chapter.FE7(0x31580, true),
-		events:   event.FE7(0x315D4, true),
-		shops:    shop.Format{DefaultPointer: 0xB04D4},
+		chapters: chapter.Format{
+			Layout:   chapter.FE7ULayout(),
+			Pointers: []int{0x31580},
+		},
+		events: event.Format{
+			Layout: event.FE7ULayout(),
+			Root:   0x315D4, Defeat: 0xCA749C, Rout: 0x08079FE9,
+		},
+		shops: shop.Format{DefaultPointer: 0xB04D4},
 		maps: maps.Format{
 			Graphics:    0x19230,
 			Palette:     0x19264,

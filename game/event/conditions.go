@@ -139,7 +139,7 @@ func (event *Condition) decode(raw []byte, f Format, table Table) {
 	if f.kind != eventFE8 {
 		event.TriggerFlag &= 0xFFFF
 	}
-	event.Rout = f.rout != 0 && int(gba.Uint32(raw, 8)) == f.rout &&
+	event.Rout = f.Rout != 0 && int(gba.Uint32(raw, 8)) == f.Rout &&
 		((f.kind == eventFE6 && gba.Uint16(raw, 0) == 13) ||
 			(f.kind != eventFE6 && gba.Uint16(raw, 0) == 14))
 	event.Kind, event.Flag = int(gba.Uint16(raw, 0)), int(gba.Uint16(raw, 2))
@@ -206,7 +206,7 @@ func (f Format) eventStride(table Table, kind int) int {
 }
 
 func (f Format) eventHeader(data []byte, eventID byte) (int, error) {
-	list, ok := gba.Pointer(data, f.root)
+	list, ok := gba.Pointer(data, f.Root)
 	if !ok || list < 0xC0 || list%4 != 0 {
 		return 0, deployment.ErrDeployment
 	}

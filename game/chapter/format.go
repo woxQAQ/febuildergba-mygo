@@ -9,13 +9,21 @@ import (
 // chapterFormat captures the MapSetting forms' version-specific layout. Text
 // offsets used by the legacy stopping predicate can differ from the title
 // shown in the chapter list, notably in FE7U.
+// Layout is the native MapSetting structure of one generation. Version files
+// supply the chapter table pointers.
+type Layout struct {
+	stride, name  int
+	boundaryByte  int
+	boundaryTexts []int
+	fields        []records.Field
+}
+
+// Format combines a generation's layout with the version's chapter table
+// pointers and, in FE6, the instruction position that widens the stride.
 type Format struct {
-	pointers          []int
-	stride, name      int
-	boundaryByte      int
-	boundaryTexts     []int
-	fields            []records.Field
-	strideInstruction int
+	Layout
+	Pointers          []int
+	StrideInstruction int
 }
 
 func chapterText(id string, offset int, role text.Role) records.Field {
@@ -89,7 +97,7 @@ func chapterMusicFields(offset, width int) []records.Field {
 	}
 }
 
-func FE8(pointers ...int) Format {
+func FE8Layout() Layout {
 	fields := chapterCommonFields(18, 19, 44)
 	fields = append(fields, chapterMusicFields(22, 2)...)
 	fields = append(
@@ -123,8 +131,7 @@ func FE8(pointers ...int) Format {
 		chapterText("objective_text_id", 136, text.Description),
 		chapterText("objective_detail_text_id", 138, text.Description),
 	)
-	return Format{
-		pointers:      pointers,
+	return Layout{
 		stride:        148,
 		name:          112,
 		boundaryByte:  12,
@@ -133,37 +140,21 @@ func FE8(pointers ...int) Format {
 	}
 }
 
-func FE7(pointer int, english bool) Format {
-	format := FE8(pointer)
-	// FE7U adds two title-lettering words before the actual chapter names.
-	if english {
-		format.stride, format.name = 152, 116
-		format.boundaryTexts = []int{112, 114, 140, 142}
-		for i := range format.fields {
-			f := &format.fields[i]
-			if f.Offset >= 112 {
-				f.Offset += 4
-			}
-		}
-		format.fields = append(format.fields,
-			chapterText("chapter_lettering_id", 112, text.Description),
-			chapterText("chapter_lettering_alt_id", 114, text.Description),
-		)
-	}
+func FE7Layout() Layout {
+	layout := FE8Layout()
 	// These bytes identify the preparation-screen chapter in FE7, rather
 	// than the FE8 chapter-number display. Retain the native route distinction.
-	for i := range format.fields {
-		if format.fields[i].ID == "chapter_number" {
-			format.fields[i].ID = "preparation_chapter_id"
+	for i := range layout.fields {
+		if layout.fields[i].ID == "chapter_number" {
+			layout.fields[i].ID = "preparation_chapter_id"
 		}
 	}
-	shift := format.name - 112
-	format.fields = append(
-		format.fields,
+	layout.fields = append(
+		layout.fields,
 		records.NumericField(
 			"preparation_chapter_alt_id",
 			records.GroupGeneral,
-			129+shift,
+			129,
 			1,
 		),
 		records.NumericField("opening_music_id", "chapter_music", 38, 2),
@@ -179,15 +170,34 @@ func FE7(pointer int, english bool) Format {
 			42,
 			2,
 		),
-		chapterText("fortune_intro_text_id", 118+shift, text.Description),
-		chapterText("fortune_route_1_text_id", 120+shift, text.Description),
-		chapterText("fortune_route_2_text_id", 122+shift, text.Description),
-		chapterText("fortune_confirm_text_id", 124+shift, text.Description),
+		chapterText("fortune_intro_text_id", 118, text.Description),
+		chapterText("fortune_route_1_text_id", 120, text.Description),
+		chapterText("fortune_route_2_text_id", 122, text.Description),
+		chapterText("fortune_confirm_text_id", 124, text.Description),
 	)
-	return format
+	return layout
 }
 
-func FE6() Format {
+// FE7ULayout adds the two title-lettering words before the actual chapter
+// names, shifting the trailing fields.
+func FE7ULayout() Layout {
+	layout := FE7Layout()
+	layout.stride, layout.name = 152, 116
+	layout.boundaryTexts = []int{112, 114, 140, 142}
+	for i := range layout.fields {
+		f := &layout.fields[i]
+		if f.Offset >= 112 {
+			f.Offset += 4
+		}
+	}
+	layout.fields = append(layout.fields,
+		chapterText("chapter_lettering_id", 112, text.Description),
+		chapterText("chapter_lettering_alt_id", 114, text.Description),
+	)
+	return layout
+}
+
+func FE6Layout() Layout {
 	fields := chapterCommonFields(17, 18, 25)
 	fields = append(fields, chapterMusicFields(20, 1)...)
 	fields = append(
@@ -214,27 +224,25 @@ func FE6() Format {
 			1,
 		),
 	)
-	return Format{
-		pointers:          []int{0x2BB20},
-		stride:            68,
-		name:              56,
-		boundaryByte:      11,
-		boundaryTexts:     []int{56, 48, 60},
-		fields:            fields,
-		strideInstruction: 0x2BB12,
+	return Layout{
+		stride:        68,
+		name:          56,
+		boundaryByte:  11,
+		boundaryTexts: []int{56, 48, 60},
+		fields:        fields,
 	}
 }
 
 func (f Format) Rule(data []byte, textCount int) records.Rule {
 	stride := f.stride
-	if f.strideInstruction != 0 &&
-		gba.Within(data, f.strideInstruction, 2) &&
-		gba.Uint16(data, f.strideInstruction) == 0x2048 {
+	if f.StrideInstruction != 0 &&
+		gba.Within(data, f.StrideInstruction, 2) &&
+		gba.Uint16(data, f.StrideInstruction) == 0x2048 {
 		stride = 72
 	}
 	return records.Rule{
 		Kind:          records.Chapters,
-		Pointers:      f.pointers,
+		Pointers:      f.Pointers,
 		Stride:        stride,
 		Count:         256,
 		Probe:         -1,

@@ -453,7 +453,7 @@ func (s *deploymentScanner) loadHelper(
 	mapID int,
 	source string,
 ) bool {
-	root := s.format.loadHelper
+	root := s.format.LoadHelper
 	if root == 0 ||
 		(target != root && target != root+0x2C && target != root+0x54) {
 		return false

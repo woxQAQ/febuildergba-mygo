@@ -136,7 +136,7 @@ func (s *Editor) objectiveScripts(
 		}
 	}
 	scanner := deploymentScanner{format: resource.format, data: s.image.Data}
-	if at := resource.format.defeat; gba.Within(s.image.Data, at, 4) {
+	if at := resource.format.Defeat; gba.Within(s.image.Data, at, 4) {
 		if _, valid := scanner.instruction(at); valid {
 			add(at, GameOverScript)
 		}
@@ -254,7 +254,7 @@ func (d *ConditionDraft) AddObjective(
 				raw[0] = 13
 			}
 			trigger = uint32(
-				d.original.format.rout,
+				d.original.format.Rout,
 			) // #nosec G115 -- Native Thumb callback constants fit in uint32.
 		}
 	}

@@ -83,9 +83,16 @@ func fe6Format() format {
 				},
 			},
 		},
-		chapters: chapter.FE6(),
-		events:   event.FE6(0x2BBCC),
-		shops:    shop.Format{DefaultPointer: 0x95F10},
+		chapters: chapter.Format{
+			Layout:            chapter.FE6Layout(),
+			Pointers:          []int{0x2BB20},
+			StrideInstruction: 0x2BB12,
+		},
+		events: event.Format{
+			Layout: event.FE6Layout(),
+			Root:   0x2BBCC, Defeat: 0x66AC6C, Rout: 0x0806C2F9,
+		},
+		shops: shop.Format{DefaultPointer: 0x95F10},
 		maps: maps.Format{
 			Graphics:    0x18AE4,
 			Palette:     0x18B18,
