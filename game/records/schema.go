@@ -2,6 +2,7 @@ package records
 
 import (
 	"github.com/woxQAQ/febuildergba-mygo/game/graphics"
+	"github.com/woxQAQ/febuildergba-mygo/game/terrain"
 	"github.com/woxQAQ/febuildergba-mygo/game/text"
 	"github.com/woxQAQ/febuildergba-mygo/space"
 )
@@ -81,6 +82,10 @@ type Format struct {
 	NameOf      func(uint16) (string, error)
 	Patches     []string
 	Protected   func([]byte) []space.Range
+	// Terrain is the generation's terrain column layout; ClassAnimationOffset
+	// is the class record's battle-animation pointer offset.
+	Terrain              terrain.Format
+	ClassAnimationOffset int
 }
 
 func (f Format) Inspect(data []byte, layouts map[Kind]Layout) Inspection {

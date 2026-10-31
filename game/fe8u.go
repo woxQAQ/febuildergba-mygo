@@ -12,6 +12,7 @@ import (
 	"github.com/woxQAQ/febuildergba-mygo/game/records"
 	"github.com/woxQAQ/febuildergba-mygo/game/shop"
 	"github.com/woxQAQ/febuildergba-mygo/game/support"
+	"github.com/woxQAQ/febuildergba-mygo/game/terrain"
 	"github.com/woxQAQ/febuildergba-mygo/game/text"
 	"github.com/woxQAQ/febuildergba-mygo/game/version"
 	"github.com/woxQAQ/febuildergba-mygo/game/worldmap"
@@ -68,6 +69,8 @@ func fe8uFormat() format {
 				Fields:        records.ItemFields(),
 			},
 		},
+		classAnimationOffset: 52,
+		terrain:              terrain.FE7Layout(),
 		supports: support.Format{
 			Layout:       support.FE8Layout(),
 			TalkPointers: []int{0x84784, 0x847FC},

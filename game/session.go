@@ -103,7 +103,7 @@ func Open(path string) (session *Session, err error) {
 		s.Supports = support.New(context, format.supports, s.supportSource())
 		s.Terrain = terrain.New(
 			context,
-			terrain.ForVersion(format.id),
+			format.terrain,
 			s.terrainSource(),
 		)
 		s.Portraits = portrait.New(

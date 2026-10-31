@@ -5,7 +5,6 @@ import (
 	"github.com/woxQAQ/febuildergba-mygo/game/edit"
 	"github.com/woxQAQ/febuildergba-mygo/game/records"
 	"github.com/woxQAQ/febuildergba-mygo/game/shop"
-	"github.com/woxQAQ/febuildergba-mygo/game/terrain"
 	"github.com/woxQAQ/febuildergba-mygo/game/worldmap"
 	"github.com/woxQAQ/febuildergba-mygo/gba"
 	"github.com/woxQAQ/febuildergba-mygo/space"
@@ -172,10 +171,7 @@ func (s *Session) collectClaims(data []byte) []space.Claim {
 		claims = append(claims, g.supports.Claims(data, units)...)
 	}
 	if classes, err := s.terrainClasses(data); err == nil {
-		claims = append(
-			claims,
-			terrain.ForVersion(g.id).Claims(data, classes)...,
-		)
+		claims = append(claims, g.terrain.Claims(data, classes)...)
 	}
 
 	// Chapter resources: event headers, condition lists, script sites and

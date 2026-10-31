@@ -2,8 +2,6 @@ package records
 
 import (
 	"github.com/woxQAQ/febuildergba-mygo/game/edit"
-	"github.com/woxQAQ/febuildergba-mygo/game/terrain"
-	"github.com/woxQAQ/febuildergba-mygo/game/version"
 	"github.com/woxQAQ/febuildergba-mygo/gba"
 )
 
@@ -33,12 +31,10 @@ func (s *Editor) RecordResources(kind Kind, id int) ([]RecordResource, error) {
 	}
 	specs := []recordResourceSpec{{"record_support", 44, 4}}
 	if kind == Classes {
-		animation := 52
-		if s.definition.Version == version.FE6 {
-			animation = 48
+		specs = []recordResourceSpec{
+			{"record_battle_animation", s.definition.ClassAnimationOffset, 4},
 		}
-		specs = []recordResourceSpec{{"record_battle_animation", animation, 4}}
-		format := terrain.ForVersion(s.definition.Version)
+		format := s.definition.Terrain
 		for _, column := range format.Columns() {
 			specs = append(
 				specs,

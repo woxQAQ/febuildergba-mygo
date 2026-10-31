@@ -5,7 +5,6 @@ import (
 	"slices"
 
 	"github.com/woxQAQ/febuildergba-mygo/fault"
-	"github.com/woxQAQ/febuildergba-mygo/game/version"
 	"github.com/woxQAQ/febuildergba-mygo/gba"
 	"github.com/woxQAQ/febuildergba-mygo/space"
 )
@@ -38,32 +37,31 @@ type Format struct {
 	columns []Column
 }
 
-func ForVersion(id string) Format {
-	switch id {
-	case version.FE6:
-		return Format{
-			51,
-			[]Column{
-				{Normal, 52},
-				{Avoid, 56},
-				{Defense, 60},
-				{Resistance, 64},
-			},
-		}
-	case version.FE7J, version.FE7U, version.FE8J, version.FE8U:
-		return Format{
-			65,
-			[]Column{
-				{Normal, 56},
-				{Rain, 60},
-				{Snow, 64},
-				{Avoid, 68},
-				{Defense, 72},
-				{Resistance, 76},
-			},
-		}
-	default:
-		return Format{}
+// FE6Layout is the FE6 class table's terrain columns.
+func FE6Layout() Format {
+	return Format{
+		51,
+		[]Column{
+			{Normal, 52},
+			{Avoid, 56},
+			{Defense, 60},
+			{Resistance, 64},
+		},
+	}
+}
+
+// FE7Layout is the terrain column layout shared by FE7 and FE8.
+func FE7Layout() Format {
+	return Format{
+		65,
+		[]Column{
+			{Normal, 56},
+			{Rain, 60},
+			{Snow, 64},
+			{Avoid, 68},
+			{Defense, 72},
+			{Resistance, 76},
+		},
 	}
 }
 
