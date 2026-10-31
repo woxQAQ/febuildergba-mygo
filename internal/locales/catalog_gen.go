@@ -34,6 +34,266 @@ type Messages struct{ locale string }
 // source language.
 func In(locale string) Messages { return Messages{locale} }
 
+// SupportPreview says "Preview support changes"
+// in the language the app shows.
+func SupportPreview() string { return In(i18n.Locale()).SupportPreview() }
+
+// SupportPreview says "Preview support changes"
+// in the language of msgs.
+func (msgs Messages) SupportPreview() string {
+	return Catalog.Format(msgs.locale, "support_preview", nil)
+}
+
+// SupportApply says "Apply support changes"
+// in the language the app shows.
+func SupportApply() string { return In(i18n.Locale()).SupportApply() }
+
+// SupportApply says "Apply support changes"
+// in the language of msgs.
+func (msgs Messages) SupportApply() string {
+	return Catalog.Format(msgs.locale, "support_apply", nil)
+}
+
+// SupportEditor says "Supports"
+// in the language the app shows.
+func SupportEditor() string { return In(i18n.Locale()).SupportEditor() }
+
+// SupportEditor says "Supports"
+// in the language of msgs.
+func (msgs Messages) SupportEditor() string {
+	return Catalog.Format(msgs.locale, "support_editor", nil)
+}
+
+// SupportTalk says "Support dialogue"
+// in the language the app shows.
+func SupportTalk() string { return In(i18n.Locale()).SupportTalk() }
+
+// SupportTalk says "Support dialogue"
+// in the language of msgs.
+func (msgs Messages) SupportTalk() string {
+	return Catalog.Format(msgs.locale, "support_talk", nil)
+}
+
+// SupportSearch says "Search character name or hexadecimal ID"
+// in the language the app shows.
+func SupportSearch() string { return In(i18n.Locale()).SupportSearch() }
+
+// SupportSearch says "Search character name or hexadecimal ID"
+// in the language of msgs.
+func (msgs Messages) SupportSearch() string {
+	return Catalog.Format(msgs.locale, "support_search", nil)
+}
+
+// SupportOpenUnit says "Open character"
+// in the language the app shows.
+func SupportOpenUnit() string { return In(i18n.Locale()).SupportOpenUnit() }
+
+// SupportOpenUnit says "Open character"
+// in the language of msgs.
+func (msgs Messages) SupportOpenUnit() string {
+	return Catalog.Format(msgs.locale, "support_open_unit", nil)
+}
+
+// SupportRelationships says "Relationships"
+// in the language the app shows.
+func SupportRelationships() string { return In(i18n.Locale()).SupportRelationships() }
+
+// SupportRelationships says "Relationships"
+// in the language of msgs.
+func (msgs Messages) SupportRelationships() string {
+	return Catalog.Format(msgs.locale, "support_relationships", nil)
+}
+
+// SupportRelationshipHelp says "Edit partners within the native slot limit. Removing a partner keeps other characters and dialogue records unchanged.…"
+// in the language the app shows.
+func SupportRelationshipHelp() string { return In(i18n.Locale()).SupportRelationshipHelp() }
+
+// SupportRelationshipHelp says "Edit partners within the native slot limit. Removing a partner keeps other characters and dialogue records unchanged.…"
+// in the language of msgs.
+func (msgs Messages) SupportRelationshipHelp() string {
+	return Catalog.Format(msgs.locale, "support_relationship_help", nil)
+}
+
+// SupportInitialize says "This character has no support data. Adding a partner creates an independent record when applied."
+// in the language the app shows.
+func SupportInitialize() string { return In(i18n.Locale()).SupportInitialize() }
+
+// SupportInitialize says "This character has no support data. Adding a partner creates an independent record when applied."
+// in the language of msgs.
+func (msgs Messages) SupportInitialize() string {
+	return Catalog.Format(msgs.locale, "support_initialize", nil)
+}
+
+// SupportSynchronize says "Synchronize existing reverse relationships"
+// in the language the app shows.
+func SupportSynchronize() string { return In(i18n.Locale()).SupportSynchronize() }
+
+// SupportSynchronize says "Synchronize existing reverse relationships"
+// in the language of msgs.
+func (msgs Messages) SupportSynchronize() string {
+	return Catalog.Format(msgs.locale, "support_synchronize", nil)
+}
+
+// SupportSynchronizeHelp says "Copy changed initial values and growth to existing reverse relationships. Missing reverse relationships are listed in…"
+// in the language the app shows.
+func SupportSynchronizeHelp() string { return In(i18n.Locale()).SupportSynchronizeHelp() }
+
+// SupportSynchronizeHelp says "Copy changed initial values and growth to existing reverse relationships. Missing reverse relationships are listed in…"
+// in the language of msgs.
+func (msgs Messages) SupportSynchronizeHelp() string {
+	return Catalog.Format(msgs.locale, "support_synchronize_help", nil)
+}
+
+// SupportDialogues says "Support dialogue"
+// in the language the app shows.
+func SupportDialogues() string { return In(i18n.Locale()).SupportDialogues() }
+
+// SupportDialogues says "Support dialogue"
+// in the language of msgs.
+func (msgs Messages) SupportDialogues() string {
+	return Catalog.Format(msgs.locale, "support_dialogues", nil)
+}
+
+// SupportNoDialogue says "No existing dialogue entry references this character."
+// in the language the app shows.
+func SupportNoDialogue() string { return In(i18n.Locale()).SupportNoDialogue() }
+
+// SupportNoDialogue says "No existing dialogue entry references this character."
+// in the language of msgs.
+func (msgs Messages) SupportNoDialogue() string {
+	return Catalog.Format(msgs.locale, "support_no_dialogue", nil)
+}
+
+// SupportDialogueHelp says "Pairs match in either order; the first matching entry wins. Edit existing C/B/A text IDs while retaining table order,…"
+// in the language the app shows.
+func SupportDialogueHelp() string { return In(i18n.Locale()).SupportDialogueHelp() }
+
+// SupportDialogueHelp says "Pairs match in either order; the first matching entry wins. Edit existing C/B/A text IDs while retaining table order,…"
+// in the language of msgs.
+func (msgs Messages) SupportDialogueHelp() string {
+	return Catalog.Format(msgs.locale, "support_dialogue_help", nil)
+}
+
+// SupportPartner says "Partner"
+// in the language the app shows.
+func SupportPartner() string { return In(i18n.Locale()).SupportPartner() }
+
+// SupportPartner says "Partner"
+// in the language of msgs.
+func (msgs Messages) SupportPartner() string {
+	return Catalog.Format(msgs.locale, "support_partner", nil)
+}
+
+// SupportInitial says "Initial points"
+// in the language the app shows.
+func SupportInitial() string { return In(i18n.Locale()).SupportInitial() }
+
+// SupportInitial says "Initial points"
+// in the language of msgs.
+func (msgs Messages) SupportInitial() string {
+	return Catalog.Format(msgs.locale, "support_initial", nil)
+}
+
+// SupportGrowth says "Growth"
+// in the language the app shows.
+func SupportGrowth() string { return In(i18n.Locale()).SupportGrowth() }
+
+// SupportGrowth says "Growth"
+// in the language of msgs.
+func (msgs Messages) SupportGrowth() string {
+	return Catalog.Format(msgs.locale, "support_growth", nil)
+}
+
+// SupportAdd says "Add partner"
+// in the language the app shows.
+func SupportAdd() string { return In(i18n.Locale()).SupportAdd() }
+
+// SupportAdd says "Add partner"
+// in the language of msgs.
+func (msgs Messages) SupportAdd() string {
+	return Catalog.Format(msgs.locale, "support_add", nil)
+}
+
+// SupportC says "C dialogue"
+// in the language the app shows.
+func SupportC() string { return In(i18n.Locale()).SupportC() }
+
+// SupportC says "C dialogue"
+// in the language of msgs.
+func (msgs Messages) SupportC() string {
+	return Catalog.Format(msgs.locale, "support_c", nil)
+}
+
+// SupportB says "B dialogue"
+// in the language the app shows.
+func SupportB() string { return In(i18n.Locale()).SupportB() }
+
+// SupportB says "B dialogue"
+// in the language of msgs.
+func (msgs Messages) SupportB() string {
+	return Catalog.Format(msgs.locale, "support_b", nil)
+}
+
+// SupportA says "A dialogue"
+// in the language the app shows.
+func SupportA() string { return In(i18n.Locale()).SupportA() }
+
+// SupportA says "A dialogue"
+// in the language of msgs.
+func (msgs Messages) SupportA() string {
+	return Catalog.Format(msgs.locale, "support_a", nil)
+}
+
+// SupportPreviewHelp says "Apply all listed relationships and dialogue changes as one undoable operation. Old data and independent pointers are …"
+// in the language the app shows.
+func SupportPreviewHelp() string { return In(i18n.Locale()).SupportPreviewHelp() }
+
+// SupportPreviewHelp says "Apply all listed relationships and dialogue changes as one undoable operation. Old data and independent pointers are …"
+// in the language of msgs.
+func (msgs Messages) SupportPreviewHelp() string {
+	return Catalog.Format(msgs.locale, "support_preview_help", nil)
+}
+
+// SupportShared says "Retains the original relationship data"
+// in the language the app shows.
+func SupportShared() string { return In(i18n.Locale()).SupportShared() }
+
+// SupportShared says "Retains the original relationship data"
+// in the language of msgs.
+func (msgs Messages) SupportShared() string {
+	return Catalog.Format(msgs.locale, "support_shared", nil)
+}
+
+// SupportMissingReverse says "No reverse relationship to synchronize"
+// in the language the app shows.
+func SupportMissingReverse() string { return In(i18n.Locale()).SupportMissingReverse() }
+
+// SupportMissingReverse says "No reverse relationship to synchronize"
+// in the language of msgs.
+func (msgs Messages) SupportMissingReverse() string {
+	return Catalog.Format(msgs.locale, "support_missing_reverse", nil)
+}
+
+// GameInvalidSupport says "The support pointer, count or dialogue terminator is invalid."
+// in the language the app shows.
+func GameInvalidSupport() string { return In(i18n.Locale()).GameInvalidSupport() }
+
+// GameInvalidSupport says "The support pointer, count or dialogue terminator is invalid."
+// in the language of msgs.
+func (msgs Messages) GameInvalidSupport() string {
+	return Catalog.Format(msgs.locale, "game_invalid_support", nil)
+}
+
+// GameSupportReferenceConflict says "Support consumers point to different tables, or a reverse relationship is ambiguous. Automatic writing has stopped."
+// in the language the app shows.
+func GameSupportReferenceConflict() string { return In(i18n.Locale()).GameSupportReferenceConflict() }
+
+// GameSupportReferenceConflict says "Support consumers point to different tables, or a reverse relationship is ambiguous. Automatic writing has stopped."
+// in the language of msgs.
+func (msgs Messages) GameSupportReferenceConflict() string {
+	return Catalog.Format(msgs.locale, "game_support_reference_conflict", nil)
+}
+
 // ShopRaw says "Inventory bytes"
 // in the language the app shows.
 func ShopRaw() string { return In(i18n.Locale()).ShopRaw() }
@@ -6852,11 +7112,11 @@ func (msgs Messages) NotApplicable() string {
 	return Catalog.Format(msgs.locale, "not_applicable", nil)
 }
 
-// FieldHint says "Select a value to adjust. Tab moves between fields; ↑↓ changes the value."
+// FieldHint says "↑↓ adjusts the value; right-click for field actions. Tab moves between fields."
 // in the language the app shows.
 func FieldHint() string { return In(i18n.Locale()).FieldHint() }
 
-// FieldHint says "Select a value to adjust. Tab moves between fields; ↑↓ changes the value."
+// FieldHint says "↑↓ adjusts the value; right-click for field actions. Tab moves between fields."
 // in the language of msgs.
 func (msgs Messages) FieldHint() string {
 	return Catalog.Format(msgs.locale, "field_hint", nil)
@@ -9036,11 +9296,11 @@ func (msgs Messages) RecordEstimateHelp() string {
 	return Catalog.Format(msgs.locale, "record_estimate_help", nil)
 }
 
-// RecordWeaponsHelp says "Exact stored weapon EXP is retained. Character zero inherits the referenced class; a nonzero value replaces it. A cha…"
+// RecordWeaponsHelp says "Click a rank to choose it, or edit the exact weapon EXP below. Character zero inherits the referenced class; a nonzer…"
 // in the language the app shows.
 func RecordWeaponsHelp() string { return In(i18n.Locale()).RecordWeaponsHelp() }
 
-// RecordWeaponsHelp says "Exact stored weapon EXP is retained. Character zero inherits the referenced class; a nonzero value replaces it. A cha…"
+// RecordWeaponsHelp says "Click a rank to choose it, or edit the exact weapon EXP below. Character zero inherits the referenced class; a nonzer…"
 // in the language of msgs.
 func (msgs Messages) RecordWeaponsHelp() string {
 	return Catalog.Format(msgs.locale, "record_weapons_help", nil)
@@ -10044,16 +10304,6 @@ func PortraitNoKnownUses() string { return In(i18n.Locale()).PortraitNoKnownUses
 // in the language of msgs.
 func (msgs Messages) PortraitNoKnownUses() string {
 	return Catalog.Format(msgs.locale, "portrait_no_known_uses", nil)
-}
-
-// RecordWeaponField says "Weapon field"
-// in the language the app shows.
-func RecordWeaponField() string { return In(i18n.Locale()).RecordWeaponField() }
-
-// RecordWeaponField says "Weapon field"
-// in the language of msgs.
-func (msgs Messages) RecordWeaponField() string {
-	return Catalog.Format(msgs.locale, "record_weapon_field", nil)
 }
 
 // RecordSummary says "{count, plural, one {# record} other {# records}}"

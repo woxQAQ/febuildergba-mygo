@@ -11,6 +11,7 @@ import (
 	"github.com/woxQAQ/febuildergba-mygo/game/quote"
 	"github.com/woxQAQ/febuildergba-mygo/game/records"
 	"github.com/woxQAQ/febuildergba-mygo/game/shop"
+	"github.com/woxQAQ/febuildergba-mygo/game/support"
 	"github.com/woxQAQ/febuildergba-mygo/game/text"
 	"github.com/woxQAQ/febuildergba-mygo/game/worldmap"
 	"github.com/woxQAQ/febuildergba-mygo/space"
@@ -27,6 +28,7 @@ type format struct {
 	text       text.Format
 	portraits  portrait.Format
 	icons      itemicon.Format
+	supports   support.Format
 	quotes     quote.Format
 	shops      shop.Format
 	worldmap   worldmap.Format

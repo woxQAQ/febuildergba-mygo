@@ -17,7 +17,6 @@ type form struct {
 	state                 *editor.State
 	drafts                map[fieldKey]*fieldDraft
 	texts                 map[fieldKey]*textDraft
-	activeField           fieldKey
 	preview               assetPreview
 	chapter               chapters.Page
 	profiles              map[fieldKey]*profileState
@@ -27,6 +26,7 @@ type form struct {
 	openText              func(uint16)
 	openScript            func(int, int)
 	openPortrait          func(int)
+	openSupport           func(int)
 	imageEditor           components.AssetEditor
 	jump                  func(records.Kind, int)
 	assets                components.AssetActions
@@ -76,7 +76,6 @@ func (a *form) Reset() {
 func (a *form) ClearDrafts() {
 	a.drafts = nil
 	a.texts = nil
-	a.activeField = fieldKey{}
 	a.profiles = nil
 }
 
@@ -193,8 +192,5 @@ func (a *form) View(
 						}
 					}
 				})
-			if kind != records.Chapters || a.chapter.Configuration() {
-				a.fieldInspector(c, kind, row, table)
-			}
 		})
 }

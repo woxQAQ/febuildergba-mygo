@@ -75,6 +75,21 @@ func (a *form) numberField(
 		draft.invalid = false
 	}
 	low, high := f.Bounds()
+	help := fmt.Sprintf(
+		"%s\n%s: %d…%d\n%s",
+		a.fieldLabel(kind, f),
+		locales.AllowedRange(),
+		low,
+		high,
+		locales.FieldHint(),
+	)
+	if a.showRaw {
+		help += fmt.Sprintf(
+			"\n0x%08X   0x%X",
+			row.Address+f.Offset,
+			value&((int64(1)<<(f.Width*8))-1),
+		)
+	}
 	commit := func(next int64) {
 		if err := a.state.Session.Records.Set(
 			kind,
@@ -92,7 +107,8 @@ func (a *form) numberField(
 		FontSize(13).
 		FontFeatures("tnum").TextAlign(ui.End).Disabled(a.state.Busy).
 		Bind(&draft.input).
-		Label(a.fieldLabel(kind, f)).OnTextKey(func(k ui.TextKey) bool {
+		Label(a.fieldLabel(kind, f)).
+		Tooltip(help).OnTextKey(func(k ui.TextKey) bool {
 		switch {
 		case k.Key == ui.KeyZ && k.Mods == ui.Cmd:
 			a.state.Undo()
@@ -124,10 +140,24 @@ func (a *form) numberField(
 			return
 		}
 		commit(parsed)
+	}).ContextMenu(func(menu *ui.Menu) {
+		menu.EditItems()
+		menu.Separator()
+		if menu.Item(locales.IncreaseValue()).
+			Disabled(a.state.Busy || draft.value >= high).Chosen() {
+			a.nudgeField(key, f, 1)
+		}
+		if menu.Item(locales.DecreaseValue()).
+			Disabled(a.state.Busy || draft.value <= low).Chosen() {
+			a.nudgeField(key, f, -1)
+		}
+		if a.showRaw && a.openHex != nil {
+			menu.Separator()
+			if menu.Item(locales.EditBytes()).Disabled(a.state.Busy).Chosen() {
+				a.openHex(row.Address+f.Offset, f.Width)
+			}
+		}
 	})
-	if draft.input.Focused(c) {
-		a.activeField = key
-	}
 	if draft.invalid {
 		message := fmt.Sprintf("%s: %d…%d", locales.AllowedRange(), low, high)
 		input.Error(message).Tooltip(message)
@@ -168,91 +198,6 @@ func (a *form) nudgeField(key fieldKey, f records.Field, delta int64) {
 		draft.invalid = false
 		draft.input.Focus()
 	}
-}
-
-func (a *form) fieldInspector(
-	c *ui.Context,
-	kind records.Kind,
-	row records.Row,
-	table *records.Table,
-) {
-	key := a.activeField
-	var active *records.Field
-	if key.Kind == kind && key.Record == row.ID {
-		for i := range table.Fields {
-			f := &table.Fields[i]
-			if f.ID == key.Field &&
-				(f.Group != records.GroupAdvanced || a.showRaw) {
-				active = f
-				break
-			}
-		}
-	}
-	ui.Column(c.Key("field-inspector")).Padding(6, 16).Gap(4).
-		BorderWidth(1, 0, 0, 0).BorderColor(c.Theme().Border).Children(func() {
-		if active == nil {
-			ui.Text(c, locales.FieldHint()).
-				MinHeight(26).
-				FontSize(12).
-				TextColor(c.Theme().TextMuted)
-			return
-		}
-		f := *active
-		value, err := a.state.Session.Records.Value(kind, row.ID, f.ID)
-		if err != nil {
-			ui.Text(c, components.ErrorText(err))
-			return
-		}
-		low, high := f.Bounds()
-		ui.Row(c).Gap(8).Children(func() {
-			ui.Text(c, a.fieldLabel(kind, f)).Grow(1).SingleLine().FontSize(13)
-			ui.Text(c, formatField(f, value)).FontFeatures("tnum").FontSize(13)
-			if (kind == records.Units || kind == records.Classes) &&
-				f.Group == records.GroupWeapon {
-				weapons, err := a.state.Session.Records.WeaponSkills(
-					kind,
-					row.ID,
-				)
-				if err == nil {
-					for _, weapon := range weapons {
-						if weapon.Field == f.ID {
-							a.profileRank(
-								c,
-								kind,
-								row,
-								table,
-								a.profileFor(kind, row.ID),
-								weapon,
-							)
-							break
-						}
-					}
-				}
-			}
-			ui.Button(c, "−").Size(28, 26).Label(locales.DecreaseValue()).
-				Disabled(a.state.Busy || value <= low).
-				OnClick(func() { a.nudgeField(key, f, -1) })
-			ui.Button(c, "+").Size(28, 26).Label(locales.IncreaseValue()).
-				Disabled(a.state.Busy || value >= high).
-				OnClick(func() { a.nudgeField(key, f, 1) })
-		})
-		if draft := a.drafts[key]; draft != nil && draft.invalid {
-			ui.Textf(c, "%s: %d…%d", locales.AllowedRange(), low, high).
-				FontSize(12).
-				TextColor(c.Theme().Danger)
-		}
-		if a.showRaw {
-			ui.Row(c).Gap(8).Children(func() {
-				ui.Textf(c, "0x%08X   0x%X", row.Address+f.Offset, value&((int64(1)<<(f.Width*8))-1)).
-					Font("monospace").
-					FontSize(12).
-					Grow(1)
-				ui.Button(c, locales.EditBytes()).
-					Disabled(a.state.Busy).
-					OnClick(func() { a.openHex(row.Address+f.Offset, f.Width) })
-			})
-		}
-	})
 }
 
 func (a *form) recordFields(

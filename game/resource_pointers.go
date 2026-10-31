@@ -2,11 +2,16 @@ package game
 
 import (
 	"github.com/woxQAQ/febuildergba-mygo/game/edit"
+	"github.com/woxQAQ/febuildergba-mygo/game/records"
 	"github.com/woxQAQ/febuildergba-mygo/gba"
 )
 
 // protectResourcePointer checks owners shared by independent native resources.
 func (s *Session) protectResourcePointer(data []byte, site int) error {
+	return s.protectCharacterPointer(data, site, 0)
+}
+
+func (s *Session) protectCharacterPointer(data []byte, site, owner int) error {
 	g := s.format
 	if site < 0xC0 || site%4 != 0 || !gba.Within(data, site, 4) {
 		return edit.ErrLayout
@@ -17,6 +22,11 @@ func (s *Session) protectResourcePointer(data []byte, site int) error {
 			return edit.ErrLayout
 		}
 		for _, row := range table.Rows {
+			if owner > 0 && table.Kind == records.Units && row.ID == owner &&
+				site == row.Address+44 &&
+				table.Stride >= 48 {
+				continue
+			}
 			if overlap(row.Address, table.Stride) {
 				return edit.ErrLayout
 			}

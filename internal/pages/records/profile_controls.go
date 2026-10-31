@@ -80,7 +80,6 @@ func (a *form) profileClass(
 				FontSize(13).
 				Label(a.fieldLabel(kind, field)).
 				Tooltip(help).
-				Bind(&draft.input).
 				Disabled(a.state.Busy).
 				OnChange(func() {
 					if index := slices.Index(labels, draft.text); index >= 0 {
@@ -99,9 +98,6 @@ func (a *form) profileClass(
 			Disabled(a.state.Busy || target < 0).
 			OnClick(func() { a.jump(records.Classes, target) })
 	})
-	if draft.input.FocusWithin(c) {
-		a.activeField = fieldKey{kind, row.ID, id}
-	}
 }
 
 func (a *form) profileEnum(
@@ -138,7 +134,6 @@ func (a *form) profileEnum(
 			MinWidth(72).
 			Height(26).
 			FontSize(13).
-			Bind(&draft.input).
 			Label(a.fieldLabel(kind, field)).
 			Disabled(a.state.Busy).
 			OnChange(func() {
@@ -156,9 +151,6 @@ func (a *form) profileEnum(
 				}
 			})
 	})
-	if draft.input.FocusWithin(c) {
-		a.activeField = fieldKey{kind, row.ID, id}
-	}
 }
 
 func (a *form) profileWeapons(
@@ -196,23 +188,7 @@ func (a *form) profileWeapons(
 					Children(func() {
 						ui.Text(c, "")
 						for _, weapon := range weapons {
-							rank := rankCaption(weapon.EffectiveRank)
-							if weapon.Inherited &&
-								weapon.ReferenceError != nil {
-								rank = "?"
-							}
-							help := locales.RecordWeaponsHelp()
-							if weapon.Inherited {
-								help += "\n" + locales.RecordInherit() + " " + rank
-							}
-							key := fieldKey{kind, row.ID, weapon.Field}
-							ui.Textf(c, "%s %s", locales.Label(weapon.Weapon), rank).
-								FontSize(12).
-								TextAlign(ui.End).
-								PaddingX(6).
-								Label(locales.RecordWeaponField() + " / " + locales.Label(weapon.Weapon)).
-								Tooltip(help).
-								OnClick(func() { a.activeField = key; a.focusField(key) })
+							a.profileRank(c, kind, row, weapon)
 						}
 						label := locales.RecordPersonalRanks()
 						if kind == records.Classes {
@@ -232,54 +208,50 @@ func (a *form) profileRank(
 	c *ui.Context,
 	kind records.Kind,
 	row records.Row,
-	table *records.Table,
-	entry *profileState,
 	weapon records.WeaponSkill,
 ) {
-	keys := []string{"none", "E", "D", "C", "B", "A", "S"}
-	var labels []string
-	for _, rank := range keys {
-		labels = append(labels, rankCaption(rank))
+	rank := rankCaption(weapon.EffectiveRank)
+	if weapon.Inherited && weapon.ReferenceError != nil {
+		rank = "?"
 	}
-	caption := rankCaption(weapon.Rank)
-	if kind == records.Units {
-		labels[0] = locales.RecordInherit() + " " + rankCaption(
-			weapon.ClassRank,
-		)
-		if weapon.ReferenceError != nil {
-			labels[0] = locales.RecordInherit() + " ?"
-		}
-		if weapon.Inherited {
-			caption = labels[0]
-		}
-	}
-	draft := entry.choice("rank/"+weapon.Field, weapon.Value, caption)
-	field, _ := profileField(table, weapon.Field)
 	help := locales.RecordWeaponsHelp()
+	if weapon.Inherited {
+		help += "\n" + locales.RecordInherit() + " " + rank
+	}
 	if weapon.ReferenceError != nil {
 		help += "\n" + components.ErrorText(weapon.ReferenceError)
 	}
-	ui.Select(c.Key("rank/"+weapon.Field), &draft.text, labels).
-		Width(110).Shrink(0).
-		Height(26).
-		FontSize(13).
+	control := ui.ButtonBase(c.Key("rank/"+weapon.Field)).
+		Height(24).Padding(2, 4).Radius(2).
+		Cursor(ui.CursorPointer).
 		Label(locales.RecordWeaponRank() + " / " + locales.Label(weapon.Weapon)).
+		Value(rank).
 		Tooltip(help).
-		Bind(&draft.input).
-		Disabled(a.state.Busy).
-		OnChange(func() {
-			if index := slices.Index(labels, draft.text); index >= 0 {
+		Disabled(a.state.Busy)
+	if control.Hovered() {
+		control.Background(c.Theme().SurfaceHover)
+	}
+	control.Children(func() {
+		ui.Textf(c, "%s %s ▾", locales.Label(weapon.Weapon), rank).
+			FontSize(12).TextAlign(ui.End).Grow(1)
+	})
+	control.PopoverMenuButton(func(menu *ui.Menu) {
+		for _, option := range []string{"none", "E", "D", "C", "B", "A", "S"} {
+			label := rankCaption(option)
+			if option == "none" && kind == records.Units {
+				inherited := rankCaption(weapon.ClassRank)
+				if weapon.ReferenceError != nil {
+					inherited = "?"
+				}
+				label = locales.RecordInherit() + " " + inherited
+			}
+			if menu.Item(label).Radio(option == weapon.Rank).Chosen() {
 				a.state.Err = a.state.Session.Records.SetWeaponRank(
-					kind,
-					row.ID,
-					weapon.Field,
-					keys[index],
+					kind, row.ID, weapon.Field, option,
 				)
 			}
-		})
-	if draft.input.FocusWithin(c) {
-		a.activeField = fieldKey{kind, row.ID, field.ID}
-	}
+		}
+	})
 }
 
 func rankCaption(rank string) string {

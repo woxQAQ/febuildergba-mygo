@@ -84,6 +84,16 @@ FE6／FE7 坐标未命中退回事件参数，FE8 则返回事件错误。FE7 �
 
 [src/worldmap_path.c](https://github.com/FireEmblemUniverse/fireemblem8u/blob/04d1edb163d14bd10777a065697e1a9f17be65f2/src/worldmap_path.c) 的 `WMMenu_IsArmoryAvailable`／`WMMenu_IsVendorAvailable`／`WMMenu_IsSecretShopAvailable` 直接读货物首个半字判定菜单，秘密商店另查通关标志；[src/worldmap_basemenu.c](https://github.com/FireEmblemUniverse/fireemblem8u/blob/04d1edb163d14bd10777a065697e1a9f17be65f2/src/worldmap_basemenu.c) 的进入函数将对应列表交给加载器。FE8J 原生 `0xC14B4`／`0xC14EC`／`0xC1524` 的相同指令段交叉确认节点乘 32、三个字段偏移及半字读取与零值分支；不能把零指针当成已关闭的节点商店。
 
+## 支援关系与对话
+
+旧版依据为固定子模块的 `SupportUnitForm.cs`、`SupportUnitFE6Form.cs`、`SupportTalkForm.cs`、`SupportTalkFE7Form.cs`、`SupportTalkFE6Form.cs`、`SupportAttributeForm.cs` 及五版 `ROMFE*`。人物 `+2C` 指针、关系槽位、自动同步选项和对话字段分别与实际消费者交叉核对；实现布局及全部入口见[支援参考](reference/supports.md)。
+
+- FE6，`StanHash/fe6@f9ea5f67f3f1048ca9836d7350077231ba54b589`：[include/support.h](https://github.com/StanHash/fe6/blob/f9ea5f67f3f1048ca9836d7350077231ba54b589/include/support.h) 的 `SupportInfo`／`SupportBonuses`、[src/support.c](https://github.com/StanHash/fe6/blob/f9ea5f67f3f1048ca9836d7350077231ba54b589/src/support.c) 的人数、增长和加成读取，以及 [src/eventinfo.c](https://github.com/StanHash/fe6/blob/f9ea5f67f3f1048ca9836d7350077231ba54b589/src/eventinfo.c) 的 `StartAvailableSupportEvent`，确认首人物字节为零即结束、双方交换匹配、首项优先及 32 位文本。
+- FE7U，`StanHash/fe7_us@5c8b3c5e254e00f0f3458b9772c27e1a5a326e3b`：[asm/code.s](https://github.com/StanHash/fe7_us/blob/5c8b3c5e254e00f0f3458b9772c27e1a5a326e3b/asm/code.s) 的 `func_08078A80`、`func_08078AF4`、`func_08078B4C` 确认对话匹配、20 字节步长及音乐字；`func_0809B15C`／`0809B184` 和 `0809EC2C`／`0809ECF4`／`0809EE00`／`0809EE70` 字面量的使用方确认回想及存档统计消费者。日版按旧版主入口定位对应循环，逐个核对 PC 相对加载、字段读取和步进，与美版九处已确认用途对应；不以相同指针值本身作为写入依据。
+- FE8，`FireEmblemUniverse/fireemblem8u@04d1edb163d14bd10777a065697e1a9f17be65f2`：[include/bmreliance.h](https://github.com/FireEmblemUniverse/fireemblem8u/blob/04d1edb163d14bd10777a065697e1a9f17be65f2/include/bmreliance.h) 与 [src/bmreliance.c](https://github.com/FireEmblemUniverse/fireemblem8u/blob/04d1edb163d14bd10777a065697e1a9f17be65f2/src/bmreliance.c) 确认七个对象、人数及增长；[src/eventinfo.c](https://github.com/FireEmblemUniverse/fireemblem8u/blob/04d1edb163d14bd10777a065697e1a9f17be65f2/src/eventinfo.c) 的 `GetSupportTalkEntry`／`GetSupportTalkList` 与 [include/eventinfo.h](https://github.com/FireEmblemUniverse/fireemblem8u/blob/04d1edb163d14bd10777a065697e1a9f17be65f2/include/eventinfo.h) 确认表布局、终止及音乐位段；[src/uisupport.c](https://github.com/FireEmblemUniverse/fireemblem8u/blob/04d1edb163d14bd10777a065697e1a9f17be65f2/src/uisupport.c) 和 [src/bmsave-lib.c](https://github.com/FireEmblemUniverse/fireemblem8u/blob/04d1edb163d14bd10777a065697e1a9f17be65f2/src/bmsave-lib.c) 确认回想与存档依赖。日版 `86A50`／`86AC8` 另以对应匹配循环和 getter 的实际字节核对。
+
+五版合成字节与动态 ROM 文件流程验证读取和写入。没有把对话表增删排序纳入文本引用替换，也未执行已有存档迁移或游戏内支援验证。
+
 ## 战斗与死亡对话
 
 旧版入口为固定子模块的 [EventBattleTalkForm.cs](../FEBuilderGBA/FEBuilderGBA/EventBattleTalkForm.cs)、[FE7](../FEBuilderGBA/FEBuilderGBA/EventBattleTalkFE7Form.cs)、[FE6](../FEBuilderGBA/FEBuilderGBA/EventBattleTalkFE6Form.cs)，以及 [EventHaikuForm.cs](../FEBuilderGBA/FEBuilderGBA/EventHaikuForm.cs)、[FE7](../FEBuilderGBA/FEBuilderGBA/EventHaikuFE7Form.cs)、[FE6](../FEBuilderGBA/FEBuilderGBA/EventHaikuFE6Form.cs)。`ROMFE*` 的 `event_ballte_talk_pointer`、后续通用／三角攻击入口和 `event_haiku_pointer` 提供初始位置；表结束、匹配与全部原生消费者以游戏代码交叉核对。

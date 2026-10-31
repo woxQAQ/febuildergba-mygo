@@ -11,6 +11,7 @@ import (
 	"github.com/woxQAQ/febuildergba-mygo/game/quote"
 	"github.com/woxQAQ/febuildergba-mygo/game/records"
 	"github.com/woxQAQ/febuildergba-mygo/game/shop"
+	"github.com/woxQAQ/febuildergba-mygo/game/support"
 	"github.com/woxQAQ/febuildergba-mygo/game/text"
 	"github.com/woxQAQ/febuildergba-mygo/game/version"
 	"github.com/woxQAQ/febuildergba-mygo/game/worldmap"
@@ -67,7 +68,8 @@ func fe8uFormat() format {
 				Fields:        records.ItemFields(),
 			},
 		},
-		quotes: quote.FE8(false),
+		supports: support.FE8(false),
+		quotes:   quote.FE8(false),
 		chapters: chapter.FE8(
 			0xB5F98,
 			0xB61C0,

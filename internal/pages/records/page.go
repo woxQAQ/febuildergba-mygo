@@ -161,6 +161,8 @@ func (a *Page) records(c *ui.Context) {
 	})
 }
 
+func (a *Page) SetSupportOpener(open func(int)) { a.form.openSupport = open }
+
 func (a *Page) SetPortraitOpener(
 	open func(int),
 ) {

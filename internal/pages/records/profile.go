@@ -15,7 +15,6 @@ type (
 		text, label string
 		value       int64
 		initialized bool
-		input       ui.Handle
 	}
 	profileState struct {
 		section          int
@@ -97,7 +96,6 @@ func (a *form) profile(
 						a.profileRaw(c, kind, row, table)
 					}
 				})
-			a.fieldInspector(c, kind, row, table)
 		})
 }
 
@@ -332,6 +330,11 @@ func (a *form) profileRelated(
 	}
 	ui.Column(c).Gap(6).Children(func() {
 		ui.Text(c, locales.RecordResourceLinks()).Bold().FontSize(13)
+		if kind == records.Units && a.openSupport != nil {
+			ui.Button(c, locales.SupportEditor()).
+				Disabled(a.state.Busy).
+				OnClick(func() { a.openSupport(row.ID) })
+		}
 		for _, link := range links {
 			ui.Row(c.Key(link.Label)).
 				Wrap().

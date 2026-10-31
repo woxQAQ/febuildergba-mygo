@@ -9,6 +9,7 @@ import (
 	"github.com/woxQAQ/febuildergba-mygo/game/graphics"
 	"github.com/woxQAQ/febuildergba-mygo/game/quote"
 	"github.com/woxQAQ/febuildergba-mygo/game/records"
+	"github.com/woxQAQ/febuildergba-mygo/game/support"
 	"github.com/woxQAQ/febuildergba-mygo/internal/components"
 	"github.com/woxQAQ/febuildergba-mygo/internal/editor"
 	"github.com/woxQAQ/febuildergba-mygo/internal/locales"
@@ -18,6 +19,7 @@ import (
 	"github.com/woxQAQ/febuildergba-mygo/internal/pages/quotes"
 	recordspage "github.com/woxQAQ/febuildergba-mygo/internal/pages/records"
 	"github.com/woxQAQ/febuildergba-mygo/internal/pages/shops"
+	"github.com/woxQAQ/febuildergba-mygo/internal/pages/supports"
 	"github.com/woxQAQ/febuildergba-mygo/internal/pages/texteditor"
 )
 
@@ -46,6 +48,7 @@ type Workspace struct {
 	portraits *portraits.Page
 	shops     *shops.Page
 	quotes    *quotes.Page
+	supports  *supports.Page
 	zoomLevel int
 	menuState struct {
 		text, draft, undo, redo bool
@@ -59,6 +62,11 @@ func New() *Workspace {
 	w.texts = texteditor.New(
 		w.Editor,
 		func(kind records.Kind, id int) {
+			if string(kind) == support.TalkUse {
+				w.tab = len(records.Kinds) + 6
+				w.supports.OpenTalk(id)
+				return
+			}
 			for _, table := range w.Editor.Session.Quotes.Tables() {
 				if string(table.Kind) == string(kind) {
 					w.OpenQuote(table.Kind, id)
@@ -91,6 +99,10 @@ func New() *Workspace {
 	w.records.SetPortraitOpener(w.OpenPortrait)
 	w.shops = shops.New(w.Editor, w.records.OpenShop, w.openHex)
 	w.quotes = quotes.New(w.Editor, w.records.Open, w.openText, w.openHex)
+	w.supports = supports.New(w.Editor, w.records.Open, w.openText, w.openHex)
+	w.records.SetSupportOpener(
+		func(id int) { w.tab = len(records.Kinds) + 6; w.supports.Open(id) },
+	)
 	w.scripts = eventeditor.New(
 		w.Editor,
 		w.openHex,
@@ -111,6 +123,7 @@ func (w *Workspace) SetSession(session *game.Session) {
 	w.portraits.Reset()
 	w.shops.Reset()
 	w.quotes.Reset()
+	w.supports.Reset()
 	w.tab = 0
 }
 
@@ -184,6 +197,7 @@ func (w *Workspace) View(c *ui.Context) {
 			locales.PortraitTable(),
 			locales.ShopEntries(),
 			locales.QuoteEditor(),
+			locales.SupportEditor(),
 		)
 		ui.ScrollHorizontal(c.Key("workspace-tabs")).Shrink(0).Children(func() {
 			ui.Tabs(c, &w.tab, labels...).Shrink(0)
@@ -204,6 +218,8 @@ func (w *Workspace) View(c *ui.Context) {
 			w.shops.View(c)
 		case len(records.Kinds) + 5:
 			w.quotes.View(c)
+		case len(records.Kinds) + 6:
+			w.supports.View(c)
 		default:
 			w.records.View(c, w.tab)
 		}

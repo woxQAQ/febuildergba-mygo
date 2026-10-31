@@ -34,6 +34,7 @@
 | [文本与静态图像](reference/text-and-images.md)            | Huffman、字符与控制码、PNG、图块和调色板 |
 | [章节、地图与事件](reference/chapters-and-events.md)      | 章节、地图、部署、REDA、条件、商店和脚本 |
 | [战斗与死亡对话](reference/battle-and-defeat-dialogue.md) | 原生表、匹配、死亡标志、消费者及重定位   |
+| [支援关系与对话](reference/supports.md)                   | 人物关系、双方数值同步、对话及原生消费者 |
 | [核对来源](sources.md)                                    | 旧版与原生游戏代码的仓库、提交和文件     |
 
 ## 暂缓设计与历史

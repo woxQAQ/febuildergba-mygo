@@ -55,7 +55,7 @@ linters:
               desc: Pass application actions through callbacks.
         record-navigation:
           files:
-            - "${config-path}/internal/pages/{texteditor,portraits,eventeditor,shops,quotes}/**.go"
+            - "${config-path}/internal/pages/{texteditor,portraits,eventeditor,shops,quotes,supports}/**.go"
           deny:
             - pkg: github.com/woxQAQ/febuildergba-mygo/internal/pages/records
               desc: Navigate through page composition callbacks.

@@ -128,7 +128,7 @@ func (s *Session) protectShopPointer(data []byte, ref shop.Reference) error {
 		return err
 	}
 	overlap := func(at, length int) bool { return at >= 0xC0 && length > 0 && site < at+length && at < site+4 }
-	for _, region := range g.quotes.Ranges(data) {
+	for _, region := range append(g.quotes.Ranges(data), s.supportRanges(data)...) {
 		if overlap(region.Start, region.End-region.Start) {
 			return edit.ErrLayout
 		}

@@ -13,6 +13,7 @@ import (
 	"github.com/woxQAQ/febuildergba-mygo/game/quote"
 	"github.com/woxQAQ/febuildergba-mygo/game/records"
 	"github.com/woxQAQ/febuildergba-mygo/game/shop"
+	"github.com/woxQAQ/febuildergba-mygo/game/support"
 	"github.com/woxQAQ/febuildergba-mygo/game/text"
 	"github.com/woxQAQ/febuildergba-mygo/rom"
 )
@@ -32,6 +33,7 @@ type Session struct {
 	Maps        *maps.Editor
 	Shops       *shop.Editor
 	Quotes      *quote.Editor
+	Supports    *support.Editor
 	format      format
 }
 
@@ -57,6 +59,9 @@ func Open(path string) (session *Session, err error) {
 				references.Uses = append(
 					references.Uses,
 					format.quotes.TextUses(data, id)...)
+				references.Uses = append(
+					references.Uses,
+					format.supports.TextUses(data, id)...)
 				return references
 			},
 		)
@@ -67,6 +72,7 @@ func Open(path string) (session *Session, err error) {
 		s.Events, s.Deployments, s.Maps = s.Chapters.Events, s.Chapters.Deployments, s.Chapters.Maps
 		s.Shops = shop.NewEditor(context, format.shops, s.shopSource())
 		s.Quotes = quote.New(context, format.quotes, s.quoteSource())
+		s.Supports = support.New(context, format.supports, s.supportSource())
 		s.Portraits = portrait.New(
 			context,
 			format.portraits,

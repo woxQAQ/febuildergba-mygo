@@ -112,14 +112,14 @@
 
 版本前提、旧版依据与详细限制：[文本与指令](reference/text-and-images.md#五版通用文本与控制指令)。
 
-| ID                       | 能力                         | 实现状态 | 范围与缺口                                     |
-| ------------------------ | ---------------------------- | -------- | ---------------------------------------------- |
-| text.browse              | 浏览、搜索与 ID 定位         | 已接入   | 五版；连续有效的现有文本表                     |
-| text.commands            | 可读指令及原始表示           | 已接入   | 原版共有指令及英文引号；Shift-JIS 字符优先识别 |
-| text.command-edit        | 指令增删与参数修改           | 已接入   | 已确认指令及当前 Huffman 树                    |
-| text.shared-preview      | 草稿与共享影响预览           | 已接入   | 已知记录字段及原生战斗／死亡对话表（含 FE6 终章文本）；事件脚本使用方未完整索引             |
-| text.dialogue-write      | 原子写入及历史               | 已接入   | 有效主入口；最多 32 MiB                        |
-| text.dialogue-extensions | 表容量、自定义引擎与外部格式 | 待实现   | 新 ID、自定义引擎、外部格式、游戏预览          |
+| ID                       | 能力                         | 实现状态 | 范围与缺口                                                                            |
+| ------------------------ | ---------------------------- | -------- | ------------------------------------------------------------------------------------- |
+| text.browse              | 浏览、搜索与 ID 定位         | 已接入   | 五版；连续有效的现有文本表                                                            |
+| text.commands            | 可读指令及原始表示           | 已接入   | 原版共有指令及英文引号；Shift-JIS 字符优先识别                                        |
+| text.command-edit        | 指令增删与参数修改           | 已接入   | 已确认指令及当前 Huffman 树                                                           |
+| text.shared-preview      | 草稿与共享影响预览           | 已接入   | 已知记录字段、原生支援及战斗／死亡对话表（含 FE6 终章文本）；事件脚本使用方未完整索引 |
+| text.dialogue-write      | 原子写入及历史               | 已接入   | 有效主入口；最多 32 MiB                                                               |
+| text.dialogue-extensions | 表容量、自定义引擎与外部格式 | 待实现   | 新 ID、自定义引擎、外部格式、游戏预览                                                 |
 
 ## 五版人物／职业详情与头像表
 
@@ -282,6 +282,18 @@
 | quotes.links     | 文本、人物、章节与脚本引用 | 部分实现 | 文本选择、预览、双向使用处导航；人物／章节跳转；脚本地址关联与字节查看；独立全局脚本图及结构编辑待接入 |
 | quotes.commit    | 预览、重定位、历史与保存   | 已接入   | 已知消费者一起更新；分离入口停止自动写入；独立共享表保留；跨文档、修订、布局及资源冲突检查             |
 
+## 原生支援
+
+五版布局、匹配、同步和写入边界见[支援参考](reference/supports.md)。
+
+| ID                     | 能力                     | 实现状态 | 范围与缺口                                                                             |
+| ---------------------- | ------------------------ | -------- | -------------------------------------------------------------------------------------- |
+| supports.relationships | 对象、初始值、增长及增删 | 已接入   | 五版当前人物指针；FE6 最多 10 项、FE7／FE8 最多 7 项；空指针初始化，未使用槽及尾部保留 |
+| supports.synchronize   | 双方数值同步             | 已接入   | 明确选用后同步已有反向关系；缺失列入预览，不自动创建或删除另一方关系                   |
+| supports.dialogue      | C／B／A 文本引用         | 已接入   | 现有原生对话表、文本选择与预览、正文和使用处双向跳转；表增删排序及音乐编辑待接入       |
+| supports.write         | 共享预览、原子历史和保存 | 已接入   | 关系与对话统一计划；保留独立人物引用、更新已确认对话消费者；拒绝分离消费者和过期操作   |
+| supports.attributes    | 支援属性加成             | 待实现   | 已定位旧版入口及原生加成结构；专用编辑未接入                                           |
+
 ## 商店
 
 版本前提、旧版依据与详细限制：[商店格式与引用](reference/chapters-and-events.md#五版章节商店)。
@@ -332,7 +344,7 @@
 | images.static      | 静态图像与调色板             | [ImagePortraitForm.cs](../FEBuilderGBA/FEBuilderGBA/ImagePortraitForm.cs)           | 调色板、压缩、空间       | 部分实现；头像、职业卡、图标；其他图像类型待实现                                             |
 | chapters.maps      | 章节、地图与部署             | [MapEditorForm.cs](../FEBuilderGBA/FEBuilderGBA/MapEditorForm.cs)                   | 图像、章节布局、空间     | 部分实现；已有绘制、尺寸、变化资源及脚本联动、共享检查与原子保存；素材、地形定义及扩章待实现 |
 | chapters.events    | 事件指令、模板和世界地图     | [EventScriptForm.cs](../FEBuilderGBA/FEBuilderGBA/EventScriptForm.cs)               | 事件指令定义、引用       | 部分实现；已确认条件及常用脚本；其余工作流待盘点                                             |
-| gameplay.tables    | 支援、商店、成长及规则表     | [SupportUnitForm.cs](../FEBuilderGBA/FEBuilderGBA/SupportUnitForm.cs)               | 表适配、引用             | 部分实现；原生商店入口已接入；支援及其他规则继续盘点                                         |
+| gameplay.tables    | 支援、商店、成长及规则表     | [SupportUnitForm.cs](../FEBuilderGBA/FEBuilderGBA/SupportUnitForm.cs)               | 表适配、引用             | 部分实现；原生商店、支援关系及现有支援对话已接入；属性加成及其他规则继续盘点                 |
 | patches.manage     | 社区补丁管理                 | [PatchForm.cs](../FEBuilderGBA/FEBuilderGBA/PatchForm.cs)                           | 检测、空间、工具         | 待实现；条件、依赖、配置、安装、卸载和回滚                                                   |
 | tools.assembly     | EA、ARM 与构建工具链         | [EventAssemblerForm.cs](../FEBuilderGBA/FEBuilderGBA/EventAssemblerForm.cs)         | 原生外部工具、操作导入   | 待实现；脚本、符号、工具协议和版本记录                                                       |
 | assets.animation   | 战斗、地图、魔法动画与 OAM   | [ImageBattleAnimeForm.cs](../FEBuilderGBA/FEBuilderGBA/ImageBattleAnimeForm.cs)     | OAM、压缩、图像、空间    | 待实现；资源、时序及外部格式仍需逐项盘点                                                     |
@@ -356,7 +368,7 @@
 | worldmap.paths     | 世界地图路线连接       | [WorldMapPathForm.cs](../FEBuilderGBA/FEBuilderGBA/WorldMapPathForm.cs)                     | 待实现   | 已定位路线表；路线资源和扩展需继续核对                                                                      |
 | worldmap.movement  | 世界地图路径及移动编辑 | [WorldMapPathMoveEditorForm.cs](../FEBuilderGBA/FEBuilderGBA/WorldMapPathMoveEditorForm.cs) | 待盘点   | 图形路径、移动数据及写入流程                                                                                |
 | worldmap.events    | 世界地图事件入口       | [WorldMapEventPointerForm.cs](../FEBuilderGBA/FEBuilderGBA/WorldMapEventPointerForm.cs)     | 待盘点   | 版本入口、指令及脚本导入导出                                                                                |
-| gameplay.support   | 支援关系、对话与属性   | [SupportUnitForm.cs](../FEBuilderGBA/FEBuilderGBA/SupportUnitForm.cs)                       | 待盘点   | 联合核对 SupportTalk／SupportAttribute 及各版本                                                             |
+| gameplay.support   | 支援关系、对话与属性   | [SupportUnitForm.cs](../FEBuilderGBA/FEBuilderGBA/SupportUnitForm.cs)                       | 部分实现 | 五版关系、可选双方数值同步及现有对话见 supports.*；属性加成、对话扩表、外部格式及补丁扩展待接入             |
 | gameplay.shops     | 商店货物编辑           | [ItemShopForm.cs](../FEBuilderGBA/FEBuilderGBA/ItemShopForm.cs)                             | 部分实现 | 章节、默认、FE8 准备／世界地图入口及原生货物已接入；容量补丁、外部格式与 IER 专用语义待接入                 |
 | gameplay.arena     | 斗技场规则             | [ArenaClassForm.cs](../FEBuilderGBA/FEBuilderGBA/ArenaClassForm.cs)                         | 待盘点   | 联合核对敌方武器与联机参战限制                                                                              |
 | tools.flag-names   | 标志命名与附属信息     | [ToolFlagNameForm.cs](../FEBuilderGBA/FEBuilderGBA/ToolFlagNameForm.cs)                     | 待实现   | 已定位名称修改；保存、载入与兼容契约待细化                                                                  |
@@ -373,7 +385,7 @@
 | -------------------- | ------------------------------------------ | -------- | --------------------------------------------------------------------- |
 | inventory.sources    | 旧版来源索引                               | 已实现   | 生成器已实现；行为盘点未完成                                          |
 | native.records       | 浏览、搜索、多选记录                       | 已实现   | 当前记录列表                                                          |
-| native.density       | 能力矩阵与紧凑字段编辑                     | 已实现   | 能力矩阵、窄窗口及当前字段检查器                                      |
+| native.density       | 能力矩阵与紧凑字段编辑                     | 已实现   | 能力矩阵、窄窗口及就地字段操作                                        |
 | native.input         | 组合输入与提交                             | 已接入   | 组合文字保留草稿                                                      |
 | native.pixels        | 像素缩放与拾取                             | 原型     | 控件原型；产品地图能力见 maps.*                                       |
 | native.script        | 大型脚本文本编辑                           | 原型     | 大文本控件原型；产品语义见 scripts.*                                  |
@@ -405,6 +417,8 @@
 | scripts.validation      | 五版指令字节、资源编辑与文件流程                           | 基本脚本（`game/event/script_test.go`）、剧情（`game/event/scene_test.go`）、镜头（`game/event/camera_test.go`）、加载／队列（`game/event/loads_test.go`）、位段／控制／条件分支（`game/event/control_test.go`）、路线资源（`game/event/routes_test.go`）、手动移动及结束边界（`game/event/movement_test.go`）、动态文件流程（`tests/integration/scripts_test.go`）、路径文件流程（`tests/integration/scripts_movement_test.go`） |
 
 其他领域测试位于对应包；样本构造规则见 [fixture 约定](../testdata/fixtures.md)，新增用例无需同步登记数量。
+
+支援验证入口：`game/support/workflow_test.go`、`internal/testutil/supports.go`、`tests/integration/supports_test.go`；五版合成样本与动态发现的真实 ROM 文件流程覆盖关系、对话、未知字节、原子历史及保存重开。临时无窗口 UI 复核覆盖新增关系、输入校验、预览应用、过期草稿及宽窄布局；未执行游戏内支援触发或存档迁移验证。
 
 ## 更新规则
 
