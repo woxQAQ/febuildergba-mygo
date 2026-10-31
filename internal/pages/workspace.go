@@ -168,7 +168,7 @@ func (w *Workspace) View(c *ui.Context) {
 		components.Header(c, state, func() { w.zoomControl(c) })
 		components.ErrorBanner(c, state)
 		if state.Session == nil {
-			empty(c)
+			w.empty(c)
 			return
 		}
 		components.ExternalChangeBanner(c, state, w.Actions.Reload)

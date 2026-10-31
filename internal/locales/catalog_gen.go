@@ -7664,21 +7664,21 @@ func (msgs Messages) Dirty() string {
 	return Catalog.Format(msgs.locale, "dirty", nil)
 }
 
-// EmptyTitle says "Open a ROM to begin"
+// EmptyTitle says "No ROM open"
 // in the language the app shows.
 func EmptyTitle() string { return In(i18n.Locale()).EmptyTitle() }
 
-// EmptyTitle says "Open a ROM to begin"
+// EmptyTitle says "No ROM open"
 // in the language of msgs.
 func (msgs Messages) EmptyTitle() string {
 	return Catalog.Format(msgs.locale, "empty_title", nil)
 }
 
-// EmptyDetail says "Open an FE6, FE7J, FE7U, FE8J, or FE8U ROM from the File menu. Each file opens in its own window."
+// EmptyDetail says "Supports FE6, FE7J/U and FE8J/U ROMs. Each file opens in its own window."
 // in the language the app shows.
 func EmptyDetail() string { return In(i18n.Locale()).EmptyDetail() }
 
-// EmptyDetail says "Open an FE6, FE7J, FE7U, FE8J, or FE8U ROM from the File menu. Each file opens in its own window."
+// EmptyDetail says "Supports FE6, FE7J/U and FE8J/U ROMs. Each file opens in its own window."
 // in the language of msgs.
 func (msgs Messages) EmptyDetail() string {
 	return Catalog.Format(msgs.locale, "empty_detail", nil)

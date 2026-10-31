@@ -58,11 +58,11 @@ func Header(c *ui.Context, state *editor.State, controls func()) {
 				ui.Box(c).Width(1).Height(16).Background(t.Border)
 			}
 			controls()
-			language, tag := "EN", "en"
+			language, tag := "English", "en"
 			if i18n.Base(i18n.Locale()) != "zh" {
 				language, tag = "中文", "zh-Hans"
 			}
-			ui.Text(c, language).FontSize(12).TextColor(t.TextMuted).
+			ui.Button(c.Key("interface-language"), language).FontSize(12).
 				OnClick(func() { mygo.App.SetLocale(tag) })
 		})
 	})
