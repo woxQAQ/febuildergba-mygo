@@ -194,14 +194,74 @@ func (msgs Messages) ShopNullHelp() string {
 	return Catalog.Format(msgs.locale, "shop_null_help", nil)
 }
 
-// ShopHidden says "This node shop has an empty inventory and is hidden by the native menu."
+// ShopHidden says "Not enabled. Add items and apply the changes to enable this shop."
 // in the language the app shows.
 func ShopHidden() string { return In(i18n.Locale()).ShopHidden() }
 
-// ShopHidden says "This node shop has an empty inventory and is hidden by the native menu."
+// ShopHidden says "Not enabled. Add items and apply the changes to enable this shop."
 // in the language of msgs.
 func (msgs Messages) ShopHidden() string {
 	return Catalog.Format(msgs.locale, "shop_hidden", nil)
+}
+
+// ShopShowInactive says "Show inactive entries"
+// in the language the app shows.
+func ShopShowInactive() string { return In(i18n.Locale()).ShopShowInactive() }
+
+// ShopShowInactive says "Show inactive entries"
+// in the language of msgs.
+func (msgs Messages) ShopShowInactive() string {
+	return Catalog.Format(msgs.locale, "shop_show_inactive", nil)
+}
+
+// ShopInactive says "Not enabled"
+// in the language the app shows.
+func ShopInactive() string { return In(i18n.Locale()).ShopInactive() }
+
+// ShopInactive says "Not enabled"
+// in the language of msgs.
+func (msgs Messages) ShopInactive() string {
+	return Catalog.Format(msgs.locale, "shop_inactive", nil)
+}
+
+// ShopUninitialized says "Needs initialization"
+// in the language the app shows.
+func ShopUninitialized() string { return In(i18n.Locale()).ShopUninitialized() }
+
+// ShopUninitialized says "Needs initialization"
+// in the language of msgs.
+func (msgs Messages) ShopUninitialized() string {
+	return Catalog.Format(msgs.locale, "shop_uninitialized", nil)
+}
+
+// ShopUnapplied says "Unapplied changes"
+// in the language the app shows.
+func ShopUnapplied() string { return In(i18n.Locale()).ShopUnapplied() }
+
+// ShopUnapplied says "Unapplied changes"
+// in the language of msgs.
+func (msgs Messages) ShopUnapplied() string {
+	return Catalog.Format(msgs.locale, "shop_unapplied", nil)
+}
+
+// ShopClosePending says "This draft is empty. Applying it will hide the entry in the game."
+// in the language the app shows.
+func ShopClosePending() string { return In(i18n.Locale()).ShopClosePending() }
+
+// ShopClosePending says "This draft is empty. Applying it will hide the entry in the game."
+// in the language of msgs.
+func (msgs Messages) ShopClosePending() string {
+	return Catalog.Format(msgs.locale, "shop_close_pending", nil)
+}
+
+// ShopEmptyVisible says "The inventory is empty, but this configuration has not closed the shop entry. Use “Close this node shop” to close…"
+// in the language the app shows.
+func ShopEmptyVisible() string { return In(i18n.Locale()).ShopEmptyVisible() }
+
+// ShopEmptyVisible says "The inventory is empty, but this configuration has not closed the shop entry. Use “Close this node shop” to close…"
+// in the language of msgs.
+func (msgs Messages) ShopEmptyVisible() string {
+	return Catalog.Format(msgs.locale, "shop_empty_visible", nil)
 }
 
 // ShopOpenChapter says "Open chapter locations and position"
@@ -12036,4 +12096,594 @@ func ScriptBranchDeployedHelp() string { return In(i18n.Locale()).ScriptBranchDe
 // in the language of msgs.
 func (msgs Messages) ScriptBranchDeployedHelp() string {
 	return Catalog.Format(msgs.locale, "script_branch_deployed_help", nil)
+}
+
+// QuoteEditor says "Battle & defeat dialogue"
+// in the language the app shows.
+func QuoteEditor() string { return In(i18n.Locale()).QuoteEditor() }
+
+// QuoteEditor says "Battle & defeat dialogue"
+// in the language of msgs.
+func (msgs Messages) QuoteEditor() string {
+	return Catalog.Format(msgs.locale, "quote_editor", nil)
+}
+
+// QuoteTable says "Dialogue table"
+// in the language the app shows.
+func QuoteTable() string { return In(i18n.Locale()).QuoteTable() }
+
+// QuoteTable says "Dialogue table"
+// in the language of msgs.
+func (msgs Messages) QuoteTable() string {
+	return Catalog.Format(msgs.locale, "quote_table", nil)
+}
+
+// QuoteRecords says "Dialogue records"
+// in the language the app shows.
+func QuoteRecords() string { return In(i18n.Locale()).QuoteRecords() }
+
+// QuoteRecords says "Dialogue records"
+// in the language of msgs.
+func (msgs Messages) QuoteRecords() string {
+	return Catalog.Format(msgs.locale, "quote_records", nil)
+}
+
+// QuoteSearch says "Character name, character/text ID or row (hex)"
+// in the language the app shows.
+func QuoteSearch() string { return In(i18n.Locale()).QuoteSearch() }
+
+// QuoteSearch says "Character name, character/text ID or row (hex)"
+// in the language of msgs.
+func (msgs Messages) QuoteSearch() string {
+	return Catalog.Format(msgs.locale, "quote_search", nil)
+}
+
+// QuoteBattle says "Battle: character pairs"
+// in the language the app shows.
+func QuoteBattle() string { return In(i18n.Locale()).QuoteBattle() }
+
+// QuoteBattle says "Battle: character pairs"
+// in the language of msgs.
+func (msgs Messages) QuoteBattle() string {
+	return Catalog.Format(msgs.locale, "quote_battle", nil)
+}
+
+// QuoteGeneral says "Battle: individual characters"
+// in the language the app shows.
+func QuoteGeneral() string { return In(i18n.Locale()).QuoteGeneral() }
+
+// QuoteGeneral says "Battle: individual characters"
+// in the language of msgs.
+func (msgs Messages) QuoteGeneral() string {
+	return Catalog.Format(msgs.locale, "quote_general", nil)
+}
+
+// QuoteTriangle says "Triangle attack"
+// in the language the app shows.
+func QuoteTriangle() string { return In(i18n.Locale()).QuoteTriangle() }
+
+// QuoteTriangle says "Triangle attack"
+// in the language of msgs.
+func (msgs Messages) QuoteTriangle() string {
+	return Catalog.Format(msgs.locale, "quote_triangle", nil)
+}
+
+// QuoteDeath says "Defeat dialogue"
+// in the language the app shows.
+func QuoteDeath() string { return In(i18n.Locale()).QuoteDeath() }
+
+// QuoteDeath says "Defeat dialogue"
+// in the language of msgs.
+func (msgs Messages) QuoteDeath() string {
+	return Catalog.Format(msgs.locale, "quote_death", nil)
+}
+
+// QuoteDeathLyn says "Defeat scripts: Lyn mode"
+// in the language the app shows.
+func QuoteDeathLyn() string { return In(i18n.Locale()).QuoteDeathLyn() }
+
+// QuoteDeathLyn says "Defeat scripts: Lyn mode"
+// in the language of msgs.
+func (msgs Messages) QuoteDeathLyn() string {
+	return Catalog.Format(msgs.locale, "quote_death_lyn", nil)
+}
+
+// QuoteDeathOther says "Defeat scripts: other modes"
+// in the language the app shows.
+func QuoteDeathOther() string { return In(i18n.Locale()).QuoteDeathOther() }
+
+// QuoteDeathOther says "Defeat scripts: other modes"
+// in the language of msgs.
+func (msgs Messages) QuoteDeathOther() string {
+	return Catalog.Format(msgs.locale, "quote_death_other", nil)
+}
+
+// QuoteUnit says "Character"
+// in the language the app shows.
+func QuoteUnit() string { return In(i18n.Locale()).QuoteUnit() }
+
+// QuoteUnit says "Character"
+// in the language of msgs.
+func (msgs Messages) QuoteUnit() string {
+	return Catalog.Format(msgs.locale, "quote_unit", nil)
+}
+
+// QuotePairUnit says "Character A"
+// in the language the app shows.
+func QuotePairUnit() string { return In(i18n.Locale()).QuotePairUnit() }
+
+// QuotePairUnit says "Character A"
+// in the language of msgs.
+func (msgs Messages) QuotePairUnit() string {
+	return Catalog.Format(msgs.locale, "quote_pair_unit", nil)
+}
+
+// QuoteDefeatedUnit says "Defeated character"
+// in the language the app shows.
+func QuoteDefeatedUnit() string { return In(i18n.Locale()).QuoteDefeatedUnit() }
+
+// QuoteDefeatedUnit says "Defeated character"
+// in the language of msgs.
+func (msgs Messages) QuoteDefeatedUnit() string {
+	return Catalog.Format(msgs.locale, "quote_defeated_unit", nil)
+}
+
+// QuoteOpponent says "Character B"
+// in the language the app shows.
+func QuoteOpponent() string { return In(i18n.Locale()).QuoteOpponent() }
+
+// QuoteOpponent says "Character B"
+// in the language of msgs.
+func (msgs Messages) QuoteOpponent() string {
+	return Catalog.Format(msgs.locale, "quote_opponent", nil)
+}
+
+// QuoteChapter says "Chapter condition"
+// in the language the app shows.
+func QuoteChapter() string { return In(i18n.Locale()).QuoteChapter() }
+
+// QuoteChapter says "Chapter condition"
+// in the language of msgs.
+func (msgs Messages) QuoteChapter() string {
+	return Catalog.Format(msgs.locale, "quote_chapter", nil)
+}
+
+// QuoteRoute says "Route condition"
+// in the language the app shows.
+func QuoteRoute() string { return In(i18n.Locale()).QuoteRoute() }
+
+// QuoteRoute says "Route condition"
+// in the language of msgs.
+func (msgs Messages) QuoteRoute() string {
+	return Catalog.Format(msgs.locale, "quote_route", nil)
+}
+
+// QuoteFlag says "Completion flag"
+// in the language the app shows.
+func QuoteFlag() string { return In(i18n.Locale()).QuoteFlag() }
+
+// QuoteFlag says "Completion flag"
+// in the language of msgs.
+func (msgs Messages) QuoteFlag() string {
+	return Catalog.Format(msgs.locale, "quote_flag", nil)
+}
+
+// QuoteDefeatFlag says "Defeat flag"
+// in the language the app shows.
+func QuoteDefeatFlag() string { return In(i18n.Locale()).QuoteDefeatFlag() }
+
+// QuoteDefeatFlag says "Defeat flag"
+// in the language of msgs.
+func (msgs Messages) QuoteDefeatFlag() string {
+	return Catalog.Format(msgs.locale, "quote_defeat_flag", nil)
+}
+
+// QuoteText says "Dialogue text"
+// in the language the app shows.
+func QuoteText() string { return In(i18n.Locale()).QuoteText() }
+
+// QuoteText says "Dialogue text"
+// in the language of msgs.
+func (msgs Messages) QuoteText() string {
+	return Catalog.Format(msgs.locale, "quote_text", nil)
+}
+
+// QuoteFinalText says "Final chapter text"
+// in the language the app shows.
+func QuoteFinalText() string { return In(i18n.Locale()).QuoteFinalText() }
+
+// QuoteFinalText says "Final chapter text"
+// in the language of msgs.
+func (msgs Messages) QuoteFinalText() string {
+	return Catalog.Format(msgs.locale, "quote_final_text", nil)
+}
+
+// QuoteScript says "Event script address"
+// in the language the app shows.
+func QuoteScript() string { return In(i18n.Locale()).QuoteScript() }
+
+// QuoteScript says "Event script address"
+// in the language of msgs.
+func (msgs Messages) QuoteScript() string {
+	return Catalog.Format(msgs.locale, "quote_script", nil)
+}
+
+// QuoteAdd says "Add record"
+// in the language the app shows.
+func QuoteAdd() string { return In(i18n.Locale()).QuoteAdd() }
+
+// QuoteAdd says "Add record"
+// in the language of msgs.
+func (msgs Messages) QuoteAdd() string {
+	return Catalog.Format(msgs.locale, "quote_add", nil)
+}
+
+// QuoteCopy says "Copy record"
+// in the language the app shows.
+func QuoteCopy() string { return In(i18n.Locale()).QuoteCopy() }
+
+// QuoteCopy says "Copy record"
+// in the language of msgs.
+func (msgs Messages) QuoteCopy() string {
+	return Catalog.Format(msgs.locale, "quote_copy", nil)
+}
+
+// QuoteDelete says "Delete record"
+// in the language the app shows.
+func QuoteDelete() string { return In(i18n.Locale()).QuoteDelete() }
+
+// QuoteDelete says "Delete record"
+// in the language of msgs.
+func (msgs Messages) QuoteDelete() string {
+	return Catalog.Format(msgs.locale, "quote_delete", nil)
+}
+
+// QuotePreview says "Preview dialogue changes"
+// in the language the app shows.
+func QuotePreview() string { return In(i18n.Locale()).QuotePreview() }
+
+// QuotePreview says "Preview dialogue changes"
+// in the language of msgs.
+func (msgs Messages) QuotePreview() string {
+	return Catalog.Format(msgs.locale, "quote_preview", nil)
+}
+
+// QuoteApply says "Apply dialogue changes"
+// in the language the app shows.
+func QuoteApply() string { return In(i18n.Locale()).QuoteApply() }
+
+// QuoteApply says "Apply dialogue changes"
+// in the language of msgs.
+func (msgs Messages) QuoteApply() string {
+	return Catalog.Format(msgs.locale, "quote_apply", nil)
+}
+
+// QuoteNoMatches says "No matching records. Clear the search or add a record."
+// in the language the app shows.
+func QuoteNoMatches() string { return In(i18n.Locale()).QuoteNoMatches() }
+
+// QuoteNoMatches says "No matching records. Clear the search or add a record."
+// in the language of msgs.
+func (msgs Messages) QuoteNoMatches() string {
+	return Catalog.Format(msgs.locale, "quote_no_matches", nil)
+}
+
+// QuoteAnyUnit says "Unspecified side (FE8)"
+// in the language the app shows.
+func QuoteAnyUnit() string { return In(i18n.Locale()).QuoteAnyUnit() }
+
+// QuoteAnyUnit says "Unspecified side (FE8)"
+// in the language of msgs.
+func (msgs Messages) QuoteAnyUnit() string {
+	return Catalog.Format(msgs.locale, "quote_any_unit", nil)
+}
+
+// QuoteAnyChapter says "Any chapter"
+// in the language the app shows.
+func QuoteAnyChapter() string { return In(i18n.Locale()).QuoteAnyChapter() }
+
+// QuoteAnyChapter says "Any chapter"
+// in the language of msgs.
+func (msgs Messages) QuoteAnyChapter() string {
+	return Catalog.Format(msgs.locale, "quote_any_chapter", nil)
+}
+
+// QuoteAnyRoute says "Any route"
+// in the language the app shows.
+func QuoteAnyRoute() string { return In(i18n.Locale()).QuoteAnyRoute() }
+
+// QuoteAnyRoute says "Any route"
+// in the language of msgs.
+func (msgs Messages) QuoteAnyRoute() string {
+	return Catalog.Format(msgs.locale, "quote_any_route", nil)
+}
+
+// QuoteRouteCommon says "Common route"
+// in the language the app shows.
+func QuoteRouteCommon() string { return In(i18n.Locale()).QuoteRouteCommon() }
+
+// QuoteRouteCommon says "Common route"
+// in the language of msgs.
+func (msgs Messages) QuoteRouteCommon() string {
+	return Catalog.Format(msgs.locale, "quote_route_common", nil)
+}
+
+// QuoteRouteEirika says "Eirika route"
+// in the language the app shows.
+func QuoteRouteEirika() string { return In(i18n.Locale()).QuoteRouteEirika() }
+
+// QuoteRouteEirika says "Eirika route"
+// in the language of msgs.
+func (msgs Messages) QuoteRouteEirika() string {
+	return Catalog.Format(msgs.locale, "quote_route_eirika", nil)
+}
+
+// QuoteRouteEphraim says "Ephraim route"
+// in the language the app shows.
+func QuoteRouteEphraim() string { return In(i18n.Locale()).QuoteRouteEphraim() }
+
+// QuoteRouteEphraim says "Ephraim route"
+// in the language of msgs.
+func (msgs Messages) QuoteRouteEphraim() string {
+	return Catalog.Format(msgs.locale, "quote_route_ephraim", nil)
+}
+
+// QuoteNoText says "No text"
+// in the language the app shows.
+func QuoteNoText() string { return In(i18n.Locale()).QuoteNoText() }
+
+// QuoteNoText says "No text"
+// in the language of msgs.
+func (msgs Messages) QuoteNoText() string {
+	return Catalog.Format(msgs.locale, "quote_no_text", nil)
+}
+
+// QuoteRaw says "View record bytes"
+// in the language the app shows.
+func QuoteRaw() string { return In(i18n.Locale()).QuoteRaw() }
+
+// QuoteRaw says "View record bytes"
+// in the language of msgs.
+func (msgs Messages) QuoteRaw() string {
+	return Catalog.Format(msgs.locale, "quote_raw", nil)
+}
+
+// QuoteOpenText says "Open text"
+// in the language the app shows.
+func QuoteOpenText() string { return In(i18n.Locale()).QuoteOpenText() }
+
+// QuoteOpenText says "Open text"
+// in the language of msgs.
+func (msgs Messages) QuoteOpenText() string {
+	return Catalog.Format(msgs.locale, "quote_open_text", nil)
+}
+
+// QuoteScriptBytes says "View script bytes"
+// in the language the app shows.
+func QuoteScriptBytes() string { return In(i18n.Locale()).QuoteScriptBytes() }
+
+// QuoteScriptBytes says "View script bytes"
+// in the language of msgs.
+func (msgs Messages) QuoteScriptBytes() string {
+	return Catalog.Format(msgs.locale, "quote_script_bytes", nil)
+}
+
+// QuoteOrderHelp says "Moving a record changes its matching order in the full table, including records hidden by the search."
+// in the language the app shows.
+func QuoteOrderHelp() string { return In(i18n.Locale()).QuoteOrderHelp() }
+
+// QuoteOrderHelp says "Moving a record changes its matching order in the full table, including records hidden by the search."
+// in the language of msgs.
+func (msgs Messages) QuoteOrderHelp() string {
+	return Catalog.Format(msgs.locale, "quote_order_help", nil)
+}
+
+// QuoteSearchHelp says "Search only filters this view; it does not change record order."
+// in the language the app shows.
+func QuoteSearchHelp() string { return In(i18n.Locale()).QuoteSearchHelp() }
+
+// QuoteSearchHelp says "Search only filters this view; it does not change record order."
+// in the language of msgs.
+func (msgs Messages) QuoteSearchHelp() string {
+	return Catalog.Format(msgs.locale, "quote_search_help", nil)
+}
+
+// QuoteReferenceHelp says "Choose a search result to change the reference."
+// in the language the app shows.
+func QuoteReferenceHelp() string { return In(i18n.Locale()).QuoteReferenceHelp() }
+
+// QuoteReferenceHelp says "Choose a search result to change the reference."
+// in the language of msgs.
+func (msgs Messages) QuoteReferenceHelp() string {
+	return Catalog.Format(msgs.locale, "quote_reference_help", nil)
+}
+
+// QuoteMatchingRules says "Matching rules"
+// in the language the app shows.
+func QuoteMatchingRules() string { return In(i18n.Locale()).QuoteMatchingRules() }
+
+// QuoteMatchingRules says "Matching rules"
+// in the language of msgs.
+func (msgs Messages) QuoteMatchingRules() string {
+	return Catalog.Format(msgs.locale, "quote_matching_rules", nil)
+}
+
+// QuoteFe6Help says "Check pairs in either direction, then each character's individual table, then the attacker's triangle table. Search e…"
+// in the language the app shows.
+func QuoteFe6Help() string { return In(i18n.Locale()).QuoteFe6Help() }
+
+// QuoteFe6Help says "Check pairs in either direction, then each character's individual table, then the attacker's triangle table. Search e…"
+// in the language of msgs.
+func (msgs Messages) QuoteFe6Help() string {
+	return Catalog.Format(msgs.locale, "quote_fe6_help", nil)
+}
+
+// QuoteFe7Help says "Check pairs in either direction, then each character's individual table, then the attacker's triangle table. Search e…"
+// in the language the app shows.
+func QuoteFe7Help() string { return In(i18n.Locale()).QuoteFe7Help() }
+
+// QuoteFe7Help says "Check pairs in either direction, then each character's individual table, then the attacker's triangle table. Search e…"
+// in the language of msgs.
+func (msgs Messages) QuoteFe7Help() string {
+	return Catalog.Format(msgs.locale, "quote_fe7_help", nil)
+}
+
+// QuoteFe8Help says "Check chapter, flag and characters in record order. Two nonzero characters match in either direction; only A matches …"
+// in the language the app shows.
+func QuoteFe8Help() string { return In(i18n.Locale()).QuoteFe8Help() }
+
+// QuoteFe8Help says "Check chapter, flag and characters in record order. Two nonzero characters match in either direction; only A matches …"
+// in the language of msgs.
+func (msgs Messages) QuoteFe8Help() string {
+	return Catalog.Format(msgs.locale, "quote_fe8_help", nil)
+}
+
+// QuoteFe6DeathHelp says "Check character, chapter and flag in record order. Final chapter text belongs to a separate final chapter flow, not a…"
+// in the language the app shows.
+func QuoteFe6DeathHelp() string { return In(i18n.Locale()).QuoteFe6DeathHelp() }
+
+// QuoteFe6DeathHelp says "Check character, chapter and flag in record order. Final chapter text belongs to a separate final chapter flow, not a…"
+// in the language of msgs.
+func (msgs Messages) QuoteFe6DeathHelp() string {
+	return Catalog.Format(msgs.locale, "quote_fe6_death_help", nil)
+}
+
+// QuoteFe7DeathHelp says "Availability checks the ordinary table before the current mode's script table; display uses the mode script first, th…"
+// in the language the app shows.
+func QuoteFe7DeathHelp() string { return In(i18n.Locale()).QuoteFe7DeathHelp() }
+
+// QuoteFe7DeathHelp says "Availability checks the ordinary table before the current mode's script table; display uses the mode script first, th…"
+// in the language of msgs.
+func (msgs Messages) QuoteFe7DeathHelp() string {
+	return Catalog.Format(msgs.locale, "quote_fe7_death_help", nil)
+}
+
+// QuoteFe8DeathHelp says "Check route, chapter, an unset flag and character in record order. Nonzero text takes precedence over the script. Def…"
+// in the language the app shows.
+func QuoteFe8DeathHelp() string { return In(i18n.Locale()).QuoteFe8DeathHelp() }
+
+// QuoteFe8DeathHelp says "Check route, chapter, an unset flag and character in record order. Nonzero text takes precedence over the script. Def…"
+// in the language of msgs.
+func (msgs Messages) QuoteFe8DeathHelp() string {
+	return Catalog.Format(msgs.locale, "quote_fe8_death_help", nil)
+}
+
+// QuoteChapterHelp says "%02X means any chapter."
+// in the language the app shows.
+func QuoteChapterHelp() string { return In(i18n.Locale()).QuoteChapterHelp() }
+
+// QuoteChapterHelp says "%02X means any chapter."
+// in the language of msgs.
+func (msgs Messages) QuoteChapterHelp() string {
+	return Catalog.Format(msgs.locale, "quote_chapter_help", nil)
+}
+
+// QuoteTriangleChapterHelp says "%02X matches that chapter or a triangle attack."
+// in the language the app shows.
+func QuoteTriangleChapterHelp() string { return In(i18n.Locale()).QuoteTriangleChapterHelp() }
+
+// QuoteTriangleChapterHelp says "%02X matches that chapter or a triangle attack."
+// in the language of msgs.
+func (msgs Messages) QuoteTriangleChapterHelp() string {
+	return Catalog.Format(msgs.locale, "quote_triangle_chapter_help", nil)
+}
+
+// QuoteDeathHelp says "0x65 is the native game-over flag; its effects depend on the version and scene."
+// in the language the app shows.
+func QuoteDeathHelp() string { return In(i18n.Locale()).QuoteDeathHelp() }
+
+// QuoteDeathHelp says "0x65 is the native game-over flag; its effects depend on the version and scene."
+// in the language of msgs.
+func (msgs Messages) QuoteDeathHelp() string {
+	return Catalog.Format(msgs.locale, "quote_death_help", nil)
+}
+
+// QuoteSilentDeath says "This defeat record can still set its flag without text or a script."
+// in the language the app shows.
+func QuoteSilentDeath() string { return In(i18n.Locale()).QuoteSilentDeath() }
+
+// QuoteSilentDeath says "This defeat record can still set its flag without text or a script."
+// in the language of msgs.
+func (msgs Messages) QuoteSilentDeath() string {
+	return Catalog.Format(msgs.locale, "quote_silent_death", nil)
+}
+
+// QuoteScriptHelp says "Enter an existing ROM script offset or GBA address in hexadecimal; 0 clears the reference. This changes only the refe…"
+// in the language the app shows.
+func QuoteScriptHelp() string { return In(i18n.Locale()).QuoteScriptHelp() }
+
+// QuoteScriptHelp says "Enter an existing ROM script offset or GBA address in hexadecimal; 0 clears the reference. This changes only the refe…"
+// in the language of msgs.
+func (msgs Messages) QuoteScriptHelp() string {
+	return Catalog.Format(msgs.locale, "quote_script_help", nil)
+}
+
+// QuoteReload says "Reload"
+// in the language the app shows.
+func QuoteReload() string { return In(i18n.Locale()).QuoteReload() }
+
+// QuoteReload says "Reload"
+// in the language of msgs.
+func (msgs Messages) QuoteReload() string {
+	return Catalog.Format(msgs.locale, "quote_reload", nil)
+}
+
+// QuotePreviewHelp says "Append the complete table and update these known native consumers in one history operation:"
+// in the language the app shows.
+func QuotePreviewHelp() string { return In(i18n.Locale()).QuotePreviewHelp() }
+
+// QuotePreviewHelp says "Append the complete table and update these known native consumers in one history operation:"
+// in the language of msgs.
+func (msgs Messages) QuotePreviewHelp() string {
+	return Catalog.Format(msgs.locale, "quote_preview_help", nil)
+}
+
+// QuoteShared says "Independent table kept at its original address"
+// in the language the app shows.
+func QuoteShared() string { return In(i18n.Locale()).QuoteShared() }
+
+// QuoteShared says "Independent table kept at its original address"
+// in the language of msgs.
+func (msgs Messages) QuoteShared() string {
+	return Catalog.Format(msgs.locale, "quote_shared", nil)
+}
+
+// QuoteReferenceLimit says "Old data and unselected independent references are preserved. Custom callers and patch-specific layouts are not exhau…"
+// in the language the app shows.
+func QuoteReferenceLimit() string { return In(i18n.Locale()).QuoteReferenceLimit() }
+
+// QuoteReferenceLimit says "Old data and unselected independent references are preserved. Custom callers and patch-specific layouts are not exhau…"
+// in the language of msgs.
+func (msgs Messages) QuoteReferenceLimit() string {
+	return Catalog.Format(msgs.locale, "quote_reference_limit", nil)
+}
+
+// GameInvalidQuoteTable says "Cannot read this dialogue table: its pointer, record range or native terminator is invalid."
+// in the language the app shows.
+func GameInvalidQuoteTable() string { return In(i18n.Locale()).GameInvalidQuoteTable() }
+
+// GameInvalidQuoteTable says "Cannot read this dialogue table: its pointer, record range or native terminator is invalid."
+// in the language of msgs.
+func (msgs Messages) GameInvalidQuoteTable() string {
+	return Catalog.Format(msgs.locale, "game_invalid_quote_table", nil)
+}
+
+// GameQuoteReferenceConflict says "Known consumers of this dialogue table point to different addresses. Automatic relocation is stopped."
+// in the language the app shows.
+func GameQuoteReferenceConflict() string { return In(i18n.Locale()).GameQuoteReferenceConflict() }
+
+// GameQuoteReferenceConflict says "Known consumers of this dialogue table point to different addresses. Automatic relocation is stopped."
+// in the language of msgs.
+func (msgs Messages) GameQuoteReferenceConflict() string {
+	return Catalog.Format(msgs.locale, "game_quote_reference_conflict", nil)
+}
+
+// QuoteExtendedUnit says "This character word exceeds the native ID range. Its bytes are retained; use raw bytes for patch-specific conditions …"
+// in the language the app shows.
+func QuoteExtendedUnit() string { return In(i18n.Locale()).QuoteExtendedUnit() }
+
+// QuoteExtendedUnit says "This character word exceeds the native ID range. Its bytes are retained; use raw bytes for patch-specific conditions …"
+// in the language of msgs.
+func (msgs Messages) QuoteExtendedUnit() string {
+	return Catalog.Format(msgs.locale, "quote_extended_unit", nil)
 }

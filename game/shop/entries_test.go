@@ -204,8 +204,14 @@ func TestWorldMapShopInitializationAndClosing(t *testing.T) {
 				t.Fatal("uninitialized null slot was writable", err)
 			}
 			draft.Clear()
+			if !draft.Inventory().WorldMapHidden() {
+				t.Fatal("initialized empty inventory must hide the node entry")
+			}
 			if err := draft.Inventory().Add(5); err != nil {
 				t.Fatal(err)
+			}
+			if draft.Inventory().WorldMapHidden() {
+				t.Fatal("adding stock did not enable the node entry")
 			}
 			plan, err := s.Shops.Plan(draft)
 			if err != nil {
@@ -226,14 +232,31 @@ func TestWorldMapShopInitializationAndClosing(t *testing.T) {
 			draft, err = s.Shops.NewDraft(
 				shop.Key{Origin: shop.WorldMap, ID: 1, Slot: 2},
 			)
-			if err != nil || draft.Entry().Empty ||
-				draft.Inventory().Count() != 0 {
+			if err != nil {
+				t.Fatal(err)
+			}
+			if draft.Entry().Empty || draft.Inventory().Count() != 0 ||
+				draft.Inventory().WorldMapHidden() {
 				t.Fatal(
 					"halfword availability was confused with item-ID termination",
 					err,
 				)
 			}
+			if err := draft.Inventory().Add(5); err != nil {
+				t.Fatal(err)
+			}
+			if err := draft.Inventory().Remove(0); err != nil {
+				t.Fatal(err)
+			}
+			if draft.Inventory().WorldMapHidden() || draft.Modified() {
+				t.Fatal(
+					"removing temporary stock changed the original menu visibility",
+				)
+			}
 			draft.Clear()
+			if !draft.Inventory().WorldMapHidden() {
+				t.Fatal("closing did not update draft menu visibility")
+			}
 			plan, err = s.Shops.Plan(draft)
 			if err != nil {
 				t.Fatal(err)

@@ -70,6 +70,10 @@ func (d *Draft) Address() int  { return d.address }
 func (d *Draft) Items() []Item { return slices.Clone(d.items) }
 func (d *Draft) Count() int    { return len(d.items) }
 
+// WorldMapHidden reports whether the first halfword hides the native node menu
+// entry. An empty item list with a nonzero terminator byte remains visible.
+func (d *Draft) WorldMapHidden() bool { return len(d.items) == 0 && d.terminator == 0 }
+
 func (d *Draft) Modified() bool { return d.address == 0 || !slices.Equal(d.original, d.items) }
 
 func (d *Draft) Clone() *Draft {

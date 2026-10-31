@@ -10,6 +10,7 @@ import (
 	"github.com/woxQAQ/febuildergba-mygo/game/graphics"
 	"github.com/woxQAQ/febuildergba-mygo/game/maps"
 	"github.com/woxQAQ/febuildergba-mygo/game/portrait"
+	"github.com/woxQAQ/febuildergba-mygo/game/quote"
 	"github.com/woxQAQ/febuildergba-mygo/game/records"
 	"github.com/woxQAQ/febuildergba-mygo/game/shop"
 	"github.com/woxQAQ/febuildergba-mygo/game/text"
@@ -30,6 +31,7 @@ type Session struct {
 	Deployments *deployment.Editor
 	Maps        *maps.Editor
 	Shops       *shop.Editor
+	Quotes      *quote.Editor
 	format      format
 }
 
@@ -50,7 +52,13 @@ func Open(path string) (session *Session, err error) {
 		s.Texts = text.New(
 			context,
 			format.text,
-			func(data []byte, id uint16) text.References { return s.Records.TextReferences(data, id) },
+			func(data []byte, id uint16) text.References {
+				references := s.Records.TextReferences(data, id)
+				references.Uses = append(
+					references.Uses,
+					format.quotes.TextUses(data, id)...)
+				return references
+			},
 		)
 		s.Records = records.New(context, format.recordFormat, s.Texts)
 		chapterConfig := format.chapterConfig()
@@ -58,6 +66,7 @@ func Open(path string) (session *Session, err error) {
 		s.Chapters = chapter.New(context, chapterConfig, s.Records)
 		s.Events, s.Deployments, s.Maps = s.Chapters.Events, s.Chapters.Deployments, s.Chapters.Maps
 		s.Shops = shop.NewEditor(context, format.shops, s.shopSource())
+		s.Quotes = quote.New(context, format.quotes, s.quoteSource())
 		s.Portraits = portrait.New(
 			context,
 			format.portraits,

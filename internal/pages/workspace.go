@@ -7,6 +7,7 @@ import (
 
 	"github.com/woxQAQ/febuildergba-mygo/game"
 	"github.com/woxQAQ/febuildergba-mygo/game/graphics"
+	"github.com/woxQAQ/febuildergba-mygo/game/quote"
 	"github.com/woxQAQ/febuildergba-mygo/game/records"
 	"github.com/woxQAQ/febuildergba-mygo/internal/components"
 	"github.com/woxQAQ/febuildergba-mygo/internal/editor"
@@ -14,6 +15,7 @@ import (
 	"github.com/woxQAQ/febuildergba-mygo/internal/pages/eventeditor"
 	"github.com/woxQAQ/febuildergba-mygo/internal/pages/hexeditor"
 	"github.com/woxQAQ/febuildergba-mygo/internal/pages/portraits"
+	"github.com/woxQAQ/febuildergba-mygo/internal/pages/quotes"
 	recordspage "github.com/woxQAQ/febuildergba-mygo/internal/pages/records"
 	"github.com/woxQAQ/febuildergba-mygo/internal/pages/shops"
 	"github.com/woxQAQ/febuildergba-mygo/internal/pages/texteditor"
@@ -43,6 +45,7 @@ type Workspace struct {
 	scripts   *eventeditor.Page
 	portraits *portraits.Page
 	shops     *shops.Page
+	quotes    *quotes.Page
 	zoomLevel int
 	menuState struct {
 		text, draft, undo, redo bool
@@ -55,7 +58,15 @@ func New() *Workspace {
 	w.hex = hexeditor.New(w.Editor)
 	w.texts = texteditor.New(
 		w.Editor,
-		func(kind records.Kind, id int) { w.records.Open(kind, id) },
+		func(kind records.Kind, id int) {
+			for _, table := range w.Editor.Session.Quotes.Tables() {
+				if string(table.Kind) == string(kind) {
+					w.OpenQuote(table.Kind, id)
+					return
+				}
+			}
+			w.records.Open(kind, id)
+		},
 	)
 	assets := components.AssetActions{
 		Import: func(done func([]byte, error)) {
@@ -79,6 +90,7 @@ func New() *Workspace {
 	w.portraits = portraits.New(w.Editor, assets, w.records.Open, w.openHex)
 	w.records.SetPortraitOpener(w.OpenPortrait)
 	w.shops = shops.New(w.Editor, w.records.OpenShop, w.openHex)
+	w.quotes = quotes.New(w.Editor, w.records.Open, w.openText, w.openHex)
 	w.scripts = eventeditor.New(
 		w.Editor,
 		w.openHex,
@@ -98,7 +110,14 @@ func (w *Workspace) SetSession(session *game.Session) {
 	w.scripts.Reset()
 	w.portraits.Reset()
 	w.shops.Reset()
+	w.quotes.Reset()
 	w.tab = 0
+}
+
+// OpenQuote navigates from a text use to its owning native table row.
+func (w *Workspace) OpenQuote(kind quote.Kind, index int) {
+	w.tab = len(records.Kinds) + 5
+	w.quotes.Open(kind, index)
 }
 
 func (w *Workspace) openHex(address, length int) {
@@ -164,6 +183,7 @@ func (w *Workspace) View(c *ui.Context) {
 			locales.ScriptEditor(),
 			locales.PortraitTable(),
 			locales.ShopEntries(),
+			locales.QuoteEditor(),
 		)
 		ui.ScrollHorizontal(c.Key("workspace-tabs")).Shrink(0).Children(func() {
 			ui.Tabs(c, &w.tab, labels...).Shrink(0)
@@ -182,6 +202,8 @@ func (w *Workspace) View(c *ui.Context) {
 			w.portraits.View(c)
 		case len(records.Kinds) + 4:
 			w.shops.View(c)
+		case len(records.Kinds) + 5:
+			w.quotes.View(c)
 		default:
 			w.records.View(c, w.tab)
 		}

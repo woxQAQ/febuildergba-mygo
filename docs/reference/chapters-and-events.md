@@ -6,6 +6,8 @@
 
 `event.Table` 区分回合、常驻、对话和地点表，`event.Condition` 保留原生条件并区分脚本、奖励及其他资源；`event.ConditionDraft`／`event.ConditionEdit` 管理草稿和不可变写入计划。UI 位于 `internal/pages/chapters` 和 `internal/pages/eventeditor`。
 
+全局战斗对话、死亡对话及死亡标志使用独立原生表，见[战斗与死亡对话](battle-and-defeat-dialogue.md)；不套用本页章节普通对话的方向或结束规则。
+
 ## 五版章节配置
 
 依据 `ROMFE8U/JP`、`ROMFE7U/JP`、`ROMFE6JP`、`MapSettingForm`、`MapSettingFE7Form`、`MapSettingFE7UForm`、`MapSettingFE6Form` 及各 Designer 的字段宽度；图块双 ID 依据 `ImageUtilMap.DrawMap`。从"章节"标签页进入，共用记录、字段与文档历史。

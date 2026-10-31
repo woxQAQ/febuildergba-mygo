@@ -8,6 +8,7 @@ import (
 	"github.com/woxQAQ/febuildergba-mygo/game/itemicon"
 	"github.com/woxQAQ/febuildergba-mygo/game/maps"
 	"github.com/woxQAQ/febuildergba-mygo/game/portrait"
+	"github.com/woxQAQ/febuildergba-mygo/game/quote"
 	"github.com/woxQAQ/febuildergba-mygo/game/records"
 	"github.com/woxQAQ/febuildergba-mygo/game/shop"
 	"github.com/woxQAQ/febuildergba-mygo/game/text"
@@ -26,6 +27,7 @@ type format struct {
 	text       text.Format
 	portraits  portrait.Format
 	icons      itemicon.Format
+	quotes     quote.Format
 	shops      shop.Format
 	worldmap   worldmap.Format
 	features   func([]byte) (map[byte]string, []string)
@@ -54,7 +56,7 @@ func (g format) recordFormat(data []byte) records.Format {
 func (g format) chapterConfig() chapter.Config {
 	return chapter.Config{
 		Table: g.chapters, Events: g.events, Maps: g.maps, Text: g.text,
-		Shops: g.shops, External: g.shopRanges,
+		Shops: g.shops, External: g.nativeRanges,
 		Reserved: []space.Range{
 			{Start: g.icons.Pointer, End: g.icons.Pointer + 4},
 			{Start: g.icons.Palette, End: g.icons.Palette + 4},

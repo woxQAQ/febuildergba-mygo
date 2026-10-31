@@ -85,8 +85,7 @@ func (s *Editor) readEntry(ref Reference) Entry {
 	}
 	if inventory != nil {
 		entry.Address, entry.Count = inventory.Address(), inventory.Count()
-		// The world-map menu checks a halfword, while the loader checks item IDs.
-		entry.Empty = gba.Uint16(data, entry.Address) == 0
+		entry.Empty = inventory.WorldMapHidden()
 	}
 	return entry
 }

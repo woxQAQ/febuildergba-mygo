@@ -84,6 +84,16 @@ FE6／FE7 坐标未命中退回事件参数，FE8 则返回事件错误。FE7 �
 
 [src/worldmap_path.c](https://github.com/FireEmblemUniverse/fireemblem8u/blob/04d1edb163d14bd10777a065697e1a9f17be65f2/src/worldmap_path.c) 的 `WMMenu_IsArmoryAvailable`／`WMMenu_IsVendorAvailable`／`WMMenu_IsSecretShopAvailable` 直接读货物首个半字判定菜单，秘密商店另查通关标志；[src/worldmap_basemenu.c](https://github.com/FireEmblemUniverse/fireemblem8u/blob/04d1edb163d14bd10777a065697e1a9f17be65f2/src/worldmap_basemenu.c) 的进入函数将对应列表交给加载器。FE8J 原生 `0xC14B4`／`0xC14EC`／`0xC1524` 的相同指令段交叉确认节点乘 32、三个字段偏移及半字读取与零值分支；不能把零指针当成已关闭的节点商店。
 
+## 战斗与死亡对话
+
+旧版入口为固定子模块的 [EventBattleTalkForm.cs](../FEBuilderGBA/FEBuilderGBA/EventBattleTalkForm.cs)、[FE7](../FEBuilderGBA/FEBuilderGBA/EventBattleTalkFE7Form.cs)、[FE6](../FEBuilderGBA/FEBuilderGBA/EventBattleTalkFE6Form.cs)，以及 [EventHaikuForm.cs](../FEBuilderGBA/FEBuilderGBA/EventHaikuForm.cs)、[FE7](../FEBuilderGBA/FEBuilderGBA/EventHaikuFE7Form.cs)、[FE6](../FEBuilderGBA/FEBuilderGBA/EventHaikuFE6Form.cs)。`ROMFE*` 的 `event_ballte_talk_pointer`、后续通用／三角攻击入口和 `event_haiku_pointer` 提供初始位置；表结束、匹配与全部原生消费者以游戏代码交叉核对。
+
+- FE6，`StanHash/fe6@f9ea5f67f3f1048ca9836d7350077231ba54b589`：[include/eventinfo.h](https://github.com/StanHash/fe6/blob/f9ea5f67f3f1048ca9836d7350077231ba54b589/include/eventinfo.h) 与 [src/eventinfo.c](https://github.com/StanHash/fe6/blob/f9ea5f67f3f1048ca9836d7350077231ba54b589/src/eventinfo.c) 的 `GetAvailableBattleTalkExt`、`GetAvailableBattleTalk`、`CheckBattleTalk`、`StartBattleTalk`、`CheckBattleDefeatTalk`、`StartBattleDefeatTalk`。终章的额外消费者见 [src/eventfunctions.c](https://github.com/StanHash/fe6/blob/f9ea5f67f3f1048ca9836d7350077231ba54b589/src/eventfunctions.c) 的 `func_fe6_0806D1FC`，读取死亡表 `unk_0C` 作为台词。原生 PC 相对加载确认死亡表字面量位于 `6B7FC`、`6B88C`、`6D2BC`，必须一起更新。
+- FE7U，`StanHash/fe7_us@5c8b3c5e254e00f0f3458b9772c27e1a5a326e3b`：[asm/code.s](https://github.com/StanHash/fe7_us/blob/5c8b3c5e254e00f0f3458b9772c27e1a5a326e3b/asm/code.s) 的 `func_080792C4`／`79320`／`79368`／`793B0` 核对双方、单人和死亡表的步长、标志与结束规则，`func_080793F8`／`79464` 核对战斗回退，`func_08079514`／`79624` 核对死亡检查与实际显示顺序。FE7J 对应代码从 `79A94` 开始；日美 `0x440` 字节窗口中，除调用目标、PC 加载的地址字面量及章节通配 `43 → 45` 外，其余指令逐半字一致，消费者字面量分别由实际 LDR 指令定位。
+- FE8U，`FireEmblemUniverse/fireemblem8u@04d1edb163d14bd10777a065697e1a9f17be65f2`：[include/eventinfo.h](https://github.com/FireEmblemUniverse/fireemblem8u/blob/04d1edb163d14bd10777a065697e1a9f17be65f2/include/eventinfo.h) 与 [src/eventinfo.c](https://github.com/FireEmblemUniverse/fireemblem8u/blob/04d1edb163d14bd10777a065697e1a9f17be65f2/src/eventinfo.c) 的 `GetBattleQuoteEntry`、`GetDefeatTalkEntry`、`StartBattleTalk`、`CheckBattleDefeatTalk`、`DisplayDefeatTalkForPid`、`SetPidDefeatedFlag`。FE8J 的查找器位于 `86918`／`869B0`，分别与美版 `8464C`／`846E4` 的 `0x98`／`0x64` 字节窗口对照：除调用目标和地址字面量外指令一致，确认字段读取宽度、`FF`／`FE` 条件及终止分支。
+
+旧版 `EventHaikuForm.ShowKillerExtends` 在 `DeathQuoteAddKillerID` 扩展下将 `+1` 字节解释为击杀者。当前按原生半字读取角色，超出原生范围时保留该字并停止普通人物覆盖；没有将此扩展当作所有 ROM 的通用语义。消费者完整位置、字节布局和写入约束见[格式参考](reference/battle-and-defeat-dialogue.md)。上述指令与动态 ROM 文件核对不等于游戏内触发验证。
+
 ## 事件剧情指令
 
 常用剧情指令沿用上表的固定提交，并与旧版事件目录交叉核对：

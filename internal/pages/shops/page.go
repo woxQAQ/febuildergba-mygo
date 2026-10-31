@@ -55,6 +55,7 @@ type Page struct {
 	query              string
 	category, selected int
 	advanced           bool
+	showInactive       bool
 	list               ui.ListState
 	rows               []shop.Entry
 	all                []shop.Entry
@@ -92,6 +93,10 @@ func (page *Page) refresh() {
 		if page.category > 0 && int(entry.Key.Origin) != page.category-1 {
 			continue
 		}
+		if inactiveWorldMap(entry) && !page.showInactive &&
+			!page.pending(entry.Key) {
+			continue
+		}
 		if query == "" ||
 			strings.Contains(
 				strings.ToLower(shopview.Caption(entry.Reference)),
@@ -113,6 +118,33 @@ func (page *Page) refresh() {
 	}
 }
 
+func inactiveWorldMap(entry shop.Entry) bool {
+	return entry.Key.Origin == shop.WorldMap && (entry.Null || entry.Empty)
+}
+
+func (page *Page) pending(key shop.Key) bool {
+	entry := page.drafts[key]
+	return entry != nil && (entry.modified() || entry.view.Invalid())
+}
+
+func (page *Page) caption(entry shop.Entry) string {
+	caption := shopview.Caption(entry.Reference)
+	status := ""
+	if inactiveWorldMap(entry) {
+		status = locales.ShopInactive()
+		if entry.Null {
+			status = locales.ShopUninitialized()
+		}
+	}
+	if page.pending(entry.Key) {
+		status = locales.ShopUnapplied()
+	}
+	if status != "" {
+		return status + " · " + caption
+	}
+	return caption
+}
+
 func (page *Page) View(c *ui.Context) {
 	page.refresh()
 	page.sidebar.Render(
@@ -132,16 +164,24 @@ func (page *Page) navigation(c *ui.Context) {
 		ui.Tabs(c, &page.category, locales.ShopAll(), locales.ShopChapter(), locales.ShopPreparation(), locales.ShopDefault(), locales.ShopWorldmap()).
 			Wrap().
 			Label(locales.ShopSource()).
+			Tooltip(locales.ShopVersionHelp()).
 			Disabled(page.state.Busy).
 			OnChange(func() { page.selected = -1; page.list = ui.ListState{} })
+		if (page.category == 0 || page.category == int(shop.WorldMap)+1) &&
+			slices.ContainsFunc(
+				page.all,
+				func(entry shop.Entry) bool { return entry.Key.Origin == shop.WorldMap },
+			) {
+			ui.Checkbox(c.Key("show-inactive"), &page.showInactive, locales.ShopShowInactive()).
+				Disabled(page.state.Busy).
+				OnChange(func() { page.list = ui.ListState{} })
+		}
 		page.list.Selected = &page.selected
 		page.list.Key = func(index int) any { return page.rows[index].Key }
 		ui.Table(c, &page.list, []ui.TableColumn{{ID: "shop", Title: locales.ShopEntries()}}, len(page.rows), func(row, _ int) {
 			entry := page.rows[row]
-			ui.Text(c, shopview.Caption(entry.Reference)).
-				SingleLine().
-				FontSize(13).
-				Tooltip(shopview.Caption(entry.Reference))
+			caption := page.caption(entry)
+			ui.Text(c, caption).SingleLine().FontSize(13).Tooltip(caption)
 		}).
 			Grow(1).
 			Label(locales.ShopEntries()).
@@ -196,9 +236,6 @@ func (page *Page) detail(c *ui.Context) {
 			ui.Text(c, shopview.Caption(entry.entry.Reference)).
 				FontSize(18).
 				Bold()
-			ui.Text(c, locales.ShopVersionHelp()).
-				FontSize(12).
-				TextColor(c.Theme().TextMuted)
 			if entry.entry.UsesDefault {
 				ui.Text(c, locales.ShopUsesDefault()).FontSize(13)
 			}
@@ -207,13 +244,18 @@ func (page *Page) detail(c *ui.Context) {
 			}
 			if entry.entry.Key.Origin == shop.WorldMap {
 				ui.Text(c, locales.ShopWorldmapHelp()).FontSize(13)
-				if entry.entry.Null {
+				if entry.entry.Null && entry.inventory == nil {
 					ui.Text(c, locales.ShopNullHelp()).
 						TextColor(c.Theme().Danger)
 				}
-				if entry.entry.Empty {
-					ui.Text(c, locales.ShopHidden()).
-						TextColor(c.Theme().TextMuted)
+				if entry.inventory != nil && entry.inventory.WorldMapHidden() {
+					message := locales.ShopHidden()
+					if entry.modified() {
+						message = locales.ShopClosePending()
+					}
+					ui.Text(c, message).TextColor(c.Theme().TextMuted)
+				} else if entry.inventory != nil && entry.inventory.Count() == 0 {
+					ui.Text(c, locales.ShopEmptyVisible()).FontSize(13)
 				}
 			}
 			if entry.err != nil {
@@ -238,8 +280,10 @@ func (page *Page) detail(c *ui.Context) {
 					} else if entry.entry.Key.Origin == shop.WorldMap {
 						label = locales.ShopClose()
 					}
+					closed := entry.entry.Key.Origin == shop.WorldMap &&
+						entry.inventory != nil && entry.inventory.WorldMapHidden()
 					ui.Button(c, label).
-						Disabled(page.state.Busy || stale).
+						Disabled(page.state.Busy || stale || closed).
 						OnClick(func() {
 							entry.native.Clear()
 							entry.inventory = entry.native.Inventory()

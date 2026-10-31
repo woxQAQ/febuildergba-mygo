@@ -34,6 +34,8 @@ var errorMessages = map[string]func() string{
 	"game.invalid_script":               locales.GameInvalidScript,
 	"game.unsupported_script_structure": locales.GameUnsupportedScriptStructure,
 	"game.invalid_shop_inventory":       locales.GameInvalidShopInventory,
+	"game.invalid_quote_table":          locales.GameInvalidQuoteTable,
+	"game.quote_reference_conflict":     locales.GameQuoteReferenceConflict,
 	"game.invalid_worldmap_nodes":       locales.GameInvalidWorldmapNodes,
 	"game.invalid_event_conditions":     locales.GameInvalidEventConditions,
 	"game.invalid_deployment":           locales.GameInvalidDeployment,
