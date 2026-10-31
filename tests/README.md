@@ -14,7 +14,7 @@
 
 ## 运行
 
-在仓库根目录执行：
+按[开发说明](../docs/development.md#环境与命令)进入 devenv 环境后，在仓库根目录执行：
 
 ```sh
 # 文档、会话、空间和图像核心
@@ -29,6 +29,8 @@ just test-race
 # 可选：使用 .rom 中实际存在的 ROM
 just test-integration
 ```
+
+导入边界由 `.golangci.yml` 的 `depguard` 规则随 `just lint`／`just check` 检查，不在 Go 行为测试中重复实现。修改规则时，在隔离副本验证正常依赖通过、所禁止的导入失败，并检查规则是否覆盖子包和测试文件。
 
 ## 集成输入与范围
 

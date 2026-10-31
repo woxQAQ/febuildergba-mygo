@@ -117,7 +117,7 @@
 | text.browse              | 浏览、搜索与 ID 定位         | 已接入   | 五版；连续有效的现有文本表                     |
 | text.commands            | 可读指令及原始表示           | 已接入   | 原版共有指令及英文引号；Shift-JIS 字符优先识别 |
 | text.command-edit        | 指令增删与参数修改           | 已接入   | 已确认指令及当前 Huffman 树                    |
-| text.shared-preview      | 草稿与共享影响预览           | 已接入   | 已知记录字段；事件使用方未完整索引             |
+| text.shared-preview      | 草稿与共享影响预览           | 已接入   | 已知记录字段及原生战斗／死亡对话表（含 FE6 终章文本）；事件脚本使用方未完整索引             |
 | text.dialogue-write      | 原子写入及历史               | 已接入   | 有效主入口；最多 32 MiB                        |
 | text.dialogue-extensions | 表容量、自定义引擎与外部格式 | 待实现   | 新 ID、自定义引擎、外部格式、游戏预览          |
 

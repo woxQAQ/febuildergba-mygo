@@ -5,7 +5,9 @@ import (
 	"errors"
 	"testing"
 
+	"github.com/woxQAQ/febuildergba-mygo/fault"
 	"github.com/woxQAQ/febuildergba-mygo/game"
+	"github.com/woxQAQ/febuildergba-mygo/game/edit"
 	"github.com/woxQAQ/febuildergba-mygo/game/records"
 	"github.com/woxQAQ/febuildergba-mygo/internal/testutil"
 	"github.com/woxQAQ/febuildergba-mygo/rom"
@@ -72,24 +74,47 @@ func TestSessionEdits(t *testing.T) {
 				t.Fatalf("saved HP: %d, %v", value, err)
 			}
 			stable := s.Document.Snapshot()
-			for _, edit := range []struct {
-				ids   []int
-				value int64
+			state := s.Document.State()
+			for _, sample := range []struct {
+				ids    []int
+				value  int64
+				code   fault.Code
+				record int
 			}{
-				{[]int{1, 999}, 20}, {[]int{1, 2}, 128},
+				{[]int{1, 999}, 20, edit.ErrField, 999},
+				{[]int{1, 2}, 128, edit.ErrValue, 1},
 			} {
-				if err := s.Records.Set(
+				err := s.Records.Set(
 					records.Units,
-					edit.ids,
+					sample.ids,
 					"base.hp",
-					edit.value,
-				); err == nil {
-					t.Fatal("invalid batch accepted")
+					sample.value,
+				)
+				frame, ok := errors.AsType[*fault.Error](err)
+				if !ok || fault.CodeOf(err) != sample.code ||
+					!errors.Is(
+						err,
+						sample.code,
+					) || frame.Code.Kind != fault.InvalidInput ||
+					frame.Op != "game.set" || frame.Context.Table != string(records.Units) ||
+					frame.Context.Field != "base.hp" || frame.Context.RecordID == nil ||
+					*frame.Context.RecordID != sample.record || frame.Context.Value == nil ||
+					*frame.Context.Value != sample.value {
+					t.Fatalf("missing failed batch context: %v", err)
 				}
-				if s.Document.State().Revision != stable.Revision ||
+				if sample.code == edit.ErrValue &&
+					(frame.Context.Bounds == nil ||
+						*frame.Context.Bounds != (fault.Bounds{Min: -128, Max: 127})) {
+					t.Fatalf("missing field bounds: %v", err)
+				}
+				if s.Document.State() != state ||
 					!bytes.Equal(stable.Data, s.Document.Snapshot().Data) {
-					t.Fatal("failed batch changed document")
+					t.Fatal("failed batch changed bytes, history or save state")
 				}
+			}
+			region, err := s.Bytes.Read(0x200, 1)
+			if err != nil {
+				t.Fatal(err)
 			}
 			if err := s.Document.Apply(
 				stable.Revision,
@@ -98,6 +123,7 @@ func TestSessionEdits(t *testing.T) {
 			); err != nil {
 				t.Fatal(err)
 			}
+			stable, state = s.Document.Snapshot(), s.Document.State()
 			if err := s.Records.Set(
 				records.Units,
 				[]int{1},
@@ -108,6 +134,58 @@ func TestSessionEdits(t *testing.T) {
 				rom.ErrStale,
 			) {
 				t.Fatalf("stale session: %v", err)
+			}
+			err = s.Bytes.Apply(region, []byte{0xAA})
+			if fault.CodeOf(err) != rom.ErrStale ||
+				!errors.Is(err, rom.ErrStale) {
+				t.Fatalf("stale draft is not a conflict: %v", err)
+			}
+			var revisions *fault.Revision
+			for frame := range fault.Frames(err) {
+				if frame.Context.Revision != nil {
+					revisions = frame.Context.Revision
+				}
+			}
+			if revisions == nil || revisions.Expected != region.Revision() ||
+				revisions.Actual != stable.Revision {
+				t.Fatalf("missing revision evidence: %v", err)
+			}
+			if s.Document.State() != state ||
+				!bytes.Equal(stable.Data, s.Document.Snapshot().Data) {
+				t.Fatal("stale draft changed bytes, history or save state")
+			}
+			region, err = s.Bytes.Read(0x200, 1)
+			if err != nil {
+				t.Fatal(err)
+			}
+			if err := s.Bytes.Apply(region, []byte{0xAA}); err != nil {
+				t.Fatalf("fresh draft could not recover: %v", err)
+			}
+			expected := bytes.Clone(stable.Data)
+			expected[0x200] = 0xAA
+			if !bytes.Equal(expected, s.Document.Snapshot().Data) {
+				t.Fatal("recovered edit lost bytes outside the draft")
+			}
+			if !s.Document.Undo() ||
+				!bytes.Equal(stable.Data, s.Document.Snapshot().Data) {
+				t.Fatal("recovered edit did not undo as one operation")
+			}
+			s.Refresh()
+			if err := s.Records.Set(
+				records.Units,
+				[]int{1},
+				"base.hp",
+				20,
+			); err != nil {
+				t.Fatalf("refreshed session could not recover: %v", err)
+			}
+			if value, err := s.Records.Value(
+				records.Units,
+				1,
+				"base.hp",
+			); err != nil ||
+				value != 20 {
+				t.Fatalf("recovered HP: %d, %v", value, err)
 			}
 		})
 	}

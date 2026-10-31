@@ -70,6 +70,6 @@ A、B、C 三组修改已应用到人物、职业页。后续调整将 PNG 操�
 - C 组删除页面中的制作过程说明和预览水印，合并文档的范围说明。原型保留的两处标记只说明当时的提案状态，没有进入实际页面。
 - 截图已换成实际 MyGo 人物、职业、头像表、关联数据和窄窗口页面。五版显示和 FE8U 交互均已复核，原 ROM 未改变。
 
-[人物页面](../images/record-editor-person.png) · [职业页面](../images/record-editor-class.png) · [关联数据](../images/record-editor-resources.png) · [窄窗口](../images/record-editor-person-narrow.png) · [头像表](../images/record-editor-portraits.png)
+[人物页面](https://github.com/woxQAQ/febuildergba-mygo/blob/a164bd7c02b7161118ef62719ad8b83fbc0a057d/docs/images/record-editor-person.png) · [职业页面](https://github.com/woxQAQ/febuildergba-mygo/blob/a164bd7c02b7161118ef62719ad8b83fbc0a057d/docs/images/record-editor-class.png) · [关联数据](https://github.com/woxQAQ/febuildergba-mygo/blob/a164bd7c02b7161118ef62719ad8b83fbc0a057d/docs/images/record-editor-resources.png) · [窄窗口](https://github.com/woxQAQ/febuildergba-mygo/blob/a164bd7c02b7161118ef62719ad8b83fbc0a057d/docs/images/record-editor-person-narrow.png) · [头像表](https://github.com/woxQAQ/febuildergba-mygo/blob/a164bd7c02b7161118ef62719ad8b83fbc0a057d/docs/images/record-editor-portraits.png)
 
 旧扫描及图片备份保存在 当次临时目录（未归档），修改后扫描保存在该目录的 `after.json`。核心规则保持 0 命中，原生／中文候选从 10 项降为 0；人工确认的 8 个问题均已处理。

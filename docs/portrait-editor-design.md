@@ -1,6 +1,6 @@
 # 头像编辑页
 
-本文维护五版原生头像页的交互和字段语义，支持范围见[覆盖矩阵](coverage.md)。截图来自 MyGo 页面和原版 FE8U 数据。
+本文维护五版原生头像页的交互和字段语义，支持范围见[覆盖矩阵](coverage.md)。截图为固定提交 `a164bd7` 下的历史 MyGo 页面（含 FE8U 与 FE6），仅用于追溯设计，不代表当前版本的渲染。
 
 ## 页面组织
 
@@ -10,9 +10,9 @@
 
 窄窗口将右侧设置排在预览下方，各主要区域均可滚动。
 
-![头像表](images/portrait-editor.png)
+[头像表](https://github.com/woxQAQ/febuildergba-mygo/blob/a164bd7c02b7161118ef62719ad8b83fbc0a057d/docs/images/portrait-editor.png)
 
-另见[窄窗口](images/portrait-editor-narrow.png)、[整张素材](images/portrait-editor-sheet.png)和[FE6 页面](images/portrait-editor-fe6.png)。
+另见[窄窗口](https://github.com/woxQAQ/febuildergba-mygo/blob/a164bd7c02b7161118ef62719ad8b83fbc0a057d/docs/images/portrait-editor-narrow.png)、[整张素材](https://github.com/woxQAQ/febuildergba-mygo/blob/a164bd7c02b7161118ef62719ad8b83fbc0a057d/docs/images/portrait-editor-sheet.png)和[FE6 页面](https://github.com/woxQAQ/febuildergba-mygo/blob/a164bd7c02b7161118ef62719ad8b83fbc0a057d/docs/images/portrait-editor-fe6.png)。
 
 ## 视觉规则
 
@@ -93,7 +93,7 @@ PNG 导入导出使用完整素材表。导入时校验颜色，预览共享影�
 
 领域流程使用独立字节样本验证五版图块位置、表情帧、部件损坏、未知字节、原子历史、过期写入、手动布局、头像表搬迁、PNG 与定位的相互失效、职业回退、通用小头像及保存重开。固定预期使用独立构造的合成样本；可选集成流程从 `.rom/` 中实际可编辑的头像选择入口，验证定位修改和 PNG 替换。
 
-MyGo 交互复核使用临时探针，覆盖五版输入、非法草稿、帧选择、拖动、撤销重做、PNG 预览／应用、宽窄窗口、中英文和资源跳转。不新增永久 UI 测试，不执行游戏内验证。
+历史 MyGo 交互复核及其基线见[头像审查](archive/portrait-editor-deslop-review.md)。该次临时探针覆盖五版输入、非法草稿、帧选择、拖动、撤销重做、PNG 预览／应用、宽窄窗口、中英文和资源跳转，不代表后续版本已重新复核。不新增永久 UI 测试，不执行游戏内验证。
 
 ## 核对来源
 

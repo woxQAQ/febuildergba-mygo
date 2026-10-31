@@ -8,9 +8,71 @@ run:
 linters:
   default: standard
   enable:
+    - depguard
     - misspell
     - forbidigo
   settings:
+    depguard:
+      # Absolute-path globs use **.go to include direct files and descendants.
+      rules:
+        domain:
+          files:
+            - "${config-path}/{game,rom,space,gba,fault}/**.go"
+          deny:
+            - pkg: github.com/egoist/mygo
+              desc: Domain packages must remain independent of MyGo.
+            - pkg: github.com/woxQAQ/febuildergba-mygo/internal/app
+              desc: Domain packages cannot depend on the desktop application.
+            - pkg: github.com/woxQAQ/febuildergba-mygo/internal/pages
+              desc: Pages consume domain results.
+            - pkg: github.com/woxQAQ/febuildergba-mygo/internal/components
+              desc: Components consume domain results.
+            - pkg: github.com/woxQAQ/febuildergba-mygo/internal/editor
+              desc: Window state depends on the domain, not the reverse.
+            - pkg: github.com/woxQAQ/febuildergba-mygo/internal/locales
+              desc: Domain errors and rules must be independent of UI catalogs.
+        app:
+          files:
+            - "${config-path}/internal/app/**.go"
+          deny:
+            - pkg: github.com/woxQAQ/febuildergba-mygo/internal/components
+              desc: Compose the interface through internal/pages.
+            - pkg: github.com/woxQAQ/febuildergba-mygo/internal/pages/
+              desc: Page implementations are composed by internal/pages.
+        components:
+          files:
+            - "${config-path}/internal/components/**.go"
+          deny:
+            - pkg: github.com/woxQAQ/febuildergba-mygo/internal/pages
+              desc: Shared components cannot import their consuming pages.
+            - pkg: github.com/woxQAQ/febuildergba-mygo/internal/app
+              desc: Pass application actions through callbacks.
+        pages:
+          files:
+            - "${config-path}/internal/pages/**.go"
+          deny:
+            - pkg: github.com/woxQAQ/febuildergba-mygo/internal/app
+              desc: Pass application actions through callbacks.
+        record-navigation:
+          files:
+            - "${config-path}/internal/pages/{texteditor,portraits,eventeditor,shops,quotes}/**.go"
+          deny:
+            - pkg: github.com/woxQAQ/febuildergba-mygo/internal/pages/records
+              desc: Navigate through page composition callbacks.
+        locales:
+          files:
+            - "${config-path}/internal/locales/**.go"
+          deny:
+            - pkg: github.com/woxQAQ/febuildergba-mygo/game
+              desc: Catalogs cannot import domain packages.
+            - pkg: github.com/woxQAQ/febuildergba-mygo/rom
+              desc: Catalogs cannot import domain packages.
+            - pkg: github.com/woxQAQ/febuildergba-mygo/space
+              desc: Catalogs cannot import domain packages.
+            - pkg: github.com/woxQAQ/febuildergba-mygo/gba
+              desc: Catalogs cannot import domain packages.
+            - pkg: github.com/woxQAQ/febuildergba-mygo/fault
+              desc: Error-to-catalog mapping belongs in components/errtext.go.
     misspell:
       locale: US
   exclusions:

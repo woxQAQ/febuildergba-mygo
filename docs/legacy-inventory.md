@@ -4,7 +4,7 @@
 
 ## 生成来源索引
 
-在仓库根目录执行 `just inventory`，默认输出 `.cache/legacy-inventory.csv`。需要其他位置时传入 `-root`、`-out`。生成结果不纳入版本管理；旧版基线或扫描规则改变后重新生成。
+先按[开发说明](development.md#环境与命令)进入 devenv 环境，并执行 `git submodule update --init FEBuilderGBA` 初始化固定子模块。随后在仓库根目录执行 `just inventory`，默认输出 `.cache/legacy-inventory.csv`。需要其他位置时传入 `-root`、`-out`；`-root` 指向包含 `.csproj` 的 C# 项目目录，使用其他 checkout 时也须核对本页的固定基线。生成结果不纳入版本管理；旧版基线或扫描规则改变后重新生成。
 
 来源索引生成器（`cmd/legacy-inventory/main.go`）扫描 `.csproj` 的独立编译项、`Program.cs` 中显式检查的 CLI 参数、配置目录 TXT 和静态可提取的窗口调用者。当前共 17,376 项，包括 312 个表单、13 个用户控件、105 个其他源码项，以及 12 个不同 CLI 参数。CLI 计数包含启动和 DEBUG 参数。
 

@@ -1,6 +1,6 @@
 # 人物与职业编辑页
 
-本文维护人物与职业页的交互和字段语义，功能状态见[覆盖矩阵](coverage.md)。截图来自当前已接入的 MyGo 页面。
+本文维护人物与职业页的交互和字段语义，功能状态见[覆盖矩阵](coverage.md)。截图为固定提交 `a164bd7` 下的历史 MyGo 页面，仅用于追溯设计，不代表当前版本的渲染。
 
 ## 页面与数据来源
 
@@ -10,13 +10,13 @@
 
 普通数值的有效输入立即修改内存文档，非法或不完整输入保留为草稿。名称和描述先预览，再原子应用。字段检查器位于底部，人物页和职业页分别保留侧栏宽度和记录状态。
 
-以下截图来自 MyGo v0.6.3 实际页面，使用原版 FE8U 的人物 01 Eirika、职业 07 Paladin 数据：
+以下历史截图来自 MyGo v0.6.3 实际页面，使用原版 FE8U 的人物 01 Eirika、职业 07 Paladin 数据：
 
-![人物能力与特性](images/record-editor-person.png)
+[人物能力与特性](https://github.com/woxQAQ/febuildergba-mygo/blob/a164bd7c02b7161118ef62719ad8b83fbc0a057d/docs/images/record-editor-person.png)
 
-![职业能力与特性](images/record-editor-class.png)
+[职业能力与特性](https://github.com/woxQAQ/febuildergba-mygo/blob/a164bd7c02b7161118ef62719ad8b83fbc0a057d/docs/images/record-editor-class.png)
 
-另见[关联数据](images/record-editor-resources.png)、[窄窗口](images/record-editor-person-narrow.png)和[独立头像表](images/record-editor-portraits.png)。
+另见[关联数据](https://github.com/woxQAQ/febuildergba-mygo/blob/a164bd7c02b7161118ef62719ad8b83fbc0a057d/docs/images/record-editor-resources.png)、[窄窗口](https://github.com/woxQAQ/febuildergba-mygo/blob/a164bd7c02b7161118ef62719ad8b83fbc0a057d/docs/images/record-editor-person-narrow.png)和[独立头像表](https://github.com/woxQAQ/febuildergba-mygo/blob/a164bd7c02b7161118ef62719ad8b83fbc0a057d/docs/images/record-editor-portraits.png)。
 
 ## 能力矩阵
 
@@ -84,7 +84,7 @@
 
 PNG 控件共用 `components.AssetEditor`，道具图标和头像表使用同一流程。仍不提供新建头像 ID、头像表扩展或自定义引擎写入。
 
-五版定位、表情、拖动历史及小头像来源的规则和截图见[头像编辑页](portrait-editor-design.md)。
+五版定位、表情、拖动历史及小头像来源的规则和历史截图见[头像编辑页](portrait-editor-design.md)。
 
 ## 关联数据
 

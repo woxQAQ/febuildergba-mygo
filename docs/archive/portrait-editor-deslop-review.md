@@ -18,11 +18,11 @@ A、C 减少重复控件并修改文案。B 对应技能第 32 类问题，组�
 
 | 组                     | 修改前                                                                                       | 当前行为与实现                                                                                                                                                                                                     |
 | ---------------------- | -------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| A：减少重复动作控件    | `inspector.go:237`：每个部件同时显示可选中的地址和"查看"按钮，四个有效部件出现四个相同按钮。 | [resourceAddress](../../internal/pages/portraits/inspector.go#L204) 将地址作为无边框的可聚焦控件；点击或 Enter 查看原始字节，Cmd/Ctrl+C 与右键菜单复制完整地址。保留悬停、焦点和查看提示，空／损坏引用不生成跳转。 |
-| B：按关系收紧间距      | `preview.go:145`：眼睛和口型分别继承外层 Scroll 的 16／20 区块间距。                         | [expressionControls](../../internal/pages/portraits/preview.go#L192) 将两行表情控制放入同一组，组内间距 6；调色板、使用处保持区块间距，定位框仍贴着主图。                                                          |
+| A：减少重复动作控件    | `inspector.go:237`：每个部件同时显示可选中的地址和"查看"按钮，四个有效部件出现四个相同按钮。 | [resourceAddress](https://github.com/woxQAQ/febuildergba-mygo/blob/a164bd7c02b7161118ef62719ad8b83fbc0a057d/internal/pages/portraits/inspector.go#L204) 将地址作为无边框的可聚焦控件；点击或 Enter 查看原始字节，Cmd/Ctrl+C 与右键菜单复制完整地址。保留悬停、焦点和查看提示，空／损坏引用不生成跳转。 |
+| B：按关系收紧间距      | `preview.go:145`：眼睛和口型分别继承外层 Scroll 的 16／20 区块间距。                         | [expressionControls](https://github.com/woxQAQ/febuildergba-mygo/blob/a164bd7c02b7161118ef62719ad8b83fbc0a057d/internal/pages/portraits/preview.go#L192) 将两行表情控制放入同一组，组内间距 6；调色板、使用处保持区块间距，定位框仍贴着主图。                                                          |
 | C1：表情控件名称       | `preview.go:176`：眼睛帧选择器显示"眼"。                                                     | 可见名称改为"眼睛"，坐标区仍显示"眼 X／Y"。                                                                                                                                                                        |
 | C2：表情控件名称       | `preview.go:189`：口型选择器显示"嘴"。                                                       | 可见名称改为"口型"，坐标区仍显示"嘴 X／Y"；保留原图、真实帧号及辅助功能标签。                                                                                                                                      |
-| C3：使用处显示目标名称 | `preview.go:123`：按钮显示"人物 01 头像 ID"，缺少目标名称。                                  | [useLabel](../../internal/pages/portraits/preview.go#L132) 从实际记录读取名称，显示"人物 01 Eirika"等；无名称时保留种类与 ID。字段名放入提示，跳转行为保持不变。                                                   |
+| C3：使用处显示目标名称 | `preview.go:123`：按钮显示"人物 01 头像 ID"，缺少目标名称。                                  | [useLabel](https://github.com/woxQAQ/febuildergba-mygo/blob/a164bd7c02b7161118ef62719ad8b83fbc0a057d/internal/pages/portraits/preview.go#L132) 从实际记录读取名称，显示"人物 01 Eirika"等；无名称时保留种类与 ID。字段名放入提示，跳转行为保持不变。                                                   |
 
 这 3 组共修改 5 处。A 修改一处循环，影响多个有效部件行。
 
@@ -32,9 +32,9 @@ A、C 减少重复控件并修改文案。B 对应技能第 32 类问题，组�
 
 | 候选           | 当前位置                                                                                                                                                                                                                                                                                   | 保留理由                                                  |
 | -------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | --------------------------------------------------------- |
-| 等宽字体，四处 | [inspector.go:225](../../internal/pages/portraits/inspector.go#L225)、[inspector.go:266](../../internal/pages/portraits/inspector.go#L266)、[profile.go:306](../../internal/components/recordform/profile.go#L306)、[profile.go:337](../../internal/components/recordform/profile.go#L337) | 都用于真实 ROM 地址、原始字节或指针位置，服务扫描和编辑。 |
-| 橙色定位框     | [preview.go:322](../../internal/pages/portraits/preview.go#L322)                                                                                                                                                                                                                           | 是眼口实际叠加范围与拖动目标。                            |
-| 数字口型选项   | [preview.go:213](../../internal/pages/portraits/preview.go#L213)                                                                                                                                                                                                                           | 对应实际帧索引：FE6 五帧，其余七帧。                      |
+| 等宽字体，四处 | [inspector.go:225](https://github.com/woxQAQ/febuildergba-mygo/blob/a164bd7c02b7161118ef62719ad8b83fbc0a057d/internal/pages/portraits/inspector.go#L225)、[inspector.go:266](https://github.com/woxQAQ/febuildergba-mygo/blob/a164bd7c02b7161118ef62719ad8b83fbc0a057d/internal/pages/portraits/inspector.go#L266)、[profile.go:306](https://github.com/woxQAQ/febuildergba-mygo/blob/a164bd7c02b7161118ef62719ad8b83fbc0a057d/internal/components/recordform/profile.go#L306)、[profile.go:337](https://github.com/woxQAQ/febuildergba-mygo/blob/a164bd7c02b7161118ef62719ad8b83fbc0a057d/internal/components/recordform/profile.go#L337) | 都用于真实 ROM 地址、原始字节或指针位置，服务扫描和编辑。 |
+| 橙色定位框     | [preview.go:322](https://github.com/woxQAQ/febuildergba-mygo/blob/a164bd7c02b7161118ef62719ad8b83fbc0a057d/internal/pages/portraits/preview.go#L322)                                                                                                                                                                                                                           | 是眼口实际叠加范围与拖动目标。                            |
+| 数字口型选项   | [preview.go:213](https://github.com/woxQAQ/febuildergba-mygo/blob/a164bd7c02b7161118ef62719ad8b83fbc0a057d/internal/pages/portraits/preview.go#L213)                                                                                                                                                                                                                           | 对应实际帧索引：FE6 五帧，其余七帧。                      |
 
 现有强调色 `#C44B2C`、系统字体、真实像素图、16 色调色板、三种用途不同的图像预览、原始数值与 PNG 操作均保持现有设计。人物身份区的"小头像来源 0／沿用头像"保留原值及含义。
 
@@ -49,10 +49,10 @@ A、C 减少重复控件并修改文案。B 对应技能第 32 类问题，组�
 
 ## 当前截图与验证
 
-- [FE8U 宽窗口](../images/portrait-editor.png)
-- [窄窗口](../images/portrait-editor-narrow.png)
-- [FE6](../images/portrait-editor-fe6.png)
-- [整张素材](../images/portrait-editor-sheet.png)
+- [FE8U 宽窗口](https://github.com/woxQAQ/febuildergba-mygo/blob/a164bd7c02b7161118ef62719ad8b83fbc0a057d/docs/images/portrait-editor.png)
+- [窄窗口](https://github.com/woxQAQ/febuildergba-mygo/blob/a164bd7c02b7161118ef62719ad8b83fbc0a057d/docs/images/portrait-editor-narrow.png)
+- [FE6](https://github.com/woxQAQ/febuildergba-mygo/blob/a164bd7c02b7161118ef62719ad8b83fbc0a057d/docs/images/portrait-editor-fe6.png)
+- [整张素材](https://github.com/woxQAQ/febuildergba-mygo/blob/a164bd7c02b7161118ef62719ad8b83fbc0a057d/docs/images/portrait-editor-sheet.png)
 
 临时 MyGo 探针检查了五版地址的 Tab 聚焦、Enter 和点击导航、快捷键及右键复制，以及空指针、损坏引用和使用处名称。还检查了宽窄窗口与中英文。
 

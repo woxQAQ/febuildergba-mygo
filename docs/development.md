@@ -6,6 +6,8 @@
 
 安装 Nix 和 devenv 后，在仓库根目录执行 `devenv shell`。`devenv.nix` 声明 Go、`just`、`golangci-lint` 和 `oxfmt`，`devenv.lock` 固定 Nix 输入；现有命令都在该环境中运行。也可通过 `devenv shell just check` 直接执行单条命令。使用 direnv 时，执行 `direnv allow` 后由 `.envrc` 加载相同环境。
 
+首次进入环境需要能获取锁定的 Nix 输入和构建产物。若输出显示缓存服务器连接、TLS 或下载失败，先处理网络与缓存可达性；已有完整本地 Nix store 和求值缓存时，可用 `devenv --offline shell` 继续。离线启动不负责安装缺失内容，也不能证明新机器初始化成功。不要为绕过下载失败改用系统 Go、开启 Go 自动下载或更新项目锁文件。
+
 环境设置 `GOTOOLCHAIN=local`，Go 只使用 Nix 提供的工具链，不自动下载其他版本。既有终端、语言服务器和 `mygo dev` 进程不会自动继承新环境，需要从 `devenv` 环境重新启动。提升 `go.mod` 的 Go 要求时，须核对 `devenv.nix` 选择的 Go 系列和锁定的 Nixpkgs 版本；修改输入后通过 `devenv update` 更新锁文件，并在环境中运行 `go version` 确认。
 
 MyGo 版本由 `go.mod` 锁定，通过 `go tool mygo` 调用。lint 与 Go 格式化使用 `golangci-lint`，文档格式化使用 `oxfmt`。不需要旧版 Windows/.NET 运行环境。生成旧版来源索引前，先初始化固定子模块：
@@ -29,6 +31,8 @@ git submodule update --init FEBuilderGBA
 | 构建应用和安装镜像 | `just build`                       |
 
 `just check` 包含 lint、Go/MyGo vet、翻译检查、默认测试，以及默认和 `CGO_ENABLED=0` 两种构建检查。race 与集成检查按需单独执行。默认测试使用合成数据；集成测试动态发现 `.rom/` 中的 ROM，使用临时副本且禁用缓存，不要求固定文件或原版组合。
+
+`just lint` 中的 `depguard` 按 `.golangci.yml` 检查[导入边界](architecture.md#依赖方向)，违规导入会使 `just lint` 和 `just check` 失败。它检查源文件的直接导入，不证明 UI 线程、资源所有权或完整事务行为。
 
 `just lint` 使用项目配置的自动修复；`just fmt` 会格式化仓库并排除旧版子模块。执行后应检查 diff。仅格式化文档时可直接向 `oxfmt` 传入所改文件。
 

@@ -46,8 +46,8 @@
 
 ## 人物／职业与头像表
 
-[人物与职业编辑页](docs/record-editor-design.md)记录已实现的横向能力矩阵、武器等级与继承、特性、关联数据及独立头像表，并附实际 MyGo 页面截图。参照数值保持正常正文色，以无边框表达只读；来源及限制放在附近帮助中。[头像编辑页](docs/portrait-editor-design.md)进一步记录五版部件与表情、眼口定位、原子拖动、人物引用和小头像来源。
+[人物与职业编辑页](docs/record-editor-design.md)记录已实现的横向能力矩阵、武器等级与继承、特性、关联数据及独立头像表，并提供固定提交下的历史 MyGo 页面截图入口。参照数值保持正常正文色，以无边框表达只读；来源及限制放在附近帮助中。[头像编辑页](docs/portrait-editor-design.md)进一步记录五版部件与表情、眼口定位、原子拖动、人物引用和小头像来源。
 
 ## 实现位置
 
-`internal/pages` 拥有标签内容、导航和页面组合，包括记录、脚本、通用文本及十六进制编辑。`internal/components` 根包维护窗口 chrome 和通用控件，`internal/editor` 保存窗口共享编辑状态。记录表单和章节交互分别位于 `internal/pages/records`、`internal/pages/chapters`，共享地图渲染位于 `internal/components/mapview`；商店列表位于 `internal/pages/shops`，共享货物控件位于 `internal/components/shopview`。战斗／死亡对话页位于 `internal/pages/quotes`，消费 `game/quote` 的原生表和计划。应用层只通过 pages 引入界面；`internal/input` 独立承载纯数值及地址解析，导入边界由架构检查覆盖。依赖与所有权见[架构说明](docs/architecture.md)，启动与构建见[开发说明](docs/development.md)。
+`internal/pages` 拥有标签内容、导航和页面组合，包括记录、脚本、通用文本及十六进制编辑。`internal/components` 根包维护窗口 chrome 和通用控件，`internal/editor` 保存窗口共享编辑状态。记录表单和章节交互分别位于 `internal/pages/records`、`internal/pages/chapters`，共享地图渲染位于 `internal/components/mapview`；商店列表位于 `internal/pages/shops`，共享货物控件位于 `internal/components/shopview`。战斗／死亡对话页位于 `internal/pages/quotes`，消费 `game/quote` 的原生表和计划。应用层只通过 pages 引入界面；`internal/input` 独立承载纯数值及地址解析，直接导入边界由 `.golangci.yml` 的 `depguard` 规则随 `just lint`／`just check` 检查。依赖与所有权见[架构说明](docs/architecture.md)，启动与构建见[开发说明](docs/development.md)。
