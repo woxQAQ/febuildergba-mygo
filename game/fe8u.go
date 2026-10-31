@@ -68,8 +68,33 @@ func fe8uFormat() format {
 				Fields:        records.ItemFields(),
 			},
 		},
-		supports: support.FE8(false),
-		quotes:   quote.FE8(false),
+		supports: support.Format{
+			Layout:       support.FE8Layout(),
+			TalkPointers: []int{0x84784, 0x847FC},
+		},
+		quotes: quote.Format{
+			AnyChapter:       0xFF,
+			BattleConditions: true,
+			SilentDeath:      true,
+			Rules: []quote.Rule{
+				{
+					Kind:     quote.Battle,
+					Pointers: []int{0x846AC},
+					Stride:   16,
+					EndWidth: 2,
+					EndValue: 0xFFFF,
+					Fields:   quote.FE8BattleFields(),
+				},
+				{
+					Kind:     quote.Death,
+					Pointers: []int{0x8472C},
+					Stride:   12,
+					EndWidth: 2,
+					EndValue: 0xFFFF,
+					Fields:   quote.FE8DeathFields(),
+				},
+			},
+		},
 		chapters: chapter.FE8(
 			0xB5F98,
 			0xB61C0,

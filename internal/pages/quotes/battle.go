@@ -10,7 +10,7 @@ import (
 )
 
 func (p *Page) tableLabel(kind quote.Kind) string {
-	if p.state.Session.Quotes.Version() == 8 && kind == quote.Battle {
+	if p.state.Session.Quotes.BattleConditions() && kind == quote.Battle {
 		return locales.QuoteEditor()
 	}
 	return locales.Label(string(kind))
@@ -37,7 +37,7 @@ func (p *Page) matchesBattle(entry *tableState, index int) bool {
 }
 
 func (p *Page) battleFilter(c *ui.Context, entry *tableState) {
-	if p.state.Session.Quotes.Version() != 8 || entry.draft == nil ||
+	if !p.state.Session.Quotes.BattleConditions() || entry.draft == nil ||
 		entry.draft.Kind() != quote.Battle {
 		return
 	}
@@ -65,7 +65,7 @@ func (p *Page) battleFilter(c *ui.Context, entry *tableState) {
 }
 
 func (p *Page) addRecord(entry *tableState) error {
-	if p.state.Session.Quotes.Version() == 8 &&
+	if p.state.Session.Quotes.BattleConditions() &&
 		entry.draft.Kind() == quote.Battle {
 		condition := quote.BattleCondition{Participants: quote.Pair}
 		if p.battleScope == 2 || p.battleScope == 3 {

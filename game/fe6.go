@@ -51,8 +51,38 @@ func fe6Format() format {
 				Fields:        records.FE6ItemFields(),
 			},
 		},
-		supports: support.FE6(),
-		quotes:   quote.FE6(),
+		supports: support.Format{
+			Layout:       support.FE6Layout(),
+			TalkPointers: []int{0x6AFE0},
+		},
+		quotes: quote.Format{
+			AnyChapter: 0x2D,
+			Rules: []quote.Rule{
+				{
+					Kind:      quote.Battle,
+					Pointers:  []int{0x6B660},
+					Stride:    12,
+					EndOffset: 1,
+					EndWidth:  1,
+					Fields:    quote.FE6BattleFields(),
+				},
+				{
+					Kind: quote.General, Pointers: []int{0x6B744, 0x6B7A4},
+					Stride: 16, EndWidth: 1, Fields: quote.FE6GeneralFields(),
+				},
+				{
+					Kind: quote.Triangle, Pointers: []int{0x6B748, 0x6B7DC},
+					Stride: 16, EndWidth: 1, Fields: quote.FE6GeneralFields(),
+				},
+				{
+					Kind:     quote.Death,
+					Pointers: []int{0x6B7FC, 0x6B88C, 0x6D2BC},
+					Stride:   16,
+					EndWidth: 1,
+					Fields:   quote.FE6DeathFields(),
+				},
+			},
+		},
 		chapters: chapter.FE6(),
 		events:   event.FE6(0x2BBCC),
 		shops:    shop.Format{DefaultPointer: 0x95F10},

@@ -49,11 +49,18 @@ func (s *Editor) Tables() []Table {
 	}
 	return result
 }
-func (s *Editor) Version() int       { return s.format.version }
-func (s *Editor) AnyChapter() uint32 { return s.format.anyChapter }
+
+// BattleConditions reports FE8-style battle chapter conditions, including the
+// triangle marker, instead of exposing a version number.
+func (s *Editor) BattleConditions() bool { return s.format.BattleConditions }
+
+// SilentDeath reports the FE8 death-table convention where an entry with no
+// script and no text stays silent.
+func (s *Editor) SilentDeath() bool  { return s.format.SilentDeath }
+func (s *Editor) AnyChapter() uint32 { return s.format.AnyChapter }
 
 func (s *Editor) TriangleChapter(kind Kind) (uint32, bool) {
-	return 0xFE, s.format.version == 8 && kind == Battle
+	return 0xFE, s.format.BattleConditions && kind == Battle
 }
 
 func (s *Editor) SpecialChapter(kind Kind, value uint32) bool {
@@ -67,12 +74,12 @@ type (
 		original []byte
 	}
 	Draft struct {
-		binding    edit.Stamp
-		table      Table
-		rows       []row
-		nextID     uint64
-		version    int
-		anyChapter uint32
+		binding          edit.Stamp
+		table            Table
+		rows             []row
+		nextID           uint64
+		battleConditions bool
+		anyChapter       uint32
 	}
 )
 
@@ -89,11 +96,11 @@ func (s *Editor) NewDraft(kind Kind) (*Draft, error) {
 			return nil, table.Err
 		}
 		draft := &Draft{
-			binding:    s.context.Bind(image.Revision),
-			table:      table,
-			version:    s.format.version,
-			anyChapter: s.format.anyChapter,
-			nextID:     uint64(len(table.Entries) + 1),
+			binding:          s.context.Bind(image.Revision),
+			table:            table,
+			battleConditions: s.format.BattleConditions,
+			anyChapter:       s.format.AnyChapter,
+			nextID:           uint64(len(table.Entries) + 1),
 		}
 		for _, entry := range table.Entries {
 			original := entry.Raw
@@ -112,7 +119,7 @@ func (d *Draft) Current(
 }
 func (d *Draft) Kind() Kind { return d.table.Kind }
 
-func (d *Draft) Fields() []Field { return slices.Clone(d.table.rule.fields) }
+func (d *Draft) Fields() []Field { return slices.Clone(d.table.rule.Fields) }
 func (d *Draft) Entries() []Entry {
 	result := make([]Entry, len(d.rows))
 	for i, r := range d.rows {
@@ -126,7 +133,7 @@ func (d *Draft) Value(index int, id string) (uint32, error) {
 	if index < 0 || index >= len(d.rows) {
 		return 0, edit.ErrValue
 	}
-	for _, field := range d.table.rule.fields {
+	for _, field := range d.table.rule.Fields {
 		if field.ID == id {
 			return field.Value(d.rows[index].Raw), nil
 		}
@@ -138,7 +145,7 @@ func (d *Draft) Set(index int, id string, value uint32) error {
 	if index < 0 || index >= len(d.rows) {
 		return edit.ErrValue
 	}
-	for _, field := range d.table.rule.fields {
+	for _, field := range d.table.rule.Fields {
 		if field.ID == id {
 			if !field.Editable(d.rows[index].Raw) {
 				return edit.ErrLayout
@@ -158,7 +165,7 @@ func (d *Draft) Add() error {
 		return space.ErrCapacity
 	}
 	raw := make([]byte, d.table.Stride)
-	for _, field := range d.table.rule.fields {
+	for _, field := range d.table.rule.Fields {
 		value := field.Min
 		switch field.ID {
 		case Unit, Opponent:
@@ -275,7 +282,7 @@ func (s *Editor) Plan(d *Draft) (result *Plan, err error) {
 		if d.table.rule.ended(row.Raw) {
 			return nil, edit.ErrValue
 		}
-		for _, field := range d.table.rule.fields {
+		for _, field := range d.table.rule.Fields {
 			value := field.Value(row.Raw)
 			if row.original != nil && value == field.Value(row.original) {
 				continue

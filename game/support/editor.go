@@ -110,8 +110,8 @@ func (d *TalkDraft) SetText(index, rank int, id uint16) error {
 	}
 	row := &d.rows[index]
 	row.Texts[rank] = uint32(id)
-	at := 4 + rank*d.format.textWidth
-	if d.format.textWidth == 2 {
+	at := 4 + rank*d.format.TextWidth
+	if d.format.TextWidth == 2 {
 		binary.LittleEndian.PutUint16(row.Raw[at:], id)
 	} else {
 		binary.LittleEndian.PutUint32(row.Raw[at:], uint32(id))
@@ -146,7 +146,7 @@ func (e *Editor) NewDraft(id int) (*Draft, error) {
 		}
 		raw := r.Raw
 		if r.Empty {
-			raw = make([]byte, e.format.size)
+			raw = make([]byte, e.format.Size)
 		}
 		return &Draft{
 			binding:  e.context.Bind(image.Revision),
@@ -167,12 +167,12 @@ func (d *Draft) Current(
 }
 func (d *Draft) Unit() Unit                    { return d.record.Unit }
 func (d *Draft) Address() int                  { return d.record.Address }
-func (d *Draft) Capacity() int                 { return d.format.capacity }
+func (d *Draft) Capacity() int                 { return d.format.Capacity }
 func (d *Draft) TalkError() error              { return d.talks.table.err }
 func (d *Draft) Raw() []byte                   { return bytes.Clone(d.raw) }
 func (d *Draft) Relationships() []Relationship { return d.relationships(d.raw) }
 func (d *Draft) relationships(raw []byte) []Relationship {
-	n := d.format.capacity
+	n := d.format.Capacity
 	result := make([]Relationship, int(raw[3*n]))
 	for i := range result {
 		result[i] = Relationship{raw[i], raw[n+i], raw[2*n+i]}
@@ -431,7 +431,7 @@ func (e *Editor) plan(
 			payload,
 			Move{
 				Before:   talks.table.address,
-				Pointers: slices.Clone(e.format.pointers),
+				Pointers: slices.Clone(e.format.TalkPointers),
 			},
 		); err != nil {
 			return nil, err

@@ -19,7 +19,7 @@ type BattleCondition struct {
 }
 
 func (d *Draft) BattleCondition(index int) (BattleCondition, error) {
-	if d.version != 8 || d.Kind() != Battle {
+	if !d.battleConditions || d.Kind() != Battle {
 		return BattleCondition{}, edit.ErrField
 	}
 	unit, err := d.Value(index, Unit)
@@ -45,7 +45,7 @@ func (d *Draft) BattleCondition(index int) (BattleCondition, error) {
 // AddBattle creates a native FE8 record for a visible matching condition.
 // Pair/role and triangle conditions remain independent in the same table.
 func (d *Draft) AddBattle(condition BattleCondition) error {
-	if d.version != 8 || d.Kind() != Battle {
+	if !d.battleConditions || d.Kind() != Battle {
 		return edit.ErrField
 	}
 	if condition.Participants > Defender {
@@ -55,7 +55,7 @@ func (d *Draft) AddBattle(condition BattleCondition) error {
 		return err
 	}
 	raw := d.rows[len(d.rows)-1].Raw
-	for _, field := range d.table.rule.fields {
+	for _, field := range d.table.rule.Fields {
 		switch {
 		case field.ID == Unit && condition.Participants == Defender,
 			field.ID == Opponent && condition.Participants == Attacker:

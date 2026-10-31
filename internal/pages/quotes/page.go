@@ -536,20 +536,25 @@ func defeatTable(kind quote.Kind) bool {
 }
 
 func (p *Page) tableHelp(kind quote.Kind) string {
+	// Help wording is per-generation UI copy, not a ROM rule.
+	generation := p.state.Session.Version()
+	if len(generation) > 3 {
+		generation = generation[:3]
+	}
 	if defeatTable(kind) {
-		switch p.state.Session.Quotes.Version() {
-		case 6:
+		switch generation {
+		case "FE6":
 			return locales.QuoteFe6DeathHelp()
-		case 7:
+		case "FE7":
 			return locales.QuoteFe7DeathHelp()
 		default:
 			return locales.QuoteFe8DeathHelp()
 		}
 	}
-	switch p.state.Session.Quotes.Version() {
-	case 6:
+	switch generation {
+	case "FE6":
 		return locales.QuoteFe6Help()
-	case 7:
+	case "FE7":
 		return locales.QuoteFe7Help()
 	default:
 		return locales.QuoteFe8Help()
@@ -574,7 +579,7 @@ func fieldLabel(kind quote.Kind, field string) string {
 func (p *Page) fieldHelp(kind quote.Kind, field string) string {
 	switch field {
 	case quote.Unit, quote.Opponent:
-		if kind == quote.Battle && p.state.Session.Quotes.Version() == 8 {
+		if kind == quote.Battle && p.state.Session.Quotes.BattleConditions() {
 			return locales.QuoteFe8ViewsHelp() + "\n" + locales.QuoteReferenceHelp()
 		}
 		return locales.QuoteReferenceHelp()
@@ -740,7 +745,7 @@ func (p *Page) field(
 				ui.Text(c, locales.QuoteDeathHelp()).FontSize(12)
 			}
 			if field.ID == quote.Script && value == 0 &&
-				p.state.Session.Quotes.Version() == 8 {
+				p.state.Session.Quotes.SilentDeath() {
 				if text, err := entry.draft.Value(
 					index,
 					quote.Text,

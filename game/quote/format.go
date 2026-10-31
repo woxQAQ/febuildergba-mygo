@@ -76,62 +76,58 @@ func field(id string, offset, width int, minimum, maximum uint32) Field {
 	return Field{id, offset, width, minimum, maximum}
 }
 
-type rule struct {
-	kind                        Kind
-	pointers                    []int
-	stride, endOffset, endWidth int
-	endValue                    uint32
-	fields                      []Field
+// Rule describes one native table's structure. Pointers are its confirmed
+// consumers, listed by the version file.
+type Rule struct {
+	Kind                        Kind
+	Pointers                    []int
+	Stride, EndOffset, EndWidth int
+	EndValue                    uint32
+	Fields                      []Field
 }
 
-func (r rule) ended(raw []byte) bool {
-	return (Field{Offset: r.endOffset, Width: r.endWidth}).Value(
+func (r Rule) ended(raw []byte) bool {
+	return (Field{Offset: r.EndOffset, Width: r.EndWidth}).Value(
 		raw,
-	) == r.endValue
+	) == r.EndValue
 }
 
+// Format declares the native tables and their version-independent semantics.
+// BattleConditions marks FE8 battle chapter conditions, including the triangle
+// marker; SilentDeath marks FE8 death entries staying silent without script or
+// text.
 type Format struct {
-	rules      []rule
-	anyChapter uint32
-	version    int
+	Rules            []Rule
+	AnyChapter       uint32
+	BattleConditions bool
+	SilentDeath      bool
 }
 
-func FE6() Format {
-	pair := []Field{
+func FE6BattleFields() []Field {
+	return []Field{
 		field(Unit, 0, 1, 1, 255),
 		field(Opponent, 1, 1, 1, 255),
 		field(Chapter, 2, 1, 0, 255),
 		field(Text, 4, 4, 0, 65535),
 		field(Flag, 8, 4, 0, 65535),
 	}
-	single := []Field{
+}
+
+func FE6GeneralFields() []Field {
+	return []Field{
 		field(Unit, 0, 1, 1, 255),
 		field(Chapter, 1, 1, 0, 255),
 		field(Text, 4, 4, 0, 65535),
 		field(Flag, 8, 4, 0, 65535),
 	}
-	return Format{version: 6, anyChapter: 0x2D, rules: []rule{
-		{Battle, []int{0x6B660}, 12, 1, 1, 0, pair},
-		{General, []int{0x6B744, 0x6B7A4}, 16, 0, 1, 0, single},
-		{Triangle, []int{0x6B748, 0x6B7DC}, 16, 0, 1, 0, single},
-		{
-			Death,
-			[]int{0x6B7FC, 0x6B88C, 0x6D2BC},
-			16,
-			0,
-			1,
-			0,
-			append(slices.Clone(single), field(FinalText, 12, 4, 0, 65535)),
-		},
-	}}
 }
 
-func FE7(japanese bool) Format {
-	delta, anyChapter := 0, uint32(0x43)
-	if japanese {
-		delta, anyChapter = 0x7D0, 0x45
-	}
-	pair := []Field{
+func FE6DeathFields() []Field {
+	return append(FE6GeneralFields(), field(FinalText, 12, 4, 0, 65535))
+}
+
+func FE7BattleFields() []Field {
+	return []Field{
 		field(Unit, 0, 1, 1, 255),
 		field(Opponent, 1, 1, 1, 255),
 		field(Chapter, 2, 1, 0, 255),
@@ -139,80 +135,56 @@ func FE7(japanese bool) Format {
 		field(Script, 8, 4, 0, 0x09FFFFFF),
 		field(Flag, 12, 4, 0, 65535),
 	}
-	single := []Field{
+}
+
+func FE7GeneralFields() []Field {
+	return []Field{
 		field(Unit, 0, 1, 1, 255),
 		field(Chapter, 1, 1, 0, 255),
 		field(Text, 4, 4, 0, 65535),
 		field(Flag, 8, 4, 0, 65535),
 	}
-	death := []Field{
+}
+
+func FE7DeathFields() []Field {
+	return []Field{
 		field(Unit, 0, 1, 1, 255),
 		field(Chapter, 1, 1, 0, 255),
 		field(Text, 4, 4, 0, 65535),
 		field(Script, 8, 4, 0, 0x09FFFFFF),
 		field(Flag, 12, 4, 0, 65535),
 	}
-	fallback := []Field{
+}
+
+func FE7FallbackFields() []Field {
+	return []Field{
 		field(Unit, 0, 1, 1, 255),
 		field(Chapter, 1, 1, 0, 255),
 		field(Script, 4, 4, 0, 0x09FFFFFF),
 		field(Flag, 8, 4, 0, 65535),
 	}
-	rules := []rule{
-		{Battle, []int{0x792E0}, 16, 1, 1, 0, pair},
-		{General, []int{0x79454, 0x794DC}, 12, 0, 1, 0, single},
-		{Triangle, []int{0x79458, 0x79510}, 12, 0, 1, 0, single},
-		{Death, []int{0x79550, 0x796B4}, 16, 0, 1, 0, death},
-		{DeathLyn, []int{0x7955C, 0x7967C}, 12, 0, 1, 0, fallback},
-		{DeathOther, []int{0x79558, 0x79678}, 12, 0, 1, 0, fallback},
-	}
-	for i := range rules {
-		for j := range rules[i].pointers {
-			rules[i].pointers[j] += delta
-		}
-	}
-	return Format{version: 7, anyChapter: anyChapter, rules: rules}
 }
 
-func FE8(japanese bool) Format {
-	battle, death := 0x846AC, 0x8472C
-	if japanese {
-		battle, death = 0x86978, 0x869F8
+func FE8BattleFields() []Field {
+	return []Field{
+		field(Unit, 0, 2, 0, 255),
+		field(Opponent, 2, 2, 0, 255),
+		field(Chapter, 4, 2, 0, 255),
+		field(Flag, 6, 2, 0, 65535),
+		field(Text, 8, 2, 0, 65535),
+		field(Script, 12, 4, 0, 0x09FFFFFF),
 	}
-	return Format{version: 8, anyChapter: 0xFF, rules: []rule{
-		{
-			Battle,
-			[]int{battle},
-			16,
-			0,
-			2,
-			0xFFFF,
-			[]Field{
-				field(Unit, 0, 2, 0, 255),
-				field(Opponent, 2, 2, 0, 255),
-				field(Chapter, 4, 2, 0, 255),
-				field(Flag, 6, 2, 0, 65535),
-				field(Text, 8, 2, 0, 65535),
-				field(Script, 12, 4, 0, 0x09FFFFFF),
-			},
-		},
-		{
-			Death,
-			[]int{death},
-			12,
-			0,
-			2,
-			0xFFFF,
-			[]Field{
-				field(Unit, 0, 2, 1, 255),
-				field(Route, 2, 1, 0, 255),
-				field(Chapter, 3, 1, 0, 255),
-				field(Flag, 4, 2, 0, 65535),
-				field(Text, 6, 2, 0, 65535),
-				field(Script, 8, 4, 0, 0x09FFFFFF),
-			},
-		},
-	}}
+}
+
+func FE8DeathFields() []Field {
+	return []Field{
+		field(Unit, 0, 2, 1, 255),
+		field(Route, 2, 1, 0, 255),
+		field(Chapter, 3, 1, 0, 255),
+		field(Flag, 4, 2, 0, 65535),
+		field(Text, 6, 2, 0, 65535),
+		field(Script, 8, 4, 0, 0x09FFFFFF),
+	}
 }
 
 // Table retains a complete native terminator. Divergent known consumers are
@@ -224,7 +196,7 @@ type Table struct {
 	Entries         []Entry
 	Err             error
 	terminator      []byte
-	rule            rule
+	rule            Rule
 }
 type Entry struct {
 	ID      uint64
@@ -233,11 +205,11 @@ type Entry struct {
 }
 
 func (f Format) Tables(data []byte) []Table {
-	result := make([]Table, 0, len(f.rules))
-	for _, rule := range f.rules {
-		table := readTable(data, rule, rule.pointers[0])
+	result := make([]Table, 0, len(f.Rules))
+	for _, r := range f.Rules {
+		table := readTable(data, r, r.Pointers[0])
 		if table.Err == nil {
-			for _, site := range rule.pointers {
+			for _, site := range r.Pointers {
 				if at, ok := gba.Pointer(
 					data,
 					site,
@@ -247,7 +219,7 @@ func (f Format) Tables(data []byte) []Table {
 						ErrReferences,
 						"quote.read_table",
 						fault.Context{
-							Table: string(rule.kind),
+							Table: string(r.Kind),
 							Range: &fault.Range{
 								Offset: site,
 								Length: 4,
@@ -264,11 +236,11 @@ func (f Format) Tables(data []byte) []Table {
 	return result
 }
 
-func readTable(data []byte, r rule, site int) (result Table) {
+func readTable(data []byte, r Rule, site int) (result Table) {
 	result = Table{
-		Kind:     r.kind,
-		Stride:   r.stride,
-		Pointers: slices.Clone(r.pointers),
+		Kind:     r.Kind,
+		Stride:   r.Stride,
+		Pointers: slices.Clone(r.Pointers),
 		rule:     r,
 	}
 	defer func() {
@@ -276,7 +248,7 @@ func readTable(data []byte, r rule, site int) (result Table) {
 			result.Err,
 			"quote.read_table",
 			fault.Context{
-				Table: string(r.kind),
+				Table: string(r.Kind),
 				Range: &fault.Range{Offset: site, Length: 4, Size: len(data)},
 			},
 		)
@@ -288,11 +260,11 @@ func readTable(data []byte, r rule, site int) (result Table) {
 	}
 	result.Address = at
 	for i := 0; i <= MaxEntries; i++ {
-		address := at + i*r.stride
-		if !gba.Within(data, address, r.stride) {
+		address := at + i*r.Stride
+		if !gba.Within(data, address, r.Stride) {
 			break
 		}
-		raw := data[address : address+r.stride]
+		raw := data[address : address+r.Stride]
 		if r.ended(raw) {
 			result.terminator = slices.Clone(raw)
 			return
@@ -314,9 +286,9 @@ func readTable(data []byte, r rule, site int) (result Table) {
 // claiming their full extent.
 func (f Format) Claims(data []byte) []space.Claim {
 	var result []space.Claim
-	for _, r := range f.rules {
-		owner := space.Owner{Resource: string(r.kind)}
-		for _, site := range r.pointers {
+	for _, r := range f.Rules {
+		owner := space.Owner{Resource: string(r.Kind)}
+		for _, site := range r.Pointers {
 			result = append(
 				result,
 				space.Claim{
@@ -327,7 +299,7 @@ func (f Format) Claims(data []byte) []space.Claim {
 			)
 			table := readTable(data, r, site)
 			for _, entry := range table.Entries {
-				for _, field := range r.fields {
+				for _, field := range r.Fields {
 					if field.ID != Script {
 						continue
 					}
@@ -352,7 +324,7 @@ func (f Format) Claims(data []byte) []space.Claim {
 					space.Claim{
 						Range: space.Range{
 							Start: table.Address,
-							End:   table.Address + len(table.Entries)*r.stride,
+							End:   table.Address + len(table.Entries)*r.Stride,
 						},
 						Owner: owner,
 					},
@@ -363,8 +335,8 @@ func (f Format) Claims(data []byte) []space.Claim {
 					result,
 					space.Claim{
 						Range: space.Range{
-							Start: table.Address + len(table.Entries)*r.stride,
-							End:   table.Address + (len(table.Entries)+1)*r.stride,
+							Start: table.Address + len(table.Entries)*r.Stride,
+							End:   table.Address + (len(table.Entries)+1)*r.Stride,
 						},
 						Owner: owner,
 					},
@@ -379,7 +351,7 @@ func (f Format) TextUses(data []byte, id uint16) []text.Use {
 	var result []text.Use
 	for _, table := range f.Tables(data) {
 		for i, entry := range table.Entries {
-			for _, field := range table.rule.fields {
+			for _, field := range table.rule.Fields {
 				if (field.ID == Text || field.ID == FinalText) &&
 					field.Value(entry.Raw) == uint32(id) {
 					result = append(

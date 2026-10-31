@@ -48,8 +48,46 @@ func fe7uFormat() format {
 				Fields:        records.ItemFields(),
 			},
 		},
-		supports: support.FE7(false),
-		quotes:   quote.FE7(false),
+		supports: support.Format{
+			Layout: support.FE7Layout(),
+			TalkPointers: []int{
+				0x78A94, 0x78B04, 0x78B64, 0x9B164, 0x9B18C,
+				0x9EC2C, 0x9ECF4, 0x9EE00, 0x9EE70,
+			},
+		},
+		quotes: quote.Format{
+			AnyChapter: 0x43,
+			Rules: []quote.Rule{
+				{
+					Kind:      quote.Battle,
+					Pointers:  []int{0x792E0},
+					Stride:    16,
+					EndOffset: 1,
+					EndWidth:  1,
+					Fields:    quote.FE7BattleFields(),
+				},
+				{
+					Kind: quote.General, Pointers: []int{0x79454, 0x794DC},
+					Stride: 12, EndWidth: 1, Fields: quote.FE7GeneralFields(),
+				},
+				{
+					Kind: quote.Triangle, Pointers: []int{0x79458, 0x79510},
+					Stride: 12, EndWidth: 1, Fields: quote.FE7GeneralFields(),
+				},
+				{
+					Kind: quote.Death, Pointers: []int{0x79550, 0x796B4},
+					Stride: 16, EndWidth: 1, Fields: quote.FE7DeathFields(),
+				},
+				{
+					Kind: quote.DeathLyn, Pointers: []int{0x7955C, 0x7967C},
+					Stride: 12, EndWidth: 1, Fields: quote.FE7FallbackFields(),
+				},
+				{
+					Kind: quote.DeathOther, Pointers: []int{0x79558, 0x79678},
+					Stride: 12, EndWidth: 1, Fields: quote.FE7FallbackFields(),
+				},
+			},
+		},
 		chapters: chapter.FE7(0x31580, true),
 		events:   event.FE7(0x315D4, true),
 		shops:    shop.Format{DefaultPointer: 0xB04D4},

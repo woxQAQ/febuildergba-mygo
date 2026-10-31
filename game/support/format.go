@@ -27,52 +27,36 @@ const (
 	maxTalks = 2048
 )
 
+// Layout describes the native support record and talk row structure shared
+// by one generation. Version files supply the confirmed consumer addresses.
+type Layout struct {
+	Capacity, Size, TalkSize, TextWidth int
+	WideUnits                           bool
+}
+
+func FE6Layout() Layout {
+	return Layout{Capacity: 10, Size: 32, TalkSize: 16, TextWidth: 4}
+}
+
+func FE7Layout() Layout {
+	return Layout{Capacity: 7, Size: 24, TalkSize: 20, TextWidth: 4}
+}
+
+func FE8Layout() Layout {
+	return Layout{
+		Capacity:  7,
+		Size:      24,
+		TalkSize:  16,
+		TextWidth: 2,
+		WideUnits: true,
+	}
+}
+
 // Format contains confirmed native consumers, including the support viewer and
 // save routines. No pointer-shaped byte scan participates in writes.
 type Format struct {
-	capacity, size, talkSize, textWidth int
-	wideUnits                           bool
-	pointers                            []int
-}
-
-func FE6() Format {
-	return Format{10, 32, 16, 4, false, []int{0x6AFE0}}
-}
-
-func FE7(japanese bool) Format {
-	pointers := []int{
-		0x78A94,
-		0x78B04,
-		0x78B64,
-		0x9B164,
-		0x9B18C,
-		0x9EC2C,
-		0x9ECF4,
-		0x9EE00,
-		0x9EE70,
-	}
-	if japanese {
-		pointers = []int{
-			0x79264,
-			0x792D4,
-			0x79334,
-			0x9BB38,
-			0x9BB60,
-			0x9F668,
-			0x9F730,
-			0x9F83C,
-			0x9F8AC,
-		}
-	}
-	return Format{7, 24, 20, 4, false, pointers}
-}
-
-func FE8(japanese bool) Format {
-	pointers := []int{0x84784, 0x847FC}
-	if japanese {
-		pointers = []int{0x86A50, 0x86AC8}
-	}
-	return Format{7, 24, 16, 2, true, pointers}
+	Layout
+	TalkPointers []int
 }
 
 // Unit is a character record's support entry. Host names the containing
@@ -104,12 +88,12 @@ func (f Format) Read(data []byte, unit Unit) (r Record) {
 		return
 	}
 	at, valid := gba.Pointer(data, unit.Pointer)
-	if !valid || at < 0xC0 || at%4 != 0 || !gba.Within(data, at, f.size) {
+	if !valid || at < 0xC0 || at%4 != 0 || !gba.Within(data, at, f.Size) {
 		r.Err = ErrData
 		return
 	}
-	r.Address, r.Raw = at, bytes.Clone(data[at:at+f.size])
-	if int(r.Raw[f.capacity*3]) > f.capacity {
+	r.Address, r.Raw = at, bytes.Clone(data[at:at+f.Size])
+	if int(r.Raw[f.Capacity*3]) > f.Capacity {
 		r.Err = ErrData
 	}
 	return
@@ -137,13 +121,13 @@ func (f Format) talksAt(data []byte, site int) (t talkTable) {
 	}
 	t.address = at
 	for i := 0; i <= maxTalks; i++ {
-		address := at + i*f.talkSize
-		if !gba.Within(data, address, f.talkSize) {
+		address := at + i*f.TalkSize
+		if !gba.Within(data, address, f.TalkSize) {
 			break
 		}
-		raw := data[address : address+f.talkSize]
+		raw := data[address : address+f.TalkSize]
 		ended := raw[0] == 0
-		if f.wideUnits {
+		if f.WideUnits {
 			ended = gba.Uint16(raw, 0) == 0xFFFF
 		}
 		if ended {
@@ -160,11 +144,11 @@ func (f Format) talksAt(data []byte, site int) (t talkTable) {
 			Partner: uint16(raw[1]),
 			Raw:     bytes.Clone(raw),
 		}
-		if f.wideUnits {
+		if f.WideUnits {
 			r.Unit, r.Partner = gba.Uint16(raw, 0), gba.Uint16(raw, 2)
 		}
 		for rank := range r.Texts {
-			if f.textWidth == 2 {
+			if f.TextWidth == 2 {
 				r.Texts[rank] = uint32(gba.Uint16(raw, 4+rank*2))
 			} else {
 				r.Texts[rank] = gba.Uint32(raw, 4+rank*4)
@@ -177,9 +161,9 @@ func (f Format) talksAt(data []byte, site int) (t talkTable) {
 }
 
 func (f Format) talks(data []byte) talkTable {
-	t := f.talksAt(data, f.pointers[0])
+	t := f.talksAt(data, f.TalkPointers[0])
 	if t.err == nil {
-		for _, site := range f.pointers {
+		for _, site := range f.TalkPointers {
 			if at, valid := gba.Pointer(data, site); !valid || at != t.address {
 				t.err = ErrReferences
 				break
@@ -212,14 +196,14 @@ func (f Format) Claims(data []byte, units []Unit) []space.Claim {
 				space.Claim{
 					Range: space.Range{
 						Start: r.Address,
-						End:   r.Address + f.size,
+						End:   r.Address + f.Size,
 					},
 					Owner: owner,
 				},
 			)
 		}
 	}
-	for _, site := range f.pointers {
+	for _, site := range f.TalkPointers {
 		owner := space.Owner{Resource: "support"}
 		result = append(
 			result,
@@ -230,7 +214,7 @@ func (f Format) Claims(data []byte, units []Unit) []space.Claim {
 			},
 		)
 		t := f.talksAt(data, site)
-		length := len(t.rows)*f.talkSize + len(t.terminator)
+		length := len(t.rows)*f.TalkSize + len(t.terminator)
 		if t.address != 0 && length > 0 {
 			result = append(
 				result,

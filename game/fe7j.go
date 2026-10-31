@@ -49,8 +49,47 @@ func fe7jFormat() format {
 				Fields:        records.ItemFields(),
 			},
 		},
-		supports: support.FE7(true),
-		quotes:   quote.FE7(true),
+		supports: support.Format{
+			Layout: support.FE7Layout(),
+			TalkPointers: []int{
+				0x79264, 0x792D4, 0x79334, 0x9BB38, 0x9BB60,
+				0x9F668, 0x9F730, 0x9F83C, 0x9F8AC,
+			},
+		},
+		// Addresses follow ROMFE7JP, not a derived delta.
+		quotes: quote.Format{
+			AnyChapter: 0x45,
+			Rules: []quote.Rule{
+				{
+					Kind:      quote.Battle,
+					Pointers:  []int{0x79AB0},
+					Stride:    16,
+					EndOffset: 1,
+					EndWidth:  1,
+					Fields:    quote.FE7BattleFields(),
+				},
+				{
+					Kind: quote.General, Pointers: []int{0x79C24, 0x79CAC},
+					Stride: 12, EndWidth: 1, Fields: quote.FE7GeneralFields(),
+				},
+				{
+					Kind: quote.Triangle, Pointers: []int{0x79C28, 0x79CE0},
+					Stride: 12, EndWidth: 1, Fields: quote.FE7GeneralFields(),
+				},
+				{
+					Kind: quote.Death, Pointers: []int{0x79D20, 0x79E84},
+					Stride: 16, EndWidth: 1, Fields: quote.FE7DeathFields(),
+				},
+				{
+					Kind: quote.DeathLyn, Pointers: []int{0x79D2C, 0x79E4C},
+					Stride: 12, EndWidth: 1, Fields: quote.FE7FallbackFields(),
+				},
+				{
+					Kind: quote.DeathOther, Pointers: []int{0x79D28, 0x79E48},
+					Stride: 12, EndWidth: 1, Fields: quote.FE7FallbackFields(),
+				},
+			},
+		},
 		chapters: chapter.FE7(0x31A6C, false),
 		events:   event.FE7(0x31B18, false),
 		shops:    shop.Format{DefaultPointer: 0xB12FC},
