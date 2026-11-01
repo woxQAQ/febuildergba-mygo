@@ -86,6 +86,7 @@ func fe8jFormat() format {
 		classAnimationOffset: 52,
 		terrain:              terrain.FE7Layout(),
 		supports: support.Format{
+			BonusPointer: 0x284C8,
 			Layout:       support.FE8Layout(),
 			TalkPointers: []int{0x86A50, 0x86AC8},
 		},

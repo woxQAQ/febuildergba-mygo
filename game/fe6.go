@@ -62,6 +62,7 @@ func fe6Format() format {
 		classAnimationOffset: 48,
 		terrain:              terrain.FE6Layout(),
 		supports: support.Format{
+			BonusPointer: 0x22DBC,
 			Layout:       support.FE6Layout(),
 			TalkPointers: []int{0x6AFE0},
 		},

@@ -7,17 +7,27 @@ import (
 	"github.com/woxQAQ/febuildergba-mygo/space"
 )
 
-func supportUnits(table records.Table) []support.Unit {
+func supportUnits(data []byte, table records.Table) []support.Unit {
 	var result []support.Unit
 	if table.Err != nil || table.Stride < 48 {
 		return result
+	}
+	var affinity records.Field
+	for _, field := range table.Fields {
+		if field.ID == "affinity" {
+			affinity = field
+			break
+		}
 	}
 	for _, row := range table.Rows {
 		if row.ID > 0 && row.ID <= 255 {
 			result = append(
 				result,
 				support.Unit{
-					ID:      row.ID,
+					ID: row.ID,
+					Affinity: uint8(
+						affinity.Value(data, row.Address),
+					), // #nosec G115 -- Native affinity field is one byte.
 					Pointer: row.Address + 44,
 					Name:    row.Name,
 					Host:    recordOwner(records.Units, row.ID),
@@ -39,7 +49,7 @@ func (s *Session) supportUnits(data []byte) ([]support.Unit, error) {
 		if table.Stride < 48 {
 			return nil, edit.ErrLayout
 		}
-		return supportUnits(table), nil
+		return supportUnits(data, table), nil
 	}
 	return nil, edit.ErrLayout
 }

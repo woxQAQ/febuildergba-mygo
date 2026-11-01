@@ -34,6 +34,146 @@ type Messages struct{ locale string }
 // source language.
 func In(locale string) Messages { return Messages{locale} }
 
+// SupportBonuses says "Affinity bonuses"
+// in the language the app shows.
+func SupportBonuses() string { return In(i18n.Locale()).SupportBonuses() }
+
+// SupportBonuses says "Affinity bonuses"
+// in the language of msgs.
+func (msgs Messages) SupportBonuses() string {
+	return Catalog.Format(msgs.locale, "support_bonuses", nil)
+}
+
+// SupportBonusHelp says "Raw contribution per support level"
+// in the language the app shows.
+func SupportBonusHelp() string { return In(i18n.Locale()).SupportBonusHelp() }
+
+// SupportBonusHelp says "Raw contribution per support level"
+// in the language of msgs.
+func (msgs Messages) SupportBonusHelp() string {
+	return Catalog.Format(msgs.locale, "support_bonus_help", nil)
+}
+
+// SupportBonusScope says "Values are unsigned bytes (0–255). The native engine multiplies both affinities by their support levels, accumulate…"
+// in the language the app shows.
+func SupportBonusScope() string { return In(i18n.Locale()).SupportBonusScope() }
+
+// SupportBonusScope says "Values are unsigned bytes (0–255). The native engine multiplies both affinities by their support levels, accumulate…"
+// in the language of msgs.
+func (msgs Messages) SupportBonusScope() string {
+	return Catalog.Format(msgs.locale, "support_bonus_scope", nil)
+}
+
+// SupportBonusAttack says "Attack"
+// in the language the app shows.
+func SupportBonusAttack() string { return In(i18n.Locale()).SupportBonusAttack() }
+
+// SupportBonusAttack says "Attack"
+// in the language of msgs.
+func (msgs Messages) SupportBonusAttack() string {
+	return Catalog.Format(msgs.locale, "support_bonus_attack", nil)
+}
+
+// SupportBonusDefense says "Defense"
+// in the language the app shows.
+func SupportBonusDefense() string { return In(i18n.Locale()).SupportBonusDefense() }
+
+// SupportBonusDefense says "Defense"
+// in the language of msgs.
+func (msgs Messages) SupportBonusDefense() string {
+	return Catalog.Format(msgs.locale, "support_bonus_defense", nil)
+}
+
+// SupportBonusHit says "Hit"
+// in the language the app shows.
+func SupportBonusHit() string { return In(i18n.Locale()).SupportBonusHit() }
+
+// SupportBonusHit says "Hit"
+// in the language of msgs.
+func (msgs Messages) SupportBonusHit() string {
+	return Catalog.Format(msgs.locale, "support_bonus_hit", nil)
+}
+
+// SupportBonusAvoid says "Avoid"
+// in the language the app shows.
+func SupportBonusAvoid() string { return In(i18n.Locale()).SupportBonusAvoid() }
+
+// SupportBonusAvoid says "Avoid"
+// in the language of msgs.
+func (msgs Messages) SupportBonusAvoid() string {
+	return Catalog.Format(msgs.locale, "support_bonus_avoid", nil)
+}
+
+// SupportBonusCritical says "Critical"
+// in the language the app shows.
+func SupportBonusCritical() string { return In(i18n.Locale()).SupportBonusCritical() }
+
+// SupportBonusCritical says "Critical"
+// in the language of msgs.
+func (msgs Messages) SupportBonusCritical() string {
+	return Catalog.Format(msgs.locale, "support_bonus_critical", nil)
+}
+
+// SupportBonusDodge says "Dodge"
+// in the language the app shows.
+func SupportBonusDodge() string { return In(i18n.Locale()).SupportBonusDodge() }
+
+// SupportBonusDodge says "Dodge"
+// in the language of msgs.
+func (msgs Messages) SupportBonusDodge() string {
+	return Catalog.Format(msgs.locale, "support_bonus_dodge", nil)
+}
+
+// SupportBonusRange says "Enter an integer from 0 to 255."
+// in the language the app shows.
+func SupportBonusRange() string { return In(i18n.Locale()).SupportBonusRange() }
+
+// SupportBonusRange says "Enter an integer from 0 to 255."
+// in the language of msgs.
+func (msgs Messages) SupportBonusRange() string {
+	return Catalog.Format(msgs.locale, "support_bonus_range", nil)
+}
+
+// SupportBonusShadowed says "An earlier row has this affinity ID and takes precedence in the native lookup."
+// in the language the app shows.
+func SupportBonusShadowed() string { return In(i18n.Locale()).SupportBonusShadowed() }
+
+// SupportBonusShadowed says "An earlier row has this affinity ID and takes precedence in the native lookup."
+// in the language of msgs.
+func (msgs Messages) SupportBonusShadowed() string {
+	return Catalog.Format(msgs.locale, "support_bonus_shadowed", nil)
+}
+
+// SupportBonusApplyHelp says "These values are shared by all characters with the matching affinity. Known characters are listed below each change."
+// in the language the app shows.
+func SupportBonusApplyHelp() string { return In(i18n.Locale()).SupportBonusApplyHelp() }
+
+// SupportBonusApplyHelp says "These values are shared by all characters with the matching affinity. Known characters are listed below each change."
+// in the language of msgs.
+func (msgs Messages) SupportBonusApplyHelp() string {
+	return Catalog.Format(msgs.locale, "support_bonus_apply_help", nil)
+}
+
+// SupportBonusUsersIncomplete says "Character uses could not be fully read."
+// in the language the app shows.
+func SupportBonusUsersIncomplete() string { return In(i18n.Locale()).SupportBonusUsersIncomplete() }
+
+// SupportBonusUsersIncomplete says "Character uses could not be fully read."
+// in the language of msgs.
+func (msgs Messages) SupportBonusUsersIncomplete() string {
+	return Catalog.Format(msgs.locale, "support_bonus_users_incomplete", nil)
+}
+
+// SupportBonusEmpty says "This table has no affinity bonus records."
+// in the language the app shows.
+func SupportBonusEmpty() string { return In(i18n.Locale()).SupportBonusEmpty() }
+
+// SupportBonusEmpty says "This table has no affinity bonus records."
+// in the language of msgs.
+func (msgs Messages) SupportBonusEmpty() string {
+	return Catalog.Format(msgs.locale, "support_bonus_empty", nil)
+}
+
 // SupportAllDialogues says "All dialogue entries"
 // in the language the app shows.
 func SupportAllDialogues() string { return In(i18n.Locale()).SupportAllDialogues() }

@@ -2,6 +2,34 @@ package testutil
 
 import "bytes"
 
+// NewSupportBonusFixture includes reordered and repeated affinity IDs, a custom
+// ID, nonzero padding, a complete opaque terminator and an independent alias.
+func NewSupportBonusFixture(version string) *FixtureBuilder {
+	f := NewSupportFixture(version)
+	pointer := map[string]int{"FE6": 0x22DBC, "FE7U": 0x26998, "FE7J": 0x26E24, "FE8U": 0x28534, "FE8J": 0x284C8}[version]
+	const at = 0x282000
+	f.WritePointer(pointer, at)
+	f.tablePointers["support_bonuses"] = []int{pointer}
+	f.MarkPosition("support_bonuses", at)
+	f.MarkPosition("support_bonus_alias", at+0x80)
+	f.WritePointer(at+0x80, at)
+	f.WriteAt(at, []byte{
+		5, 1, 2, 3, 4, 5, 6, 0xA1,
+		1, 6, 5, 4, 3, 2, 1, 0xA2,
+		5, 7, 8, 9, 10, 11, 12, 0xA3,
+		8, 2, 4, 6, 8, 10, 12, 0xA4,
+		0, 0xB1, 0xB2, 0xB3, 0xB4, 0xB5, 0xB6, 0xB7,
+	})
+	stride := 52
+	if version == "FE6" {
+		stride = 48
+	}
+	for index, affinity := range []byte{5, 1, 5, 8} {
+		f.WriteU8(f.GetPosition("units")+index*stride+9, affinity)
+	}
+	return f
+}
+
 // NewSupportFixture includes reciprocal relationships, an independent shared
 // pointer, opaque inactive slots and a terminator whose other bytes are nonzero.
 func NewSupportFixture(version string) *FixtureBuilder {

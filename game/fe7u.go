@@ -59,7 +59,8 @@ func fe7uFormat() format {
 		classAnimationOffset: 52,
 		terrain:              terrain.FE7Layout(),
 		supports: support.Format{
-			Layout: support.FE7Layout(),
+			BonusPointer: 0x26998,
+			Layout:       support.FE7Layout(),
 			TalkPointers: []int{
 				0x78A94, 0x78B04, 0x78B64, 0x9B164, 0x9B18C,
 				0x9EC2C, 0x9ECF4, 0x9EE00, 0x9EE70,

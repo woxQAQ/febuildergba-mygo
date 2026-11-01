@@ -14,6 +14,47 @@ import (
 
 func editSupports(t *testing.T, session *game.Session) {
 	initial := session.Document.Snapshot()
+	t.Run("bonuses", func(t *testing.T) {
+		s := openCopy(t, initial.Data)
+		draft, err := s.Supports.NewBonusDraft()
+		if err != nil {
+			t.Skipf("affinity bonuses unavailable: %v", err)
+		}
+		rows := draft.Rows()
+		if len(rows) == 0 {
+			t.Skip("no affinity bonus records")
+		}
+		expected := draft.Raw()
+		value := int(rows[0].Values[0] ^ 1)
+		expected[1] = byte(value)
+		if err = draft.Set(0, support.AttackBonus, value); err != nil {
+			t.Fatal(err)
+		}
+		before := s.Document.Snapshot()
+		plan, err := s.Supports.PlanBonuses(draft)
+		checkPlan(t, s, before, err)
+		if err = s.Supports.ApplyBonuses(plan); err != nil {
+			t.Fatal(err)
+		}
+		after := s.Document.Snapshot()
+		pointer := plan.Pointer()
+		at, valid := gba.Pointer(after.Data, pointer)
+		if !valid || at != plan.Destination() ||
+			!bytes.Equal(expected, after.Data[at:at+len(expected)]) {
+			t.Fatal("bonus values, opaque bytes or pointer")
+		}
+		prefix := bytes.Clone(before.Data)
+		copy(prefix[pointer:pointer+4], after.Data[pointer:pointer+4])
+		if !bytes.Equal(prefix, after.Data[:len(prefix)]) {
+			t.Fatal("changed original payload or independent references")
+		}
+		reopened := historyAndReopen(t, s, before)
+		saved, err := reopened.Supports.NewBonusDraft()
+		if err != nil || !bytes.Equal(saved.Raw(), expected) {
+			t.Fatal("bonus save/reopen", err)
+		}
+		t.Logf("affinity=%02X, rows=%d", rows[0].Affinity, len(rows))
+	})
 	t.Run("relationships", func(t *testing.T) {
 		s := openCopy(t, initial.Data)
 		rows, err := s.Supports.Records()

@@ -1,4 +1,4 @@
-// Package support edits native character relationships and support dialog.
+// Package support edits native relationships, dialog and affinity bonuses.
 package support
 
 import (
@@ -57,12 +57,14 @@ func FE8Layout() Layout {
 type Format struct {
 	Layout
 	TalkPointers []int
+	BonusPointer int
 }
 
 // Unit is a character record's support entry. Host names the containing
 // record, so the session can tell an owner's own pointer from damage.
 type Unit struct {
 	ID, Pointer int
+	Affinity    uint8
 	Name        string
 	Host        space.Owner
 }
@@ -178,7 +180,7 @@ func (f Format) talks(data []byte) talkTable {
 // table with its native consumer pointers. The talk table uses the zero ID,
 // which no character record can hold.
 func (f Format) Claims(data []byte, units []Unit) []space.Claim {
-	var result []space.Claim
+	result := f.bonusClaims(data)
 	for _, unit := range units {
 		owner := space.Owner{Resource: "support", ID: unit.ID}
 		result = append(

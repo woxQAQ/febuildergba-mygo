@@ -236,7 +236,7 @@ func (w *Workspace) View(c *ui.Context) {
 			locales.PortraitTable(),
 			locales.ShopEntries(),
 			locales.QuoteEditor(),
-			locales.SupportDialogues(),
+			locales.SupportEditor(),
 		)
 		ui.ScrollHorizontal(c.Key("workspace-tabs")).Shrink(0).Children(func() {
 			ui.Tabs(c, &w.tab, labels...).Shrink(0)

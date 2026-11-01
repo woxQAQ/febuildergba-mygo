@@ -125,19 +125,19 @@
 
 版本前提、旧版依据与详细限制：[人物与职业设计](record-editor-design.md)、[头像设计](portrait-editor-design.md)。
 
-| ID                   | 能力                 | 实现状态 | 范围与缺口                                 |
-| -------------------- | -------------------- | -------- | ------------------------------------------ |
-| records.abilities    | 横向能力矩阵与范围   | 已接入   | 五版已有记录                               |
-| records.reference    | 初始参照及线性估算   | 已接入   | 当前默认职业与字段                         |
-| records.weapons      | 熟练度、等级与继承   | 已接入   | 版本门槛、默认职业、原生武器类别图标       |
+| ID                   | 能力                 | 实现状态 | 范围与缺口                                                                         |
+| -------------------- | -------------------- | -------- | ---------------------------------------------------------------------------------- |
+| records.abilities    | 横向能力矩阵与范围   | 已接入   | 五版已有记录                                                                       |
+| records.reference    | 初始参照及线性估算   | 已接入   | 当前默认职业与字段                                                                 |
+| records.weapons      | 熟练度、等级与继承   | 已接入   | 版本门槛、默认职业、原生武器类别图标                                               |
 | records.thumbnails   | 人物头像与职业待机图 | 已接入   | 仅显示人物自身头像；待机首帧按可见像素紧凑排布；自定义图块／索引及调色板扩展不保证 |
-| records.traits       | 四字节特性           | 已接入   | 版本已确认位                               |
-| records.links        | 身份与关联资源       | 已接入   | 已确认字段与字节入口；专用编辑器待接入     |
-| portraits.table      | 独立资源表与使用处   | 已接入   | 当前头像表指针                             |
-| portraits.parts      | 部件与表情检查       | 已接入   | 五版原生素材                               |
-| portraits.position   | 眼口定位与默认眨眼   | 已接入   | FE6 16 字节／FE7、FE8 28 字节记录          |
-| portraits.references | 人物引用与小头像来源 | 已接入   | 原生引用与通用小头像；通用 PNG、扩展待接入 |
-| portraits.edit       | PNG 与原始资源       | 已接入   | 已有原生 ID；新增、扩表、自定义引擎待接入  |
+| records.traits       | 四字节特性           | 已接入   | 版本已确认位                                                                       |
+| records.links        | 身份与关联资源       | 已接入   | 已确认字段与字节入口；专用编辑器待接入                                             |
+| portraits.table      | 独立资源表与使用处   | 已接入   | 当前头像表指针                                                                     |
+| portraits.parts      | 部件与表情检查       | 已接入   | 五版原生素材                                                                       |
+| portraits.position   | 眼口定位与默认眨眼   | 已接入   | FE6 16 字节／FE7、FE8 28 字节记录                                                  |
+| portraits.references | 人物引用与小头像来源 | 已接入   | 原生引用与通用小头像；通用 PNG、扩展待接入                                         |
+| portraits.edit       | PNG 与原始资源       | 已接入   | 已有原生 ID；新增、扩表、自定义引擎待接入                                          |
 
 ## 五版静态素材 PNG 读写
 
@@ -275,13 +275,13 @@
 
 五版原生布局、匹配顺序和已知入口见[格式参考](reference/battle-and-defeat-dialogue.md)。这些全局表与章节普通对话条件分开。
 
-| ID               | 能力                       | 实现状态 | 范围与缺口                                                                                             |
-| ---------------- | -------------------------- | -------- | ------------------------------------------------------------------------------------------------------ |
+| ID               | 能力                       | 实现状态 | 范围与缺口                                                                                                                                            |
+| ---------------- | -------------------------- | -------- | ----------------------------------------------------------------------------------------------------------------------------------------------------- |
 | quotes.tables    | 原生表发现与搜索           | 已接入   | 战斗姓名／头像配对；死亡记录嵌入人物详情；FE6／FE7 双方、通用、三角攻击与死亡；FE7 两套篇章死亡脚本；FE8 共表的双方／单人／三角攻击筛选与对应新增条件 |
-| quotes.fields    | 人物、章节、路线与标志     | 已接入   | 五版原生字段；FE6 终章台词、FE8 路线及无文本死亡标志；超范围角色字保留并阻止普通人物替换               |
-| quotes.structure | 添加、复制、删除与排序     | 已接入   | 原生终止规则、最多 2048 条，保留未知字节及完整终止记录                                                 |
-| quotes.links     | 文本、人物、章节与脚本引用 | 部分实现 | 文本选择、正文摘要、原始指令及双向使用处导航；人物／章节跳转；脚本地址关联与字节查看；独立全局脚本图及结构编辑待接入 |
-| quotes.commit    | 预览、重定位、历史与保存   | 已接入   | 已知消费者一起更新；分离入口停止自动写入；独立共享表保留；跨文档、修订、布局及资源冲突检查             |
+| quotes.fields    | 人物、章节、路线与标志     | 已接入   | 五版原生字段；FE6 终章台词、FE8 路线及无文本死亡标志；超范围角色字保留并阻止普通人物替换                                                              |
+| quotes.structure | 添加、复制、删除与排序     | 已接入   | 原生终止规则、最多 2048 条，保留未知字节及完整终止记录                                                                                                |
+| quotes.links     | 文本、人物、章节与脚本引用 | 部分实现 | 文本选择、正文摘要、原始指令及双向使用处导航；人物／章节跳转；脚本地址关联与字节查看；独立全局脚本图及结构编辑待接入                                  |
+| quotes.commit    | 预览、重定位、历史与保存   | 已接入   | 已知消费者一起更新；分离入口停止自动写入；独立共享表保留；跨文档、修订、布局及资源冲突检查                                                            |
 
 ## 职业移动与地形
 
@@ -298,13 +298,13 @@
 
 五版布局、匹配、同步和写入边界见[支援参考](reference/supports.md)。
 
-| ID                     | 能力                     | 实现状态 | 范围与缺口                                                                                                 |
-| ---------------------- | ------------------------ | -------- | ---------------------------------------------------------------------------------------------------------- |
-| supports.relationships | 对象、初始值、增长及增删 | 已接入   | 人物详情的支援标签；五版当前人物指针，FE6 最多 10 项、FE7／FE8 最多 7 项；空指针初始化，未知字节保留       |
-| supports.synchronize   | 双方数值同步             | 已接入   | 明确选用后同步已有反向关系；缺失列入预览，不自动创建或删除另一方关系                                       |
-| supports.dialogue      | C／B／A 文本引用         | 已接入   | 独立对话面板、全表搜索与按人物组合筛选、文本预览及双向导航；关系损坏不阻止有效对话；表增删排序及音乐待接入 |
-| supports.write         | 共享预览、原子历史和保存 | 已接入   | 两面板各自预览及原子应用；保留独立人物引用、更新已确认对话消费者；拒绝分离消费者和过期操作                 |
-| supports.attributes    | 支援属性加成             | 待实现   | 已定位旧版入口及原生加成结构；专用编辑未接入                                                               |
+| ID                     | 能力                     | 实现状态 | 范围与缺口                                                                                                                 |
+| ---------------------- | ------------------------ | -------- | -------------------------------------------------------------------------------------------------------------------------- |
+| supports.relationships | 对象、初始值、增长及增删 | 已接入   | 人物详情的支援标签；五版当前人物指针，FE6 最多 10 项、FE7／FE8 最多 7 项；空指针初始化，未知字节保留                       |
+| supports.synchronize   | 双方数值同步             | 已接入   | 明确选用后同步已有反向关系；缺失列入预览，不自动创建或删除另一方关系                                                       |
+| supports.dialogue      | C／B／A 文本引用         | 已接入   | 独立对话面板、全表搜索与按人物组合筛选、文本预览及双向导航；关系损坏不阻止有效对话；表增删排序及音乐待接入                 |
+| supports.write         | 共享预览、原子历史和保存 | 已接入   | 两面板各自预览及原子应用；保留独立人物引用、更新已确认对话消费者；拒绝分离消费者和过期操作                                 |
+| supports.attributes    | 支援属性加成             | 已接入   | 五版已有原生表的六项字节值、同属性人物预览及原子历史；保留额外／重复 ID、尾字节和终止记录；增删、ID 修改及自定义引擎待接入 |
 
 ## 商店
 
@@ -356,7 +356,7 @@
 | images.static      | 静态图像与调色板             | [ImagePortraitForm.cs](../FEBuilderGBA/FEBuilderGBA/ImagePortraitForm.cs)           | 调色板、压缩、空间       | 部分实现；头像、职业卡、图标；其他图像类型待实现                                             |
 | chapters.maps      | 章节、地图与部署             | [MapEditorForm.cs](../FEBuilderGBA/FEBuilderGBA/MapEditorForm.cs)                   | 图像、章节布局、空间     | 部分实现；已有绘制、尺寸、变化资源及脚本联动、共享检查与原子保存；素材、地形定义及扩章待实现 |
 | chapters.events    | 事件指令、模板和世界地图     | [EventScriptForm.cs](../FEBuilderGBA/FEBuilderGBA/EventScriptForm.cs)               | 事件指令定义、引用       | 部分实现；已确认条件及常用脚本；其余工作流待盘点                                             |
-| gameplay.tables    | 支援、商店、成长及规则表     | [SupportUnitForm.cs](../FEBuilderGBA/FEBuilderGBA/SupportUnitForm.cs)               | 表适配、引用             | 部分实现；原生商店、支援关系及现有支援对话已接入；属性加成及其他规则继续盘点                 |
+| gameplay.tables    | 支援、商店、成长及规则表     | [SupportUnitForm.cs](../FEBuilderGBA/FEBuilderGBA/SupportUnitForm.cs)               | 表适配、引用             | 部分实现；原生商店、支援关系、现有对话及属性加成已接入；其他规则继续盘点                     |
 | patches.manage     | 社区补丁管理                 | [PatchForm.cs](../FEBuilderGBA/FEBuilderGBA/PatchForm.cs)                           | 检测、空间、工具         | 待实现；条件、依赖、配置、安装、卸载和回滚                                                   |
 | tools.assembly     | EA、ARM 与构建工具链         | [EventAssemblerForm.cs](../FEBuilderGBA/FEBuilderGBA/EventAssemblerForm.cs)         | 原生外部工具、操作导入   | 待实现；脚本、符号、工具协议和版本记录                                                       |
 | assets.animation   | 战斗、地图、魔法动画与 OAM   | [ImageBattleAnimeForm.cs](../FEBuilderGBA/FEBuilderGBA/ImageBattleAnimeForm.cs)     | OAM、压缩、图像、空间    | 待实现；资源、时序及外部格式仍需逐项盘点                                                     |
@@ -380,7 +380,7 @@
 | worldmap.paths     | 世界地图路线连接       | [WorldMapPathForm.cs](../FEBuilderGBA/FEBuilderGBA/WorldMapPathForm.cs)                     | 待实现   | 已定位路线表；路线资源和扩展需继续核对                                                                      |
 | worldmap.movement  | 世界地图路径及移动编辑 | [WorldMapPathMoveEditorForm.cs](../FEBuilderGBA/FEBuilderGBA/WorldMapPathMoveEditorForm.cs) | 待盘点   | 图形路径、移动数据及写入流程                                                                                |
 | worldmap.events    | 世界地图事件入口       | [WorldMapEventPointerForm.cs](../FEBuilderGBA/FEBuilderGBA/WorldMapEventPointerForm.cs)     | 待盘点   | 版本入口、指令及脚本导入导出                                                                                |
-| gameplay.support   | 支援关系、对话与属性   | [SupportUnitForm.cs](../FEBuilderGBA/FEBuilderGBA/SupportUnitForm.cs)                       | 部分实现 | 五版关系、可选双方数值同步及现有对话见 supports.*；属性加成、对话扩表、外部格式及补丁扩展待接入             |
+| gameplay.support   | 支援关系、对话与属性   | [SupportUnitForm.cs](../FEBuilderGBA/FEBuilderGBA/SupportUnitForm.cs)                       | 部分实现 | 五版关系、可选双方同步、现有对话与加成值见 supports.*；加成表结构、对话扩表、外部格式及补丁扩展待接入       |
 | gameplay.shops     | 商店货物编辑           | [ItemShopForm.cs](../FEBuilderGBA/FEBuilderGBA/ItemShopForm.cs)                             | 部分实现 | 章节、默认、FE8 准备／世界地图入口及原生货物已接入；容量补丁、外部格式与 IER 专用语义待接入                 |
 | gameplay.arena     | 斗技场规则             | [ArenaClassForm.cs](../FEBuilderGBA/FEBuilderGBA/ArenaClassForm.cs)                         | 待盘点   | 联合核对敌方武器与联机参战限制                                                                              |
 | tools.flag-names   | 标志命名与附属信息     | [ToolFlagNameForm.cs](../FEBuilderGBA/FEBuilderGBA/ToolFlagNameForm.cs)                     | 待实现   | 已定位名称修改；保存、载入与兼容契约待细化                                                                  |
@@ -432,7 +432,7 @@
 
 地形验证入口：`game/terrain/workflow_test.go`、`internal/testutil/terrain.go`、`tests/integration/terrain_test.go`；五版合成流程与动态 ROM 文件流程覆盖所有原生列、共享隔离、未知字节、过期／布局冲突和保存重开。临时 UI 复核覆盖 FE6／FE8 的宽窄表格、输入校验、草稿文本撤销、切换职业、预览应用、忙碌禁用、过期保留、横向滚动及字节跳转；未执行游戏内寻路或地形加成验证。
 
-支援验证入口：`game/support/workflow_test.go`、`internal/testutil/supports.go`、`tests/integration/supports_test.go`；五版合成样本与动态发现的真实 ROM 文件流程覆盖关系、对话、未知字节、原子历史及保存重开。`game/support/dialogue_workflow_test.go` 另覆盖面板间草稿隔离及损坏关系下的独立对话编辑。临时无窗口 UI 复核覆盖关系与对话分离、输入校验、双向跳转、预览应用、过期草稿及宽窄布局；未执行游戏内支援触发或存档迁移验证。
+支援验证入口：`game/support/workflow_test.go`、`internal/testutil/supports.go`、`tests/integration/supports_test.go`；五版合成样本与动态发现的真实 ROM 文件流程覆盖关系、对话、属性加成、未知字节、原子历史及保存重开。`game/support/dialogue_workflow_test.go` 另覆盖面板间草稿隔离及损坏关系下的独立对话编辑。`game/support/bonuses_workflow_test.go` 覆盖额外／重复属性 ID、全表保留、已知人物使用处、独立输入、保护冲突及失败原子性。临时无窗口 UI 复核覆盖关系与对话分离、输入校验、双向跳转、预览应用、过期草稿及宽窄布局；属性加成另复核六列输入、切页保留、预览应用、过期重读与窄窗口横向滚动；未执行游戏内支援触发或存档迁移验证。
 
 ## 更新规则
 

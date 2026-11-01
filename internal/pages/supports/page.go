@@ -1,4 +1,4 @@
-// Package supports owns the native support dialog panel.
+// Package supports owns the native support dialog and affinity bonus panels.
 package supports
 
 import (
@@ -40,6 +40,8 @@ func (s *dialogueState) invalid() bool {
 }
 
 type Page struct {
+	section       int
+	bonuses       *bonusState
 	state         *editor.State
 	openSupport   func(int)
 	openText      func(uint16)
@@ -78,6 +80,7 @@ func (p *Page) Reset() {
 }
 
 func (p *Page) OpenPair(unit, partner int) {
+	p.section = 0
 	p.unit, p.partner, p.query = unit, partner, ""
 	p.selected = 0
 	p.rows = nil
@@ -134,6 +137,21 @@ func (p *Page) talkCaption(row support.Talk) string {
 }
 
 func (p *Page) View(c *ui.Context) {
+	ui.Column(c).Fill().Children(func() {
+		ui.Tabs(c.Key("support-section"), &p.section, locales.SupportDialogues(), locales.SupportBonuses()).
+			Shrink(0).
+			Disabled(p.state.Busy)
+		ui.Column(c.Key(p.section)).Fill().Children(func() {
+			if p.section == 1 {
+				p.bonusView(c)
+			} else {
+				p.dialogView(c)
+			}
+		})
+	})
+}
+
+func (p *Page) dialogView(c *ui.Context) {
 	entry := p.draft()
 	if entry.draft == nil {
 		ui.Column(c).Padding(16).Gap(8).Children(func() {

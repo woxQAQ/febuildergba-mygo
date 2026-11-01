@@ -167,9 +167,8 @@ func (s *Session) collectClaims(data []byte) []space.Claim {
 
 	// Battle and defeat dialog, supports and class terrain.
 	claims = append(claims, g.quotes.Claims(data)...)
-	if units, err := s.supportUnits(data); err == nil {
-		claims = append(claims, g.supports.Claims(data, units)...)
-	}
+	units, _ := s.supportUnits(data)
+	claims = append(claims, g.supports.Claims(data, units)...)
 	if classes, err := s.terrainClasses(data); err == nil {
 		claims = append(claims, g.terrain.Claims(data, classes)...)
 	}
