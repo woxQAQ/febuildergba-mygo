@@ -3,7 +3,7 @@ import { realpath } from "node:fs/promises";
 import { homedir } from "node:os";
 import { extname, isAbsolute, relative, resolve, sep } from "node:path";
 
-// gpt6 series models like to write codes without poor format, so write this extension to hook
+// gpt6 series models like to write codes with poor format, so write this extension to hook
 // the edit tool and format the result.
 export default function (pi: ExtensionAPI) {
   pi.on("tool_result", async (event, ctx) => {
