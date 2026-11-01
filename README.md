@@ -8,23 +8,22 @@
 
 ## 快速运行
 
-安装 Nix 和 devenv 后，在仓库根目录进入固定的开发环境并启动：
+按[开发说明](docs/development.md#环境与命令)通过 Nix 提供工具后，在仓库根目录直接启动：
 
 ```sh
-devenv shell
 just run /path/to/FE8U.gba
 ```
 
 省略路径时，可通过“文件 → 打开 ROM…”或 Cmd+O 打开文件。每个 ROM 使用独立窗口。基础编辑不需要旧版 C# 运行环境或模拟器。
 
-在该环境中，也可以执行：
+开发与打包使用：
 
 ```sh
 just dev -lang zh-Hans
 just build
 ```
 
-无需进入交互 shell 时，可直接运行 `devenv shell just run /path/to/FE8U.gba`。环境和工具链约定见[开发说明](docs/development.md#环境与命令)。
+命令由 [justfile](justfile) 维护，统一禁用 Go 工具链自动下载；环境和工具要求见[开发说明](docs/development.md#环境与命令)。
 
 开发模式会记住成功打开的 ROM 路径，无显式参数时在重启后恢复；未保存的内存修改不会自动写入 ROM。详情见[开发说明](docs/development.md#开发启动)。
 

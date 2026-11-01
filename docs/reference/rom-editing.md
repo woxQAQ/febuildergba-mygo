@@ -1,92 +1,72 @@
 # ROM、版本与空间
 
-本文维护当前格式、写入语义和限制；功能状态见[覆盖矩阵](../coverage.md)，操作步骤见[使用指南](../user-guide.md)。旧版与原生代码的固定版本见[核对来源](../sources.md)。
+本文维护版本前提、旧版依据、写入语义和行为限制；功能状态由表中链接指向[覆盖矩阵](../coverage.md)的对应行，操作步骤见[使用指南](../user-guide.md)。旧版与原生代码的固定版本见[核对来源](../sources.md)。
 
 当前入口：`rom/document.go`、`game/session.go`、`game/edit/bytes.go`、`game/records/relocation.go`、`space/write.go`。
 
-FE7U 的 Huffman 根／树入口为 `0x6B8`／`0x6BC`，其余当前版本使用 `0x6DC`／`0x6E0`，由适配器提供。FE7 的人物／职业／道具记录分别为 52／84／36 字节；FE7U 头像主图使用 LZ77，FE7J 主图不压缩。
-
 ## 基础编辑与原生界面
 
-| 能力                       | 版本／依据                                      | 行为与限制                                                                |
-| -------------------------- | ----------------------------------------------- | ------------------------------------------------------------------------- |
-| 识别并打开 ROM             | ROM.LoadLow                                     | FE8U／FE8J／FE7U／FE7J／FE6                                               |
-| 无修改保存                 | ROM.Save                                        | 保留原有字节                                                              |
-| 修改、撤销、重做及保存点   | Undo、InputFormRef                              | 字段、批量、名称／描述、素材替换和原始字节共用历史                        |
-| 保存、另存、备份及失败处理 | MainFormUtil                                    | 快照写入、备份和替换                                                      |
-| 保存期间保持文档可读       | 后台保存边界                                    | I/O 不持有状态锁，新修改保持未保存                                        |
-| 检测外部修改               | ROMUpdateWatcher                                | 保存与聚焦时检查摘要，持续监视未实现                                      |
-| 独立文档与历史             | 多文档模型                                      | 每窗口独立会话                                                            |
-| 按实际指针定位搬迁表       | ROMFE8U、U.FindROMPointer                       | 单表解析失败不关闭其他表                                                  |
-| 人物基础字段               | UnitForm／Designer                              | 基础字段已接入，补丁扩展字段未完整覆盖                                    |
-| 职业基础字段               | ClassForm／Designer                             | 基础能力等字段已接入，地形与动画资源未覆盖                                |
-| 道具基础字段               | ItemForm／Designer                              | 基础字段已接入，补丁扩展字段未完整覆盖                                    |
-| 多选预览与批量应用         | 多记录字段写入                                  | 一次应用形成单次撤销，搜索改变清空多选                                    |
-| 关联职业跳转               | 字段引用                                        | 正向跳转已接入，全局反向引用待实现                                        |
-| 名称读取                   | FETextDecode、TextForm.Direct、NarrowFont       | 已有窄字库映射，其他编码与字库待接入                                      |
-| 布局相关补丁识别           | PatchUtil、MagicSplitUtil                       | NarrowFont、SkillSystem、魔力拆分及头像扩展特征识别，补丁管理未实现       |
-| 头像、职业卡及图标预览     | ImagePortraitForm、ImageItemIconForm、ImageUtil | 读取、像素缩放、原始数据跳转及标准素材 PNG 导出／替换；扩展头像格式暂只读 |
-| 手动表定位                 | InputFormRef 高级操作                           | 沿用已知字段，只影响当前窗口，不改写指针                                  |
-| 固定长度字节编辑           | 原始数据操作                                    | 每次 1 至 4096 字节，写入检查文档归属及修订                               |
-| 保存后打开模拟器           | 外部工具                                        | 支持配置可执行文件、PATH 和 macOS bundle                                  |
-| 跳转指定章节               | EmulatorMemoryUtil.CHEAT_WARP_FE6/FE7/FE8       | 待实现；涉及 RAM 事件注入、版本差异及章节状态初始化                       |
+| 行为／状态入口                                                                                                | 版本／旧版依据                                                                 | 行为与限制                                                                                                                        |
+| ------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------ | --------------------------------------------------------------------------------------------------------------------------------- |
+| [识别并打开 ROM](../coverage.md#rom-open)                                                                     | FE8U／FE8J／FE7U／FE7J／FE6；`ROM.LoadLow`                                     | 标头与最小长度用于选版本，不认证自定义布局                                                                                        |
+| [无修改保存](../coverage.md#rom-noop)                                                                         | `ROM.Save`                                                                     | 保留原有字节                                                                                                                      |
+| [撤销、重做及保存点](../coverage.md#rom-history)                                                              | `Undo`、`InputFormRef`                                                         | 字段、批量、文本、素材及原始字节共用历史                                                                                          |
+| [保存与备份](../coverage.md#rom-save)、[保存快照](../coverage.md#rom-save-snapshot)                           | `MainFormUtil`、后台保存边界                                                   | 快照写入、备份和替换；I/O 不持有状态锁，期间新修改保持未保存                                                                      |
+| [外部修改检测](../coverage.md#rom-external)、[窗口隔离](../coverage.md#rom-isolation)                         | `ROMUpdateWatcher`、多文档模型                                                 | 保存与聚焦时检查摘要；每窗口独立会话                                                                                              |
+| [实际表指针](../coverage.md#fe8u-repoint)                                                                     | `ROMFE8U`、`U.FindROMPointer`                                                  | 单表解析失败不关闭其他表                                                                                                          |
+| [人物](../coverage.md#fe8u-units)、[职业](../coverage.md#fe8u-classes)、[道具字段](../coverage.md#fe8u-items) | `UnitForm`、`ClassForm`、`ItemForm` 及各自 Designer                            | 字段解释依赖适用布局；职业指针所引用的移动消耗与加成列见[地形参考](terrain.md)，其范围见[地形矩阵](../coverage.md#职业移动与地形) |
+| [批量应用](../coverage.md#fe8u-batch)、[职业关联](../coverage.md#fe8u-references)                             | 多记录字段写入、字段引用                                                       | 批量一次应用形成单次撤销，搜索改变清空多选；职业按字段目标正向跳转                                                                |
+| [名称](../coverage.md#fe8u-names)、[布局特征](../coverage.md#fe8u-patches)                                    | `FETextDecode`、`TextForm.Direct`、`NarrowFont`、`PatchUtil`、`MagicSplitUtil` | 字符与控制码见[文本参考](text-and-images.md)；补丁特征只用于相应字段及布局的解释                                                  |
+| [头像、职业卡与图标](../coverage.md#fe8u-asset-preview)                                                       | `ImagePortraitForm`、`ImageItemIconForm`、`ImageUtil`                          | 标准格式的 PNG 语义见[素材参考](text-and-images.md#五版静态素材-png-读写)；扩展头像格式只读                                       |
+| [手动表定位](../coverage.md#fe8u-layout)、[原始字节](../coverage.md#fe8u-raw)                                 | `InputFormRef` 高级操作、原始数据操作                                          | 手动布局沿用已知字段，只影响当前窗口，不改写指针；原始编辑每次 1 至 4096 字节，检查文档归属及修订                                 |
+| [模拟器启动](../coverage.md#emulator-launch)、[章节跳转](../coverage.md#emulator-warp)                        | 外部工具、`EmulatorMemoryUtil.CHEAT_WARP_FE6/FE7/FE8`                          | 启动目标可为可执行文件、PATH 命令或 macOS bundle；章节跳转涉及 RAM 事件、版本差异与章节状态初始化                                 |
 
 ## FE8J／FE6 基础版本适配
 
-以下适配面向日文原版，共用现有工作区与文档历史。
+以下格式依据面向日文原版，编辑使用同一 ROM 文档历史。
 
-| 能力                 | 版本／依据                              | 行为与限制                                               |
-| -------------------- | --------------------------------------- | -------------------------------------------------------- |
-| 人物基础字段         | ROMFE8JP、UnitForm                      | 补丁扩展字段待实现                                       |
-| 职业基础字段         | ROMFE8JP、ClassForm                     | 其他职业资源待实现                                       |
-| 道具基础字段         | ROMFE8JP、ItemForm                      | 补丁扩展待实现                                           |
-| 名称读取与搜索       | FETextDecode、FETextEncode              | 名称与已有文本 ID 读写；自定义字库待实现                 |
-| 头像、职业卡及图标   | ImagePortraitForm、ImageItemIconForm    | 读取及标准素材 PNG 导出／替换；扩展格式待实现            |
-| 人物基础字段         | ROMFE6JP、UnitFE6Form                   | 跳过 ID 0 占位，扩展字段待实现                           |
-| 职业基础字段         | ROMFE6JP、ClassFE6Form                  | 72 字节布局；无转职加成字段，其他职业资源待实现          |
-| 道具基础字段         | ROMFE6JP、ItemFE6Form                   | 32 字节布局；无武器经验字段，扩展行为待实现              |
-| 名称读取与搜索       | FETextDecode、FETextEncode              | 日文原版名称及已有文本 ID 读写；翻译版自定义字库待实现   |
-| 头像、职业卡及图标   | ImagePortraitFE6Form、ImageItemIconForm | 16 字节头像布局及完整 PNG 素材表读写；动态图像播放待实现 |
-| 多版本共用编辑与历史 | 文档、布局、原始区域                    | 批量、撤销、手动定位及原始字节操作                       |
+| 版本／状态入口                                                                                                  | 旧版依据                                                         | 格式与行为限制                                                                                                           |
+| --------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------ |
+| FE8J：[人物](../coverage.md#fe8j-units)、[职业](../coverage.md#fe8j-classes)、[道具](../coverage.md#fe8j-items) | `ROMFE8JP`、`UnitForm`、`ClassForm`、`ItemForm`                  | 人物／职业／道具记录分别为 52／84／36 字节；职业移动与地形列见[地形参考](terrain.md)                                     |
+| FE6：[人物](../coverage.md#fe6-units)、[职业](../coverage.md#fe6-classes)、[道具](../coverage.md#fe6-items)     | `ROMFE6JP`、`UnitFE6Form`、`ClassFE6Form`、`ItemFE6Form`         | 跳过隐藏人物 ID 0；48／72／32 字节记录，职业无转职加成字段，道具无武器经验字段；职业移动与地形列见[地形参考](terrain.md) |
+| [FE8J 名称](../coverage.md#fe8j-names)、[FE6 名称](../coverage.md#fe6-names)                                    | `FETextDecode`、`FETextEncode`                                   | 日文原版字符集及已有文本 ID；自定义字库需独立确认编码                                                                    |
+| [FE8J 素材](../coverage.md#fe8j-assets)、[FE6 素材](../coverage.md#fe6-assets)                                  | `ImagePortraitForm`、`ImagePortraitFE6Form`、`ImageItemIconForm` | FE6 头像记录为 16 字节；PNG 部件与版本差异见[素材参考](text-and-images.md)                                               |
+| [共用编辑与历史](../coverage.md#adapters-shared-history)                                                        | 文档、布局、原始区域                                             | 批量、撤销、手动定位与原始字节使用各自有效布局和统一历史                                                                 |
 
 ## FE7U／FE7J 基础版本适配
 
-依据 `ROMFE7U`、`ROMFE7JP`、`UnitFE7Form`、`ClassForm`、`ItemForm`、`FETextEncode` 和 `ImagePortraitForm`。适配原版 `AE7E01`、`AE7J01`，文件至少 16 MiB，共用现有工作区、字段定义、保存和历史。
+适配原版 `AE7E01`、`AE7J01`，文件至少 16 MiB。旧版依据为 `ROMFE7U`、`ROMFE7JP`、`UnitFE7Form`、`ClassForm`、`ItemForm`、`FETextEncode` 和 `ImagePortraitForm`。
 
-| 能力                             | 版本／依据                              | 行为与限制                                                                                      |
-| -------------------------------- | --------------------------------------- | ----------------------------------------------------------------------------------------------- |
-| 人物基础字段                     | FE7U／FE7J；52 字节                     | 固定 253 条可见记录，ID 1 至 253；补丁扩展待实现                                                |
-| 职业基础字段                     | FE7U／FE7J；84 字节                     | 含转职加成与武器熟练度；其他职业资源待实现                                                      |
-| 道具基础字段                     | FE7U／FE7J；36 字节                     | 含武器经验，按两个已知指针字段判断表末尾；扩展行为待实现                                        |
-| 名称读取与搜索                   | FE7U；Huffman 根／树指针在 0x6B8／0x6BC | 名称及已有文本 ID 读写、压缩／anti-Huffman 读取与恢复地址；更多字库待实现                       |
-| 名称读取与搜索                   | FE7J；Shift-JIS 与 FE7 专属名字形       | 名称及已有文本 ID 读写、压缩／anti-Huffman 读取、恢复地址及紧凑职业名双向映射；自定义字库待实现 |
-| 头像、职业卡及图标               | FE7U；28 字节头像记录                   | LZ77 头像、职业卡及图标 PNG 导出／替换；扩展格式待实现                                          |
-| 头像、职业卡及图标               | FE7J；28 字节头像记录                   | 未压缩头像、职业卡及图标 PNG 导出／替换；扩展格式待实现                                         |
-| 批量、手动布局、原始数据及表搬迁 | 共用会话与文档操作                      | 保存重开和撤销重做由领域测试验证                                                                |
-
-FE7 搬迁只更新旧版声明的表入口和资源内已知指针。未选定引用继续读取旧数据，完整游戏代码引用仍需核对。合成样本的文件流程不代表游戏运行验证。
+| 格式／状态入口                                                                   | 版本／依据                               | 行为与限制                                                                                                                  |
+| -------------------------------------------------------------------------------- | ---------------------------------------- | --------------------------------------------------------------------------------------------------------------------------- |
+| [人物](../coverage.md#fe7-units)                                                 | FE7U／FE7J；`UnitFE7Form`                | 52 字节记录，固定 253 条可见记录，ID 1 至 253                                                                               |
+| [职业](../coverage.md#fe7-classes)                                               | FE7U／FE7J；`ClassForm`                  | 84 字节记录，含转职加成与武器熟练度；引用列见[地形参考](terrain.md)                                                         |
+| [道具](../coverage.md#fe7-items)                                                 | FE7U／FE7J；`ItemForm`                   | 36 字节记录，含武器经验；按两个已知指针字段判断表末尾                                                                       |
+| [FE7U 名称](../coverage.md#fe7u-names)、[FE7J 名称](../coverage.md#fe7j-names)   | `FETextDecode`、`FETextEncode`           | FE7U Huffman 根／树入口为 `0x6B8`／`0x6BC`，其余版本为 `0x6DC`／`0x6E0`，由适配器提供；FE7J 使用 Shift-JIS 与专属紧凑名字形 |
+| [FE7U 素材](../coverage.md#fe7u-assets)、[FE7J 素材](../coverage.md#fe7j-assets) | `ImagePortraitForm`、`ImageItemIconForm` | 28 字节头像记录；FE7U 主图使用 LZ77，FE7J 主图不压缩                                                                        |
+| [共用编辑与搬迁](../coverage.md#fe7-shared-edits)                                | 会话与文档操作                           | 只更新旧版声明的表入口和资源内已知指针；未选定引用继续读取旧数据                                                            |
 
 ## 空间分配与表搬迁
 
-依据 `InputFormRef.WriteBinaryData`／`MoveBinaryData`、`MoveToFreeSapceForm` 和各版表初始化规则。先打开表定位，再预览搬迁并应用。当前只搬迁自动定位且范围可确定的已有表，不增加记录数。
+依据 `InputFormRef.WriteBinaryData`／`MoveBinaryData`、`MoveToFreeSapceForm` 和各版表初始化规则。搬迁入口见[使用指南](../user-guide.md)；自动搬迁要求已有表的范围和引用可确定。
 
-| 能力                                                                                                     | 版本／依据                               | 行为与限制                                                                                                     |
-| -------------------------------------------------------------------------------------------------------- | ---------------------------------------- | -------------------------------------------------------------------------------------------------------------- |
-| 末尾分配、对齐和容量检查                                                                                 | FE8U／FE8J／FE7U／FE7J／FE6；最大 32 MiB | 4 字节对齐，新字节填 FF；不根据零或 FF 自动复用空间                                                            |
-| 有来源的可用区间                                                                                         | 显式声明及边界检查                       | 核心已实现；检查已知表、源区、引用和其他保护区冲突；界面声明与区间持久化待实现                                 |
-| 搬迁时更新已确认引用                                                                                     | 游戏规则或显式引用；核对当前指针值       | 支持外部、内部及资源内偏移引用；未选定共享引用和源数据保留，全局反向查询待实现                                 |
-| 已有人物／职业／道具／章节表搬迁                                                                         | 自动布局、完整范围及已确认的表引用       | FE8U／FE8J／FE7U／FE7J／FE6；包含 FE6 隐藏人物 ID 0 和职业／道具／章节表结束记录；手动解析布局暂不提供自动搬迁 |
-| 扩容与字节／指针共用历史                                                                                 | ROM 文档                                 | 先验证再提交，一次撤销恢复原长度，重做恢复扩容；过期或其他文档的预览被拒绝                                     |
-| 增加表记录、修改容量规则                                                                                 | 表布局与游戏寻址规则                     | 待实现                                                                                                         |
-| 旧区回收及完整共享引用分析                                                                               | 已确认全部使用方                         | 待实现；当前保留旧区，不自动清空或回收                                                                         |
-| 未知补丁新增的引用可能不在当前规则中。源数据保留，因此旧引用仍有效，但这些使用处可能读不到搬迁后的修改。 |
+| 行为／状态入口                                                                                          | 版本／依据                         | 行为与限制                                                                                  |
+| ------------------------------------------------------------------------------------------------------- | ---------------------------------- | ------------------------------------------------------------------------------------------- |
+| [末尾分配、对齐与容量](../coverage.md#storage-append)                                                   | 五版；最大 32 MiB                  | 4 字节对齐，新字节填 FF；不根据零或 FF 自动复用空间                                         |
+| [有来源的可用区间](../coverage.md#storage-free-ranges)                                                  | 显式声明及边界检查                 | 检查已知表、源区、引用和其他保护区冲突                                                      |
+| [更新已确认引用](../coverage.md#storage-references)                                                     | 游戏规则或显式引用                 | 核对当前指针值；外部、内部及资源内偏移引用分别解释，未选定共享引用和源数据保留              |
+| [已有表搬迁](../coverage.md#storage-table-move)                                                         | 五版人物／职业／道具／章节表       | 包含 FE6 隐藏人物 ID 0 和职业／道具／章节结束记录；记录数不变；手动解析布局暂不提供自动搬迁 |
+| [扩容与历史](../coverage.md#storage-expansion-history)                                                  | ROM 文档                           | 先验证再提交，一次撤销恢复原长度，重做恢复扩容；过期或其他文档的预览被拒绝                  |
+| [表记录与容量规则](../coverage.md#storage-table-grow)、[旧区与共享引用](../coverage.md#storage-reclaim) | 表布局、游戏寻址规则和已确认使用方 | 保留旧区，不自动清空或回收；仅凭字节为空不能证明容量或引用规则                              |
+
+未知补丁新增的引用可能不在当前规则中。源数据保留，因此旧引用仍有效，但这些使用处可能读不到搬迁后的修改。
 
 ## 改版识别与写入判定
 
-当前基线的实现依据：
+固定旧版基线的行为依据：
 
 - `ROM.LoadLow` 按 ROM 标头和最小长度选择游戏实现，另有 `LoadForceVersion`；这不是对整个改版布局的认证。
-- `PatchUtil.SearchSkillSystemLow` 和 `MagicSplitUtil.SearchMagicSplitLow` 通过已知字节特征识别补丁。没有匹配时返回 `NO`，未单独返回"未知补丁"状态。
+- `PatchUtil.SearchSkillSystemLow` 和 `MagicSplitUtil.SearchMagicSplitLow` 通过已知字节特征识别补丁。没有匹配时返回 `NO`，未单独返回“未知补丁”状态。
 - `UnitForm_Load` 根据识别结果显示技能入口和魔力拆分字段，属于局部能力适配。
 - `U.FindROMPointer` 在候选指针中查找，有的重载额外检查结构；检查失败会逐级回退，最终可能返回第一个候选。
 - `InputFormRef.WriteHandler` 检查受保护地址、表范围、ID 0 和对齐。部分检查支持配置成直接允许、询问或拒绝；其范围检查在原始边界不明时也存在放行路径。这些检查不等于对结构化布局正确性的保证。

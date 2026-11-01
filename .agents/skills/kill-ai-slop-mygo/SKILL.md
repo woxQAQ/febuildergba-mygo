@@ -147,11 +147,11 @@ reformat unrelated files.
 - [Scanner](scripts/scan.go): dependency-free, read-only CLI.
 - [CLI workflow tests](scripts/scan_test.go): temporary fixtures; no native UI.
 
-In this repository, use the `devenv` environment. From its root:
+In this repository, follow the [project toolchain policy](../../../AGENTS.md#命令与验证). From its root:
 
 ```sh
-devenv shell -- go run .agents/skills/kill-ai-slop-mygo/scripts/scan.go -root .
-devenv shell -- go test ./.agents/skills/kill-ai-slop-mygo/scripts
+GOTOOLCHAIN=local go run .agents/skills/kill-ai-slop-mygo/scripts/scan.go -root .
+GOTOOLCHAIN=local go test ./.agents/skills/kill-ai-slop-mygo/scripts
 ```
 
 Pi discovers this project skill under `.agents/skills`. Reload skills with

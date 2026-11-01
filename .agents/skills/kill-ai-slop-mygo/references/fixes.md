@@ -133,8 +133,8 @@ Do not rename a generic commit action “Save” unless it actually saves.
 
 Edit source catalog values in all supported languages, preserve interpolation
 and plural forms, then run the project's generation and translation checks.
-Do not hand-edit generated Go. In this repository those commands are
-`just generate` and `just i18n-check` inside `devenv`.
+Do not hand-edit generated Go. In this repository use the
+[i18n recipe](../../../../justfile) according to [AGENTS](../../../../AGENTS.md#命令与验证).
 
 ## Put help beside the decision
 

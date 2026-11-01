@@ -31,6 +31,12 @@ linters:
               desc: Window state depends on the domain, not the reverse.
             - pkg: github.com/woxQAQ/febuildergba-mygo/internal/locales
               desc: Domain errors and rules must be independent of UI catalogs.
+        input:
+          files:
+            - "${config-path}/internal/input/**.go"
+          deny:
+            - pkg: github.com/egoist/mygo
+              desc: Numeric and address parsing must remain independent of MyGo.
         version-composition:
           files:
             - "${config-path}/game/*/**.go"

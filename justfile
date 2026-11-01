@@ -1,6 +1,9 @@
 # 命令在 justfile 所在目录执行；参数通过 "$@" 保留原始边界。
 set positional-arguments
 
+# 所有 recipe 及其子进程只使用 PATH 上的 Go，不自动下载工具链。
+export GOTOOLCHAIN := "local"
+
 # 列出可用命令。
 default:
     @just --list
@@ -25,7 +28,9 @@ generate:
 i18n-check:
     go tool mygo i18n check
 
-i18n: generate i18n-check fmt
+# 更新并检查翻译，只格式化翻译包的 Go 文件。
+i18n: generate i18n-check
+    golangci-lint fmt ./internal/locales/...
 
 # 按 .golangci.yml 格式化 Go 代码。
 fmt:
@@ -37,17 +42,17 @@ lint:
 
 # MyGo 检查包含 go vet ./... 和原生 UI 生命周期检查。
 vet:
-    go vet ./... && go tool mygo vet .
+    go tool mygo vet .
 
 # 运行所有默认测试；附加参数传给 go test，例如 just test -count=1。
 test *args:
     go test "$@" ./...
 
-# 只运行文档、游戏会话、空间和图像核心测试。
+# 只运行 ROM 文档、游戏会话、空间和图像核心测试。
 test-core *args:
     go test "$@" ./rom ./game/... ./space ./gba
 
-# 检查文档、游戏会话和空间操作的数据竞争。
+# 检查 ROM 文档、游戏会话和空间操作的数据竞争，不覆盖 UI 线程回传。
 test-race *args:
     go test -race "$@" ./rom ./game/... ./space
 

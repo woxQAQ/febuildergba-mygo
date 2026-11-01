@@ -1,9 +1,8 @@
 .DS_Store
 /.cache/
+# 历史开发环境留下的本机缓存。
 /.devenv*
 /.direnv/
-/devenv.local.nix
-/devenv.local.yaml
 /build/
 /.mygo/
 /.rom/

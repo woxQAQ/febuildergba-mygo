@@ -3,8 +3,8 @@
 Run `scripts/scan.go` with Go 1.21+ and the target project's toolchain. The scanner
 uses the standard library and reads files directly; it does not type-check,
 compile, execute or modify the target app, fetch modules, or launch a window.
-Go itself may use its normal build cache. Respect the project's toolchain policy;
-in this repository run inside `devenv` with `GOTOOLCHAIN=local`.
+Go itself may use its normal build cache. Follow the
+[project toolchain policy](../../../../AGENTS.md#命令与验证).
 
 ## Inputs and output
 

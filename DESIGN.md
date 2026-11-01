@@ -50,4 +50,4 @@
 
 ## 实现位置
 
-`internal/pages` 拥有标签内容、导航和页面组合，包括记录、脚本、通用文本及十六进制编辑。`internal/components` 根包维护窗口 chrome 和通用控件，`internal/editor` 保存窗口共享编辑状态。记录表单和章节交互分别位于 `internal/pages/records`、`internal/pages/chapters`，共享地图渲染位于 `internal/components/mapview`；商店列表位于 `internal/pages/shops`，共享货物控件位于 `internal/components/shopview`。战斗／死亡对话页位于 `internal/pages/quotes`，消费 `game/quote` 的原生表和计划。应用层只通过 pages 引入界面；`internal/input` 独立承载纯数值及地址解析，直接导入边界由 `.golangci.yml` 的 `depguard` 规则随 `just lint`／`just check` 检查。依赖与所有权见[架构说明](docs/architecture.md)，启动与构建见[开发说明](docs/development.md)。
+`internal/pages` 拥有标签内容、导航和页面组合，包括记录、脚本、通用文本及十六进制编辑。`internal/components` 根包维护窗口 chrome 和通用控件，`internal/editor` 保存窗口共享编辑状态。记录表单和章节交互分别位于 `internal/pages/records`、`internal/pages/chapters`，共享地图渲染位于 `internal/components/mapview`；商店列表位于 `internal/pages/shops`，共享货物控件位于 `internal/components/shopview`。战斗／死亡对话页位于 `internal/pages/quotes`，消费 `game/quote` 的原生表和计划。`internal/input` 承载纯数值及地址解析。直接导入限制及 depguard 的检查范围见[架构约束](docs/architecture.md#约束)，依赖与所有权见[架构说明](docs/architecture.md)，启动与构建见[开发说明](docs/development.md)。
