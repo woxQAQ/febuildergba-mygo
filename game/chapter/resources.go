@@ -50,7 +50,8 @@ func (g Config) Conditions(
 
 // Claims declares the typed chapter resources a damaged unrelated table must
 // not overwrite: event list roots and headers, condition tables and their
-// script operand sites, and deployment groups. The chapter table comes from
+// script operand sites, decoded script code, referenced location payloads and
+// deployment groups. The chapter table comes from
 // the session's effective layout so manual layouts protect their real rows.
 func (g Config) Claims(data []byte, chapters *records.Table) []space.Claim {
 	var claims []space.Claim
@@ -114,9 +115,6 @@ func (g Config) Claims(data []byte, chapters *records.Table) []space.Claim {
 			addSite(entry, event.HeaderOwner(entry), space.Owner{})
 		}
 		var groups []deployment.Group
-		// groupHosts remembers which condition list hosts a reinforcement
-		// group's pointer; header slots and script-born groups keep none.
-		groupHosts := make(map[int]space.Owner)
 		for _, kind := range event.Tables() {
 			conditions, err := g.Conditions(
 				data,
@@ -129,16 +127,14 @@ func (g Config) Claims(data []byte, chapters *records.Table) []space.Claim {
 			}
 			owner := event.ConditionsOwner(conditions.Pointer, kind)
 			addSite(conditions.Pointer, owner, headerOwner)
-			endingSite := -1
-			if kind == event.AlwaysEvents && header >= 0 {
-				endingSite = header + g.Events.EndingOffset()
-			}
-			for _, region := range conditions.Regions() {
-				if region.Start == endingSite && region.End == endingSite+4 {
-					// The ending script site is claimed by its script owner.
-					continue
-				}
+			if region, ok := conditions.PayloadRegion(); ok {
 				add(region.Start, region.End-region.Start, owner)
+			}
+			claims = append(claims, conditions.ScriptClaims()...)
+			for _, region := range conditions.ResourceRegions() {
+				add(region.Start, region.End-region.Start, space.Owner{
+					Resource: "event.location_resource", ID: region.Start,
+				})
 			}
 			for _, condition := range conditions.Events {
 				// Script operand sites are declared so a script relocation may
@@ -147,10 +143,7 @@ func (g Config) Claims(data []byte, chapters *records.Table) []space.Claim {
 					site := condition.Address + 4
 					addSite(site, event.ScriptOwner(site), owner)
 				}
-				for _, group := range condition.Groups {
-					groupHosts[group.Pointer] = owner
-					groups = append(groups, group)
-				}
+				groups = append(groups, condition.Groups...)
 			}
 			if ending, ok := conditions.Ending(); ok {
 				groups = append(groups, ending.Groups...)
@@ -158,10 +151,11 @@ func (g Config) Claims(data []byte, chapters *records.Table) []space.Claim {
 		}
 		deployments, err := g.Deployments(data, row.ID, row.Address)
 		if err == nil {
+			claims = append(claims, deployments.ScriptClaims()...)
 			groups = append(groups, deployments.Groups...)
 		}
 		for _, group := range groups {
-			host := groupHosts[group.Pointer]
+			host := event.ScriptCodeOwner()
 			if header >= 0 && group.Pointer >= header &&
 				group.Pointer+4 <= header+g.Events.HeaderSize() {
 				host = headerOwner

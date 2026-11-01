@@ -16,7 +16,7 @@ import (
 
 // Config connects the native chapter table to its event, map and text formats.
 // ProtectPointer is the session's claim check; when it is nil, only record
-// tables are protected.
+// tables are protected. ProtectRange is required for in-place script edits.
 type Config struct {
 	Table          Format
 	Events         event.Format
@@ -24,6 +24,7 @@ type Config struct {
 	Text           text.Format
 	Shops          shop.Format
 	ProtectPointer func(data []byte, owner space.Owner, site int) error
+	ProtectRange   func(data []byte, owner space.Owner, region space.Range) error
 	InventoryUses  func([]byte, int) []shop.Reference
 }
 
@@ -58,6 +59,7 @@ func New(
 			DefaultShop:   config.Shops.Default,
 			InventoryUses: config.InventoryUses,
 			ResolveMap:    s.Maps.ResolveTarget,
+			ProtectRange:  config.ProtectRange,
 			ProtectPointer: func(data []byte, owner space.Owner, site int) error {
 				err := config.protect(data, records, owner, site)
 				if err != nil {

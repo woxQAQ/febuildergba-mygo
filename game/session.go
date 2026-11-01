@@ -96,6 +96,7 @@ func Open(path string) (session *Session, err error) {
 		chapterConfig := format.chapterConfig()
 		chapterConfig.InventoryUses = s.inventoryUses
 		chapterConfig.ProtectPointer = s.protectPointer
+		chapterConfig.ProtectRange = s.protectRange
 		s.Chapters = chapter.New(context, chapterConfig, s.Records)
 		s.Events, s.Deployments, s.Maps = s.Chapters.Events, s.Chapters.Deployments, s.Chapters.Maps
 		s.Shops = shop.New(context, format.shops, s.shopSource())

@@ -143,6 +143,12 @@ func ConditionsOwner(site int, table Table) space.Owner {
 	return space.Owner{Resource: "event.conditions", ID: site, Slot: int(table)}
 }
 
+// ScriptCodeOwner owns decoded instruction bytes across shared and interior
+// entries. Entry pointers retain independent owners for relocation.
+func ScriptCodeOwner() space.Owner {
+	return space.Owner{Resource: "event.script_code"}
+}
+
 // ScriptOwner owns one script pointer site.
 func ScriptOwner(site int) space.Owner {
 	return space.Owner{Resource: "event.script", ID: site}

@@ -186,8 +186,9 @@ type Conditions struct {
 	Pointer, Address int
 	Table            Table
 	Events           []Condition
-	ranges           []space.Range
 	payload          space.Range
+	scripts          []space.Claim
+	resources        []space.Range
 	format           Format
 	ending           *Condition
 }
@@ -252,7 +253,6 @@ func (f Format) readEvents(
 		}
 		if gba.Uint32(data, at) == 0 {
 			result.payload = space.Range{Start: result.Address, End: at + 4}
-			result.ranges = append(result.ranges, result.payload)
 			return result, nil
 		}
 		kind := int(gba.Uint16(data, at))
@@ -335,23 +335,19 @@ func (f Format) ReadConditions(
 	}
 	parsed := deployment.NewReader(data, f.units)
 	for i := range result.Events {
-		result.ranges = append(
-			result.ranges,
-			f.eventResources(
-				data,
-				chapter,
-				table,
-				&result.Events[i],
-				parsed,
-			)...)
+		scripts, resources := f.eventResources(
+			data,
+			chapter,
+			table,
+			&result.Events[i],
+			parsed,
+		)
+		result.scripts = append(result.scripts, scripts...)
+		result.resources = append(result.resources, resources...)
 	}
 	if table == AlwaysEvents {
 		site := header + f.ending
 		if gba.Within(data, site, 4) {
-			result.ranges = append(
-				result.ranges,
-				space.Range{Start: site, End: site + 4},
-			)
 			if script, valid := gba.Pointer(
 				data,
 				site,
@@ -361,15 +357,14 @@ func (f Format) ReadConditions(
 					Address: site,
 					Script:  script,
 				}
-				result.ranges = append(
-					result.ranges,
-					f.eventResources(
-						data,
-						chapter,
-						table,
-						result.ending,
-						parsed,
-					)...)
+				scripts, _ := f.eventResources(
+					data,
+					chapter,
+					table,
+					result.ending,
+					parsed,
+				)
+				result.scripts = append(result.scripts, scripts...)
 			}
 		}
 	}
@@ -378,7 +373,12 @@ func (f Format) ReadConditions(
 
 func Tables() [4]Table { return eventTables }
 
-func (c Conditions) Regions() []space.Range { return slices.Clone(c.ranges) }
+// ScriptClaims reports code reached from conditions and the ending entry.
+func (c Conditions) ScriptClaims() []space.Claim { return slices.Clone(c.scripts) }
+
+// ResourceRegions reports referenced location payloads, excluding the condition
+// table, script code and deployment groups (which expose their own regions).
+func (c Conditions) ResourceRegions() []space.Range { return slices.Clone(c.resources) }
 
 func (c Conditions) Ending() (Condition, bool) {
 	if c.ending == nil {

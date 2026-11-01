@@ -20,7 +20,7 @@ type Deployments struct {
 	binding  edit.Stamp
 	Groups   []deployment.Group
 	Warnings []error
-	ranges   []space.Range
+	scripts  []space.Claim
 }
 
 func (d Deployments) Current(
@@ -94,7 +94,9 @@ func (f Format) ReadDeployments(
 	return result, nil
 }
 
-func (d Deployments) Regions() []space.Range { return slices.Clone(d.ranges) }
+// ScriptClaims reports decoded instructions and their call sites, separately
+// from deployment payloads returned by each group's Regions method.
+func (d Deployments) ScriptClaims() []space.Claim { return slices.Clone(d.scripts) }
 
 // Discovery follows typed operands with bounded recursion. It does not execute
 // branches, ASM, or dynamic calls, and reports incomplete discovery explicitly.
@@ -172,7 +174,6 @@ func (s *deploymentScanner) conditions(base int, table Table) {
 	if err != nil {
 		s.warn(site)
 	}
-	s.result.ranges = append(s.result.ranges, conditions.ranges...)
 	for _, event := range conditions.Events {
 		if !s.format.editableCondition(table, event) {
 			continue
@@ -299,10 +300,18 @@ func (s *deploymentScanner) walk(
 			s.warn(at)
 			return mapID
 		}
-		s.result.ranges = append(
-			s.result.ranges,
-			space.Range{Start: at, End: at + command.length},
-		)
+		s.result.scripts = append(s.result.scripts, space.Claim{
+			Range: space.Range{Start: at, End: at + command.length},
+			Owner: ScriptCodeOwner(),
+		})
+		if command.call >= 0 {
+			s.result.scripts = append(s.result.scripts, space.Claim{
+				Range: space.Range{Start: command.call, End: command.call + 4},
+				Owner: ScriptOwner(command.call),
+				Host:  ScriptCodeOwner(),
+				Site:  true,
+			})
+		}
 		if command.label >= 0 {
 			labels[command.label] = true
 			if pending[command.label] {

@@ -44,12 +44,12 @@ func (f Format) eventResources(
 	table Table,
 	event *Condition,
 	parsed *deployment.Reader,
-) []space.Range {
+) ([]space.Claim, []space.Range) {
 	if event.OperandKind != ConditionScript {
-		return locationResources(data, event)
+		return nil, locationResources(data, event)
 	}
 	if event.Script == 1 {
-		return nil
+		return nil, nil
 	}
 	resources := Deployments{}
 	scanner := deploymentScanner{
@@ -69,7 +69,7 @@ func (f Format) eventResources(
 		)
 	}
 	event.Groups, event.Warnings = resources.Groups, resources.Warnings
-	return resources.ranges
+	return resources.scripts, nil
 }
 
 func (f Format) editableCondition(

@@ -17,6 +17,7 @@ import (
 type Source struct {
 	ResolveMap     func(int, maps.Target) (maps.Change, error)
 	ProtectPointer func(data []byte, owner space.Owner, site int) error
+	ProtectRange   func(data []byte, owner space.Owner, region space.Range) error
 	DefaultShop    func([]byte) (*shop.Draft, error)
 	InventoryUses  func([]byte, int) []shop.Reference
 }

@@ -43,6 +43,20 @@ func (s *Session) protectPointer(
 	return space.CheckWrite(s.claims(data), owner, site)
 }
 
+// protectRange guards an in-place write with the same session claims as
+// pointer updates. Payload bounds are checked before overlap authorization.
+func (s *Session) protectRange(
+	data []byte,
+	owner space.Owner,
+	region space.Range,
+) error {
+	if region.Start < 0xC0 || region.End <= region.Start ||
+		!gba.Within(data, region.Start, region.End-region.Start) {
+		return edit.ErrLayout
+	}
+	return space.CheckRangeWrite(s.claims(data), owner, region)
+}
+
 // guardPointer maps a rejected pointer write to the domain's code.
 func (s *Session) guardPointer(
 	data []byte,
@@ -173,8 +187,8 @@ func (s *Session) collectClaims(data []byte) []space.Claim {
 		claims = append(claims, g.terrain.Claims(data, classes)...)
 	}
 
-	// Chapter resources: event headers, condition lists, script sites and
-	// deployment groups.
+	// Chapter resources: event headers, condition lists, script code and
+	// sites, location payloads and deployment groups.
 	if chapters != nil {
 		claims = append(claims, g.chapterConfig().Claims(data, chapters)...)
 	}

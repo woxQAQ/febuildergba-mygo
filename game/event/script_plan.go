@@ -357,84 +357,32 @@ func (s *Editor) ApplyScriptEdit(plan *ScriptPlan) (err error) {
 	return nil
 }
 
-// In-place code edits cannot claim bytes already described as record data,
-// condition lists, event headers, deployment records or movement paths.
+// In-place edits share the session's claim guard with pointer updates, but
+// authorize script payloads and their hosted operand sites as one resource.
 func (s *Editor) scriptWriteRange(start, end int) error {
-	format, err := s.scriptFormat()
-	if err != nil {
-		return err
+	if s.source.ProtectRange == nil {
+		return edit.ErrLayout
 	}
-	overlap := func(at, length int) bool { return length > 0 && start < at+length && at < end }
-	for _, table := range s.records.Tables() {
-		if overlap(table.Pointer, 4) {
-			return edit.ErrLayout
-		}
-		if table.Err == nil &&
-			overlap(table.Address, table.Count*table.Stride) {
-			return edit.ErrLayout
-		}
-	}
-	for _, at := range []int{s.text.Pointer, s.text.TreePointer, s.text.RootPointer, format.Root} {
-		if overlap(at, 4) {
-			return edit.ErrLayout
-		}
-	}
-	if text, readErr := s.text.Table(
+	if err := s.source.ProtectRange(
 		s.image.Data,
-	); readErr == nil &&
-		overlap(text.Address, text.Count*4) {
-		return edit.ErrLayout
-	}
-	chapters := s.records.Table(records.Chapters)
-	if chapters == nil || chapters.Err != nil {
-		return edit.ErrLayout
-	}
-	list, valid := gba.Pointer(s.image.Data, format.Root)
-	if !valid {
-		return edit.ErrLayout
-	}
-	for _, chapter := range chapters.Rows {
-		value, valueErr := s.records.Value(
-			records.Chapters,
-			chapter.ID,
-			HeaderField,
+		ScriptCodeOwner(),
+		space.Range{
+			Start: start, End: end,
+		},
+	); err != nil {
+		return fault.New(
+			edit.ErrLayout,
+			"game.protect_script_range",
+			fault.Context{
+				Resource: scriptResource,
+				Range: &fault.Range{
+					Offset: start,
+					Length: end - start,
+					Size:   len(s.image.Data),
+				},
+			},
+			err,
 		)
-		if valueErr != nil {
-			continue
-		}
-		site := list + int(value)*4
-		if overlap(site, 4) {
-			return edit.ErrLayout
-		}
-		header, valid := gba.Pointer(s.image.Data, site)
-		if !valid {
-			continue
-		}
-		if overlap(header, format.ending+4) {
-			return edit.ErrLayout
-		}
-		for _, table := range eventTables {
-			conditions, readErr := format.readEvents(
-				s.image.Data,
-				header+table.offset(),
-				table,
-			)
-			if readErr != nil {
-				continue
-			}
-			for _, region := range conditions.ranges {
-				if overlap(region.Start, region.End-region.Start) {
-					return edit.ErrLayout
-				}
-			}
-		}
-		groups, readErr := s.Deployments(chapter.ID)
-		if readErr != nil {
-			continue
-		}
-		if scriptDeploymentOverlap(groups.Groups, overlap) {
-			return edit.ErrLayout
-		}
 	}
 	return nil
 }

@@ -5,7 +5,6 @@ import (
 	"slices"
 
 	"github.com/woxQAQ/febuildergba-mygo/fault"
-	"github.com/woxQAQ/febuildergba-mygo/game/deployment"
 	"github.com/woxQAQ/febuildergba-mygo/game/edit"
 	"github.com/woxQAQ/febuildergba-mygo/game/records"
 	"github.com/woxQAQ/febuildergba-mygo/gba"
@@ -317,18 +316,4 @@ func (row *scriptRow) describe(definitions []scriptDefinition, at int) {
 			row.call = at + field.offset
 		}
 	}
-}
-
-func scriptDeploymentOverlap(
-	groups []deployment.Group,
-	overlap func(int, int) bool,
-) bool {
-	for _, group := range groups {
-		for _, region := range group.Regions() {
-			if overlap(region.Start, region.End-region.Start) {
-				return true
-			}
-		}
-	}
-	return false
 }

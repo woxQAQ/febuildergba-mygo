@@ -58,6 +58,30 @@ func CheckWrite(claims []Claim, owner Owner, site int) error {
 	return nil
 }
 
+// CheckRangeWrite checks an in-place payload write against every overlapping
+// claim. The owner may rewrite its payload and pointer sites hosted by it;
+// owning a pointer does not authorize overwriting that pointer's host.
+// Unclaimed bytes are allowed; callers establish the write's bounds and format.
+func CheckRangeWrite(claims []Claim, owner Owner, region Range) error {
+	for _, claim := range claims {
+		if !claim.overlaps(region) {
+			continue
+		}
+		if owner != (Owner{}) && (claim.Owner == owner ||
+			(claim.Site && claim.Host == owner)) {
+			continue
+		}
+		return fault.Wrap(ErrClaim, "space.check_range_write", fault.Context{
+			Resource: claim.Owner.Resource,
+			Range: &fault.Range{
+				Offset: region.Start,
+				Length: region.End - region.Start,
+			},
+		})
+	}
+	return nil
+}
+
 // ClaimRanges flattens claims into plain ranges for consumers that reserve
 // confirmed resources without rewriting a pointer, such as table moves.
 func ClaimRanges(claims []Claim) []Range {
