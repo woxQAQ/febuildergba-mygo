@@ -18,6 +18,7 @@ type Source struct {
 
 type Entry struct {
 	Reference
+
 	Address, Count           int
 	Null, UsesDefault, Empty bool
 	Err                      error

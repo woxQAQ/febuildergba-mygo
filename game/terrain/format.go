@@ -85,6 +85,7 @@ type Reference struct {
 
 type Table struct {
 	Reference
+
 	Values []int
 	Empty  bool
 	Err    error
@@ -143,10 +144,8 @@ func (f Format) Claims(data []byte, classes []Class) []space.Claim {
 				result = append(
 					result,
 					space.Claim{
-						Range: space.Range{
-							Start: table.Pointer,
-							End:   table.Pointer + 4,
-						},
+						Start: table.Pointer,
+						End:   table.Pointer + 4,
 						Owner: owner,
 						Host:  class.Host,
 						Site:  true,
@@ -157,10 +156,8 @@ func (f Format) Claims(data []byte, classes []Class) []space.Claim {
 				result = append(
 					result,
 					space.Claim{
-						Range: space.Range{
-							Start: table.Address,
-							End:   min(table.Address+f.count, len(data)),
-						},
+						Start: table.Address,
+						End:   min(table.Address+f.count, len(data)),
 						Owner: owner,
 					},
 				)

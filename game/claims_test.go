@@ -79,7 +79,7 @@ func TestTableMoveRespectsManualLayoutClaims(t *testing.T) {
 	}
 	free := []space.FreeRange{
 		{
-			Range:  space.Range{Start: payload, End: payload + 0x100},
+			Start: payload, End: payload + 0x100,
 			Source: "declared interval overlapping a manual support payload",
 		},
 	}

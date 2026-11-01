@@ -72,15 +72,13 @@ func (f Format) bonusClaims(data []byte) []space.Claim {
 	}
 	owner := space.Owner{Resource: bonusResource}
 	result := []space.Claim{{
-		Range: space.Range{Start: f.BonusPointer, End: f.BonusPointer + 4},
+		Start: f.BonusPointer, End: f.BonusPointer + 4,
 		Owner: owner, Site: true,
 	}}
 	if table := f.bonuses(data); len(table.raw) > 0 {
 		result = append(result, space.Claim{
-			Range: space.Range{
-				Start: table.address,
-				End:   table.address + len(table.raw),
-			},
+			Start: table.address,
+			End:   table.address + len(table.raw),
 			Owner: owner,
 		})
 	}

@@ -12,7 +12,7 @@ import (
 	"github.com/woxQAQ/febuildergba-mygo/game"
 	"github.com/woxQAQ/febuildergba-mygo/game/arena"
 	"github.com/woxQAQ/febuildergba-mygo/game/edit"
- "github.com/woxQAQ/febuildergba-mygo/game/records"
+	"github.com/woxQAQ/febuildergba-mygo/game/records"
 	"github.com/woxQAQ/febuildergba-mygo/gba"
 )
 
@@ -49,15 +49,17 @@ func editArena(t *testing.T, session *game.Session) {
 				err = d.Set(group, index, 0)
 			case group == arena.BaseWeapons:
 				items := requireTable(t, s, records.Items)
-                base := d.Raw(arena.BaseWeapons)
+				base := d.Raw(arena.BaseWeapons)
 				rows := d.Rows(arena.Upgrades)
 				// Change a base weapon and its first lookup entry together.
 				// The candidate is discovered from the current upgrade table.
 				index := slices.IndexFunc(
 					rows,
 					func(row arena.Row) bool {
-                        return row.Editable && !bytes.Contains(base, []byte{byte(row.Value)}) && slices.ContainsFunc(items.Rows,func(item records.Row) bool { return item.ID == int(row.Value) })
-                    },
+						return row.Editable &&
+							!bytes.Contains(base, []byte{byte(row.Value)}) &&
+							slices.ContainsFunc(items.Rows, func(item records.Row) bool { return item.ID == int(row.Value) })
+					},
 				)
 				if index < 0 {
 					t.Skip("no independently editable upgrade slot")

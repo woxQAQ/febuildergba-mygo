@@ -38,6 +38,7 @@ fmt:
 
 # 运行项目配置的静态检查。
 lint:
+    go fix ./...
     golangci-lint run ./... --fix
 
 # MyGo 检查包含 go vet ./... 和原生 UI 生命周期检查。

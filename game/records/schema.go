@@ -60,6 +60,7 @@ type Layout struct {
 
 type Table struct {
 	Layout
+
 	Kind             Kind
 	Pointer, FirstID int
 	Manual           bool

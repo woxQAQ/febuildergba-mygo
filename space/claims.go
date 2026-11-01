@@ -19,6 +19,7 @@ type Owner struct {
 // and is zero for standalone sites and for payload extents.
 type Claim struct {
 	Range
+
 	Owner Owner
 	Host  Owner
 	Site  bool

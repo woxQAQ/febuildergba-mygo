@@ -111,6 +111,7 @@ func FE6Layout() Layout {
 // sites used by native conditions.
 type Format struct {
 	Layout
+
 	Root         int
 	LoadHelper   int
 	Defeat, Rout int

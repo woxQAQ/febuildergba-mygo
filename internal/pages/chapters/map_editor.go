@@ -27,6 +27,7 @@ type mapPainter struct {
 
 type mapState struct {
 	mapPainter
+
 	data                                    *maps.Draft
 	preview                                 *maps.Plan
 	revision                                uint64

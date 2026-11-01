@@ -87,6 +87,7 @@ func (s *Editor) SpecialChapter(kind Kind, value uint32) bool {
 type (
 	row struct {
 		Entry
+
 		original []byte
 	}
 	Draft struct {
@@ -195,7 +196,7 @@ func (d *Draft) Add() error {
 	}
 	d.rows = append(
 		d.rows,
-		row{Entry: Entry{ID: d.nextID, Address: -1, Raw: raw}},
+		row{ID: d.nextID, Address: -1, Raw: raw},
 	)
 	d.nextID++
 	return nil

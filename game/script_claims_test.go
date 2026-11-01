@@ -117,7 +117,7 @@ func TestScriptCodeClaimsProtectOpeningAndAllowAdjacentPayload(t *testing.T) {
 	s := testutil.Open(t, f)
 	before, state := s.Document.Snapshot(), s.Document.State()
 	if _, err := s.Records.PlanTableMove(records.Items, []space.FreeRange{{
-		Range:  space.Range{Start: at, End: at + 0x100},
+		Start: at, End: at + 0x100,
 		Source: "declared interval overlapping an opening script",
 	}}); !errors.Is(err, space.ErrRange) {
 		t.Fatalf("table move could overwrite opening instructions: %v", err)

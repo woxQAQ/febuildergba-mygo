@@ -112,6 +112,7 @@ type Change struct{ Terrain, Before, After int }
 
 type Move struct {
 	Reference
+
 	Destination int
 	Changes     []Change
 	// Shared lists known overlapping class tables that retain their old data.

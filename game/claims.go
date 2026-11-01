@@ -90,7 +90,7 @@ func (s *Session) collectClaims(data []byte) []space.Claim {
 			claims = append(
 				claims,
 				space.Claim{
-					Range: space.Range{Start: start, End: start + length},
+					Start: start, End: start + length,
 					Owner: owner,
 				},
 			)
@@ -101,7 +101,7 @@ func (s *Session) collectClaims(data []byte) []space.Claim {
 			claims = append(
 				claims,
 				space.Claim{
-					Range: space.Range{Start: site, End: site + 4},
+					Start: site, End: site + 4,
 					Owner: owner,
 					Site:  true,
 				},
@@ -161,7 +161,7 @@ func (s *Session) collectClaims(data []byte) []space.Claim {
 					claims = append(
 						claims,
 						space.Claim{
-							Range: space.Range{Start: site, End: site + 4},
+							Start: site, End: site + 4,
 							Owner: owner,
 							Host:  host,
 							Site:  true,

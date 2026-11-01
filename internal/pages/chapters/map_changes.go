@@ -19,6 +19,7 @@ import (
 
 type mapChangesState struct {
 	mapPainter
+
 	data                                 *maps.ChangesDraft
 	preview                              *maps.ChangesPlan
 	selected, lastSelected               int

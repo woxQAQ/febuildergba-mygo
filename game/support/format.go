@@ -56,6 +56,7 @@ func FE8Layout() Layout {
 // save routines. No pointer-shaped byte scan participates in writes.
 type Format struct {
 	Layout
+
 	TalkPointers []int
 	BonusPointer int
 }
@@ -73,6 +74,7 @@ type Relationship struct{ Unit, Initial, Growth uint8 }
 
 type Record struct {
 	Unit
+
 	Address int
 	Empty   bool
 	Err     error
@@ -186,7 +188,7 @@ func (f Format) Claims(data []byte, units []Unit) []space.Claim {
 		result = append(
 			result,
 			space.Claim{
-				Range: space.Range{Start: unit.Pointer, End: unit.Pointer + 4},
+				Start: unit.Pointer, End: unit.Pointer + 4,
 				Owner: owner,
 				Host:  unit.Host,
 				Site:  true,
@@ -196,10 +198,8 @@ func (f Format) Claims(data []byte, units []Unit) []space.Claim {
 			result = append(
 				result,
 				space.Claim{
-					Range: space.Range{
-						Start: r.Address,
-						End:   r.Address + f.Size,
-					},
+					Start: r.Address,
+					End:   r.Address + f.Size,
 					Owner: owner,
 				},
 			)
@@ -210,7 +210,7 @@ func (f Format) Claims(data []byte, units []Unit) []space.Claim {
 		result = append(
 			result,
 			space.Claim{
-				Range: space.Range{Start: site, End: site + 4},
+				Start: site, End: site + 4,
 				Owner: owner,
 				Site:  true,
 			},
@@ -221,10 +221,8 @@ func (f Format) Claims(data []byte, units []Unit) []space.Claim {
 			result = append(
 				result,
 				space.Claim{
-					Range: space.Range{
-						Start: t.address,
-						End:   t.address + length,
-					},
+					Start: t.address,
+					End:   t.address + length,
 					Owner: owner,
 				},
 			)

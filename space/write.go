@@ -42,6 +42,7 @@ func (r Range) overlaps(other Range) bool {
 // A run of zeroes or FF bytes alone is not evidence of unused space.
 type FreeRange struct {
 	Range
+
 	Source string
 }
 

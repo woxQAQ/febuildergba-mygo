@@ -22,6 +22,7 @@ type Layout struct {
 // pointers and, in FE6, the instruction position that widens the stride.
 type Format struct {
 	Layout
+
 	Pointers          []int
 	StrideInstruction int
 }

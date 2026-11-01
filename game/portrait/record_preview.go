@@ -12,6 +12,7 @@ import (
 // fallback and the independent generic miniature resource.
 type RecordPreview struct {
 	records.PortraitSelection
+
 	Main, Mini    graphics.Preview
 	MiniResources []records.RecordResource
 	binding       edit.Stamp

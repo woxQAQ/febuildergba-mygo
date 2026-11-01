@@ -301,12 +301,12 @@ func (s *deploymentScanner) walk(
 			return mapID
 		}
 		s.result.scripts = append(s.result.scripts, space.Claim{
-			Range: space.Range{Start: at, End: at + command.length},
+			Start: at, End: at + command.length,
 			Owner: ScriptCodeOwner(),
 		})
 		if command.call >= 0 {
 			s.result.scripts = append(s.result.scripts, space.Claim{
-				Range: space.Range{Start: command.call, End: command.call + 4},
+				Start: command.call, End: command.call + 4,
 				Owner: ScriptOwner(command.call),
 				Host:  ScriptCodeOwner(),
 				Site:  true,

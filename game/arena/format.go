@@ -181,7 +181,7 @@ func (f Format) Claims(data []byte) []space.Claim {
 			result = append(
 				result,
 				space.Claim{
-					Range: space.Range{Start: site, End: site + 4},
+					Start: site, End: site + 4,
 					Owner: kind.Owner(),
 					Site:  true,
 				},
@@ -195,7 +195,7 @@ func (f Format) Claims(data []byte) []space.Claim {
 				result = append(
 					result,
 					space.Claim{
-						Range: space.Range{Start: at, End: at + len(raw)},
+						Start: at, End: at + len(raw),
 						Owner: kind.Owner(),
 					},
 				)

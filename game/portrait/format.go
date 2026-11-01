@@ -91,6 +91,7 @@ func FE7Layout() Layout {
 
 type Format struct {
 	Layout
+
 	Pointer int
 	Mode    func([]byte) Mode
 }
