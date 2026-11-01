@@ -104,12 +104,12 @@ func (s *Editor) Plan(draft *Draft) (result *Plan, err error) {
 	}, nil
 }
 
-func (s *Editor) Apply(edit *Plan) (err error) {
+func (s *Editor) Apply(plan *Plan) (err error) {
 	defer func() { err = fault.Wrap(err, "game.apply_map", fault.Context{Resource: LayoutField}) }()
-	if edit == nil {
+	if plan == nil {
 		return rom.ErrStale
 	}
-	if err = edit.commit.Apply(s.context); err != nil {
+	if err = plan.commit.Apply(s.context); err != nil {
 		return err
 	}
 	s.Refresh()

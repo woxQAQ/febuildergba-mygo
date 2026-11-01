@@ -80,21 +80,21 @@ func (s *Editor) Plan(
 	return result, nil
 }
 
-func (s *Editor) Apply(edit *Plan) (err error) {
+func (s *Editor) Apply(plan *Plan) (err error) {
 	ctx := fault.Context{Resource: Resource}
-	if edit != nil {
-		ctx.Table, ctx.RecordID = string(records.Chapters), new(edit.chapter)
+	if plan != nil {
+		ctx.Table, ctx.RecordID = string(records.Chapters), new(plan.chapter)
 		ctx.Range = &fault.Range{
-			Offset: edit.pointer,
+			Offset: plan.pointer,
 			Length: 4,
 			Size:   len(s.image.Data),
 		}
 	}
 	defer func() { err = fault.Wrap(err, "game.apply_deployment", ctx) }()
-	if edit == nil {
+	if plan == nil {
 		return rom.ErrStale
 	}
-	if err := edit.commit.Apply(s.context); err != nil {
+	if err := plan.commit.Apply(s.context); err != nil {
 		return err
 	}
 	s.Refresh()

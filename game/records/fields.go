@@ -230,7 +230,8 @@ func classBaseFields() []Field {
 		)...)
 }
 
-func ClassFields() []Field {
+// FE7ClassFields is the class record layout shared by FE7 and FE8.
+func FE7ClassFields() []Field {
 	f := classBaseFields()
 	f = append(
 		f,
@@ -279,7 +280,8 @@ func itemBaseFields() []Field {
 	return f
 }
 
-func ItemFields() []Field {
+// FE7ItemFields is the item record layout shared by FE7 and FE8.
+func FE7ItemFields() []Field {
 	return append(
 		itemBaseFields(),
 		NumericField("weapon_experience", GroupCombat, 32, 1),

@@ -50,7 +50,7 @@ func fe8uFormat() format {
 				Stride:   84,
 				Count:    256,
 				Probe:    0x88,
-				Fields:   records.ClassFields(),
+				Fields:   records.FE7ClassFields(),
 			},
 			{
 				Kind: records.Items,
@@ -68,7 +68,7 @@ func fe8uFormat() format {
 				Count:         256,
 				Probe:         -1,
 				PointerFields: []int{12},
-				Fields:        records.ItemFields(),
+				Fields:        records.FE7ItemFields(),
 			},
 		},
 		sprites: sprite.Format{
@@ -169,7 +169,7 @@ func fe8uFormat() format {
 }
 
 func fe8uFeatures(data []byte) (map[byte]string, []string) {
-	aliases := text.FE8UAliases(data)
+	aliases := text.FE8UAliases(data, 0x58C7EC)
 	var patches []string
 	if aliases[0x9A] == "z" {
 		patches = append(patches, "NarrowFont")

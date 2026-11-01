@@ -129,7 +129,7 @@ func (f Format) sheet(data []byte, id int) (assetSheet, error) {
 		at+4,
 		32,
 		512,
-		f.Stride != 16,
+		f.MiniOptional,
 		[][6]int{{96, 16, 32, 32, 0, 0}},
 	)
 	if err != nil {
@@ -137,7 +137,7 @@ func (f Format) sheet(data []byte, id int) (assetSheet, error) {
 	}
 	sheet.image = image.NewRGBA(image.Rect(0, 0, 128, 112))
 	sheet.parts = []assetPart{main, mini}
-	if f.Stride != 16 {
+	if f.MouthTilesOffset >= 0 {
 		mouthPieces := make([][6]int, 6)
 		for i := range mouthPieces {
 			mouthPieces[i] = [6]int{
@@ -151,7 +151,7 @@ func (f Format) sheet(data []byte, id int) (assetSheet, error) {
 		}
 		mouth, readErr := readAssetPart(
 			data,
-			at+12,
+			at+f.MouthTilesOffset,
 			32,
 			1536,
 			false,
@@ -171,28 +171,12 @@ func (f Format) facePart(data []byte, at int) (assetPart, error) {
 		return assetPart{}, graphics.ErrImage
 	}
 	pieces := append([][6]int(nil), portraitFacePieces...)
-	length := 4096
-	if f.Stride == 16 {
-		length = 4352
-		pieces = append(
-			pieces,
-			[6]int{0, 80, 64, 32, 192, 0},
-			[6]int{96, 80, 32, 8, 0, 32},
-			[6]int{96, 88, 32, 8, 32, 32},
-		)
-	} else {
-		pieces = append(
-			pieces,
-			[6]int{96, 48, 32, 16, 192, 0},
-			[6]int{96, 64, 32, 16, 192, 16},
-			[6]int{96, 80, 32, 16, 224, 0},
-			[6]int{96, 96, 32, 16, 224, 16},
-		)
-	}
+	length := f.FaceLength
+	pieces = append(pieces, f.FaceTail...)
 	if data[graphic] == 0x10 {
 		return readAssetPart(data, at, 256, length, true, pieces)
 	}
-	if f.Stride == 16 || gba.Uint32(data, graphic) != 0x00100400 ||
+	if !f.HeaderFace || gba.Uint32(data, graphic) != 0x00100400 ||
 		!gba.Within(data, graphic+4, length) {
 		return assetPart{}, graphics.ErrFormat
 	}

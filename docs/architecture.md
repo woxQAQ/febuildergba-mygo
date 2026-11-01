@@ -111,7 +111,9 @@ flowchart TD
 
 指针写入的保护网是会话级的资源声明：`space.Claim` 记录区间、所有者（Owner）及站点所在的宿主记录（Host），`space.CheckWrite` 执行唯一规则——与写入站点重叠的声明必须是写入者自己的站点声明或其宿主记录，其余一律冲突。各领域格式或会话源只负责声明自己的资源，`game/claims.go` 按 stamp 缓存汇总；记录表、文本、图像根、商店、支援、地形与章节事件资源都在其中。章节内资源以原生位置为所有者身份，共享同一事件头的章节声明相同的声明而非互相冲突。脚本正文不声明区间，其指针站点（条件操作数、开头／结尾、部署组）单独声明。新增领域只需提供一个 Claims 来源，不再需要编辑其他领域的排除分支。
 
-版本相关事实的放置规则：绝对 ROM 地址（指针位置、hook、指令位置、恢复地址、补丁特征位置）只出现在 `game/feXX.go`；领域包把结构差异定义为命名值（如 `support.FE7Layout()`、`quote.FE8BattleFields()`、`chapter.FE6Layout()`），不接收布尔或版本 ID，内部不按版本 switch；版本身份只出现在组合根，版本差异带来的页面规则用领域 Format 的能力字段表达（如 `quote` 的 `BattleConditions`／`SilentDeath`）。`.golangci.yml` 的 `version-composition` depguard 规则禁止领域子包导入 `game/version`。
+版本相关事实的放置规则：绝对 ROM 地址（指针位置、hook、指令位置、恢复地址、补丁特征位置）只出现在 `game/feXX.go`；领域包把结构差异定义为命名值（如 `support.FE7Layout()`、`chapter.FE6Layout()`、`records.FE7ClassFields()`），不接收布尔或版本 ID；版本身份只出现在组合根，版本差异带来的页面规则用领域 Format 的能力字段表达（如 `quote` 的 `BattleConditions`／`SilentDeath`）。`.golangci.yml` 的 `version-composition` depguard 规则禁止领域子包导入 `game/version`。
+
+当前两处例外如实记录：`records.Rule` 的 Stride／Count／Probe 与 `quote.Rule` 的终止规则仍以字面量留在版本文件里——记录表的地址与结构是否一起拆分是[重建计划](plan/opus.md)记录的开放问题，现保持字面量风格不预先框架化；`event` 内部仍保留指令集世代判别器 `deploymentEventKind`（四个值，由命名 Layout 构造器选择），它驱动指令编码分支而不是版本身份，后续按变体整理指令表时消除。
 
 记录负责选择头像引用、职业回退和通用小头像编号，头像编辑器消费该选择并解释原生资源。文本及图像替换消费记录提供的使用处、手动区域和保护信息；它们不从 UI 标签或显示名称推断规则。
 

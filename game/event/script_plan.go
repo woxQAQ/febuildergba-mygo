@@ -28,21 +28,21 @@ type ScriptPlan struct {
 	movements                   int
 }
 
-func (edit *ScriptPlan) MovementCount() int { return edit.movements }
+func (plan *ScriptPlan) MovementCount() int { return plan.movements }
 
-func (edit *ScriptPlan) Source() int { return edit.source }
+func (plan *ScriptPlan) Source() int { return plan.source }
 
-func (edit *ScriptPlan) Destination() int { return edit.destination }
+func (plan *ScriptPlan) Destination() int { return plan.destination }
 
-func (edit *ScriptPlan) Length() int { return edit.length }
+func (plan *ScriptPlan) Length() int { return plan.length }
 
-func (edit *ScriptPlan) Relocated() bool { return edit.relocated }
+func (plan *ScriptPlan) Relocated() bool { return plan.relocated }
 
-func (edit *ScriptPlan) Before() int { return edit.before }
+func (plan *ScriptPlan) Before() int { return plan.before }
 
-func (edit *ScriptPlan) After() int { return edit.after }
+func (plan *ScriptPlan) After() int { return plan.after }
 
-func (edit *ScriptPlan) Uses() []ScriptUse { return slices.Clone(edit.uses) }
+func (plan *ScriptPlan) Uses() []ScriptUse { return slices.Clone(plan.uses) }
 
 func (s *Editor) PlanScriptEdit(
 	draft *ScriptDraft,
@@ -345,12 +345,12 @@ func (s *Editor) scriptUses(
 	return result
 }
 
-func (s *Editor) ApplyScriptEdit(edit *ScriptPlan) (err error) {
+func (s *Editor) ApplyScriptEdit(plan *ScriptPlan) (err error) {
 	defer func() { err = fault.Wrap(err, "game.apply_script", fault.Context{Resource: scriptResource}) }()
-	if edit == nil {
+	if plan == nil {
 		return rom.ErrStale
 	}
-	if err = edit.commit.Apply(s.context); err != nil {
+	if err = plan.commit.Apply(s.context); err != nil {
 		return err
 	}
 	s.Refresh()

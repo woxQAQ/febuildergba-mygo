@@ -18,8 +18,28 @@ type WeaponSkill struct {
 
 var weaponRanks = []string{"none", "E", "D", "C", "B", "A", "S"}
 
-func (s *Editor) weaponThresholds() []int64 {
-	return s.definition.WeaponThresholds
+// weaponThresholds returns the generation's rank minima, requiring the
+// version file to have supplied the complete table.
+func (s *Editor) weaponThresholds() ([]int64, error) {
+	thresholds := s.definition.WeaponThresholds
+	if len(thresholds) != len(weaponRanks) {
+		return nil, edit.ErrLayout
+	}
+	return thresholds, nil
+}
+
+func (s *Editor) weaponRank(value int64) (string, error) {
+	thresholds, err := s.weaponThresholds()
+	if err != nil {
+		return "", err
+	}
+	index := 0
+	for i, minimum := range thresholds {
+		if value >= minimum {
+			index = i
+		}
+	}
+	return weaponRanks[index], nil
 }
 
 // FE6WeaponThresholds are FE6's native weapon rank minima.
@@ -30,16 +50,6 @@ func FE6WeaponThresholds() []int64 {
 // FE7WeaponThresholds are the rank minima shared by FE7 and FE8.
 func FE7WeaponThresholds() []int64 {
 	return []int64{0, 1, 31, 71, 121, 181, 251}
-}
-
-func (s *Editor) weaponRank(value int64) string {
-	index := 0
-	for i, minimum := range s.weaponThresholds() {
-		if value >= minimum {
-			index = i
-		}
-	}
-	return weaponRanks[index]
 }
 
 func (s *Editor) WeaponSkills(kind Kind, id int) ([]WeaponSkill, error) {
@@ -54,12 +64,16 @@ func (s *Editor) WeaponSkills(kind Kind, id int) ([]WeaponSkill, error) {
 		if err != nil {
 			return nil, err
 		}
+		rank, err := s.weaponRank(value)
+		if err != nil {
+			return nil, err
+		}
 		entry := WeaponSkill{
 			Field:     field,
 			Weapon:    weapon,
 			Value:     value,
 			Effective: value,
-			Rank:      s.weaponRank(value),
+			Rank:      rank,
 		}
 		entry.ClassValue = value
 		if kind == Units {
@@ -72,8 +86,14 @@ func (s *Editor) WeaponSkills(kind Kind, id int) ([]WeaponSkill, error) {
 				entry.Effective = entry.ClassValue
 			}
 		}
-		entry.ClassRank = s.weaponRank(entry.ClassValue)
-		entry.EffectiveRank = s.weaponRank(entry.Effective)
+		if entry.ClassRank, err = s.weaponRank(entry.ClassValue); err != nil {
+			return nil, err
+		}
+		if entry.EffectiveRank, err = s.weaponRank(
+			entry.Effective,
+		); err != nil {
+			return nil, err
+		}
 		result = append(result, entry)
 	}
 	return result, nil
@@ -111,8 +131,16 @@ func (s *Editor) SetWeaponRank(kind Kind, id int, field, rank string) error {
 	if err != nil {
 		return err
 	}
-	if s.weaponRank(value) == rank {
+	thresholds, err := s.weaponThresholds()
+	if err != nil {
+		return err
+	}
+	current, err := s.weaponRank(value)
+	if err != nil {
+		return err
+	}
+	if current == rank {
 		return nil
 	}
-	return s.Set(kind, []int{id}, field, s.weaponThresholds()[index])
+	return s.Set(kind, []int{id}, field, thresholds[index])
 }

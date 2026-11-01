@@ -536,28 +536,25 @@ func defeatTable(kind quote.Kind) bool {
 }
 
 func (p *Page) tableHelp(kind quote.Kind) string {
-	// Help wording is per-generation UI copy, not a ROM rule.
-	generation := p.state.Session.Version()
-	if len(generation) > 3 {
-		generation = generation[:3]
-	}
+	// Help wording follows the format's declared capabilities, not a version
+	// identity.
 	if defeatTable(kind) {
-		switch generation {
-		case "FE6":
-			return locales.QuoteFe6DeathHelp()
-		case "FE7":
+		switch {
+		case p.state.Session.Quotes.SilentDeath():
+			return locales.QuoteFe8DeathHelp()
+		case p.state.Session.Quotes.FallbackDeaths():
 			return locales.QuoteFe7DeathHelp()
 		default:
-			return locales.QuoteFe8DeathHelp()
+			return locales.QuoteFe6DeathHelp()
 		}
 	}
-	switch generation {
-	case "FE6":
-		return locales.QuoteFe6Help()
-	case "FE7":
+	switch {
+	case p.state.Session.Quotes.BattleConditions():
+		return locales.QuoteFe8Help()
+	case p.state.Session.Quotes.FallbackDeaths():
 		return locales.QuoteFe7Help()
 	default:
-		return locales.QuoteFe8Help()
+		return locales.QuoteFe6Help()
 	}
 }
 

@@ -190,24 +190,28 @@ var narrowMenuGlyphs = map[byte]struct{ text, digest string }{
 	},
 }
 
-func FE8UAliases(data []byte) map[byte]string {
+// FE8UAliases reads the FE8U narrow-menu glyph table at at: a confirmed
+// address supplied by the version file. Codes without a signature stay
+// unmapped.
+func FE8UAliases(data []byte, at int) map[byte]string {
 	aliases := make(map[byte]string)
 	for code, signature := range narrowMenuGlyphs {
-		at, ok := gba.Pointer(data, 0x58C7EC+int(code)*4)
-		if !ok || !gba.Within(data, at, 72) {
+		target, ok := gba.Pointer(data, at+int(code)*4)
+		if !ok || !gba.Within(data, target, 72) {
 			continue
 		}
 		// This is the flat, single-byte menu font format, not a UTF-8/SJIS
 		// chain.
-		if gba.Uint32(data, at) != 0 || data[at+4] != 0 || data[at+6] != 0 ||
-			data[at+7] != 0 ||
-			data[at+5] < 1 ||
-			data[at+5] > 16 {
+		if gba.Uint32(data, target) != 0 || data[target+4] != 0 ||
+			data[target+6] != 0 ||
+			data[target+7] != 0 ||
+			data[target+5] < 1 ||
+			data[target+5] > 16 {
 			continue
 		}
 		if fmt.Sprintf(
 			"%x",
-			sha256.Sum256(data[at+8:at+72]),
+			sha256.Sum256(data[target+8:target+72]),
 		) == signature.digest {
 			aliases[code] = signature.text
 		}

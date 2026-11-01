@@ -457,7 +457,7 @@ func (s *Editor) PlanConditions(
 	return result, nil
 }
 
-func (s *Editor) ApplyConditions(edit *ConditionPlan) (err error) {
+func (s *Editor) ApplyConditions(plan *ConditionPlan) (err error) {
 	defer func() {
 		err = fault.Wrap(
 			err,
@@ -465,10 +465,10 @@ func (s *Editor) ApplyConditions(edit *ConditionPlan) (err error) {
 			fault.Context{Resource: eventConditionsResource},
 		)
 	}()
-	if edit == nil {
+	if plan == nil {
 		return rom.ErrStale
 	}
-	if err := edit.commit.Apply(s.context); err != nil {
+	if err := plan.commit.Apply(s.context); err != nil {
 		return err
 	}
 	s.Refresh()

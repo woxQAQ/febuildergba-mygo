@@ -22,10 +22,28 @@ type Layout struct {
 	Stride                   int
 	CardMarker, CardPointer  int
 	StateOffset, MouthOffset int
+	// MiniLength is the mini-portrait payload bound: inline LZ77 data in FE6,
+	// a plain pointer elsewhere. MiniOptional reports whether a record may
+	// omit the mini.
+	MiniLength   int
+	MiniOptional bool
+	// MouthField is the mouth coordinate field offset; EyeField and BlinkField
+	// are -1 when the record has no eye or blink fields.
+	MouthField, EyeField, BlinkField int
+	// FaceLength is the face tile payload bound; FaceTail lists the extra
+	// sheet pieces past the shared base layout. HeaderFace reports support for
+	// uncompressed face graphics with a native size header instead of LZ77.
+	FaceLength int
+	FaceTail   [][6]int
+	HeaderFace bool
+	// MouthFrames is the native mouth frame count; MouthTilesOffset holds the
+	// additional mouth-tiles resource position, -1 when the record has none.
+	MouthFrames      int
+	MouthTilesOffset int
 }
 
-// FE6Layout is the FE6 portrait record: a card pointer first and no native
-// talking state.
+// FE6Layout is the FE6 portrait record: a class-card pointer first, inline
+// LZ77 mini, and no native talking state.
 func FE6Layout() Layout {
 	return Layout{
 		Stride:      16,
@@ -33,17 +51,44 @@ func FE6Layout() Layout {
 		CardPointer: 0,
 		StateOffset: -1,
 		MouthOffset: -1,
+		MiniLength:  512,
+		MouthField:  12,
+		EyeField:    -1,
+		BlinkField:  -1,
+		FaceLength:  4352,
+		FaceTail: [][6]int{
+			{0, 80, 64, 32, 192, 0},
+			{96, 80, 32, 8, 0, 32},
+			{96, 88, 32, 8, 32, 32},
+		},
+		MouthFrames:      5,
+		MouthTilesOffset: -1,
 	}
 }
 
 // FE7Layout is the portrait record layout shared by FE7 and FE8.
 func FE7Layout() Layout {
 	return Layout{
-		Stride:      28,
-		CardMarker:  0,
-		CardPointer: 16,
-		StateOffset: 24,
-		MouthOffset: 22,
+		Stride:       28,
+		CardMarker:   0,
+		CardPointer:  16,
+		StateOffset:  24,
+		MouthOffset:  22,
+		MiniLength:   4,
+		MiniOptional: true,
+		MouthField:   20,
+		EyeField:     22,
+		BlinkField:   24,
+		FaceLength:   4096,
+		FaceTail: [][6]int{
+			{96, 48, 32, 16, 192, 0},
+			{96, 64, 32, 16, 192, 16},
+			{96, 80, 32, 16, 224, 0},
+			{96, 96, 32, 16, 224, 16},
+		},
+		MouthFrames:      7,
+		MouthTilesOffset: 12,
+		HeaderFace:       true,
 	}
 }
 

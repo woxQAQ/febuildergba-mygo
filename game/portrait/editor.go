@@ -217,23 +217,25 @@ func (s *Editor) Read(id int) (*Portrait, error) {
 		id:      id,
 		address: at,
 	}
-	miniLength := 4
-	if f.Stride == 16 {
-		miniLength = 512
-	}
+	miniLength := f.MiniLength
 	p.Resources = []records.RecordResource{
 		portraitResource(data, "portrait_main", at, 4),
 		portraitResource(data, "portrait_mini", at+4, miniLength),
 		portraitResource(data, "portrait_palette", at+8, 32),
 	}
-	if entry.ClassCard && f.Stride == 16 {
+	if entry.ClassCard && f.CardPointer == 0 {
 		p.Resources[0].Label = "portrait_card"
 	}
-	if f.Stride != 16 {
+	if f.MouthTilesOffset >= 0 {
 		p.Resources = append(
 			p.Resources,
-			portraitResource(data, "portrait_mouth_tiles", at+12, 1536),
-			portraitResource(data, "portrait_card", at+16, 4),
+			portraitResource(
+				data,
+				"portrait_mouth_tiles",
+				at+f.MouthTilesOffset,
+				1536,
+			),
+			portraitResource(data, "portrait_card", at+f.CardPointer, 4),
 		)
 	}
 	if entry.Empty {
@@ -241,17 +243,19 @@ func (s *Editor) Read(id int) (*Portrait, error) {
 	}
 	standard := f.Mode == nil || f.Mode(data) == Standard
 	if !entry.ClassCard && standard {
-		offset := 20
-		if f.Stride == 16 {
-			offset = 12
-		}
-		p.Mouth = image.Pt(int(data[at+offset]), int(data[at+offset+1]))
+		p.Mouth = image.Pt(
+			int(data[at+f.MouthField]),
+			int(data[at+f.MouthField+1]),
+		)
 		p.writable = true
 		p.Fields = portraitFields(f)
-		if f.Stride != 16 {
+		if f.EyeField >= 0 {
 			p.HasEyes = true
-			p.Eyes = image.Pt(int(data[at+22]), int(data[at+23]))
-			p.Blink = int(data[at+24])
+			p.Eyes = image.Pt(
+				int(data[at+f.EyeField]),
+				int(data[at+f.EyeField+1]),
+			)
+			p.Blink = int(data[at+f.BlinkField])
 		}
 	}
 	palette, valid := gba.Pointer(data, at+8)
@@ -280,7 +284,7 @@ func (s *Editor) Read(id int) (*Portrait, error) {
 			at+4,
 			32,
 			512,
-			f.Stride != 16,
+			f.MiniOptional,
 			pal,
 		)
 	}
@@ -313,7 +317,7 @@ func (p *Portrait) loadFace(
 	for _, piece := range portraitFacePieces {
 		blitPortrait(p.Main, tiles, piece, draw.Src)
 	}
-	if f.Stride == 16 {
+	if f.EyeField < 0 {
 		p.loadFE6Frames(tiles)
 		return nil
 	}
@@ -351,30 +355,41 @@ func (p *Portrait) loadFE6Frames(tiles *image.RGBA) {
 }
 
 func portraitFields(f Format) []records.Field {
-	offset := 20
-	if f.Stride == 16 {
-		offset = 12
-	}
 	fields := []records.Field{
 		records.NumericField(
 			"portrait_mouth_x",
 			records.GroupGeneral,
-			offset,
+			f.MouthField,
 			1,
 		),
 		records.NumericField(
 			"portrait_mouth_y",
 			records.GroupGeneral,
-			offset+1,
+			f.MouthField+1,
 			1,
 		),
 	}
-	if f.Stride != 16 {
+	if f.EyeField >= 0 {
 		fields = append(
 			fields,
-			records.NumericField("portrait_eye_x", records.GroupGeneral, 22, 1),
-			records.NumericField("portrait_eye_y", records.GroupGeneral, 23, 1),
-			records.NumericField("portrait_blink", records.GroupGeneral, 24, 1),
+			records.NumericField(
+				"portrait_eye_x",
+				records.GroupGeneral,
+				f.EyeField,
+				1,
+			),
+			records.NumericField(
+				"portrait_eye_y",
+				records.GroupGeneral,
+				f.EyeField+1,
+				1,
+			),
+			records.NumericField(
+				"portrait_blink",
+				records.GroupGeneral,
+				f.BlinkField,
+				1,
+			),
 		)
 	}
 	return fields

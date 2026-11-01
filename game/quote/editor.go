@@ -56,7 +56,19 @@ func (s *Editor) BattleConditions() bool { return s.format.BattleConditions }
 
 // SilentDeath reports the FE8 death-table convention where an entry with no
 // script and no text stays silent.
-func (s *Editor) SilentDeath() bool  { return s.format.SilentDeath }
+func (s *Editor) SilentDeath() bool { return s.format.SilentDeath }
+
+// FallbackDeaths reports FE7-style defeat fallbacks: separate Lyn and other
+// character tables sharing the death-quote structure.
+func (s *Editor) FallbackDeaths() bool {
+	for _, r := range s.format.Rules {
+		if r.Kind == DeathLyn || r.Kind == DeathOther {
+			return true
+		}
+	}
+	return false
+}
+
 func (s *Editor) AnyChapter() uint32 { return s.format.AnyChapter }
 
 func (s *Editor) TriangleChapter(kind Kind) (uint32, bool) {

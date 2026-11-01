@@ -38,7 +38,7 @@ func fe7uFormat() format {
 				Stride:   84,
 				Count:    256,
 				Probe:    0x88,
-				Fields:   records.ClassFields(),
+				Fields:   records.FE7ClassFields(),
 			},
 			{
 				Kind:          records.Items,
@@ -47,7 +47,7 @@ func fe7uFormat() format {
 				Count:         256,
 				Probe:         -1,
 				PointerFields: []int{12, 16},
-				Fields:        records.ItemFields(),
+				Fields:        records.FE7ItemFields(),
 			},
 		},
 		sprites: sprite.Format{

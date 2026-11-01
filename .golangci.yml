@@ -33,7 +33,7 @@ linters:
               desc: Domain errors and rules must be independent of UI catalogs.
         version-composition:
           files:
-            - "${config-path}/game/{chapter,deployment,event,graphics,itemicon,maps,portrait,quote,records,shop,sprite,support,terrain,text,worldmap}/**.go"
+            - "${config-path}/game/*/**.go"
           deny:
             - pkg: github.com/woxQAQ/febuildergba-mygo/game/version
               desc: Version identity belongs to the composition root; domains expose named variants and capability fields.

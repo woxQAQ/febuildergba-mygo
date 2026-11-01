@@ -47,7 +47,7 @@ func (s *Editor) Mini(id int) (graphics.Preview, error) {
 		entry.Address+4,
 		32,
 		512,
-		g.Stride != 16,
+		g.MiniOptional,
 		s.image.Data[palette:palette+32],
 	)
 	return graphics.Preview{Image: mini}, err

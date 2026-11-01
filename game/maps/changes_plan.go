@@ -245,15 +245,15 @@ func (s *Editor) validateMapChanges(
 	return nil
 }
 
-func (s *Editor) ApplyChanges(edit *ChangesPlan) (err error) {
+func (s *Editor) ApplyChanges(plan *ChangesPlan) (err error) {
 	defer func() { err = fault.Wrap(err, "game.apply_map_changes", fault.Context{Resource: ChangesField}) }()
-	if edit == nil {
+	if plan == nil {
 		return rom.ErrStale
 	}
-	if !edit.Applicable() {
+	if !plan.Applicable() {
 		return ErrMapChangeReference
 	}
-	if err = edit.commit.Apply(s.context); err != nil {
+	if err = plan.commit.Apply(s.context); err != nil {
 		return err
 	}
 	s.Refresh()
