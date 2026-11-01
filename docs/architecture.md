@@ -113,7 +113,7 @@ flowchart TD
 
 版本相关事实的放置规则：绝对 ROM 地址（指针位置、hook、指令位置、恢复地址、补丁特征位置）只出现在 `game/feXX.go`；领域包把结构差异定义为命名值（如 `support.FE7Layout()`、`chapter.FE6Layout()`、`records.FE7ClassFields()`），不接收布尔或版本 ID；版本身份只出现在组合根，版本差异带来的页面规则用领域 Format 的能力字段表达（如 `quote` 的 `BattleConditions`／`SilentDeath`）。`.golangci.yml` 的 `version-composition` depguard 规则禁止领域子包导入 `game/version`。
 
-当前两处例外如实记录：`records.Rule` 的 Stride／Count／Probe 与 `quote.Rule` 的终止规则仍以字面量留在版本文件里——记录表的地址与结构是否一起拆分是[重建计划](plan/opus.md)记录的开放问题，现保持字面量风格不预先框架化；`event` 内部仍保留指令集世代判别器 `deploymentEventKind`（四个值，由命名 Layout 构造器选择），它驱动指令编码分支而不是版本身份，后续按变体整理指令表时消除。
+当前例外如实记录。`records.Rule` 的 Stride／Count／Probe 与 `quote.Rule` 的终止规则仍以字面量留在版本文件里：记录表的地址与结构是否随规则 2 一起拆分保留为开放问题，现保持字面量风格，不预先框架化。`event` 包内仍保留 `deploymentEventKind` 判别器，取值为 `eventFE6`、`eventFE7J`、`eventFE7U`、`eventFE8`，驱动约四十处指令编码分支；它由命名 Layout 构造器选择、不导入 `game/version`，但实质是按版本区分的指令编码变体，不满足“内部不按版本 switch”，后续按变体整理指令表时消除。
 
 记录负责选择头像引用、职业回退和通用小头像编号，头像编辑器消费该选择并解释原生资源。文本及图像替换消费记录提供的使用处、手动区域和保护信息；它们不从 UI 标签或显示名称推断规则。
 

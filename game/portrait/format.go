@@ -19,17 +19,19 @@ const (
 
 // Layout is the native portrait record structure of one generation.
 type Layout struct {
-	Stride                   int
-	CardMarker, CardPointer  int
-	StateOffset, MouthOffset int
+	Stride                  int
+	CardMarker, CardPointer int
+	// Eyes reports the eye coordinate and blink record fields and the eye
+	// sheet frames; EyeField and BlinkField give their record offsets.
+	Eyes                 bool
+	EyeField, BlinkField int
 	// MiniLength is the mini-portrait payload bound: inline LZ77 data in FE6,
 	// a plain pointer elsewhere. MiniOptional reports whether a record may
 	// omit the mini.
 	MiniLength   int
 	MiniOptional bool
-	// MouthField is the mouth coordinate field offset; EyeField and BlinkField
-	// are -1 when the record has no eye or blink fields.
-	MouthField, EyeField, BlinkField int
+	// MouthField is the mouth coordinate field offset.
+	MouthField int
 	// FaceLength is the face tile payload bound; FaceTail lists the extra
 	// sheet pieces past the shared base layout. HeaderFace reports support for
 	// uncompressed face graphics with a native size header instead of LZ77.
@@ -43,18 +45,14 @@ type Layout struct {
 }
 
 // FE6Layout is the FE6 portrait record: a class-card pointer first, inline
-// LZ77 mini, and no native talking state.
+// LZ77 mini, and no eye or blink fields.
 func FE6Layout() Layout {
 	return Layout{
 		Stride:      16,
 		CardMarker:  4,
 		CardPointer: 0,
-		StateOffset: -1,
-		MouthOffset: -1,
 		MiniLength:  512,
 		MouthField:  12,
-		EyeField:    -1,
-		BlinkField:  -1,
 		FaceLength:  4352,
 		FaceTail: [][6]int{
 			{0, 80, 64, 32, 192, 0},
@@ -72,13 +70,12 @@ func FE7Layout() Layout {
 		Stride:       28,
 		CardMarker:   0,
 		CardPointer:  16,
-		StateOffset:  24,
-		MouthOffset:  22,
+		Eyes:         true,
+		EyeField:     22,
+		BlinkField:   24,
 		MiniLength:   4,
 		MiniOptional: true,
 		MouthField:   20,
-		EyeField:     22,
-		BlinkField:   24,
 		FaceLength:   4096,
 		FaceTail: [][6]int{
 			{96, 48, 32, 16, 192, 0},
@@ -203,13 +200,13 @@ func (f Format) Preview(data []byte, id int) (graphics.Preview, error) {
 			)
 		}
 	}
-	if f.StateOffset >= 0 && data[at+f.StateOffset] == 6 {
+	if f.Eyes && data[at+f.BlinkField] == 6 {
 		blitPortrait(
 			face,
 			sheet,
 			[6]int{
-				int(data[at+f.MouthOffset]) * 8,
-				int(data[at+f.MouthOffset+1]) * 8,
+				int(data[at+f.EyeField]) * 8,
+				int(data[at+f.EyeField+1]) * 8,
 				32,
 				16,
 				192,

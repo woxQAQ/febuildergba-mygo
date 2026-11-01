@@ -66,7 +66,8 @@ func fe7uFormat() format {
 			},
 		},
 		quotes: quote.Format{
-			AnyChapter: 0x43,
+			AnyChapter:         0x43,
+			FlagBlocksFallback: true,
 			Rules: []quote.Rule{
 				{
 					Kind:      quote.Battle,

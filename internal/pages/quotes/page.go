@@ -551,7 +551,7 @@ func (p *Page) tableHelp(kind quote.Kind) string {
 	switch {
 	case p.state.Session.Quotes.BattleConditions():
 		return locales.QuoteFe8Help()
-	case p.state.Session.Quotes.FallbackDeaths():
+	case p.state.Session.Quotes.FlagBlocksFallback():
 		return locales.QuoteFe7Help()
 	default:
 		return locales.QuoteFe6Help()

@@ -68,7 +68,8 @@ func fe7jFormat() format {
 		},
 		// Addresses follow ROMFE7JP, not a derived delta.
 		quotes: quote.Format{
-			AnyChapter: 0x45,
+			AnyChapter:         0x45,
+			FlagBlocksFallback: true,
 			Rules: []quote.Rule{
 				{
 					Kind:      quote.Battle,

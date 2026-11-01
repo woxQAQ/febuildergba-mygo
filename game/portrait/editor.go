@@ -249,7 +249,7 @@ func (s *Editor) Read(id int) (*Portrait, error) {
 		)
 		p.writable = true
 		p.Fields = portraitFields(f)
-		if f.EyeField >= 0 {
+		if f.Eyes {
 			p.HasEyes = true
 			p.Eyes = image.Pt(
 				int(data[at+f.EyeField]),
@@ -317,21 +317,28 @@ func (p *Portrait) loadFace(
 	for _, piece := range portraitFacePieces {
 		blitPortrait(p.Main, tiles, piece, draw.Src)
 	}
-	if f.EyeField < 0 {
-		p.loadFE6Frames(tiles)
+	if !f.Eyes {
+		p.loadFE6Frames(tiles, f.MouthFrames)
 		return nil
 	}
 	p.eyes = [2]*image.RGBA{
 		portraitCrop(tiles, image.Rect(192, 0, 224, 16)),
 		portraitCrop(tiles, image.Rect(192, 16, 224, 32)),
 	}
-	p.mouths = make([]*image.RGBA, 7)
-	p.mouths[6] = portraitCrop(tiles, image.Rect(224, 0, 256, 16))
-	mouth, err := portraitPart(data, at+12, 32, 1536, false, pal)
+	p.mouths = make([]*image.RGBA, f.MouthFrames)
+	p.mouths[f.MouthFrames-1] = portraitCrop(tiles, image.Rect(224, 0, 256, 16))
+	mouth, err := portraitPart(
+		data,
+		at+f.MouthTilesOffset,
+		32,
+		1536,
+		false,
+		pal,
+	)
 	if err != nil || mouth == nil {
 		return nil
 	}
-	for index := range 6 {
+	for index := range f.MouthFrames - 1 {
 		p.mouths[index] = portraitCrop(
 			mouth,
 			image.Rect(0, index*16, 32, index*16+16),
@@ -340,8 +347,8 @@ func (p *Portrait) loadFace(
 	return nil
 }
 
-func (p *Portrait) loadFE6Frames(tiles *image.RGBA) {
-	p.mouths = make([]*image.RGBA, 5)
+func (p *Portrait) loadFE6Frames(tiles *image.RGBA, count int) {
+	p.mouths = make([]*image.RGBA, count)
 	for index, point := range []image.Point{{X: 192}, {X: 224}, {X: 192, Y: 16}, {X: 224, Y: 16}} {
 		p.mouths[index] = portraitCrop(
 			tiles,

@@ -58,6 +58,10 @@ func (s *Editor) BattleConditions() bool { return s.format.BattleConditions }
 // script and no text stays silent.
 func (s *Editor) SilentDeath() bool { return s.format.SilentDeath }
 
+// FlagBlocksFallback reports the FE7 rule where a pair match with an
+// already-set flag blocks later records and the general-table fallback.
+func (s *Editor) FlagBlocksFallback() bool { return s.format.FlagBlocksFallback }
+
 // FallbackDeaths reports FE7-style defeat fallbacks: separate Lyn and other
 // character tables sharing the death-quote structure.
 func (s *Editor) FallbackDeaths() bool {

@@ -95,12 +95,14 @@ func (r Rule) ended(raw []byte) bool {
 // Format declares the native tables and their version-independent semantics.
 // BattleConditions marks FE8 battle chapter conditions, including the triangle
 // marker; SilentDeath marks FE8 death entries staying silent without script or
-// text.
+// text; FlagBlocksFallback marks the FE7 rule where a pair match with an
+// already-set flag blocks later records and the general-table fallback.
 type Format struct {
-	Rules            []Rule
-	AnyChapter       uint32
-	BattleConditions bool
-	SilentDeath      bool
+	Rules              []Rule
+	AnyChapter         uint32
+	BattleConditions   bool
+	SilentDeath        bool
+	FlagBlocksFallback bool
 }
 
 func FE6BattleFields() []Field {
