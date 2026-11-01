@@ -93,7 +93,6 @@ linters:
           - forbidigo
         path: main.go
 
-
 formatters:
   enable:
     - gofumpt

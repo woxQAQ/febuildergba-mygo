@@ -25,6 +25,8 @@ generate:
 i18n-check:
     go tool mygo i18n check
 
+i18n: generate i18n-check fmt
+
 # 按 .golangci.yml 格式化 Go 代码。
 fmt:
     golangci-lint fmt ./... && oxfmt . "!FEBuilderGBA/**"
