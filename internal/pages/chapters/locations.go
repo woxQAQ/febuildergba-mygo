@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"image"
 	"slices"
-	"strings"
 
 	"github.com/egoist/mygo/ui"
 
@@ -382,16 +381,7 @@ func (v *Page) locationInspector(
 					if id, created := entry.data.Dialog(
 						entry.selected,
 					); created {
-						v.dialoguePicker(c, state, entry, id)
-						if id != 0 {
-							v.locationTexts(
-								c,
-								state,
-								entry,
-								condition,
-								openText,
-							)
-						}
+						v.dialoguePicker(c, state, entry, id, openText)
 					} else {
 						if condition.Script == 1 {
 							ui.Text(c, locales.LocationNativeAction()).
@@ -495,63 +485,5 @@ func (v *Page) locationTexts(
 	condition event.Condition,
 	openText func(uint16),
 ) {
-	if len(condition.Texts) == 0 {
-		return
-	}
-	choices := make([]string, len(condition.Texts))
-	for i, id := range condition.Texts {
-		choices[i] = fmt.Sprintf("%04X", id)
-	}
-	if !slices.Contains(choices, entry.textReference) {
-		entry.textReference = choices[0]
-	}
-	ui.Row(c).Wrap().Gap(8).AlignItems(ui.Center).Children(func() {
-		if len(choices) > 1 {
-			ui.Select(c.Key("reference-id"), &entry.textReference, choices).
-				Width(90).Label(locales.EventTextRefs()).Disabled(state.Busy)
-		}
-		id := condition.Texts[max(0, slices.Index(choices, entry.textReference))]
-		ui.Button(c, fmt.Sprintf("%s · %04X", locales.TextEditor(), id)).
-			Disabled(state.Busy).OnClick(func() { openText(id) })
-	})
-	id := condition.Texts[max(0, slices.Index(choices, entry.textReference))]
-	value, err := state.Session.Texts.Read(id)
-	if err != nil {
-		ui.Text(c, components.ErrorText(err)).TextColor(c.Theme().TextMuted)
-		return
-	}
-	ui.Text(c, locationTextExcerpt(value.Content)).
-		FontSize(13).
-		Selectable().
-		Label(locales.LocationTextExcerpt())
-}
-
-// Excerpts omit decoded text markup; escaped brackets remain literal. The full
-// command-bearing text remains available through the text editor.
-func locationTextExcerpt(content string) string {
-	var out strings.Builder
-	for len(content) > 0 {
-		switch content[0] {
-		case '\\':
-			if len(content) > 1 {
-				content = content[1:]
-			}
-		case '[':
-			if end := strings.IndexByte(content, ']'); end >= 0 {
-				marker := content[1:end]
-				if marker == "A" || marker == "Clear" || marker == "NL" {
-					out.WriteByte(' ')
-				}
-				content = content[end+1:]
-				continue
-			}
-		}
-		out.WriteByte(content[0])
-		content = content[1:]
-	}
-	runes := []rune(strings.Join(strings.Fields(out.String()), " "))
-	if len(runes) > 180 {
-		runes = append(runes[:180], '…')
-	}
-	return string(runes)
+	eventTexts(c, state, entry, condition, openText)
 }

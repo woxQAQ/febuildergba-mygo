@@ -136,18 +136,17 @@ func (a *form) profileIdentity(
 	entry *profileState,
 	preview *assetPreview,
 ) {
-	width, _ := c.Size()
-	tracks := []ui.Track{ui.Fr(1)}
-	if width-a.sidebar-40 >= 660 {
-		tracks = []ui.Track{ui.Fixed(352), ui.Fr(1)}
-	}
-	ui.Column(c.Key("identity")).MaxWidth(800).Gap(12).Children(func() {
-		ui.Row(c.Key("heading")).
-			Wrap().
-			Gap(16).
-			AlignItems(ui.Start).
-			Children(func() {
-				ui.Column(c).Width(136).Shrink(0).Gap(6).Children(func() {
+	ui.Row(c.Key("identity")).
+		MaxWidth(880).
+		Wrap().
+		Gap(12).
+		AlignItems(ui.Start).
+		Children(func() {
+			ui.Column(c.Key("portrait")).
+				Width(136).
+				Shrink(0).
+				Gap(6).
+				Children(func() {
 					ui.Row(c).Gap(8).AlignItems(ui.End).Children(func() {
 						if preview != nil && preview.bitmap != nil {
 							bounds := preview.resource.Image.Bounds()
@@ -171,70 +170,85 @@ func (a *form) profileIdentity(
 							TextColor(c.Theme().TextMuted)
 					}
 				})
-				ui.Row(c).
-					Width(260).
-					MaxWidthPercent(100).
-					Grow(1).
-					MinWidth(0).
-					Gap(8).
-					AlignItems(ui.Start).
-					Children(func() {
-						ui.Textf(c, "%02X", row.ID).
-							Padding(8, 0, 0, 0).
-							FontSize(13).
-							FontFeatures("tnum").
-							TextColor(c.Theme().TextMuted)
-						ui.Column(c).
-							Grow(1).
-							MinWidth(0).
-							Gap(6).
-							Children(func() {
-								a.nameEditor(c, kind, row)
-								a.descriptions(c, kind, row, table, 48)
-							})
-					})
-			})
-		ui.Grid(c.Key("fields")).ColumnTracks(tracks...).GapX(20).GapY(8).
-			AlignItems(ui.Start).Children(func() {
-			field := "class_id"
-			if kind == records.Classes {
-				field = "promotion_id"
-			}
-			a.profileClass(c, kind, row, table, entry, field)
-			if kind == records.Units {
-				ui.Row(c.Key("level-affinity")).
-					Gap(12).
-					AlignItems(ui.Center).
-					Children(func() {
-						ui.Row(c).Gap(6).AlignItems(ui.Center).Children(func() {
-							ui.Text(c, locales.Label("level")).
-								Width(84).
-								FontSize(12)
-							a.profileNumber(c, kind, row, table, "level", 48)
+			ui.Column(c.Key("basic-info")).
+				Width(300).
+				Grow(1).
+				MinWidth(0).
+				MaxWidthPercent(100).
+				Gap(6).
+				Children(func() {
+					ui.Row(c.Key("name")).
+						Gap(8).
+						AlignItems(ui.Center).
+						Children(func() {
+							ui.Textf(c, "%02X", row.ID).
+								FontSize(12).
+								FontFeatures("tnum").
+								TextColor(c.Theme().TextMuted)
+							a.nameEditor(c, kind, row).Grow(1).MinWidth(0)
 						})
-						a.profileEnum(
-							c,
-							kind,
-							row,
-							table,
-							entry,
-							"affinity",
-							[]string{
-								"affinity_none",
-								"affinity_fire",
-								"affinity_thunder",
-								"affinity_wind",
-								"affinity_ice",
-								"affinity_dark",
-								"affinity_light",
-								"affinity_anima",
-							},
-						)
-					})
-			}
-			a.profilePortraitReference(c, kind, row, table, preview)
+					a.descriptions(c, kind, row, table, 44)
+					ui.Row(c.Key("class-level")).
+						Wrap().
+						Gap(12).
+						AlignItems(ui.Center).
+						Children(func() {
+							field := "class_id"
+							if kind == records.Classes {
+								field = "promotion_id"
+							}
+							a.profileClass(c, kind, row, table, entry, field)
+							if kind == records.Units {
+								ui.Row(c.Key("level-affinity")).
+									Gap(10).
+									AlignItems(ui.Center).
+									Children(func() {
+										ui.Text(c, locales.Label("level")).
+											FontSize(12)
+										a.profileNumber(
+											c,
+											kind,
+											row,
+											table,
+											"level",
+											44,
+										)
+										a.profileEnum(
+											c,
+											kind,
+											row,
+											table,
+											entry,
+											"affinity",
+											[]string{
+												"affinity_none",
+												"affinity_fire",
+												"affinity_thunder",
+												"affinity_wind",
+												"affinity_ice",
+												"affinity_dark",
+												"affinity_light",
+												"affinity_anima",
+											},
+										)
+									})
+							}
+						})
+					ui.Row(c.Key("portraits")).
+						Wrap().
+						Gap(12).
+						AlignItems(ui.Center).
+						Children(func() {
+							a.profilePortraitReference(
+								c,
+								kind,
+								row,
+								table,
+								preview,
+							)
+						})
+				})
 		})
-	})
 }
 
 func (a *form) profilePortraitReference(
@@ -248,7 +262,7 @@ func (a *form) profilePortraitReference(
 		Gap(6).
 		AlignItems(ui.Center).
 		Children(func() {
-			ui.Text(c, locales.Label("portrait_id")).Width(84).FontSize(12)
+			ui.Text(c, locales.Label("portrait_id")).Width(76).FontSize(12)
 			a.profileNumber(c, kind, row, table, "portrait_id", 64)
 			if a.openPortrait != nil {
 				ui.Button(c, locales.OpenPortraitTable()).
@@ -268,7 +282,6 @@ func (a *form) profilePortraitReference(
 		Children(func() {
 			ui.Row(c).Gap(6).AlignItems(ui.Center).Children(func() {
 				ui.Text(c, locales.Label("portrait_mini_source")).
-					Width(84).
 					FontSize(12)
 				a.profileNumber(c, kind, row, table, "mini_portrait", 48)
 			})
@@ -351,6 +364,9 @@ func (a *form) profileRelated(
 			"movement_speed",
 			[]string{"record_walk_standard", "record_walk_slow"},
 		)
+	}
+	if kind == records.Units {
+		return
 	}
 	links, err := a.state.Session.Records.RecordResources(kind, row.ID)
 	if err != nil {

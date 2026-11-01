@@ -71,11 +71,11 @@ func (a *form) profileClass(
 		if kind == records.Classes {
 			help = locales.RecordRelatedClassHelp()
 		}
-		ui.Text(c, locales.Label(id)).Width(84).FontSize(12).Tooltip(help)
+		ui.Text(c, locales.Label(id)).Width(76).FontSize(12).Tooltip(help)
 		components.TextDraft(
 			a.state,
 			ui.Combobox(c, &draft.text, labels).
-				Width(190).
+				Width(140).
 				Height(26).
 				FontSize(13).
 				Label(a.fieldLabel(kind, field)).

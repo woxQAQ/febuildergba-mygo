@@ -17,9 +17,10 @@ import (
 
 type (
 	numberDraft struct {
-		text    string
-		value   int64
-		invalid bool
+		reference components.TextReferenceState
+		text      string
+		value     int64
+		invalid   bool
 	}
 	referenceDraft struct {
 		choice string

@@ -8,6 +8,7 @@
 | [头像审查](portrait-editor-deslop-review.md)               | `a164bd7`                    | [头像设计](../portrait-editor-design.md)                                               |
 | [测试实施记录](test-implementation.md)                     | `a77fea5`                    | [测试说明](../../tests/README.md)                                                      |
 | [MyGo v0.6.3 → v0.7.3 评估](mygo-0.6.3-to-0.7.3-review.md) | `44cdc8f` 加调研时工作区修改 | `go.mod`、[架构](../architecture.md)、[开发说明](../development.md)                    |
+| [MyGo v0.7.3 → v0.7.4 评估](mygo-0.7.3-to-0.7.4-review.md) | `32de81f` 加调研时工作区修改 | `go.mod`、[架构](../architecture.md)、[开发说明](../development.md)                    |
 | [文档 harness 巡检](document-harness-audit.md)             | `90ab062`                    | [AGENTS](../../AGENTS.md)、[文档索引](../README.md)、[测试说明](../../tests/README.md) |
 
 [Format 与编辑流程原始提案（Opus）](format-editing-opus-proposal.md)和[另一版提案（Codex）](format-editing-codex-proposal.md)保留不同设计方向的原始讨论。写作提交未记录，归档核对基线为 `640f0fb`；当前实现与规则由[架构](../architecture.md)和 [AGENTS](../../AGENTS.md)替代，状态由[覆盖矩阵](../coverage.md)替代。

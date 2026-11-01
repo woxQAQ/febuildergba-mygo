@@ -22,11 +22,12 @@ type fieldKey struct {
 }
 
 type fieldDraft struct {
-	text    string
-	value   int64
-	epoch   uint64
-	invalid bool
-	input   ui.Handle
+	text      string
+	reference components.TextReferenceState
+	value     int64
+	epoch     uint64
+	invalid   bool
+	input     ui.Handle
 }
 
 func formatField(f records.Field, value int64) string {
@@ -269,6 +270,10 @@ func (a *form) inlineSection(
 			actionWidth = 48
 		}
 	}
+	width, _ := c.Size()
+	if width-a.sidebar-32 < 680 {
+		columns = 1
+	}
 	return ui.Column(c.Key(group)).Gap(8).Children(func() {
 		ui.Text(c, locales.Label(group)).Bold().FontSize(13)
 		ui.Grid(c).Columns(columns).GapX(16).GapY(4).Children(func() {
@@ -286,6 +291,10 @@ func (a *form) inlineField(
 	f records.Field,
 	inputWidth, actionWidth float32,
 ) {
+	if f.Text != text.NoRole {
+		a.textReferenceField(c, kind, row, f)
+		return
+	}
 	ui.Row(c.Key(f.ID)).Gap(6).MinHeight(28).Children(func() {
 		key := fieldKey{kind, row.ID, f.ID}
 		label := locales.Label(f.ID)
@@ -316,17 +325,7 @@ func (a *form) inlineField(
 				Shrink(0).
 				Disabled(a.state.Busy).
 				OnClick(func() { a.jump(f.Reference, int(value)) })
-		case f.Text != text.NoRole:
-			ui.Button(c, locales.Jump()).
-				Size(actionWidth, 26).
-				Padding(3, 6).
-				Shrink(0).
-				Disabled(a.state.Busy || value <= 0 || value >= 0x7FFF).
-				OnClick(func() {
-					if value > 0 && value < 0x7FFF {
-						a.openText(uint16(value))
-					}
-				})
+
 		case f.Asset == graphics.Portrait && a.openPortrait != nil:
 			ui.Button(c, locales.Jump()).
 				Height(26).

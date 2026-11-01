@@ -54,6 +54,7 @@ type Page struct {
 	sidebar            components.Sidebar
 	query              string
 	category, selected int
+	sourceChoice       string
 	advanced           bool
 	showInactive       bool
 	list               ui.ListState
@@ -157,16 +158,32 @@ func (page *Page) View(c *ui.Context) {
 
 func (page *Page) navigation(c *ui.Context) {
 	ui.Column(c).Fill().Padding(12).Gap(8).Children(func() {
+		categories := []string{
+			locales.ShopAll(),
+			locales.ShopChapter(),
+			locales.ShopPreparation(),
+			locales.ShopDefault(),
+			locales.ShopWorldmap(),
+		}
+		if !slices.Contains(categories, page.sourceChoice) {
+			page.sourceChoice = categories[page.category]
+		}
+		ui.Select(c.Key("source"), &page.sourceChoice, categories).
+			Label(locales.ShopSource()).
+			Tooltip(locales.ShopVersionHelp()).
+			Disabled(page.state.Busy).
+			OnChange(func() {
+				page.category = max(
+					0,
+					slices.Index(categories, page.sourceChoice),
+				)
+				page.selected = -1
+				page.list = ui.ListState{}
+			})
 		components.TextDraft(page.state, ui.TextInput(c, &page.query).
 			Label(locales.ShopSearch()).
 			Placeholder(locales.ShopSearch()).Disabled(page.state.Busy).
 			OnChange(func() { page.selected = -1; page.list = ui.ListState{} }))
-		ui.Tabs(c, &page.category, locales.ShopAll(), locales.ShopChapter(), locales.ShopPreparation(), locales.ShopDefault(), locales.ShopWorldmap()).
-			Wrap().
-			Label(locales.ShopSource()).
-			Tooltip(locales.ShopVersionHelp()).
-			Disabled(page.state.Busy).
-			OnChange(func() { page.selected = -1; page.list = ui.ListState{} })
 		if (page.category == 0 || page.category == int(shop.WorldMap)+1) &&
 			slices.ContainsFunc(
 				page.all,

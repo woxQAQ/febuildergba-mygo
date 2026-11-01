@@ -83,6 +83,47 @@ func (a *form) textPreview(
 	})
 }
 
+func (a *form) textReferenceField(
+	c *ui.Context,
+	kind records.Kind,
+	row records.Row,
+	field records.Field,
+) {
+	key := fieldKey{kind, row.ID, field.ID}
+	if a.drafts == nil {
+		a.drafts = make(map[fieldKey]*fieldDraft)
+	}
+	draft := a.drafts[key]
+	if draft == nil {
+		draft = &fieldDraft{}
+		a.drafts[key] = draft
+	}
+	value, err := a.state.Session.Records.Value(kind, row.ID, field.ID)
+	ui.Column(c.Key(field.ID)).Gap(4).Children(func() {
+		label := locales.Label(field.ID)
+		help := label
+		if kind == records.Chapters &&
+			(field.ID == "objective_text_id" || field.ID == "objective_detail_text_id") {
+			help += "\n" + locales.ChapterObjectiveHelp()
+		}
+		ui.Text(c, label).FontSize(13).Tooltip(help).
+			OnClick(func() { a.focusField(key) })
+		if err != nil {
+			ui.Text(c, components.ErrorText(err)).TextColor(c.Theme().Danger)
+			return
+		}
+		components.TextReference(c, a.state, &draft.reference, uint32(value), a.fieldLabel(kind, field), a.showRaw, false, func(id uint16) {
+			a.state.Err = a.state.Session.Records.Set(
+				kind,
+				[]int{row.ID},
+				field.ID,
+				int64(id),
+			)
+		}, a.openText).
+			Bind(&draft.input)
+	})
+}
+
 func (a *form) descriptionEditors(
 	c *ui.Context,
 	kind records.Kind,

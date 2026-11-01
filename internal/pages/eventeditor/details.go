@@ -80,6 +80,9 @@ func (page *Page) operands(
 	}
 	ui.Row(c).Wrap().Gap(16).Children(func() {
 		for _, field := range fields {
+			if field.Target == event.ScriptTextTarget {
+				continue
+			}
 			ui.Row(c.Key(field.ID)).
 				Width(350).
 				MaxWidthPercent(100).
@@ -98,6 +101,9 @@ func (page *Page) operands(
 		}
 	})
 	for _, field := range fields {
+		if field.Target == event.ScriptTextTarget {
+			page.textOperand(c, draft, row, field)
+		}
 		if field.Target == event.ScriptMovementTarget {
 			page.movement(c, draft, row, field)
 		}
@@ -120,6 +126,42 @@ func (page *Page) operands(
 	}
 }
 
+func (page *Page) textOperand(
+	c *ui.Context,
+	draft *draftState,
+	row event.ScriptInstruction,
+	field event.ScriptField,
+) {
+	key := operandKey{row.ID, field.ID}
+	current := draft.inputs[key]
+	if current == nil {
+		current = &numberDraft{}
+		draft.inputs[key] = current
+	}
+	index := draft.selected
+	value, _ := draft.data.Value(index, field.ID)
+	ui.Column(c.Key(key)).Gap(4).Children(func() {
+		label := locales.Label(field.ID)
+		ui.Text(c, label).FontSize(13).Tooltip(locales.Label(field.Help))
+		components.TextReference(
+			c,
+			page.state,
+			&current.reference,
+			uint32(value),
+			locales.ScriptEditor()+" / "+label,
+			page.showRaw,
+			!row.Editable ||
+				!draft.data.Current(page.state.Session.Events),
+			func(id uint16) {
+				draft.preview = nil
+				page.state.Err = draft.data.Set(index, field.ID, int64(id))
+				current.invalid = page.state.Err != nil
+			},
+			page.openText,
+		)
+	})
+}
+
 func (page *Page) operandLinks(
 	c *ui.Context,
 	draft *draftState,
@@ -130,14 +172,6 @@ func (page *Page) operandLinks(
 		for _, field := range fields {
 			value, _ := draft.data.Value(draft.selected, field.ID)
 			switch {
-			case field.Target == event.ScriptTextTarget:
-				textID := uint16(
-					value,
-				) // #nosec G115 -- Text operands are bounded to 16 bits.
-				ui.Button(c.Key(field.ID), fmt.Sprintf("%s · %04X", locales.TextEditor(), value)).
-					Disabled(page.state.Busy || value <= 0 || value >= 0x7FFF).
-					OnClick(func() { page.openText(textID) })
-			// #nosec G115 -- The control is enabled only for bounded text IDs.
 			case field.Target == event.ScriptEventTarget || field.Target == event.ScriptDeploymentTarget:
 				reference, err := draft.data.Reference(draft.selected, field.ID)
 				if err == nil && reference.Indirect {

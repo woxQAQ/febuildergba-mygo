@@ -23,8 +23,9 @@ type (
 		field string
 	}
 	valueInput struct {
-		text    string
-		invalid bool
+		reference components.TextReferenceState
+		text      string
+		invalid   bool
 	}
 	tableState struct {
 		draft        *quote.Draft
@@ -71,9 +72,6 @@ type Page struct {
 	showHelp       bool
 	tables         []quote.Table
 	drafts         map[quote.Kind]*tableState
-	textChoices    []string
-	textIDs        map[string]uint32
-	textRevision   uint64
 	unit           int
 	extraKind      quote.Kind
 	thumbnails     components.Thumbnails
@@ -339,9 +337,6 @@ func (p *Page) detail(c *ui.Context, table quote.Table, entry *tableState) {
 							360,
 						)
 					}
-					for _, field := range []string{quote.Text, quote.FinalText} {
-						p.textPreview(c, entry, index, field)
-					}
 					if p.advanced {
 						p.rawRecord(c, row)
 					}
@@ -350,37 +345,6 @@ func (p *Page) detail(c *ui.Context, table quote.Table, entry *tableState) {
 			p.actions(c, entry, stale)
 		})
 	})
-}
-
-func (p *Page) textPreview(
-	c *ui.Context,
-	entry *tableState,
-	index int,
-	field string,
-) {
-	id, err := entry.draft.Value(index, field)
-	if err != nil || id == 0 || id > 65535 {
-		return
-	}
-	value, err := p.state.Session.Texts.Value(
-		uint16(id),
-	) // #nosec G115 -- ID bounds checked above.
-	if err != nil {
-		ui.Text(c, components.ErrorText(err)).TextColor(c.Theme().Danger)
-		return
-	}
-	content := strings.TrimSpace(value.Plain)
-	if p.advanced {
-		content = value.Content
-	}
-	if content == "" {
-		content = locales.QuoteControlOnly()
-	}
-	ui.Text(c, content).
-		Selectable().
-		FontSize(13).
-		MaxWidth(720).
-		Label(locales.QuoteReadingPreview())
 }
 
 func (p *Page) rawRecord(c *ui.Context, row quote.Entry) {
@@ -501,31 +465,7 @@ func (p *Page) choices(field quote.Field) ([]string, map[string]uint32) {
 		add(1, locales.QuoteRouteEirika())
 		add(2, locales.QuoteRouteEphraim())
 		add(0xFF, locales.QuoteAnyRoute())
-	case quote.Text, quote.FinalText:
-		revision := p.state.Session.Document.State().Revision
-		if p.textChoices == nil || p.textRevision != revision {
-			p.textChoices = []string{"0000 · " + locales.QuoteNoText()}
-			p.textIDs = map[string]uint32{p.textChoices[0]: 0}
-			p.textRevision = revision
-			entries, err := p.state.Session.Texts.Entries()
-			if err == nil {
-				for _, entry := range entries {
-					if entry.Err != nil {
-						continue
-					}
-					content := []rune(
-						strings.ReplaceAll(entry.Plain, "\n", " "),
-					)
-					if len(content) > 48 {
-						content = append(content[:48], '…')
-					}
-					label := fmt.Sprintf("%04X · %s", entry.ID, string(content))
-					p.textChoices = append(p.textChoices, label)
-					p.textIDs[label] = uint32(entry.ID)
-				}
-			}
-		}
-		return p.textChoices, p.textIDs
+
 	}
 	return labels, values
 }
@@ -616,6 +556,35 @@ func (p *Page) field(
 	disabled = disabled || extended
 	key := fieldKey{entry.rows[index].ID, field.ID}
 	current := entry.inputs[key]
+	if field.ID == quote.Text || field.ID == quote.FinalText {
+		if current == nil {
+			current = &valueInput{}
+			entry.inputs[key] = current
+		}
+		label := fieldLabel(entry.draft.Kind(), field.ID)
+		ui.Column(c).Gap(4).Children(func() {
+			ui.Text(c, label).
+				FontSize(12).
+				Bold().
+				Tooltip(p.fieldHelp(entry.draft.Kind(), field.ID))
+			components.TextReference(
+				c,
+				p.state,
+				&current.reference,
+				value,
+				locales.QuoteEditor()+" / "+label,
+				p.advanced,
+				disabled,
+				func(id uint16) {
+					entry.preview = nil
+					p.state.Err = entry.draft.Set(index, field.ID, uint32(id))
+					current.invalid = p.state.Err != nil
+				},
+				p.openText,
+			)
+		})
+		return
+	}
 	labels, values := p.choices(field)
 	if current == nil {
 		current = &valueInput{text: fmt.Sprintf("0x%X", value)}
@@ -721,11 +690,6 @@ func (p *Page) field(
 				ui.Button(c, locales.Jump()).
 					Disabled(p.state.Busy || p.state.Session.Quotes.SpecialChapter(entry.draft.Kind(), value) || value > 255).
 					OnClick(func() { p.openRecord(records.Chapters, int(value)) })
-			case quote.Text, quote.FinalText:
-				ui.Button(c, locales.QuoteOpenText()).
-					Disabled(p.state.Busy || value == 0 || value > 65535).
-					OnClick(func() { p.openText(uint16(value)) })
-			// #nosec G115 -- Enabled only for 16-bit IDs.
 			case quote.Script:
 				ui.Button(c, locales.QuoteScriptBytes()).
 					Disabled(p.state.Busy || value < 0x080000C0 || value >= 0x0A000000).

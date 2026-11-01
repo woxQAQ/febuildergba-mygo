@@ -12,14 +12,14 @@ import (
 	"github.com/woxQAQ/febuildergba-mygo/game/support"
 	"github.com/woxQAQ/febuildergba-mygo/internal/components"
 	"github.com/woxQAQ/febuildergba-mygo/internal/editor"
-	"github.com/woxQAQ/febuildergba-mygo/internal/input"
 	"github.com/woxQAQ/febuildergba-mygo/internal/locales"
 )
 
 type (
 	valueInput struct {
-		text    string
-		invalid bool
+		text      string
+		reference components.TextReferenceState
+		invalid   bool
 	}
 	dialogueState struct {
 		draft    *support.TalkDraft
@@ -54,9 +54,6 @@ type Page struct {
 	rows          []support.Talk
 	entry         *dialogueState
 	advanced      bool
-	textRevision  uint64
-	textChoices   []string
-	textIDs       map[string]uint32
 }
 
 func New(
@@ -291,67 +288,31 @@ func (p *Page) detail(
 	ui.Text(c, locales.SupportDialogueHelp()).
 		FontSize(12).
 		TextColor(c.Theme().TextMuted)
-	choices, values := p.textOptions()
 	for rank, id := range row.Texts {
 		ui.Column(c.Key(rank)).Gap(4).Children(func() {
 			label := []string{locales.SupportC(), locales.SupportB(), locales.SupportA()}[rank]
 			key := fmt.Sprintf("%d/%d", row.Index, rank)
 			current := entry.inputs[key]
 			if current == nil {
-				current = &valueInput{text: fmt.Sprintf("0x%04X", id)}
-				for _, choice := range choices {
-					if values[choice] == id {
-						current.text = choice
-						break
-					}
-				}
+				current = &valueInput{}
 				entry.inputs[key] = current
 			}
 			ui.Text(c, label).FontSize(13).Bold()
-			ui.Row(c).Wrap().AlignItems(ui.Center).Gap(8).Children(func() {
-				control := components.TextDraft(
-					p.state,
-					ui.Autocomplete(c.Key(key), &current.text, choices).
-						Width(320).
-						MaxWidthPercent(100).
-						Label(locales.SupportDialogues()+" / "+label).
-						Disabled(stale || p.state.Busy).OnChange(func() {
-						entry.plan = nil
-						number, chosen := values[current.text]
-						if !chosen {
-							value, err := input.ParseInteger(current.text)
-							if err != nil || value < 0 || value > 65535 {
-								current.invalid = true
-								return
-							}
-							number = uint32(value)
-						}
-						entry.err = entry.draft.SetText(
-							row.Index,
-							rank,
-							uint16(number),
-						)
-						current.invalid = entry.err != nil
-					}),
-				)
-				if current.invalid {
-					control.Error(locales.GameInvalidValue())
-				}
-				ui.Button(c, locales.QuoteOpenText()).
-					Disabled(p.state.Busy || id == 0 || id > 65535 || current.invalid).
-					OnClick(func() { p.openText(uint16(id)) })
-			})
-			if id != 0 && id <= 65535 {
-				value, err := p.state.Session.Texts.Value(uint16(id))
-				if err != nil {
-					ui.Text(c, components.ErrorText(err)).
-						TextColor(c.Theme().Danger)
-				} else {
-					ui.Scroll(c).
-						Height(80).
-						Children(func() { ui.Text(c, value.Content).FontSize(13).Selectable() })
-				}
-			}
+			components.TextReference(
+				c,
+				p.state,
+				&current.reference,
+				id,
+				locales.SupportDialogues()+" / "+label,
+				p.advanced,
+				stale,
+				func(id uint16) {
+					entry.plan = nil
+					entry.err = entry.draft.SetText(row.Index, rank, id)
+					current.invalid = entry.err != nil
+				},
+				p.openText,
+			)
 		})
 	}
 	if p.advanced {
@@ -363,32 +324,6 @@ func (p *Page) detail(
 			Disabled(p.state.Busy || stale).
 			OnClick(func() { p.openHex(row.Address, len(row.Raw)) })
 	}
-}
-
-func (p *Page) textOptions() ([]string, map[string]uint32) {
-	revision := p.state.Session.Document.State().Revision
-	if p.textChoices == nil || revision != p.textRevision {
-		p.textRevision = revision
-		label := "0000 · " + locales.QuoteNoText()
-		p.textChoices = []string{label}
-		p.textIDs = map[string]uint32{label: 0}
-		rows, err := p.state.Session.Texts.Entries()
-		if err == nil {
-			for _, row := range rows {
-				if row.Err != nil {
-					continue
-				}
-				content := []rune(strings.ReplaceAll(row.Content, "\n", " "))
-				if len(content) > 48 {
-					content = append(content[:48], '…')
-				}
-				label := fmt.Sprintf("%04X · %s", row.ID, string(content))
-				p.textChoices = append(p.textChoices, label)
-				p.textIDs[label] = uint32(row.ID)
-			}
-		}
-	}
-	return p.textChoices, p.textIDs
 }
 
 func (p *Page) actions(c *ui.Context, entry *dialogueState, stale bool) {

@@ -117,11 +117,11 @@ func (v *Page) talkDetails(
 			TextColor(c.Theme().TextMuted)
 	}
 	if id, created := entry.data.Dialog(entry.selected); created {
-		v.dialoguePicker(c, state, entry, id)
+		v.dialoguePicker(c, state, entry, id, openText)
 	} else {
 		v.eventLinks(c, state, condition)
+		eventTexts(c, state, entry, condition, openText)
 	}
-	eventTexts(c, state, entry, condition, openText)
 }
 
 type dialogueChoice struct {
@@ -134,6 +134,7 @@ func (v *Page) dialoguePicker(
 	state *editor.State,
 	entry *eventState,
 	id uint16,
+	openText func(uint16),
 ) {
 	if entry.textChoices == nil {
 		entries, err := state.Session.Texts.Entries()
@@ -146,7 +147,7 @@ func (v *Page) dialoguePicker(
 			if text.Err != nil {
 				continue
 			}
-			content := strings.Join(strings.Fields(text.Content), " ")
+			content := strings.Join(strings.Fields(text.Plain), " ")
 			caption := []rune(content)
 			if len(caption) > 36 {
 				caption = append(caption[:36], '…')
@@ -176,55 +177,65 @@ func (v *Page) dialoguePicker(
 			break
 		}
 	}
-	picker := ui.ComboboxBase(c.Key("dialog-text"), &input.text)
-	components.TextDraft(state, picker.Input).
-		Width(580).MaxWidthPercent(100).Height(28).Padding(4, 8).
-		Background(c.Theme().Surface).
-		Border(1, c.Theme().Border).Radius(c.Theme().Radius).
-		Label(locales.TalkText()).
-		Placeholder(locales.ChooseTextId()).Tooltip(locales.TalkTextHelp()).
-		Disabled(state.Busy || !entry.data.Current(state.Session.Events))
-	if input.value != int64(id) || (!picker.Input.Focused() && !picker.Open()) {
-		input.text, input.value = caption, int64(id)
-	}
-	query := strings.TrimPrefix(
-		strings.ToLower(strings.TrimSpace(input.text)),
-		"0x",
-	)
-	picker.Popup(func(panel ui.Element) {
-		panel.Background(c.Theme().Surface).
-			Border(1, c.Theme().Border).
-			Radius(c.Theme().Radius).
-			Padding(4)
-		ui.Scroll(c).MaxHeight(240).Children(func() {
-			for _, choice := range entry.textChoices {
-				if picker.Filtering() &&
-					!strings.Contains(choice.search, query) {
-					continue
+	ui.Row(c).Wrap().Gap(8).AlignItems(ui.Center).Children(func() {
+		picker := ui.ComboboxBase(c.Key("dialog-text"), &input.text)
+		components.TextDraft(state, picker.Input).
+			Width(240).
+			Grow(1).MinWidth(0).MaxWidthPercent(100).Height(28).Padding(4, 8).
+			Background(c.Theme().Surface).
+			Border(1, c.Theme().Border).Radius(c.Theme().Radius).
+			Label(locales.TalkText()).
+			Placeholder(locales.ChooseTextId()).Tooltip(locales.TalkTextHelp()).
+			Disabled(state.Busy || !entry.data.Current(state.Session.Events))
+		if input.value != int64(id) ||
+			(!picker.Input.Focused() && !picker.Open()) {
+			input.text, input.value = caption, int64(id)
+		}
+		query := strings.TrimPrefix(
+			strings.ToLower(strings.TrimSpace(input.text)),
+			"0x",
+		)
+		picker.Popup(func(panel ui.Element) {
+			panel.Background(c.Theme().Surface).
+				Border(1, c.Theme().Border).
+				Radius(c.Theme().Radius).
+				Padding(4)
+			ui.Scroll(c).MaxHeight(240).Children(func() {
+				for _, choice := range entry.textChoices {
+					if picker.Filtering() &&
+						!strings.Contains(choice.search, query) {
+						continue
+					}
+					item := picker.Item(choice.caption).
+						Padding(5, 8).
+						Radius(c.Theme().Radius)
+					if item.Highlighted() {
+						item.Background(c.Theme().Accent).
+							TextColor(c.Theme().AccentText)
+					}
+					item.Children(
+						func() { ui.Text(c, choice.caption).SingleLine() },
+					)
 				}
-				item := picker.Item(choice.caption).
-					Padding(5, 8).
-					Radius(c.Theme().Radius)
-				if item.Highlighted() {
-					item.Background(c.Theme().Accent).
-						TextColor(c.Theme().AccentText)
-				}
-				item.Children(
-					func() { ui.Text(c, choice.caption).SingleLine() },
-				)
-			}
+			})
 		})
-	})
-	if chosen, ok := picker.Chosen(); ok {
-		for _, choice := range entry.textChoices {
-			if choice.caption == chosen {
-				state.Err = entry.data.SetDialogue(entry.selected, choice.id)
-				input.text, input.value = choice.caption, int64(choice.id)
-				entry.preview = nil
-				break
+		if chosen, ok := picker.Chosen(); ok {
+			for _, choice := range entry.textChoices {
+				if choice.caption == chosen {
+					state.Err = entry.data.SetDialogue(
+						entry.selected,
+						choice.id,
+					)
+					input.text, input.value = choice.caption, int64(choice.id)
+					entry.preview = nil
+					break
+				}
 			}
 		}
-	}
+		ui.Button(c, locales.QuoteOpenText()).Disabled(state.Busy || id == 0).
+			OnClick(func() { openText(id) })
+	})
+	components.TextPreview(c, state.Session.Texts, uint32(id), false)
 	if _, err := state.Session.Events.DialogueText(id); err != nil {
 		message := components.ErrorText(err)
 		if id == 0 {

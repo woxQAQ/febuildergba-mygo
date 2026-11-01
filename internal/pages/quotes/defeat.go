@@ -127,7 +127,7 @@ func (p *Page) ViewDefeat(c *ui.Context, available float32, raw bool) {
 						}
 						ui.Column(c.Key("text-" + id)).
 							Gap(8).
-							Children(func() { render(id, width-100); p.textPreview(c, entry, index, id) })
+							Children(func() { render(id, width-100) })
 					}
 					ui.Grid(c.Key("flags-script")).
 						Columns(columns).
