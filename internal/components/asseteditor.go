@@ -29,7 +29,7 @@ type AssetEditor struct {
 	session  *game.Session
 	ref      graphics.Ref
 	revision uint64
-	edit     *graphics.Edit
+	edit     *graphics.Plan
 	imported *ui.Bitmap
 }
 
@@ -149,7 +149,7 @@ func (editor *AssetEditor) importPNG(
 	})
 }
 
-func assetUses(c *ui.Context, plan *graphics.Edit) {
+func assetUses(c *ui.Context, plan *graphics.Plan) {
 	uses := plan.Uses()
 	ui.Text(c, locales.AssetEditSummary(len(uses))).FontSize(12)
 	for _, kind := range records.Kinds {

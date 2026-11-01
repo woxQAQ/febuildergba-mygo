@@ -14,9 +14,9 @@ import (
 	"github.com/woxQAQ/febuildergba-mygo/space"
 )
 
-// MapChangesEdit appends a frozen table and only changed tile payloads. The
+// ChangesPlan appends a frozen table and only changed tile payloads. The
 // selected PLIST entry is the sole existing write site; scripts stay intact.
-type ChangesEdit struct {
+type ChangesPlan struct {
 	commit                                   *edit.Plan
 	plan                                     space.Plan
 	source, pointer, before, after, payloads int
@@ -24,30 +24,30 @@ type ChangesEdit struct {
 	references                               ChangeReferences
 }
 
-func (e *ChangesEdit) Source() int { return e.source }
+func (e *ChangesPlan) Source() int { return e.source }
 
-func (e *ChangesEdit) Destination() int { return e.plan.Destination.Start }
+func (e *ChangesPlan) Destination() int { return e.plan.Destination.Start }
 
-func (e *ChangesEdit) Pointer() int { return e.pointer }
+func (e *ChangesPlan) Pointer() int { return e.pointer }
 
-func (e *ChangesEdit) Length() int { return e.plan.Destination.End - e.plan.Destination.Start }
+func (e *ChangesPlan) Length() int { return e.plan.Destination.End - e.plan.Destination.Start }
 
-func (e *ChangesEdit) Before() int { return e.before }
+func (e *ChangesPlan) Before() int { return e.before }
 
-func (e *ChangesEdit) After() int { return e.after }
+func (e *ChangesPlan) After() int { return e.after }
 
-func (e *ChangesEdit) Payloads() int { return e.payloads }
+func (e *ChangesPlan) Payloads() int { return e.payloads }
 
-func (e *ChangesEdit) Uses() []Use { return slices.Clone(e.uses) }
+func (e *ChangesPlan) Uses() []Use { return slices.Clone(e.uses) }
 
-func (e *ChangesEdit) References() ChangeReferences {
+func (e *ChangesPlan) References() ChangeReferences {
 	return ChangeReferences{
 		References: slices.Clone(e.references.References),
 		Warnings:   slices.Clone(e.references.Warnings),
 	}
 }
 
-func (e *ChangesEdit) Applicable() bool {
+func (e *ChangesPlan) Applicable() bool {
 	return !slices.ContainsFunc(
 		e.references.References,
 		func(ref ChangeReference) bool { return ref.Before >= 0 && ref.After < 0 },
@@ -101,7 +101,7 @@ func (s *Editor) mapResourceUses(
 
 func (s *Editor) PlanChanges(
 	draft *ChangesDraft,
-) (result *ChangesEdit, err error) {
+) (result *ChangesPlan, err error) {
 	defer func() { err = fault.Wrap(err, "game.plan_map_changes", fault.Context{Resource: ChangesField}) }()
 	s.Refresh()
 	if draft == nil {
@@ -169,7 +169,7 @@ func (s *Editor) PlanChanges(
 	if err = draft.base.binding.Check(s.context); err != nil {
 		return nil, err
 	}
-	return &ChangesEdit{
+	return &ChangesPlan{
 		commit:     edit.NewPlan(draft.base.binding, ChangesField, plan.Edit),
 		plan:       plan,
 		source:     draft.original.address,
@@ -245,7 +245,7 @@ func (s *Editor) validateMapChanges(
 	return nil
 }
 
-func (s *Editor) ApplyChanges(edit *ChangesEdit) (err error) {
+func (s *Editor) ApplyChanges(edit *ChangesPlan) (err error) {
 	defer func() { err = fault.Wrap(err, "game.apply_map_changes", fault.Context{Resource: ChangesField}) }()
 	if edit == nil {
 		return rom.ErrStale

@@ -28,7 +28,7 @@ type mapPainter struct {
 type mapState struct {
 	mapPainter
 	data                                    *maps.Draft
-	preview                                 *maps.Edit
+	preview                                 *maps.Plan
 	revision                                uint64
 	address                                 int
 	err                                     error

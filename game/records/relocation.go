@@ -10,8 +10,8 @@ import (
 	"github.com/woxQAQ/febuildergba-mygo/space"
 )
 
-// TableMove is an immutable preview tied to one document revision.
-type TableMove struct {
+// MovePlan is an immutable preview tied to one document revision.
+type MovePlan struct {
 	commit *edit.Plan
 	kind   Kind
 	source space.Range
@@ -19,24 +19,24 @@ type TableMove struct {
 	refs   int
 }
 
-func (m *TableMove) Source() int { return m.source.Start }
+func (m *MovePlan) Source() int { return m.source.Start }
 
-func (m *TableMove) Destination() int { return m.plan.Destination.Start }
+func (m *MovePlan) Destination() int { return m.plan.Destination.Start }
 
-func (m *TableMove) Length() int { return m.source.End - m.source.Start }
+func (m *MovePlan) Length() int { return m.source.End - m.source.Start }
 
-func (m *TableMove) Size() int { return m.plan.Edit.Size }
+func (m *MovePlan) Size() int { return m.plan.Edit.Size }
 
-func (m *TableMove) ReferenceCount() int { return m.refs }
+func (m *MovePlan) ReferenceCount() int { return m.refs }
 
-func (m *TableMove) Revision() uint64 { return m.commit.Revision() }
+func (m *MovePlan) Revision() uint64 { return m.commit.Revision() }
 
 // PlanTableMove appends by default. Reusing existing bytes requires declared
 // free ranges.
 func (s *Editor) PlanTableMove(
 	kind Kind,
 	available []space.FreeRange,
-) (result *TableMove, err error) {
+) (result *MovePlan, err error) {
 	defer func() { err = fault.Wrap(err, "game.plan_table_move", fault.Context{Table: string(kind)}) }()
 	s.Refresh()
 	table := s.Table(kind)
@@ -82,7 +82,7 @@ func (s *Editor) PlanTableMove(
 	if !valid {
 		return nil, edit.ErrLayout
 	}
-	return &TableMove{
+	return &MovePlan{
 		commit: edit.NewPlan(
 			s.context.BindBytes(s.image.Revision),
 			"move."+string(kind),
@@ -95,7 +95,7 @@ func (s *Editor) PlanTableMove(
 	}, nil
 }
 
-func (s *Editor) ApplyTableMove(move *TableMove) (err error) {
+func (s *Editor) ApplyTableMove(move *MovePlan) (err error) {
 	ctx := fault.Context{}
 	if move != nil {
 		ctx.Table = string(move.kind)

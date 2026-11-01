@@ -4,7 +4,7 @@
 
 当前入口：章节布局（`game/chapter/format.go`）、资源协调（`game/chapter/editor.go`）、部署草稿（`game/deployment/draft.go`）、事件条件（`game/event/conditions.go`）、条件编辑（`game/event/conditions_edit.go`）和脚本读取（`game/event/script.go`）。
 
-`event.Table` 区分回合、常驻、对话和地点表，`event.Condition` 保留原生条件并区分脚本、奖励及其他资源；`event.ConditionDraft`／`event.ConditionEdit` 管理草稿和不可变写入计划。UI 位于 `internal/pages/chapters` 和 `internal/pages/eventeditor`。
+`event.Table` 区分回合、常驻、对话和地点表，`event.Condition` 保留原生条件并区分脚本、奖励及其他资源；`event.ConditionDraft`／`event.ConditionPlan` 管理草稿和不可变写入计划。UI 位于 `internal/pages/chapters` 和 `internal/pages/eventeditor`。
 
 全局战斗对话、死亡对话及死亡标志使用独立原生表，见[战斗与死亡对话](battle-and-defeat-dialogue.md)；不套用本页章节普通对话的方向或结束规则。
 
@@ -78,7 +78,7 @@ flowchart LR
 
 ### 地图变化资源与引用
 
-`game/maps/changes.go` 的 `maps.ChangesDraft` 保存变化表和每项图块的不可变草稿历史；`game/maps/changes_plan.go` 的 `maps.ChangesEdit` 冻结写入字节、共享用途和引用报告。五版均使用变化资源自己的实时 PLIST，实际空指针可创建新表，资源 ID 0 可指向有效表。
+`game/maps/changes.go` 的 `maps.ChangesDraft` 保存变化表和每项图块的不可变草稿历史；`game/maps/changes_plan.go` 的 `maps.ChangesPlan` 冻结写入字节、共享用途和引用报告。五版均使用变化资源自己的实时 PLIST，实际空指针可创建新表，资源 ID 0 可指向有效表。
 
 每条记录为 12 字节：偏移 0 为变化 ID，1–4 为 X、Y、宽、高，5–7 为未解释字节，8–11 为逐行小端 uint16 图块载荷指针。任一负的 ID 字节（80–FF）终止。读取有界，载荷须完整且半字对齐；保留原顺序、重复 ID、未解释头字节及实际可读的结束字节。新 ID 限于 0–127 且唯一；编辑后的矩形须在所有共用入口章节的地图内，非零图块须能被各章图块集解释。已有未修改记录不会被顺带规范化。
 
@@ -218,7 +218,7 @@ flowchart LR
     Plan --> History[更新所选指针与一次历史]
 ```
 
-`event.Table` 区分回合、常驻、对话和地点表，`event.Condition` 保存原生条件，`event.ConditionDraft`／`event.ConditionEdit` 处理草稿和提交。
+`event.Table` 区分回合、常驻、对话和地点表，`event.Condition` 保存原生条件，`event.ConditionDraft`／`event.ConditionPlan` 处理草稿和提交。
 
 引擎检查条件时读取活动单位位置，编辑器不模拟移动或条件执行。FE6、FE7 的困难专用区域及其他未支持条件保留原始记录，不提供类型转换或任意脚本重写。领域和文件回归只验证编码与文件行为，游戏内触发尚未验证。
 

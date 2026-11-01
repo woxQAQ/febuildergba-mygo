@@ -98,7 +98,7 @@ func Open(path string) (session *Session, err error) {
 		chapterConfig.ProtectPointer = s.protectPointer
 		s.Chapters = chapter.New(context, chapterConfig, s.Records)
 		s.Events, s.Deployments, s.Maps = s.Chapters.Events, s.Chapters.Deployments, s.Chapters.Maps
-		s.Shops = shop.NewEditor(context, format.shops, s.shopSource())
+		s.Shops = shop.New(context, format.shops, s.shopSource())
 		s.Quotes = quote.New(context, format.quotes, s.quoteSource())
 		s.Supports = support.New(context, format.supports, s.supportSource())
 		s.Terrain = terrain.New(

@@ -34,7 +34,7 @@ type (
 		selected   int
 		list       ui.ListState
 		inputs     map[operandKey]*numberDraft
-		preview    *event.ScriptEdit
+		preview    *event.ScriptPlan
 		command    string
 		references map[operandKey]*referenceDraft
 		movements  map[operandKey]*movementDraft

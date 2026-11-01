@@ -19,9 +19,9 @@ type Use struct {
 	Updated                      bool
 }
 
-// MapEdit owns an immutable compressed layout and one pointer update. All
+// Plan owns an immutable compressed layout and one pointer update. All
 // chapters using that pointer entry change together; independent entries stay.
-type Edit struct {
+type Plan struct {
 	commit                                *edit.Plan
 	source, destination, pointer, changed int
 	uses                                  []Use
@@ -31,19 +31,19 @@ type Edit struct {
 	warnings                              []ImpactWarning
 }
 
-func (e *Edit) Source() int { return e.source }
+func (e *Plan) Source() int { return e.source }
 
-func (e *Edit) Destination() int { return e.destination }
+func (e *Plan) Destination() int { return e.destination }
 
-func (e *Edit) Pointer() int { return e.pointer }
+func (e *Plan) Pointer() int { return e.pointer }
 
-func (e *Edit) ChangedCells() int { return e.changed }
+func (e *Plan) ChangedCells() int { return e.changed }
 
-func (e *Edit) Length() int { return e.plan.Destination.End - e.plan.Destination.Start }
+func (e *Plan) Length() int { return e.plan.Destination.End - e.plan.Destination.Start }
 
-func (e *Edit) Uses() []Use { return slices.Clone(e.uses) }
+func (e *Plan) Uses() []Use { return slices.Clone(e.uses) }
 
-func (s *Editor) Plan(draft *Draft) (result *Edit, err error) {
+func (s *Editor) Plan(draft *Draft) (result *Plan, err error) {
 	defer func() { err = fault.Wrap(err, "game.plan_map", fault.Context{Resource: LayoutField}) }()
 	s.Refresh()
 	if draft == nil {
@@ -89,7 +89,7 @@ func (s *Editor) Plan(draft *Draft) (result *Edit, err error) {
 	if err = draft.binding.Check(s.context); err != nil {
 		return nil, err
 	}
-	return &Edit{
+	return &Plan{
 		commit:      edit.NewPlan(draft.binding, LayoutField, plan.Edit),
 		source:      draft.address,
 		destination: plan.Destination.Start,
@@ -104,7 +104,7 @@ func (s *Editor) Plan(draft *Draft) (result *Edit, err error) {
 	}, nil
 }
 
-func (s *Editor) Apply(edit *Edit) (err error) {
+func (s *Editor) Apply(edit *Plan) (err error) {
 	defer func() { err = fault.Wrap(err, "game.apply_map", fault.Context{Resource: LayoutField}) }()
 	if edit == nil {
 		return rom.ErrStale
@@ -328,12 +328,12 @@ type ImpactWarning struct {
 	Err              error
 }
 
-func (e *Edit) BeforeSize() image.Point { return e.beforeSize }
+func (e *Plan) BeforeSize() image.Point { return e.beforeSize }
 
-func (e *Edit) AfterSize() image.Point { return e.afterSize }
+func (e *Plan) AfterSize() image.Point { return e.afterSize }
 
-func (e *Edit) Resized() bool { return e.beforeSize != e.afterSize }
+func (e *Plan) Resized() bool { return e.beforeSize != e.afterSize }
 
-func (e *Edit) Impacts() []Impact { return slices.Clone(e.impacts) }
+func (e *Plan) Impacts() []Impact { return slices.Clone(e.impacts) }
 
-func (e *Edit) ImpactWarnings() []ImpactWarning { return slices.Clone(e.warnings) }
+func (e *Plan) ImpactWarnings() []ImpactWarning { return slices.Clone(e.warnings) }

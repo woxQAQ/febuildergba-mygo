@@ -24,7 +24,7 @@ type eventKey struct {
 
 type eventState struct {
 	data                         *event.ConditionDraft
-	preview                      *event.ConditionEdit
+	preview                      *event.ConditionPlan
 	selected, lastSelected, view int
 	list                         ui.ListState
 	inputs                       map[inputKey]*numberDraft

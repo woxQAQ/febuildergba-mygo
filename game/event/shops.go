@@ -65,7 +65,7 @@ type InventoryChange struct {
 	Uses                           []shop.Reference
 }
 
-func (e *ConditionEdit) Inventories() []InventoryChange {
+func (e *ConditionPlan) Inventories() []InventoryChange {
 	result := slices.Clone(e.inventories)
 	for i := range result {
 		result[i].Uses = slices.Clone(result[i].Uses)

@@ -193,7 +193,7 @@ func (d *ConditionDraft) AddLocation(s *Editor, kind LocationKind) error {
 		raw[0], raw[10] = 10, byte(
 			f.shopCommand(Armory),
 		) // #nosec G115 -- Native tile command fits in a byte.
-		record.inventory = shop.New()
+		record.inventory = shop.NewDraft()
 	case Door:
 		raw[0], raw[4], raw[10] = 8, 1, 0x10
 		if f.kind == eventFE8 {

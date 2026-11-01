@@ -23,8 +23,8 @@ type entryState struct {
 	chapter        *event.ConditionDraft
 	inventory      *shop.Draft
 	view           shopview.View
-	preview        *shop.EntryEdit
-	chapterPreview *event.ConditionEdit
+	preview        *shop.EntryPlan
+	chapterPreview *event.ConditionPlan
 	uses, affected []shop.Reference
 	err            error
 }

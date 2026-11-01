@@ -15,26 +15,26 @@ type Use struct {
 	Label   string
 }
 
-type Edit struct {
+type Plan struct {
 	commit                          *edit.Plan
 	chapter, pointer, before, after int
 	plan                            space.Plan
 	uses                            []Use
 }
 
-func (e *Edit) Destination() int { return e.plan.Destination.Start }
+func (e *Plan) Destination() int { return e.plan.Destination.Start }
 
-func (e *Edit) Length() int { return e.plan.Destination.End - e.plan.Destination.Start }
+func (e *Plan) Length() int { return e.plan.Destination.End - e.plan.Destination.Start }
 
-func (e *Edit) Before() int { return e.before }
+func (e *Plan) Before() int { return e.before }
 
-func (e *Edit) After() int { return e.after }
+func (e *Plan) After() int { return e.after }
 
-func (e *Edit) Uses() []Use { return slices.Clone(e.uses) }
+func (e *Plan) Uses() []Use { return slices.Clone(e.uses) }
 
 func (s *Editor) Plan(
 	draft *Draft,
-) (result *Edit, err error) {
+) (result *Plan, err error) {
 	defer func() { err = fault.Wrap(err, "game.plan_deployment", fault.Context{Resource: Resource}) }()
 	s.Refresh()
 	if draft == nil {
@@ -68,7 +68,7 @@ func (s *Editor) Plan(
 		return nil, err
 	}
 	plan := appender.Plan()
-	result = &Edit{
+	result = &Plan{
 		commit:  edit.NewPlan(draft.binding, Resource, plan.Edit),
 		chapter: draft.chapter,
 		pointer: site,
@@ -80,7 +80,7 @@ func (s *Editor) Plan(
 	return result, nil
 }
 
-func (s *Editor) Apply(edit *Edit) (err error) {
+func (s *Editor) Apply(edit *Plan) (err error) {
 	ctx := fault.Context{Resource: Resource}
 	if edit != nil {
 		ctx.Table, ctx.RecordID = string(records.Chapters), new(edit.chapter)

@@ -14,7 +14,7 @@ import (
 	"github.com/woxQAQ/febuildergba-mygo/space"
 )
 
-func (s *Editor) Plan(ref Ref, content []byte) (result *Edit, err error) {
+func (s *Editor) Plan(ref Ref, content []byte) (result *Plan, err error) {
 	defer func() {
 		err = fault.Wrap(
 			err,
@@ -107,7 +107,7 @@ func (s *Editor) Plan(ref Ref, content []byte) (result *Edit, err error) {
 	if !bytes.Equal(expected.Pix, decoded.Pix) {
 		return nil, ErrImage
 	}
-	return &Edit{
+	return &Plan{
 		commit: edit.NewPlan(
 			s.binding,
 			"asset."+string(ref.Kind),
@@ -119,7 +119,7 @@ func (s *Editor) Plan(ref Ref, content []byte) (result *Edit, err error) {
 	}, nil
 }
 
-func (s *Editor) Apply(plan *Edit) (err error) {
+func (s *Editor) Apply(plan *Plan) (err error) {
 	ctx := fault.Context{}
 	if plan != nil {
 		ctx.Resource = string(plan.ref.Kind)
@@ -186,25 +186,25 @@ type Use struct {
 	Field string
 }
 
-// AssetEdit binds a complete, immutable resource replacement to one document
+// Plan binds a complete, immutable resource replacement to one document
 // state. Other asset IDs retain their existing pointers, even when their old
 // data aliases.
-type Edit struct {
+type Plan struct {
 	commit *edit.Plan
 	ref    Ref
 	uses   []Use
 	image  *image.RGBA
 }
 
-func (e *Edit) Ref() Ref { return e.ref }
+func (e *Plan) Ref() Ref { return e.ref }
 
-func (e *Edit) Revision() uint64 { return e.commit.Revision() }
+func (e *Plan) Revision() uint64 { return e.commit.Revision() }
 
-func (e *Edit) Uses() []Use { return slices.Clone(e.uses) }
+func (e *Plan) Uses() []Use { return slices.Clone(e.uses) }
 
-func (e *Edit) Bounds() image.Rectangle { return e.image.Bounds() }
+func (e *Plan) Bounds() image.Rectangle { return e.image.Bounds() }
 
-func (e *Edit) Image() *image.RGBA {
+func (e *Plan) Image() *image.RGBA {
 	out := image.NewRGBA(e.image.Bounds())
 	copy(out.Pix, e.image.Pix)
 	return out

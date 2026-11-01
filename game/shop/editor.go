@@ -33,7 +33,7 @@ type Editor struct {
 	warnings []error
 }
 
-func NewEditor(context *edit.Context, format Format, source Source) *Editor {
+func New(context *edit.Context, format Format, source Source) *Editor {
 	return &Editor{context: context, format: format, source: source}
 }
 
@@ -111,7 +111,7 @@ func (d *EntryDraft) Modified() bool { return d.inventory != nil && d.inventory.
 // Clear also initializes a confirmed world-map slot whose pointer is null.
 // It always uses a zero first halfword, including when the old terminator's
 // second byte was nonzero.
-func (d *EntryDraft) Clear() { d.inventory = New() }
+func (d *EntryDraft) Clear() { d.inventory = NewDraft() }
 
 func (s *Editor) NewDraft(key Key) (*EntryDraft, error) {
 	s.Refresh()
@@ -141,28 +141,28 @@ func (s *Editor) NewDraft(key Key) (*EntryDraft, error) {
 	return nil, edit.ErrField
 }
 
-// EntryEdit freezes both the appended inventory and its one selected pointer.
+// EntryPlan freezes both the appended inventory and its one selected pointer.
 // Known uses describe sharing before the change, not a complete ROM reference index.
-type EntryEdit struct {
+type EntryPlan struct {
 	commit               *edit.Plan
 	before, after, count int
 	uses, affected       []Reference
 }
 
-func (p *EntryEdit) Before() int           { return p.before }
-func (p *EntryEdit) After() int            { return p.after }
-func (p *EntryEdit) Count() int            { return p.count }
-func (p *EntryEdit) Size() int             { return p.commit.Size() }
-func (p *EntryEdit) Uses() []Reference     { return slices.Clone(p.uses) }
-func (p *EntryEdit) Affected() []Reference { return slices.Clone(p.affected) }
+func (p *EntryPlan) Before() int           { return p.before }
+func (p *EntryPlan) After() int            { return p.after }
+func (p *EntryPlan) Count() int            { return p.count }
+func (p *EntryPlan) Size() int             { return p.commit.Size() }
+func (p *EntryPlan) Uses() []Reference     { return slices.Clone(p.uses) }
+func (p *EntryPlan) Affected() []Reference { return slices.Clone(p.affected) }
 
-func (p *EntryEdit) Current(
+func (p *EntryPlan) Current(
 	s *Editor,
 ) bool {
 	return p != nil && p.commit.Current(s.context)
 }
 
-func (s *Editor) Plan(d *EntryDraft) (*EntryEdit, error) {
+func (s *Editor) Plan(d *EntryDraft) (*EntryPlan, error) {
 	if d == nil {
 		return nil, rom.ErrStale
 	}
@@ -191,7 +191,7 @@ func (s *Editor) Plan(d *EntryDraft) (*EntryEdit, error) {
 	if err != nil {
 		return nil, err
 	}
-	result := &EntryEdit{
+	result := &EntryPlan{
 		commit: edit.NewPlan(
 			d.binding,
 			"Edit shop inventory",
@@ -213,7 +213,7 @@ func (s *Editor) Plan(d *EntryDraft) (*EntryEdit, error) {
 	return result, nil
 }
 
-func (s *Editor) Apply(plan *EntryEdit) error {
+func (s *Editor) Apply(plan *EntryPlan) error {
 	if plan == nil {
 		return rom.ErrStale
 	}

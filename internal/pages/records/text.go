@@ -16,7 +16,7 @@ type textDraft struct {
 	text, original string
 	textID         uint16
 	epoch          uint64
-	preview        *text.Edit
+	preview        *text.Plan
 	err            error
 }
 

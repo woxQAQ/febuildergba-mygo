@@ -304,7 +304,7 @@ func (d *ConditionDraft) Deployment(index int) *deployment.Draft {
 	return d.records[index].deployment
 }
 
-type ConditionEdit struct {
+type ConditionPlan struct {
 	commit                          *edit.Plan
 	chapter, pointer, before, after int
 	plan                            space.Plan
@@ -312,19 +312,19 @@ type ConditionEdit struct {
 	inventories                     []InventoryChange
 }
 
-func (e *ConditionEdit) Destination() int { return e.plan.Destination.Start }
+func (e *ConditionPlan) Destination() int { return e.plan.Destination.Start }
 
-func (e *ConditionEdit) Length() int { return e.plan.Destination.End - e.plan.Destination.Start }
+func (e *ConditionPlan) Length() int { return e.plan.Destination.End - e.plan.Destination.Start }
 
-func (e *ConditionEdit) Before() int { return e.before }
+func (e *ConditionPlan) Before() int { return e.before }
 
-func (e *ConditionEdit) After() int { return e.after }
+func (e *ConditionPlan) After() int { return e.after }
 
-func (e *ConditionEdit) Uses() []int { return slices.Clone(e.uses) }
+func (e *ConditionPlan) Uses() []int { return slices.Clone(e.uses) }
 
 func (s *Editor) PlanConditions(
 	d *ConditionDraft,
-) (result *ConditionEdit, err error) {
+) (result *ConditionPlan, err error) {
 	defer func() {
 		err = fault.Wrap(
 			err,
@@ -430,7 +430,7 @@ func (s *Editor) PlanConditions(
 		return nil, err
 	}
 	plan := appender.Plan()
-	result = &ConditionEdit{
+	result = &ConditionPlan{
 		commit: edit.NewPlan(
 			d.binding,
 			eventConditionsResource,
@@ -457,7 +457,7 @@ func (s *Editor) PlanConditions(
 	return result, nil
 }
 
-func (s *Editor) ApplyConditions(edit *ConditionEdit) (err error) {
+func (s *Editor) ApplyConditions(edit *ConditionPlan) (err error) {
 	defer func() {
 		err = fault.Wrap(
 			err,

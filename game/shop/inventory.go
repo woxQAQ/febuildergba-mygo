@@ -33,7 +33,7 @@ type Draft struct {
 	terminator      byte
 }
 
-func New() *Draft { return &Draft{} }
+func NewDraft() *Draft { return &Draft{} }
 
 func Read(data []byte, address int) (result *Draft, err error) {
 	defer func() {

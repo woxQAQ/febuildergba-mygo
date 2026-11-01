@@ -18,8 +18,8 @@ type ScriptUse struct {
 	Source                    string
 }
 
-// ScriptEdit is one immutable parameter patch or append-and-pointer operation.
-type ScriptEdit struct {
+// ScriptPlan is one immutable parameter patch or append-and-pointer operation.
+type ScriptPlan struct {
 	commit                      *edit.Plan
 	source, destination, length int
 	relocated                   bool
@@ -28,25 +28,25 @@ type ScriptEdit struct {
 	movements                   int
 }
 
-func (edit *ScriptEdit) MovementCount() int { return edit.movements }
+func (edit *ScriptPlan) MovementCount() int { return edit.movements }
 
-func (edit *ScriptEdit) Source() int { return edit.source }
+func (edit *ScriptPlan) Source() int { return edit.source }
 
-func (edit *ScriptEdit) Destination() int { return edit.destination }
+func (edit *ScriptPlan) Destination() int { return edit.destination }
 
-func (edit *ScriptEdit) Length() int { return edit.length }
+func (edit *ScriptPlan) Length() int { return edit.length }
 
-func (edit *ScriptEdit) Relocated() bool { return edit.relocated }
+func (edit *ScriptPlan) Relocated() bool { return edit.relocated }
 
-func (edit *ScriptEdit) Before() int { return edit.before }
+func (edit *ScriptPlan) Before() int { return edit.before }
 
-func (edit *ScriptEdit) After() int { return edit.after }
+func (edit *ScriptPlan) After() int { return edit.after }
 
-func (edit *ScriptEdit) Uses() []ScriptUse { return slices.Clone(edit.uses) }
+func (edit *ScriptPlan) Uses() []ScriptUse { return slices.Clone(edit.uses) }
 
 func (s *Editor) PlanScriptEdit(
 	draft *ScriptDraft,
-) (result *ScriptEdit, err error) {
+) (result *ScriptPlan, err error) {
 	defer func() { err = fault.Wrap(err, "game.plan_script", fault.Context{Resource: scriptResource}) }()
 	s.Refresh()
 	if draft == nil {
@@ -114,7 +114,7 @@ func (s *Editor) PlanScriptEdit(
 	); err != nil {
 		return nil, err
 	}
-	result = &ScriptEdit{
+	result = &ScriptPlan{
 		commit:      edit.NewPlan(draft.binding, scriptResource, write.Edit),
 		source:      entry.Address,
 		destination: destination,
@@ -345,7 +345,7 @@ func (s *Editor) scriptUses(
 	return result
 }
 
-func (s *Editor) ApplyScriptEdit(edit *ScriptEdit) (err error) {
+func (s *Editor) ApplyScriptEdit(edit *ScriptPlan) (err error) {
 	defer func() { err = fault.Wrap(err, "game.apply_script", fault.Context{Resource: scriptResource}) }()
 	if edit == nil {
 		return rom.ErrStale

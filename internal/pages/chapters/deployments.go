@@ -16,7 +16,7 @@ import (
 
 type entryDraft struct {
 	data                   *deployment.Draft
-	preview                *deployment.Edit
+	preview                *deployment.Plan
 	selected, lastSelected int
 	list                   ui.ListState
 	inputs                 map[inputKey]*numberDraft

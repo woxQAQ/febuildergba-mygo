@@ -40,7 +40,7 @@ func (s *Editor) PlanTextEdit(
 	kind Kind,
 	id int,
 	fieldID, content string,
-) (result *text.Edit, err error) {
+) (result *text.Plan, err error) {
 	defer func() {
 		err = fault.Wrap(
 			err,

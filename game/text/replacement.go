@@ -52,9 +52,9 @@ func (g Format) plan(
 	return plan, nil
 }
 
-// Edit is an immutable replacement preview bound to the document and parsing
+// Plan is an immutable replacement preview bound to the document and parsing
 // settings used during planning.
-type Edit struct {
+type Plan struct {
 	commit      *edit.Plan
 	textID      uint16
 	fieldID     string
@@ -63,25 +63,25 @@ type Edit struct {
 	destination space.Range
 }
 
-func (e *Edit) TextID() uint16 { return e.textID }
+func (e *Plan) TextID() uint16 { return e.textID }
 
-func (e *Edit) Content() string { return e.content }
+func (e *Plan) Content() string { return e.content }
 
-func (e *Edit) Revision() uint64 { return e.commit.Revision() }
+func (e *Plan) Revision() uint64 { return e.commit.Revision() }
 
-func (e *Edit) Destination() int { return e.destination.Start }
+func (e *Plan) Destination() int { return e.destination.Start }
 
-func (e *Edit) Length() int { return e.destination.End - e.destination.Start }
+func (e *Plan) Length() int { return e.destination.End - e.destination.Start }
 
-func (e *Edit) Size() int { return e.commit.Size() }
+func (e *Plan) Size() int { return e.commit.Size() }
 
-func (e *Edit) Uses() []Use { return slices.Clone(e.uses) }
+func (e *Plan) Uses() []Use { return slices.Clone(e.uses) }
 
 func (s *Editor) Plan(
 	id uint16,
 	fieldID, content string,
 	role Role,
-) (result *Edit, err error) {
+) (result *Plan, err error) {
 	defer func() {
 		err = fault.Wrap(
 			err,
@@ -120,14 +120,14 @@ func (s *Editor) Plan(
 			}
 		}
 	}
-	return &Edit{
+	return &Plan{
 		commit: edit.NewPlan(s.stamp, "text."+fieldID, plan.Edit),
 		textID: id, fieldID: fieldID, content: content,
 		uses: slices.Clone(references.Uses), destination: plan.Destination,
 	}, nil
 }
 
-func (s *Editor) Apply(plan *Edit) (err error) {
+func (s *Editor) Apply(plan *Plan) (err error) {
 	ctx := fault.Context{Resource: Resource}
 	if plan != nil {
 		ctx.ResourceID = new(int(plan.textID))
@@ -171,7 +171,7 @@ func (f Format) entry(
 func (s *Editor) PlanID(
 	id uint16,
 	content string,
-) (result *Edit, err error) {
+) (result *Plan, err error) {
 	defer func() {
 		err = fault.Wrap(
 			err,

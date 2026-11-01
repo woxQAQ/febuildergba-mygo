@@ -18,7 +18,7 @@ import (
 type draft struct {
 	text, original string
 	revision       uint64
-	preview        *text.Edit
+	preview        *text.Plan
 	err            error
 }
 

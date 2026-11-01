@@ -18,7 +18,7 @@ type layoutDraft struct {
 	show, initialized      bool
 	address, stride, count string
 	err                    error
-	move                   *records.TableMove
+	move                   *records.MovePlan
 }
 
 func (a *Page) tableLayout(c *ui.Context) {
