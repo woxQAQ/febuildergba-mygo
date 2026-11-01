@@ -3,6 +3,7 @@ package game
 
 import (
 	"github.com/woxQAQ/febuildergba-mygo/fault"
+	"github.com/woxQAQ/febuildergba-mygo/game/arena"
 	"github.com/woxQAQ/febuildergba-mygo/game/chapter"
 	"github.com/woxQAQ/febuildergba-mygo/game/deployment"
 	"github.com/woxQAQ/febuildergba-mygo/game/edit"
@@ -38,6 +39,7 @@ type Session struct {
 	Shops       *shop.Editor
 	Quotes      *quote.Editor
 	Supports    *support.Editor
+	Arena       *arena.Editor
 	Terrain     *terrain.Editor
 	format      format
 	context     *edit.Context
@@ -102,6 +104,7 @@ func Open(path string) (session *Session, err error) {
 		s.Shops = shop.New(context, format.shops, s.shopSource())
 		s.Quotes = quote.New(context, format.quotes, s.quoteSource())
 		s.Supports = support.New(context, format.supports, s.supportSource())
+		s.Arena = arena.New(context, format.arena, s.arenaSource())
 		s.Terrain = terrain.New(
 			context,
 			format.terrain,

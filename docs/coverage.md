@@ -315,6 +315,17 @@
 | supports.write         | 共享预览、原子历史和保存 | 已实现   | 两面板各自预览及原子应用；保留独立人物引用、更新已确认对话消费者；拒绝分离消费者和过期操作                                 |
 | supports.attributes    | 支援属性加成             | 已实现   | 五版已有原生表的六项字节值、同属性人物预览及原子历史；保留额外／重复 ID、尾字节和终止记录；增删、ID 修改及自定义引擎待接入 |
 
+## 斗技场规则
+
+固定旧版入口为 `ArenaClassForm.cs`、`ArenaEnemyWeaponForm.cs`、`LinkArenaDenyUnitForm.cs`；原生长度、消费者和限制见[斗技场参考](reference/arena.md)。
+
+| ID            | 能力                     | 实现状态 | 范围与缺口                                                                                                         |
+| ------------- | ------------------------ | -------- | ------------------------------------------------------------------------------------------------------------------ |
+| arena.classes | 对手职业列表             | 已实现   | 五版近战／远程／魔法列表，替换、增删复制和排序；保留重复权重，检查有效职业及上下级池；最多 256 项                  |
+| arena.weapons | 基础与升级武器           | 已实现   | 五版 8／26 字节原生缓冲区；两表共用草稿，首项匹配校验；FE7／FE8 初始与兜底消费者一起更新；不扩容或模拟武器使用条件 |
+| arena.link    | 联机参战限制             | 已实现   | FE8J/U 固定 11 个有符号半字槽，零槽后继续读取，保留未改宽值；FE6／FE7 无已确认入口                                 |
+| arena.write   | 共享预览、原子历史与保存 | 已实现   | 按组追加、保留独立引用和未知尾部；会话 Claim、分离消费者、过期、布局及容量冲突检查；自定义消费者未完整索引         |
+
 ## 商店
 
 版本前提、旧版依据与详细限制：[商店格式与引用](reference/chapters-and-events.md#五版章节商店)。
@@ -365,7 +376,7 @@
 | images.static      | 静态图像与调色板             | [ImagePortraitForm.cs](../FEBuilderGBA/FEBuilderGBA/ImagePortraitForm.cs)           | 调色板、压缩、空间       | 部分实现；头像、职业卡、图标；其他图像类型待实现                                             |
 | chapters.maps      | 章节、地图与部署             | [MapEditorForm.cs](../FEBuilderGBA/FEBuilderGBA/MapEditorForm.cs)                   | 图像、章节布局、空间     | 部分实现；已有绘制、尺寸、变化资源及脚本联动、共享检查与原子保存；素材、地形定义及扩章待实现 |
 | chapters.events    | 事件指令、模板和世界地图     | [EventScriptForm.cs](../FEBuilderGBA/FEBuilderGBA/EventScriptForm.cs)               | 事件指令定义、引用       | 部分实现；已确认条件及常用脚本；其余工作流待盘点                                             |
-| gameplay.tables    | 支援、商店、成长及规则表     | [SupportUnitForm.cs](../FEBuilderGBA/FEBuilderGBA/SupportUnitForm.cs)               | 表适配、引用             | 部分实现；原生商店、支援关系、现有对话及属性加成已接入；其他规则继续盘点                     |
+| gameplay.tables    | 支援、商店、成长及规则表     | [SupportUnitForm.cs](../FEBuilderGBA/FEBuilderGBA/SupportUnitForm.cs)               | 表适配、引用             | 部分实现；原生商店、支援关系、现有对话、属性加成和斗技场表已接入；其他规则继续盘点           |
 | patches.manage     | 社区补丁管理                 | [PatchForm.cs](../FEBuilderGBA/FEBuilderGBA/PatchForm.cs)                           | 检测、空间、工具         | 待实现；条件、依赖、配置、安装、卸载和回滚                                                   |
 | tools.assembly     | EA、ARM 与构建工具链         | [EventAssemblerForm.cs](../FEBuilderGBA/FEBuilderGBA/EventAssemblerForm.cs)         | 原生外部工具、操作导入   | 待实现；脚本、符号、工具协议和版本记录                                                       |
 | assets.animation   | 战斗、地图、魔法动画与 OAM   | [ImageBattleAnimeForm.cs](../FEBuilderGBA/FEBuilderGBA/ImageBattleAnimeForm.cs)     | OAM、压缩、图像、空间    | 待实现；资源、时序及外部格式仍需逐项盘点                                                     |
@@ -391,7 +402,7 @@
 | worldmap.events    | 世界地图事件入口       | [WorldMapEventPointerForm.cs](../FEBuilderGBA/FEBuilderGBA/WorldMapEventPointerForm.cs)     | 待盘点   | 版本入口、指令及脚本导入导出                                                                                |
 | gameplay.support   | 支援关系、对话与属性   | [SupportUnitForm.cs](../FEBuilderGBA/FEBuilderGBA/SupportUnitForm.cs)                       | 部分实现 | 五版关系、可选双方同步、现有对话与加成值见 supports.*；加成表结构、对话扩表、外部格式及补丁扩展待接入       |
 | gameplay.shops     | 商店货物编辑           | [ItemShopForm.cs](../FEBuilderGBA/FEBuilderGBA/ItemShopForm.cs)                             | 部分实现 | 章节、默认、FE8 准备／世界地图入口及原生货物已接入；容量补丁、外部格式与 IER 专用语义待接入                 |
-| gameplay.arena     | 斗技场规则             | [ArenaClassForm.cs](../FEBuilderGBA/FEBuilderGBA/ArenaClassForm.cs)                         | 待盘点   | 联合核对敌方武器与联机参战限制                                                                              |
+| gameplay.arena     | 斗技场规则             | [ArenaClassForm.cs](../FEBuilderGBA/FEBuilderGBA/ArenaClassForm.cs)                         | 部分实现 | 原生职业、武器与 FE8 联机名单见 arena.*；外部格式、容量补丁及自定义消费者继续盘点                           |
 | tools.flag-names   | 标志命名与附属信息     | [ToolFlagNameForm.cs](../FEBuilderGBA/FEBuilderGBA/ToolFlagNameForm.cs)                     | 待实现   | 已定位名称修改；保存、载入与兼容契约待细化                                                                  |
 | tools.flag-uses    | 标志使用处查询         | [ToolUseFlagForm.cs](../FEBuilderGBA/FEBuilderGBA/ToolUseFlagForm.cs)                       | 待盘点   | 扫描范围、定位和未识别引用                                                                                  |
 | tools.diff-patch   | ROM 差异生成 BIN 补丁  | [ToolDiffForm.cs](../FEBuilderGBA/FEBuilderGBA/ToolDiffForm.cs)                             | 待实现   | 已定位 PATCH 文本及二进制输出；多文件流程需细化                                                             |
@@ -442,6 +453,8 @@
 地形验证入口：`game/terrain/workflow_test.go`、`internal/testutil/terrain.go`、`tests/integration/terrain_test.go`；五版合成流程与动态 ROM 文件流程覆盖所有原生列、共享隔离、未知字节、过期／布局冲突和保存重开。临时 UI 复核覆盖 FE6／FE8 的宽窄表格、输入校验、草稿文本撤销、切换职业、预览应用、忙碌禁用、过期保留、横向滚动及字节跳转；未执行游戏内寻路或地形加成验证。
 
 支援验证入口：`game/support/workflow_test.go`、`internal/testutil/supports.go`、`tests/integration/supports_test.go`；五版合成样本与动态发现的真实 ROM 文件流程覆盖关系、对话、属性加成、未知字节、原子历史及保存重开。`game/support/dialogue_workflow_test.go` 另覆盖面板间草稿隔离及损坏关系下的独立对话编辑。`game/support/bonuses_workflow_test.go` 覆盖额外／重复属性 ID、全表保留、已知人物使用处、独立输入、保护冲突及失败原子性。临时无窗口 UI 复核覆盖关系与对话分离、输入校验、双向跳转、预览应用、过期草稿及宽窄布局；属性加成另复核六列输入、切页保留、预览应用、过期重读与窄窗口横向滚动；未执行游戏内支援触发或存档迁移验证。
+
+斗技场验证入口：`game/arena/workflow_test.go`、`internal/testutil/arena.go`、`tests/integration/arena_test.go`；五版合成流程检查独立固定字节、权重与层级、共享及内部引用、全部武器消费者、固定缓冲区和联机半字、失败原子性、历史及保存重开。真实 ROM 流程动态发现输入与可编辑组。临时无窗口 UI 复核覆盖复制排序、数值与非法输入、切组保留、预览应用、忙碌禁用、过期重读及宽窄布局；未执行游戏内斗技场或联机验证。
 
 ## 更新规则
 

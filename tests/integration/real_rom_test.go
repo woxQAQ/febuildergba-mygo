@@ -78,6 +78,7 @@ func TestROMWorkflows(t *testing.T) {
 				{"quotes", editQuotes},
 				{"supports", editSupports},
 				{"terrain", editTerrain},
+				{"arena", editArena},
 				{"scripts", editScript},
 				{"script-scenes", editScriptScene},
 				{"script-focus", editScriptFocus},

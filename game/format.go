@@ -3,6 +3,7 @@ package game
 import (
 	"slices"
 
+	"github.com/woxQAQ/febuildergba-mygo/game/arena"
 	"github.com/woxQAQ/febuildergba-mygo/game/chapter"
 	"github.com/woxQAQ/febuildergba-mygo/game/event"
 	"github.com/woxQAQ/febuildergba-mygo/game/itemicon"
@@ -32,6 +33,7 @@ type format struct {
 	genericPortraits portrait.GenericFormat
 	icons            itemicon.Format
 	supports         support.Format
+	arena            arena.Format
 	quotes           quote.Format
 	terrain          terrain.Format
 	sprites          sprite.Format

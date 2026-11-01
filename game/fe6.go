@@ -1,6 +1,7 @@
 package game
 
 import (
+	"github.com/woxQAQ/febuildergba-mygo/game/arena"
 	"github.com/woxQAQ/febuildergba-mygo/game/chapter"
 	"github.com/woxQAQ/febuildergba-mygo/game/event"
 	"github.com/woxQAQ/febuildergba-mygo/game/itemicon"
@@ -61,6 +62,11 @@ func fe6Format() format {
 		weaponThresholds:     records.FE6WeaponThresholds(),
 		classAnimationOffset: 48,
 		terrain:              terrain.FE6Layout(),
+		arena: arena.Format{
+			Classes:     [3]int{0x299FC, 0x29A08, 0x29A58},
+			BaseWeapons: []int{0x29C44},
+			Upgrades:    0x29C64,
+		},
 		supports: support.Format{
 			BonusPointer: 0x22DBC,
 			Layout:       support.FE6Layout(),

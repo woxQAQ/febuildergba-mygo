@@ -118,6 +118,16 @@ FE7J／FE8J 的偏移和长度另对照固定旧版日版适配及当前 ROM 文
 
 五版合成字节与动态 ROM 文件流程验证读取和写入。没有把对话表增删排序纳入文本引用替换，也未执行已有存档迁移或游戏内支援验证。
 
+## 斗技场规则
+
+旧版依据为固定子模块的 `ArenaClassForm.cs`、`ArenaEnemyWeaponForm.cs`、`LinkArenaDenyUnitForm.cs` 与五版 `ROMFE*`。当前消费者清单及字节边界见[斗技场参考](reference/arena.md)。
+
+- FE6，`StanHash/fe6@f9ea5f67f3f1048ca9836d7350077231ba54b589`：[src/arena.c](https://github.com/StanHash/fe6/blob/f9ea5f67f3f1048ca9836d7350077231ba54b589/src/arena.c) 的 `ArenaGenOpposingJid`、`ArenaGenBaseWeapons`、`ArenaGetUpgradedWeapon` 与 [data/arena_jids.h](https://github.com/StanHash/fe6/blob/f9ea5f67f3f1048ca9836d7350077231ba54b589/data/arena_jids.h) 确认零结束职业池、重复权重、上级职业位及武器查找。实际生成函数按 8 字节复制基础表，升级函数按 26 字节复制；FE6 源码中的 `SHOULD_BE_STATIC` 不改变实际原生栈复制边界。
+- FE7U，`StanHash/fe7_us@5c8b3c5e254e00f0f3458b9772c27e1a5a326e3b`：[asm/code.s](https://github.com/StanHash/fe7_us/blob/5c8b3c5e254e00f0f3458b9772c27e1a5a326e3b/asm/code.s) 的 `func_0802EB18` 确认职业统计、抽取和二次扫描；`func_0802ED74`、`func_0802EDC4`、`func_0802F180` 确认初始武器、升级查找及兜底选择。旧版 FE7U 基础武器入口只列了兜底处 `2F1C0`；实际初始生成还读取 `2EDBC`，搬迁必须一起更新。FE7J 实际 PC 相对加载分别定位 `2F288`／`2F68C`；升级复制入口为 `2F2A8`。
+- FE8，`FireEmblemUniverse/fireemblem8u@04d1edb163d14bd10777a065697e1a9f17be65f2`：[src/bmarena.c](https://github.com/FireEmblemUniverse/fireemblem8u/blob/04d1edb163d14bd10777a065697e1a9f17be65f2/src/bmarena.c) 的 `ArenaGenerateOpposingClassId`、`ArenaGenerateBaseWeapons`、`ArenaGetUpgradedWeapon`、`ArenaSetFallbackWeaponForUnit` 确认同类职业池、武器表及两处消费者；[src/prep_utils.c](https://github.com/FireEmblemUniverse/fireemblem8u/blob/04d1edb163d14bd10777a065697e1a9f17be65f2/src/prep_utils.c) 的 `gLinkArenaBanList`／`CanUnitBeDeployedLinkArena` 确认固定 11 次有符号半字比较。旧版 UI 的低字节零结束扫描不能代表这项原生读取规则。
+
+五版实际职业抽取器核对 `0x100` 层级位、字节步进、零结束统计与不带结束判断的第二次扫描。日版武器函数核对 `memcpy` 的 8／26 字节长度、首项匹配、后继零与 `FF` 分支。FE8J `9A14C` 与美版 `97E74` 的联机检查对应 `ldrsh`、`+2` 步进和 `cmp #10 / bls`，指针字面量分别为 `9A164`／`97E8C`。这些是原生代码与文件流程证据，不代表游戏内战斗和联机验证。
+
 ## 战斗与死亡对话
 
 旧版入口为固定子模块的 [EventBattleTalkForm.cs](../FEBuilderGBA/FEBuilderGBA/EventBattleTalkForm.cs)、[FE7](../FEBuilderGBA/FEBuilderGBA/EventBattleTalkFE7Form.cs)、[FE6](../FEBuilderGBA/FEBuilderGBA/EventBattleTalkFE6Form.cs)，以及 [EventHaikuForm.cs](../FEBuilderGBA/FEBuilderGBA/EventHaikuForm.cs)、[FE7](../FEBuilderGBA/FEBuilderGBA/EventHaikuFE7Form.cs)、[FE6](../FEBuilderGBA/FEBuilderGBA/EventHaikuFE6Form.cs)。`ROMFE*` 的 `event_ballte_talk_pointer`、后续通用／三角攻击入口和 `event_haiku_pointer` 提供初始位置；表结束、匹配与全部原生消费者以游戏代码交叉核对。

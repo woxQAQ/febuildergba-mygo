@@ -34,6 +34,306 @@ type Messages struct{ locale string }
 // source language.
 func In(locale string) Messages { return Messages{locale} }
 
+// ArenaEditor says "Arena"
+// in the language the app shows.
+func ArenaEditor() string { return In(i18n.Locale()).ArenaEditor() }
+
+// ArenaEditor says "Arena"
+// in the language of msgs.
+func (msgs Messages) ArenaEditor() string {
+	return Catalog.Format(msgs.locale, "arena_editor", nil)
+}
+
+// ArenaMelee says "Melee opponents"
+// in the language the app shows.
+func ArenaMelee() string { return In(i18n.Locale()).ArenaMelee() }
+
+// ArenaMelee says "Melee opponents"
+// in the language of msgs.
+func (msgs Messages) ArenaMelee() string {
+	return Catalog.Format(msgs.locale, "arena_melee", nil)
+}
+
+// ArenaRanged says "Ranged opponents"
+// in the language the app shows.
+func ArenaRanged() string { return In(i18n.Locale()).ArenaRanged() }
+
+// ArenaRanged says "Ranged opponents"
+// in the language of msgs.
+func (msgs Messages) ArenaRanged() string {
+	return Catalog.Format(msgs.locale, "arena_ranged", nil)
+}
+
+// ArenaMagic says "Magic opponents"
+// in the language the app shows.
+func ArenaMagic() string { return In(i18n.Locale()).ArenaMagic() }
+
+// ArenaMagic says "Magic opponents"
+// in the language of msgs.
+func (msgs Messages) ArenaMagic() string {
+	return Catalog.Format(msgs.locale, "arena_magic", nil)
+}
+
+// ArenaWeapons says "Weapons"
+// in the language the app shows.
+func ArenaWeapons() string { return In(i18n.Locale()).ArenaWeapons() }
+
+// ArenaWeapons says "Weapons"
+// in the language of msgs.
+func (msgs Messages) ArenaWeapons() string {
+	return Catalog.Format(msgs.locale, "arena_weapons", nil)
+}
+
+// ArenaBaseWeapons says "Base weapons"
+// in the language the app shows.
+func ArenaBaseWeapons() string { return In(i18n.Locale()).ArenaBaseWeapons() }
+
+// ArenaBaseWeapons says "Base weapons"
+// in the language of msgs.
+func (msgs Messages) ArenaBaseWeapons() string {
+	return Catalog.Format(msgs.locale, "arena_base_weapons", nil)
+}
+
+// ArenaUpgrades says "Weapon upgrades"
+// in the language the app shows.
+func ArenaUpgrades() string { return In(i18n.Locale()).ArenaUpgrades() }
+
+// ArenaUpgrades says "Weapon upgrades"
+// in the language of msgs.
+func (msgs Messages) ArenaUpgrades() string {
+	return Catalog.Format(msgs.locale, "arena_upgrades", nil)
+}
+
+// ArenaLinkUnits says "Link restrictions"
+// in the language the app shows.
+func ArenaLinkUnits() string { return In(i18n.Locale()).ArenaLinkUnits() }
+
+// ArenaLinkUnits says "Link restrictions"
+// in the language of msgs.
+func (msgs Messages) ArenaLinkUnits() string {
+	return Catalog.Format(msgs.locale, "arena_link_units", nil)
+}
+
+// ArenaRules says "Editing rules"
+// in the language the app shows.
+func ArenaRules() string { return In(i18n.Locale()).ArenaRules() }
+
+// ArenaRules says "Editing rules"
+// in the language of msgs.
+func (msgs Messages) ArenaRules() string {
+	return Catalog.Format(msgs.locale, "arena_rules", nil)
+}
+
+// ArenaEdit says "Continue editing"
+// in the language the app shows.
+func ArenaEdit() string { return In(i18n.Locale()).ArenaEdit() }
+
+// ArenaEdit says "Continue editing"
+// in the language of msgs.
+func (msgs Messages) ArenaEdit() string {
+	return Catalog.Format(msgs.locale, "arena_edit", nil)
+}
+
+// ArenaPointerSites says "Pointer locations"
+// in the language the app shows.
+func ArenaPointerSites() string { return In(i18n.Locale()).ArenaPointerSites() }
+
+// ArenaPointerSites says "Pointer locations"
+// in the language of msgs.
+func (msgs Messages) ArenaPointerSites() string {
+	return Catalog.Format(msgs.locale, "arena_pointer_sites", nil)
+}
+
+// ArenaLinkSlotHelp says "Enter 0 to clear this slot. Later slots still apply."
+// in the language the app shows.
+func ArenaLinkSlotHelp() string { return In(i18n.Locale()).ArenaLinkSlotHelp() }
+
+// ArenaLinkSlotHelp says "Enter 0 to clear this slot. Later slots still apply."
+// in the language of msgs.
+func (msgs Messages) ArenaLinkSlotHelp() string {
+	return Catalog.Format(msgs.locale, "arena_link_slot_help", nil)
+}
+
+// ArenaWeaponApplyHelp says "Changes to base weapons and upgrades are applied together."
+// in the language the app shows.
+func ArenaWeaponApplyHelp() string { return In(i18n.Locale()).ArenaWeaponApplyHelp() }
+
+// ArenaWeaponApplyHelp says "Changes to base weapons and upgrades are applied together."
+// in the language of msgs.
+func (msgs Messages) ArenaWeaponApplyHelp() string {
+	return Catalog.Format(msgs.locale, "arena_weapon_apply_help", nil)
+}
+
+// ArenaClassHelp says "The game filters by promotion tier, then draws a row at random. Repeated classes increase their chance. Keep at least…"
+// in the language the app shows.
+func ArenaClassHelp() string { return In(i18n.Locale()).ArenaClassHelp() }
+
+// ArenaClassHelp says "The game filters by promotion tier, then draws a row at random. Repeated classes increase their chance. Keep at least…"
+// in the language of msgs.
+func (msgs Messages) ArenaClassHelp() string {
+	return Catalog.Format(msgs.locale, "arena_class_help", nil)
+}
+
+// ArenaWeaponHelp says "Base weapons are used by both combatants; choose usable E-rank weapons of the corresponding type. Upgrade lookup uses…"
+// in the language the app shows.
+func ArenaWeaponHelp() string { return In(i18n.Locale()).ArenaWeaponHelp() }
+
+// ArenaWeaponHelp says "Base weapons are used by both combatants; choose usable E-rank weapons of the corresponding type. Upgrade lookup uses…"
+// in the language of msgs.
+func (msgs Messages) ArenaWeaponHelp() string {
+	return Catalog.Format(msgs.locale, "arena_weapon_help", nil)
+}
+
+// ArenaLinkHelp says "Listed units cannot enter the Link Arena. The game checks all 11 slots; zero does not end the list. Existing values o…"
+// in the language the app shows.
+func ArenaLinkHelp() string { return In(i18n.Locale()).ArenaLinkHelp() }
+
+// ArenaLinkHelp says "Listed units cannot enter the Link Arena. The game checks all 11 slots; zero does not end the list. Existing values o…"
+// in the language of msgs.
+func (msgs Messages) ArenaLinkHelp() string {
+	return Catalog.Format(msgs.locale, "arena_link_help", nil)
+}
+
+// ArenaPreview says "Preview changes"
+// in the language the app shows.
+func ArenaPreview() string { return In(i18n.Locale()).ArenaPreview() }
+
+// ArenaPreview says "Preview changes"
+// in the language of msgs.
+func (msgs Messages) ArenaPreview() string {
+	return Catalog.Format(msgs.locale, "arena_preview", nil)
+}
+
+// ArenaApply says "Apply changes"
+// in the language the app shows.
+func ArenaApply() string { return In(i18n.Locale()).ArenaApply() }
+
+// ArenaApply says "Apply changes"
+// in the language of msgs.
+func (msgs Messages) ArenaApply() string {
+	return Catalog.Format(msgs.locale, "arena_apply", nil)
+}
+
+// ArenaApplyHelp says "Only changes to this group will be applied."
+// in the language the app shows.
+func ArenaApplyHelp() string { return In(i18n.Locale()).ArenaApplyHelp() }
+
+// ArenaApplyHelp says "Only changes to this group will be applied."
+// in the language of msgs.
+func (msgs Messages) ArenaApplyHelp() string {
+	return Catalog.Format(msgs.locale, "arena_apply_help", nil)
+}
+
+// ArenaShared says "Original data retained for: "
+// in the language the app shows.
+func ArenaShared() string { return In(i18n.Locale()).ArenaShared() }
+
+// ArenaShared says "Original data retained for: "
+// in the language of msgs.
+func (msgs Messages) ArenaShared() string {
+	return Catalog.Format(msgs.locale, "arena_shared", nil)
+}
+
+// ArenaReserved says "Reserved marker"
+// in the language the app shows.
+func ArenaReserved() string { return In(i18n.Locale()).ArenaReserved() }
+
+// ArenaReserved says "Reserved marker"
+// in the language of msgs.
+func (msgs Messages) ArenaReserved() string {
+	return Catalog.Format(msgs.locale, "arena_reserved", nil)
+}
+
+// ArenaValueHelp says "Choose a record or enter a valid ID in decimal or 0x hexadecimal."
+// in the language the app shows.
+func ArenaValueHelp() string { return In(i18n.Locale()).ArenaValueHelp() }
+
+// ArenaValueHelp says "Choose a record or enter a valid ID in decimal or 0x hexadecimal."
+// in the language of msgs.
+func (msgs Messages) ArenaValueHelp() string {
+	return Catalog.Format(msgs.locale, "arena_value_help", nil)
+}
+
+// ArenaOpenRecord says "Open record"
+// in the language the app shows.
+func ArenaOpenRecord() string { return In(i18n.Locale()).ArenaOpenRecord() }
+
+// ArenaOpenRecord says "Open record"
+// in the language of msgs.
+func (msgs Messages) ArenaOpenRecord() string {
+	return Catalog.Format(msgs.locale, "arena_open_record", nil)
+}
+
+// ArenaAdd says "Add class"
+// in the language the app shows.
+func ArenaAdd() string { return In(i18n.Locale()).ArenaAdd() }
+
+// ArenaAdd says "Add class"
+// in the language of msgs.
+func (msgs Messages) ArenaAdd() string {
+	return Catalog.Format(msgs.locale, "arena_add", nil)
+}
+
+// ArenaCopy says "Duplicate row"
+// in the language the app shows.
+func ArenaCopy() string { return In(i18n.Locale()).ArenaCopy() }
+
+// ArenaCopy says "Duplicate row"
+// in the language of msgs.
+func (msgs Messages) ArenaCopy() string {
+	return Catalog.Format(msgs.locale, "arena_copy", nil)
+}
+
+// ArenaDelete says "Delete row"
+// in the language the app shows.
+func ArenaDelete() string { return In(i18n.Locale()).ArenaDelete() }
+
+// ArenaDelete says "Delete row"
+// in the language of msgs.
+func (msgs Messages) ArenaDelete() string {
+	return Catalog.Format(msgs.locale, "arena_delete", nil)
+}
+
+// GameInvalidArena says "The arena table has an invalid pointer, length or end marker."
+// in the language the app shows.
+func GameInvalidArena() string { return In(i18n.Locale()).GameInvalidArena() }
+
+// GameInvalidArena says "The arena table has an invalid pointer, length or end marker."
+// in the language of msgs.
+func (msgs Messages) GameInvalidArena() string {
+	return Catalog.Format(msgs.locale, "game_invalid_arena", nil)
+}
+
+// GameArenaReferenceConflict says "Arena entry points reference different tables, or a pointer overlaps another resource. Automatic writing stopped."
+// in the language the app shows.
+func GameArenaReferenceConflict() string { return In(i18n.Locale()).GameArenaReferenceConflict() }
+
+// GameArenaReferenceConflict says "Arena entry points reference different tables, or a pointer overlaps another resource. Automatic writing stopped."
+// in the language of msgs.
+func (msgs Messages) GameArenaReferenceConflict() string {
+	return Catalog.Format(msgs.locale, "game_arena_reference_conflict", nil)
+}
+
+// GameArenaClassPool says "Every class must exist in the current class table. Keep at least one promoted and one unpromoted class."
+// in the language the app shows.
+func GameArenaClassPool() string { return In(i18n.Locale()).GameArenaClassPool() }
+
+// GameArenaClassPool says "Every class must exist in the current class table. Keep at least one promoted and one unpromoted class."
+// in the language of msgs.
+func (msgs Messages) GameArenaClassPool() string {
+	return Catalog.Format(msgs.locale, "game_arena_class_pool", nil)
+}
+
+// GameArenaWeaponChain says "Every base weapon needs a match before FF in the upgrade table; the last chain must end with zero."
+// in the language the app shows.
+func GameArenaWeaponChain() string { return In(i18n.Locale()).GameArenaWeaponChain() }
+
+// GameArenaWeaponChain says "Every base weapon needs a match before FF in the upgrade table; the last chain must end with zero."
+// in the language of msgs.
+func (msgs Messages) GameArenaWeaponChain() string {
+	return Catalog.Format(msgs.locale, "game_arena_weapon_chain", nil)
+}
+
 // SupportBonuses says "Affinity bonuses"
 // in the language the app shows.
 func SupportBonuses() string { return In(i18n.Locale()).SupportBonuses() }

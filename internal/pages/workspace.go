@@ -13,6 +13,7 @@ import (
 	"github.com/woxQAQ/febuildergba-mygo/internal/components"
 	"github.com/woxQAQ/febuildergba-mygo/internal/editor"
 	"github.com/woxQAQ/febuildergba-mygo/internal/locales"
+	"github.com/woxQAQ/febuildergba-mygo/internal/pages/arenas"
 	"github.com/woxQAQ/febuildergba-mygo/internal/pages/eventeditor"
 	"github.com/woxQAQ/febuildergba-mygo/internal/pages/hexeditor"
 	"github.com/woxQAQ/febuildergba-mygo/internal/pages/portraits"
@@ -50,6 +51,7 @@ type Workspace struct {
 	quotes    *quotes.Page
 	defeats   map[int]*quotes.Page
 	supports  *supports.Page
+	arenas    *arenas.Page
 	zoomLevel int
 	menuState struct {
 		text, draft, undo, redo bool
@@ -99,6 +101,7 @@ func New() *Workspace {
 	w.portraits = portraits.New(w.Editor, assets, w.records.Open, w.openHex)
 	w.records.SetPortraitOpener(w.OpenPortrait)
 	w.shops = shops.New(w.Editor, w.records.OpenShop, w.openHex)
+	w.arenas = arenas.New(w.Editor, w.records.Open, w.openHex)
 	w.quotes = quotes.New(w.Editor, w.records.Open, w.openText, w.openHex)
 	w.defeats = make(map[int]*quotes.Page)
 	w.records.SetDefeatView(
@@ -135,6 +138,7 @@ func (w *Workspace) SetSession(session *game.Session) {
 	w.quotes.Reset()
 	w.defeats = make(map[int]*quotes.Page)
 	w.supports.Reset()
+	w.arenas.Reset()
 	w.tab = 0
 }
 
@@ -237,6 +241,7 @@ func (w *Workspace) View(c *ui.Context) {
 			locales.ShopEntries(),
 			locales.QuoteEditor(),
 			locales.SupportEditor(),
+			locales.ArenaEditor(),
 		)
 		ui.ScrollHorizontal(c.Key("workspace-tabs")).Shrink(0).Children(func() {
 			ui.Tabs(c, &w.tab, labels...).Shrink(0)
@@ -259,6 +264,8 @@ func (w *Workspace) View(c *ui.Context) {
 			w.quotes.View(c)
 		case len(records.Kinds) + 6:
 			w.supports.View(c)
+		case len(records.Kinds) + 7:
+			w.arenas.View(c)
 		default:
 			w.records.View(c, w.tab)
 		}
