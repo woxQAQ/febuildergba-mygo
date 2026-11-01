@@ -16,10 +16,7 @@ const (
 	ScriptLoadPolicy            = "script_load_policy"
 )
 
-func (f Format) loadDefinitions() []scriptDefinition {
-	if f.kind != eventFE8 {
-		return nil
-	}
+func fe8LoadDefinitions() []scriptDefinition {
 	var result []scriptDefinition
 	for index, entry := range []struct {
 		op   ScriptOp
@@ -77,7 +74,7 @@ func (s *Editor) validateSlotUnitLoads(
 	data []byte,
 	positions []int,
 ) error {
-	if d.original.format.kind != eventFE8 {
+	if !d.original.format.scripts.trackSlots {
 		return nil
 	}
 	original := &ScriptDraft{original: d.original, rows: d.original.rows}

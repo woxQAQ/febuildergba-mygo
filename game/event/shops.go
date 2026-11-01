@@ -19,10 +19,7 @@ const (
 )
 
 func (f Format) shopCommand(kind ShopKind) int {
-	if f.kind == eventFE8 {
-		return 0x16 + int(kind)
-	}
-	return 0x13 + int(kind)
+	return int(f.locations.shop) + int(kind)
 }
 
 func (d *ConditionDraft) Shop(index int) (*shop.Draft, error) {

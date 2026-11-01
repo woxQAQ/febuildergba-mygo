@@ -23,26 +23,20 @@ const (
 	ScriptTextHector         = "script_text_hector"
 )
 
-func (f Format) wordVariantDefinitions() []scriptDefinition {
-	if f.kind == eventFE8 {
-		return nil
-	}
-	if f.kind == eventFE6 {
-		return []scriptDefinition{
-			{
-				op:  ScriptLoadUnitsParty,
-				raw: scriptWords(0x13, 0),
-				fields: []ScriptField{
-					scriptOperand(ScriptUnitPointer, 4, 4, 0xFFFFFFFF),
-				},
-				help: "script_load_party_help",
+func fe6PartyDefinitions() []scriptDefinition {
+	return []scriptDefinition{
+		{
+			op:  ScriptLoadUnitsParty,
+			raw: scriptWords(0x13, 0),
+			fields: []ScriptField{
+				scriptOperand(ScriptUnitPointer, 4, 4, 0xFFFFFFFF),
 			},
-		}
+			help: "script_load_party_help",
+		},
 	}
-	shift := uint32(0)
-	if f.kind == eventFE7U {
-		shift = 2
-	}
+}
+
+func fe7RouteDefinitions(shift uint32) []scriptDefinition {
 	var result []scriptDefinition
 	for _, entry := range []struct {
 		op   ScriptOp

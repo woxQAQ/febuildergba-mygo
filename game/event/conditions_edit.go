@@ -154,11 +154,7 @@ func (d *ConditionDraft) Fields(index int) []records.Field {
 			{ID: TalkTarget, Offset: 9, Width: 1, Hex: true},
 			{ID: EventFlag, Offset: 2, Width: 2, Hex: true},
 		}
-		if d.original.format.kind != eventFE6 {
-			width := 1
-			if d.original.format.kind == eventFE8 {
-				width = 2
-			}
+		if width := d.original.format.conditions.talkModeWidth; width != 0 {
 			fields = append(
 				fields,
 				records.Field{ID: TalkMode, Offset: 12, Width: width},
@@ -280,7 +276,7 @@ func (d *ConditionDraft) Add(s *Editor) error {
 		eventRecord{
 			event: Condition{
 				Kind:         kind,
-				reversedArea: d.original.format.kind == eventFE8,
+				reversedArea: d.original.format.conditions.reversedArea,
 			},
 			raw:        raw,
 			deployment: units,
@@ -361,9 +357,12 @@ func (s *Editor) PlanConditions(
 			if _, readErr := s.DialogueText(*record.message); readErr != nil {
 				return nil, readErr
 			}
-			if d.original.Table == TalkEvents && (record.raw[9] == 0 ||
-				(d.original.format.kind == eventFE6 && record.raw[8] == 0)) {
-				return nil, edit.ErrValue
+			if d.original.Table == TalkEvents {
+				for _, offset := range d.original.format.conditions.talkRequired {
+					if record.raw[offset] == 0 {
+						return nil, edit.ErrValue
+					}
+				}
 			}
 		}
 		offsets[i] = len(content)
@@ -475,40 +474,7 @@ func (s *Editor) ApplyConditions(plan *ConditionPlan) (err error) {
 	return nil
 }
 
-func (f Format) reinforcementScript() []byte {
-	if f.kind == eventFE8 {
-		return []byte{
-			0x40,
-			0x2C,
-			1,
-			0,
-			0,
-			0,
-			0,
-			0,
-			0x20,
-			0x30,
-			0,
-			0,
-			0x20,
-			1,
-			0,
-			0,
-		}
-	}
-	load, wait, end := uint32(0x30), uint32(0x39), uint32(0x0A)
-	if f.kind == eventFE7U {
-		load, wait = 0x32, 0x3B
-	}
-	if f.kind == eventFE6 {
-		load, wait, end = 0x12, 0x14, 0x06
-	}
-	var result []byte
-	for _, word := range []uint32{load, 0, wait, end, 0} {
-		result = binary.LittleEndian.AppendUint32(result, word)
-	}
-	return result
-}
+func (f Format) reinforcementScript() []byte { return bytes.Clone(f.scripts.reinforcement) }
 
 // Resource pointers are four-byte writes, distinct from the immutable appended
 // resources. A corrupted graph cannot authorize overwriting claimed resources.

@@ -293,26 +293,6 @@ func (s *Editor) ScriptCommands() []ScriptOp {
 	return result
 }
 
-// FE6/FE7 label lookup stops at native END (0), but continues past the
-// equivalent early return (1). FE8 searches by command length until its label.
-func (f Format) labelSearchEnd(raw []byte) bool {
-	return f.kind != eventFE8 && len(raw) == 4 && gba.Uint32(raw, 0) == 0
-}
-
-func (f Format) scriptASM(raw []byte) bool {
-	switch f.kind {
-	case eventFE8:
-		return len(raw) == 8 && raw[1] == 0x0D
-	case eventFE7U:
-		return len(raw) == 8 && raw[0] == 0x3E
-	case eventFE7J:
-		return len(raw) == 8 && raw[0] == 0x3C
-	case eventFE6:
-		return len(raw) == 8 && raw[0] == 0x17
-	}
-	return false
-}
-
 func (row *scriptRow) describe(definitions []scriptDefinition, at int) {
 	for index := range definitions {
 		if definitions[index].matches(row.instruction.Raw) {

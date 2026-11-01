@@ -27,7 +27,7 @@ func (p Script) MapTrace() []MapTrace {
 			IsTarget:    mapChangeOperation(row.instruction.Op),
 			Uncertain: row.definition == nil || row.call >= 0 ||
 				row.branch >= 0,
-			RuntimePositions: p.format.kind != eventFE8,
+			RuntimePositions: p.format.scripts.positionFallback,
 		}
 		if step.IsTarget {
 			step.Targets, step.Err = mapOperands(

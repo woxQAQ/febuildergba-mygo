@@ -51,7 +51,7 @@ func mapOperandStates(
 		case !valid || command.chapterEnd || row.definition == nil || row.call >= 0 || row.branch >= 0 || row.label >= 0:
 			state.chapter = -1
 		}
-		if format.kind == eventFE8 {
+		if format.scripts.trackSlots {
 			state.slots.observe(row.instruction.Raw, index+1)
 		}
 	}
@@ -95,7 +95,7 @@ func mapOperands(
 		}
 		return []maps.Target{{ID: int(value)}}, nil
 	}
-	if format.kind != eventFE8 {
+	if !format.scripts.trackSlots {
 		return nil, ErrMapChangeContext
 	}
 	literal := func(source int) (uint32, bool) {
@@ -178,7 +178,8 @@ func (s *Editor) MapChanges(
 	for _, operand := range operands {
 		change, err := s.source.ResolveMap(chapter, operand)
 		if err != nil {
-			if operand.ByPosition && draft.original.format.kind != eventFE8 {
+			if operand.ByPosition &&
+				draft.original.format.scripts.positionFallback {
 				return nil, ErrMapChangeContext
 			}
 			return nil, err
@@ -303,7 +304,7 @@ const (
 	ScriptMapWaterShadows   = "script_map_water_shadows"
 )
 
-func (f Format) mapChangeDefinitions() []scriptDefinition {
+func fe8MapChangeDefinitions() []scriptDefinition {
 	var result []scriptDefinition
 	add := func(op ScriptOp, raw []byte, help string, fields ...ScriptField) {
 		result = append(
@@ -316,41 +317,64 @@ func (f Format) mapChangeDefinitions() []scriptDefinition {
 		field.Target = ScriptMapChangeTarget
 		return field
 	}
-	if f.kind == eventFE8 {
-		add(
-			ScriptMapChange,
-			[]byte{0x20, 0x27, 0, 0},
-			"script_fe8_map_change_help",
-			id(2, 2, -3),
+	add(
+		ScriptMapChange,
+		[]byte{0x20, 0x27, 0, 0},
+		"script_fe8_map_change_help",
+		id(2, 2, -3),
+	)
+	add(
+		ScriptMapRevert,
+		[]byte{0x21, 0x27, 0, 0},
+		"script_fe8_map_revert_help",
+		id(2, 2, -3),
+	)
+	return result
+}
+
+func fe6MapChangeDefinitions() []scriptDefinition {
+	var result []scriptDefinition
+	add := func(op ScriptOp, raw []byte, help string, fields ...ScriptField) {
+		result = append(
+			result,
+			scriptDefinition{op: op, raw: raw, help: help, fields: fields},
 		)
-		add(
-			ScriptMapRevert,
-			[]byte{0x21, 0x27, 0, 0},
-			"script_fe8_map_revert_help",
-			id(2, 2, -3),
-		)
-		return result
 	}
-	if f.kind == eventFE6 {
-		add(
-			ScriptMapChange,
-			scriptWords(0x29, 0),
-			"script_fe6_map_change_help",
-			id(4, 4, -1),
-		)
-		add(
-			ScriptMapChangePosition,
-			scriptWords(0x2A, 0),
-			"script_word_map_position_help",
-			sceneOperand(ScriptX, 4, 1, 0, 255),
-			sceneOperand(ScriptY, 5, 1, 0, 255),
-		)
-		return result
+	id := func(offset, width int, minimum int64) ScriptField {
+		field := sceneOperand(ScriptMapChangeID, offset, width, minimum, 127)
+		field.Target = ScriptMapChangeTarget
+		return field
 	}
-	shift := uint32(0)
-	if f.kind == eventFE7U {
-		shift = 2
+	add(
+		ScriptMapChange,
+		scriptWords(0x29, 0),
+		"script_fe6_map_change_help",
+		id(4, 4, -1),
+	)
+	add(
+		ScriptMapChangePosition,
+		scriptWords(0x2A, 0),
+		"script_word_map_position_help",
+		sceneOperand(ScriptX, 4, 1, 0, 255),
+		sceneOperand(ScriptY, 5, 1, 0, 255),
+	)
+	return result
+}
+
+func fe7MapChangeDefinitions(shift uint32) []scriptDefinition {
+	var result []scriptDefinition
+	add := func(op ScriptOp, raw []byte, help string, fields ...ScriptField) {
+		result = append(
+			result,
+			scriptDefinition{op: op, raw: raw, help: help, fields: fields},
+		)
 	}
+	id := func(offset, width int, minimum int64) ScriptField {
+		field := sceneOperand(ScriptMapChangeID, offset, width, minimum, 127)
+		field.Target = ScriptMapChangeTarget
+		return field
+	}
+
 	for _, command := range []struct {
 		op, parameter ScriptOp
 		code          uint32

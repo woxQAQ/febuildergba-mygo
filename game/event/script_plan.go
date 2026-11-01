@@ -265,7 +265,7 @@ func (s *Editor) validateScriptOperand(
 		_, err := readScriptMovement(data, int(value)-0x08000000)
 		return err
 	case ScriptTextTarget:
-		if format.kind == eventFE8 && (value < 0 || value >= 0x8000) {
+		if field.isIndirect(value) {
 			return nil
 		}
 		_, err := s.DialogueText(
@@ -273,7 +273,7 @@ func (s *Editor) validateScriptOperand(
 		) // #nosec G115 -- Text operands are at most 16 bits.
 		return err
 	case ScriptEventTarget:
-		if format.kind == eventFE8 && value == 0xFFFFFFFF {
+		if field.isIndirect(value) {
 			return nil
 		}
 		target, valid := gba.Pointer(data, address+field.offset)
@@ -284,7 +284,7 @@ func (s *Editor) validateScriptOperand(
 			return ErrScript
 		}
 	case ScriptDeploymentTarget:
-		if format.kind == eventFE8 && value >= 0x80000000 {
+		if field.isIndirect(value) {
 			return nil
 		}
 		if value == 0 {
@@ -471,7 +471,7 @@ func (d *ScriptDraft) scriptContent(
 		for _, field := range row.definition.fields {
 			value := field.value(row.instruction.Raw)
 			if field.Target == ScriptDeploymentTarget &&
-				d.original.format.kind == eventFE8 &&
+				d.original.format.scripts.trackSlots &&
 				slotUnitLoad(row.instruction.Raw) {
 				source, ok := loadSources[index]
 				if !ok {

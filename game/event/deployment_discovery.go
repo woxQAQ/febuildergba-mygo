@@ -208,15 +208,10 @@ func (s *deploymentScanner) instruction(
 	if !gba.Within(s.data, at, 4) {
 		return command, false
 	}
-	switch s.format.kind {
-	case eventFE8:
-		return s.fe8Instruction(at, command)
-	default:
-		return s.wordInstruction(at, command)
-	}
+	return s.format.scripts.decode(s, at, command)
 }
 
-func (s *deploymentScanner) fe8Instruction(
+func (s *deploymentScanner) sizedInstruction(
 	at int,
 	command deploymentInstruction,
 ) (deploymentInstruction, bool) {
@@ -258,90 +253,26 @@ func (s *deploymentScanner) wordInstruction(
 		return command, false
 	}
 	op := s.data[at]
-	command.length = int(deploymentEventWords[s.format.kind][op]) * 4
+	command.length = int(s.format.scripts.words[op]) * 4
 	if command.length == 0 || !gba.Within(s.data, at, command.length) {
 		return command, false
 	}
-	if s.format.kind == eventFE6 {
-		return s.fe6Instruction(at, command)
+	rule := s.format.scripts.flow[op]
+	command.end, command.chapterEnd, command.jump = rule.end, rule.chapterEnd, rule.jump
+	if rule.call != 0 {
+		command.call = at + rule.call
 	}
-	return s.fe7Instruction(at, command)
-}
-
-func (s *deploymentScanner) fe6Instruction(
-	at int,
-	command deploymentInstruction,
-) (deploymentInstruction, bool) {
-	op := s.data[at]
-	if s.format.kind == eventFE6 {
-		switch op {
-		case 0x00, 0x01:
-			command.end = true
-		case 0x12, 0x13:
-			command.loads = []int{at + 4}
-		case 0x1B:
-			command.label = int(gba.Uint32(s.data, at+4))
-		case 0x1C, 0x1D, 0x1E, 0x1F, 0x20, 0x21, 0x22, 0x23, 0x24:
-			command.branch = int(gba.Uint32(s.data, at+4))
-		case 0x3F:
-			command.mapID = int(gba.Uint32(s.data, at+4))
-		case 0x3D:
-			command.chapterEnd = true
-		case 0x25:
-			command.call, command.jump = at+4, true
-		}
-		return command, true
+	if rule.label != 0 {
+		command.label = int(gba.Uint32(s.data, at+rule.label))
 	}
-	return command, false
-}
-
-func (s *deploymentScanner) fe7Instruction(
-	at int,
-	command deploymentInstruction,
-) (deploymentInstruction, bool) {
-	op := s.data[at]
-	shift := byte(0)
-	call := byte(0xCC)
-	if s.format.kind == eventFE7U {
-		shift, call = 2, 0xCB
+	if rule.branch != 0 {
+		command.branch = int(gba.Uint32(s.data, at+rule.branch))
 	}
-	switch op {
-	case 0x00, 0x01:
-		command.end = true
-	case call:
-		command.call = at + 4
-	case 0x30 + shift, 0x31 + shift, 0x34 + shift:
-		command.loads = []int{at + 4}
-	case 0x32 + shift:
-		command.loads = []int{at + 8}
-	case 0x35 + shift:
-		command.loads = []int{at + 8}
-	case 0x33 + shift, 0x36 + shift:
-		command.loads = []int{at + 4, at + 8, at + 12, at + 16}
-	case 0x42 + shift:
-		command.label = int(gba.Uint32(s.data, at+4))
-	case 0x43 + shift,
-		0x44 + shift,
-		0x45 + shift,
-		0x46 + shift,
-		0x47 + shift,
-		0x48 + shift,
-		0x49 + shift,
-		0x4A + shift,
-		0x4B + shift,
-		0x4C + shift,
-		0x4D + shift,
-		0x4E + shift,
-		0x4F + shift,
-		0x50 + shift,
-		0x51 + shift,
-		0x52 + shift,
-		0x53 + shift,
-		0x54 + shift,
-		0x55 + shift:
-		command.branch = int(gba.Uint32(s.data, at+4))
-	case 0x1B + shift:
-		command.mapID = int(gba.Uint32(s.data, at+4))
+	if rule.mapID != 0 {
+		command.mapID = int(gba.Uint32(s.data, at+rule.mapID))
+	}
+	for _, offset := range rule.loads {
+		command.loads = append(command.loads, at+offset)
 	}
 	return command, true
 }
@@ -420,7 +351,7 @@ func (s *deploymentScanner) follow(
 			continue
 		}
 		if gba.Uint32(s.data, site)&0x80000000 != 0 &&
-			s.format.kind == eventFE8 {
+			s.format.scripts.trackSlots {
 			site = slots.slots[2]
 		}
 		if site > 0 && gba.Within(s.data, site, 4) &&
@@ -431,7 +362,7 @@ func (s *deploymentScanner) follow(
 		}
 	}
 	if command.call < 0 {
-		if s.format.kind == eventFE8 {
+		if s.format.scripts.trackSlots {
 			slots.observe(s.data[at:at+command.length], at+4)
 		}
 		return mapID

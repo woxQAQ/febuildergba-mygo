@@ -11,33 +11,27 @@ const (
 
 // FE8 queries write slot C without branching. FE6/FE7 instead branch when the
 // named character is absent from the living or deployed player-unit roster.
-func (f Format) unitConditionDefinitions() []scriptDefinition {
-	if f.kind == eventFE8 {
-		var result []scriptDefinition
-		for _, entry := range []struct {
-			op   ScriptOp
-			code byte
-			help string
-		}{
-			{ScriptCheckUnitExists, 0x20, "script_check_unit_exists_help"},
-			{ScriptCheckUnitAlive, 0x22, "script_check_unit_alive_help"},
-			{ScriptCheckUnitDeployed, 0x23, "script_check_unit_deployed_help"},
-			{ScriptCheckUnitFaction, 0x25, "script_check_unit_faction_help"},
-		} {
-			result = append(result, scriptDefinition{
-				op: entry.op, raw: []byte{entry.code, 0x33, 1, 0},
-				fields: []ScriptField{scriptFE8Character(2)}, help: entry.help,
-			})
-		}
-		return result
+func fe8UnitConditionDefinitions() []scriptDefinition {
+	var result []scriptDefinition
+	for _, entry := range []struct {
+		op   ScriptOp
+		code byte
+		help string
+	}{
+		{ScriptCheckUnitExists, 0x20, "script_check_unit_exists_help"},
+		{ScriptCheckUnitAlive, 0x22, "script_check_unit_alive_help"},
+		{ScriptCheckUnitDeployed, 0x23, "script_check_unit_deployed_help"},
+		{ScriptCheckUnitFaction, 0x25, "script_check_unit_faction_help"},
+	} {
+		result = append(result, scriptDefinition{
+			op: entry.op, raw: []byte{entry.code, 0x33, 1, 0},
+			fields: []ScriptField{scriptFE8Character(2)}, help: entry.help,
+		})
 	}
-	code := uint32(0x44)
-	if f.kind == eventFE7U {
-		code = 0x46
-	}
-	if f.kind == eventFE6 {
-		code = 0x1D
-	}
+	return result
+}
+
+func wordUnitConditionDefinitions(code uint32) []scriptDefinition {
 	fields := []ScriptField{
 		scriptOperand(ScriptLabelID, 4, 4, 0xFFFFFFFF),
 		sceneOperand(ScriptCharacter, 8, 2, 0, 0xFF),
@@ -81,10 +75,7 @@ const (
 	ScriptCheckUnitLuck        ScriptOp = "script_check_unit_luck"
 )
 
-func (f Format) unitStateDefinitions() []scriptDefinition {
-	if f.kind != eventFE8 {
-		return nil
-	}
+func fe8UnitStateDefinitions() []scriptDefinition {
 	var result []scriptDefinition
 	for _, entry := range []struct {
 		op   ScriptOp

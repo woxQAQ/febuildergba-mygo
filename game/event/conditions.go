@@ -54,15 +54,23 @@ func (table Table) offset() int {
 	}
 }
 
+// conditionLayout describes the fields consumed by the native condition tables.
+// Required talk operands are byte offsets, independent of the visible fields.
+type conditionLayout struct {
+	talkKind, talkStride, turnStride int
+	talkModeWidth, triggerWidth      int
+	routKind                         byte
+	routFlag                         uint32
+	reversedArea                     bool
+	talkRequired                     []int
+}
+
 func (f Format) condition(table Table) int {
 	switch table {
 	case AlwaysEvents:
 		return 0x0B
 	case TalkEvents:
-		if f.kind == eventFE6 {
-			return 4
-		}
-		return 3
+		return f.conditions.talkKind
 	default:
 		return 2
 	}
@@ -134,14 +142,13 @@ func (event *Condition) decode(raw []byte, f Format, table Table) {
 			event.Script = 0
 		}
 	}
-	event.reversedArea = f.kind == eventFE8
+	event.reversedArea = f.conditions.reversedArea
 	event.TriggerFlag = gba.Uint32(raw, 8)
-	if f.kind != eventFE8 {
+	if f.conditions.triggerWidth == 2 {
 		event.TriggerFlag &= 0xFFFF
 	}
 	event.Rout = f.Rout != 0 && int(gba.Uint32(raw, 8)) == f.Rout &&
-		((f.kind == eventFE6 && gba.Uint16(raw, 0) == 13) ||
-			(f.kind != eventFE6 && gba.Uint16(raw, 0) == 14))
+		gba.Uint16(raw, 0) == uint16(f.conditions.routKind)
 	event.Kind, event.Flag = int(gba.Uint16(raw, 0)), int(gba.Uint16(raw, 2))
 	event.Start, event.End, event.Phase = int(
 		raw[8],
@@ -159,7 +166,7 @@ func (event *Condition) decode(raw []byte, f Format, table Table) {
 		), int(
 			gba.Uint16(raw, 14),
 		)
-		if f.kind == eventFE7J || f.kind == eventFE7U {
+		if f.conditions.talkModeWidth == 1 {
 			event.TalkMode &= 0xFF
 		}
 	}
@@ -195,12 +202,11 @@ func (c Conditions) PayloadRegion() (space.Range, bool) {
 }
 
 func (f Format) eventStride(table Table, kind int) int {
-	if table == TalkEvents && f.kind != eventFE6 {
-		return 16
+	if table == TalkEvents {
+		return f.conditions.talkStride
 	}
-	if table == TurnEvents && (f.kind == eventFE7J || f.kind == eventFE7U) &&
-		kind != 1 {
-		return 16
+	if table == TurnEvents && kind != 1 {
+		return f.conditions.turnStride
 	}
 	return 12
 }
@@ -255,7 +261,7 @@ func (f Format) readEvents(
 			!gba.Within(data, at, length) {
 			return result, ErrEventConditions
 		}
-		event := Condition{Address: at, reversedArea: f.kind == eventFE8}
+		event := Condition{Address: at}
 		event.decode(data[at:at+length], f, table)
 		if event.OperandKind == ConditionScript {
 			event.Script, _ = gba.Pointer(data, at+4)

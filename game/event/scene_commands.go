@@ -77,7 +77,7 @@ func sceneOperand(
 // Scene commands contain immediate operands, not resource addresses. Native
 // coordinate widths and FE8 unit selectors remain distinct from deployment IDs.
 // Encodings follow the fixed legacy catalogs and the native event interpreters.
-func (f Format) sceneDefinitions() []scriptDefinition {
+func fe8SceneDefinitions() []scriptDefinition {
 	var result []scriptDefinition
 	add := func(op ScriptOp, raw []byte, fields ...ScriptField) {
 		result = append(
@@ -85,73 +85,156 @@ func (f Format) sceneDefinitions() []scriptDefinition {
 			scriptDefinition{op: op, raw: raw, fields: fields},
 		)
 	}
-	if f.kind == eventFE8 {
-		character := scriptFE8Character
+	character := scriptFE8Character
+	add(
+		ScriptMoveUnit,
+		[]byte{0x40, 0x2F, 0, 0, 1, 0, 0, 0},
+		sceneOperand(ScriptSpeed, 2, 2, -0x8000, 0x7FFF),
+		character(4),
+		sceneOperand(
+			ScriptX,
+			6,
+			1,
+			-0x80,
+			0x7F,
+		),
+		sceneOperand(ScriptY, 7, 1, -0x80, 0x7F),
+	)
+	result[len(result)-1].help = "script_fe8_move_help"
+	for index, op := range []ScriptOp{ScriptJoinPlayer, ScriptJoinNPC, ScriptJoinEnemy} {
+		add(op, []byte{0x22 + byte(index), 0x34, 1, 0}, character(2))
+	}
+	add(ScriptGiveItemSlot, []byte{0x20, 0x37, 0xFF, 0xFF}, character(2))
+	result[len(result)-1].help = "script_item_slot_help"
+	add(ScriptGiveGoldSlot, []byte{0x21, 0x37, 0xFF, 0xFF}, character(2))
+	result[len(result)-1].help = "script_gold_slot_help"
+	for _, entry := range []struct {
+		op    ScriptOp
+		code  byte
+		field string
+	}{
+		{ScriptMusic, 0x12, ScriptSong},
+		{ScriptMusicOverride, 0x14, ScriptSong},
+		{ScriptSound, 0x16, ScriptSoundID},
+	} {
+		field := sceneOperand(entry.field, 2, 2, -0x8000, 0x7FFF)
+		field.Help = scriptSlot2Help
+		add(entry.op, []byte{0x20, entry.code, 0, 0}, field)
+	}
+	add(
+		ScriptMusicRestore,
+		[]byte{0x21, 0x14, 6, 0},
+		sceneOperand(ScriptSpeed, 2, 2, 0, 0x7FFF),
+	)
+	for sub, op := range []ScriptOp{ScriptFadeFromBlack, ScriptFadeToBlack, ScriptFadeFromWhite, ScriptFadeToWhite} {
 		add(
-			ScriptMoveUnit,
-			[]byte{0x40, 0x2F, 0, 0, 1, 0, 0, 0},
-			sceneOperand(ScriptSpeed, 2, 2, -0x8000, 0x7FFF),
-			character(4),
-			sceneOperand(
-				ScriptX,
-				6,
-				1,
-				-0x80,
-				0x7F,
-			),
-			sceneOperand(ScriptY, 7, 1, -0x80, 0x7F),
+			op,
+			[]byte{0x20 + byte(sub), 0x17, 0x10, 0},
+			sceneOperand(ScriptSpeed, 2, 2, 1, 0x7FFF),
 		)
-		result[len(result)-1].help = "script_fe8_move_help"
-		for index, op := range []ScriptOp{ScriptJoinPlayer, ScriptJoinNPC, ScriptJoinEnemy} {
-			add(op, []byte{0x22 + byte(index), 0x34, 1, 0}, character(2))
-		}
-		add(ScriptGiveItemSlot, []byte{0x20, 0x37, 0xFF, 0xFF}, character(2))
-		result[len(result)-1].help = "script_item_slot_help"
-		add(ScriptGiveGoldSlot, []byte{0x21, 0x37, 0xFF, 0xFF}, character(2))
-		result[len(result)-1].help = "script_gold_slot_help"
-		for _, entry := range []struct {
-			op    ScriptOp
-			code  byte
-			field string
-		}{
-			{ScriptMusic, 0x12, ScriptSong},
-			{ScriptMusicOverride, 0x14, ScriptSong},
-			{ScriptSound, 0x16, ScriptSoundID},
-		} {
-			field := sceneOperand(entry.field, 2, 2, -0x8000, 0x7FFF)
-			field.Help = scriptSlot2Help
-			add(entry.op, []byte{0x20, entry.code, 0, 0}, field)
-		}
-		add(
-			ScriptMusicRestore,
-			[]byte{0x21, 0x14, 6, 0},
-			sceneOperand(ScriptSpeed, 2, 2, 0, 0x7FFF),
+	}
+	background := sceneOperand(ScriptBackgroundID, 2, 2, -0x8000, 0x7FFF)
+	background.Help = scriptSlot2Help
+	add(ScriptBackground, []byte{0x40, 0x21, 0, 0, 0, 0, 0, 0}, background)
+	add(ScriptHideMap, []byte{0x20, 0x23, 0, 0})
+	add(ScriptShowMap, []byte{0x20, 0x24, 0, 0})
+	add(
+		ScriptEventBitOn,
+		[]byte{0x28, 2, 7, 0},
+		sceneOperand(ScriptEventBit, 2, 2, 0, 15),
+	)
+	result[len(result)-1].help = "script_event_bit_help"
+	add(
+		ScriptEventBitOff,
+		[]byte{0x20, 2, 9, 0},
+		sceneOperand(ScriptEventBit, 2, 2, 0, 15),
+	)
+	result[len(result)-1].help = "script_event_bit_help"
+	return result
+}
+
+type wordSceneCodes struct {
+	move, moveSpeed, faction, item, activeItem          uint32
+	music, override, fadeMusic, sound, fade, hide, show uint32
+	immediateOffset                                     int
+	restore, background                                 scriptDefinition
+}
+
+func wordImmediate(code uint32, offset int, value uint32) []byte {
+	raw := make([]byte, (offset+2+3)&^3)
+	copy(raw, scriptWords(code))
+	binary.LittleEndian.PutUint16(
+		raw[offset:],
+		uint16(value),
+	) // #nosec G115 -- Callers supply bounded halfword operands.
+	return raw
+}
+
+func fe6SceneDefinitions() []scriptDefinition {
+	return wordSceneDefinitions(wordSceneCodes{
+		move:            0x0F,
+		faction:         0x2B,
+		item:            0x27,
+		activeItem:      0x26,
+		music:           0x36,
+		override:        0x37,
+		fadeMusic:       0x39,
+		sound:           0x3C,
+		fade:            0x43,
+		hide:            0x47,
+		show:            0x48,
+		immediateOffset: 4,
+		restore: scriptDefinition{
+			op:  ScriptMusicRestore,
+			raw: scriptWords(0x38),
+		},
+		background: scriptDefinition{
+			op:  ScriptBackground,
+			raw: scriptWords(3, 0),
+			fields: []ScriptField{
+				sceneOperand(ScriptBackgroundID, 4, 2, 0, 0xFFFF),
+			},
+		},
+	})
+}
+
+func fe7SceneDefinitions(shift uint32) []scriptDefinition {
+	return wordSceneDefinitions(wordSceneCodes{
+		move:            0x24 + shift,
+		moveSpeed:       0x25 + shift,
+		faction:         0x63 + shift,
+		item:            0x5A + shift,
+		activeItem:      0x59 + shift,
+		music:           0x76 + shift,
+		override:        0x77 + shift,
+		fadeMusic:       0x7A + shift,
+		sound:           0x7D + shift,
+		fade:            0x8C + shift,
+		hide:            0x90 + shift,
+		show:            0x91 + shift,
+		immediateOffset: 2,
+		restore: scriptDefinition{
+			op:     ScriptMusicRestore,
+			raw:    scriptWords((0x78 + shift) | 6<<16),
+			fields: []ScriptField{sceneOperand(ScriptSpeed, 2, 2, 0, 0xFFFF)},
+		},
+		background: scriptDefinition{
+			op:  ScriptBackground,
+			raw: scriptWords(5),
+			fields: []ScriptField{
+				sceneOperand(ScriptBackgroundID, 2, 2, 0, 0xFFFF),
+			},
+		},
+	})
+}
+
+func wordSceneDefinitions(codes wordSceneCodes) []scriptDefinition {
+	var result []scriptDefinition
+	add := func(op ScriptOp, raw []byte, fields ...ScriptField) {
+		result = append(
+			result,
+			scriptDefinition{op: op, raw: raw, fields: fields},
 		)
-		for sub, op := range []ScriptOp{ScriptFadeFromBlack, ScriptFadeToBlack, ScriptFadeFromWhite, ScriptFadeToWhite} {
-			add(
-				op,
-				[]byte{0x20 + byte(sub), 0x17, 0x10, 0},
-				sceneOperand(ScriptSpeed, 2, 2, 1, 0x7FFF),
-			)
-		}
-		background := sceneOperand(ScriptBackgroundID, 2, 2, -0x8000, 0x7FFF)
-		background.Help = scriptSlot2Help
-		add(ScriptBackground, []byte{0x40, 0x21, 0, 0, 0, 0, 0, 0}, background)
-		add(ScriptHideMap, []byte{0x20, 0x23, 0, 0})
-		add(ScriptShowMap, []byte{0x20, 0x24, 0, 0})
-		add(
-			ScriptEventBitOn,
-			[]byte{0x28, 2, 7, 0},
-			sceneOperand(ScriptEventBit, 2, 2, 0, 15),
-		)
-		result[len(result)-1].help = "script_event_bit_help"
-		add(
-			ScriptEventBitOff,
-			[]byte{0x20, 2, 9, 0},
-			sceneOperand(ScriptEventBit, 2, 2, 0, 15),
-		)
-		result[len(result)-1].help = "script_event_bit_help"
-		return result
 	}
 
 	character := sceneOperand(ScriptCharacter, 4, 2, 0, 0xFF)
@@ -169,55 +252,30 @@ func (f Format) sceneDefinitions() []scriptDefinition {
 		0x7FFF,
 	)
 	x.Help, y.Help = scriptWordCoordinateHelp, scriptWordCoordinateHelp
-	move, faction, item, activeItem := uint32(
-		0x24,
-	), uint32(
-		0x63,
-	), uint32(
-		0x5A,
-	), uint32(
-		0x59,
-	)
-	music, override, restore, fadeMusic, sound := uint32(
-		0x76,
-	), uint32(
-		0x77,
-	), uint32(
-		0x78,
-	), uint32(
-		0x7A,
-	), uint32(
-		0x7D,
-	)
-	fade, hide, show := uint32(0x8C), uint32(0x90), uint32(0x91)
-	if f.kind == eventFE7U {
-		move, faction, item, activeItem = move+2, faction+2, item+2, activeItem+2
-		music, override, restore, fadeMusic, sound = music+2, override+2, restore+2, fadeMusic+2, sound+2
-		fade, hide, show = fade+2, hide+2, show+2
-	}
-	if f.kind == eventFE6 {
-		move, faction, item, activeItem = 0x0F, 0x2B, 0x27, 0x26
-		music, override, restore, fadeMusic, sound = 0x36, 0x37, 0x38, 0x39, 0x3C
-		fade, hide, show = 0x43, 0x47, 0x48
-	}
-	add(ScriptMoveUnit, scriptWords(move, 1, 0), character, x, y)
-	if f.kind != eventFE6 {
-		add(ScriptMoveUnitSpeed, scriptWords(move+1, 1, 0, 0), character, x, y,
-			sceneOperand(ScriptSpeed, 12, 2, 0, 0xFFFF))
+	add(ScriptMoveUnit, scriptWords(codes.move, 1, 0), character, x, y)
+	if codes.moveSpeed != 0 {
+		add(
+			ScriptMoveUnitSpeed,
+			scriptWords(codes.moveSpeed, 1, 0, 0),
+			character,
+			x,
+			y,
+			sceneOperand(ScriptSpeed, 12, 2, 0, 0xFFFF),
+		)
 	}
 	for index, op := range []ScriptOp{ScriptJoinPlayer, ScriptJoinNPC, ScriptJoinEnemy} {
-		add(op, scriptWords(faction, 1, uint32(index)*0x40), character)
+		add(op, scriptWords(codes.faction, 1, uint32(index)*0x40), character)
 	}
 	add(
 		ScriptGiveItem,
-		scriptWords(item, 1, 1),
+		scriptWords(codes.item, 1, 1),
 		character,
 		sceneOperand(ScriptItem, 8, 2, 0, 0xFFFF),
 	)
 	result[len(result)-1].help = "script_item_parameter_help"
 	add(
 		ScriptGiveActiveItem,
-		scriptWords(activeItem, 1),
+		scriptWords(codes.activeItem, 1),
 		sceneOperand(ScriptItem, 4, 2, 0, 0xFFFF),
 	)
 	result[len(result)-1].help = "script_item_parameter_help"
@@ -226,45 +284,29 @@ func (f Format) sceneDefinitions() []scriptDefinition {
 		code  uint32
 		field string
 	}{
-		{ScriptMusic, music, ScriptSong},
-		{ScriptMusicOverride, override, ScriptSong},
-		{ScriptSound, sound, ScriptSoundID},
-		{ScriptMusicFadeOut, fadeMusic, ScriptSpeed},
+		{ScriptMusic, codes.music, ScriptSong},
+		{ScriptMusicOverride, codes.override, ScriptSong},
+		{ScriptSound, codes.sound, ScriptSoundID},
+		{ScriptMusicFadeOut, codes.fadeMusic, ScriptSpeed},
 	} {
-		raw, offset := scriptWords(entry.code), 2
-		if f.kind == eventFE6 {
-			raw, offset = scriptWords(entry.code, 0), 4
-		}
+		raw, offset := wordImmediate(
+			entry.code,
+			codes.immediateOffset,
+			0,
+		), codes.immediateOffset
 		add(entry.op, raw, sceneOperand(entry.field, offset, 2, 0, 0xFFFF))
 	}
-	if f.kind == eventFE6 {
-		add(ScriptMusicRestore, scriptWords(restore))
-		add(
-			ScriptBackground,
-			scriptWords(3, 0),
-			sceneOperand(ScriptBackgroundID, 4, 2, 0, 0xFFFF),
-		)
-	} else {
-		add(
-			ScriptMusicRestore,
-			scriptWords(restore|6<<16),
-			sceneOperand(ScriptSpeed, 2, 2, 0, 0xFFFF),
-		)
-		add(
-			ScriptBackground,
-			scriptWords(5),
-			sceneOperand(ScriptBackgroundID, 2, 2, 0, 0xFFFF),
-		)
-	}
+	result = append(result, codes.restore, codes.background)
 	for index, op := range []ScriptOp{ScriptFadeToBlack, ScriptFadeFromBlack, ScriptFadeToWhite, ScriptFadeFromWhite} {
-		raw, offset := scriptWords(fade+uint32(index)|0x10<<16), 2
-		if f.kind == eventFE6 {
-			raw, offset = scriptWords(fade+uint32(index), 0x10), 4
-		}
+		raw, offset := wordImmediate(
+			codes.fade+uint32(index),
+			codes.immediateOffset,
+			0x10,
+		), codes.immediateOffset
 		add(op, raw, sceneOperand(ScriptSpeed, offset, 2, 1, 0x7FFF))
 	}
-	add(ScriptHideMap, scriptWords(hide))
-	add(ScriptShowMap, scriptWords(show))
+	add(ScriptHideMap, scriptWords(codes.hide))
+	add(ScriptShowMap, scriptWords(codes.show))
 	return result
 }
 
@@ -282,10 +324,7 @@ const (
 	ScriptRestoreMapScene       ScriptOp = "script_restore_map_scene"
 )
 
-func (f Format) presentationDefinitions() []scriptDefinition {
-	if f.kind != eventFE8 {
-		return nil
-	}
+func fe8PresentationDefinitions() []scriptDefinition {
 	var result []scriptDefinition
 	for _, entry := range []struct {
 		op        ScriptOp
@@ -346,7 +385,7 @@ func scriptFE8Character(offset int) ScriptField {
 
 // Camera centering and cursor lifetime are native command semantics. In
 // particular, FE8's camera subcode does not select instantaneous movement.
-func (f Format) cameraDefinitions() []scriptDefinition {
+func fe8CameraDefinitions() []scriptDefinition {
 	var result []scriptDefinition
 	add := func(op ScriptOp, raw []byte, help string, fields ...ScriptField) {
 		result = append(
@@ -354,113 +393,141 @@ func (f Format) cameraDefinitions() []scriptDefinition {
 			scriptDefinition{op: op, raw: raw, fields: fields, help: help},
 		)
 	}
-	if f.kind == eventFE8 {
-		x := sceneOperand(ScriptX, 2, 1, -0x80, 0x7F)
-		y := sceneOperand(ScriptY, 3, 1, -0x80, 0x7F)
-		x.Help, y.Help = "script_slot_b_coordinates_help", "script_slot_b_coordinates_help"
-		add(
-			ScriptCameraPosition,
-			[]byte{0x20, 0x26, 0, 0},
-			"script_camera_visible_help",
-			x,
-			y,
+	x := sceneOperand(ScriptX, 2, 1, -0x80, 0x7F)
+	y := sceneOperand(ScriptY, 3, 1, -0x80, 0x7F)
+	x.Help, y.Help = "script_slot_b_coordinates_help", "script_slot_b_coordinates_help"
+	add(
+		ScriptCameraPosition,
+		[]byte{0x20, 0x26, 0, 0},
+		"script_camera_visible_help",
+		x,
+		y,
+	)
+	add(
+		ScriptCameraCenterPosition,
+		[]byte{0x28, 0x26, 0, 0},
+		"script_camera_center_help",
+		x,
+		y,
+	)
+	add(
+		ScriptCameraUnit,
+		[]byte{0x21, 0x26, 1, 0},
+		"script_camera_visible_help",
+		scriptFE8Character(2),
+	)
+	add(
+		ScriptCameraCenterUnit,
+		[]byte{0x29, 0x26, 1, 0},
+		"script_camera_center_help",
+		scriptFE8Character(2),
+	)
+	add(
+		ScriptCursorPosition,
+		[]byte{0x20, 0x3B, 0, 0},
+		"script_cursor_persistent_help",
+		x,
+		y,
+	)
+	add(
+		ScriptCursorUnit,
+		[]byte{0x21, 0x3B, 1, 0},
+		"script_cursor_persistent_help",
+		scriptFE8Character(2),
+	)
+	add(
+		ScriptCursorGlowPosition,
+		[]byte{0x24, 0x3B, 0, 0},
+		"script_cursor_persistent_help",
+		x,
+		y,
+	)
+	add(
+		ScriptCursorGlowUnit,
+		[]byte{0x25, 0x3B, 1, 0},
+		"script_cursor_persistent_help",
+		scriptFE8Character(2),
+	)
+	add(ScriptCursorClear, []byte{0x22, 0x3B, 0, 0}, "")
+	return result
+}
+
+func fe6CameraDefinitions() []scriptDefinition {
+	var result []scriptDefinition
+	add := func(op ScriptOp, raw []byte, help string, fields ...ScriptField) {
+		result = append(
+			result,
+			scriptDefinition{op: op, raw: raw, fields: fields, help: help},
 		)
-		add(
-			ScriptCameraCenterPosition,
-			[]byte{0x28, 0x26, 0, 0},
-			"script_camera_center_help",
-			x,
-			y,
-		)
-		add(
-			ScriptCameraUnit,
-			[]byte{0x21, 0x26, 1, 0},
-			"script_camera_visible_help",
-			scriptFE8Character(2),
-		)
-		add(
-			ScriptCameraCenterUnit,
-			[]byte{0x29, 0x26, 1, 0},
-			"script_camera_center_help",
-			scriptFE8Character(2),
-		)
-		add(
-			ScriptCursorPosition,
-			[]byte{0x20, 0x3B, 0, 0},
-			"script_cursor_persistent_help",
-			x,
-			y,
-		)
-		add(
-			ScriptCursorUnit,
-			[]byte{0x21, 0x3B, 1, 0},
-			"script_cursor_persistent_help",
-			scriptFE8Character(2),
-		)
-		add(
-			ScriptCursorGlowPosition,
-			[]byte{0x24, 0x3B, 0, 0},
-			"script_cursor_persistent_help",
-			x,
-			y,
-		)
-		add(
-			ScriptCursorGlowUnit,
-			[]byte{0x25, 0x3B, 1, 0},
-			"script_cursor_persistent_help",
-			scriptFE8Character(2),
-		)
-		add(ScriptCursorClear, []byte{0x22, 0x3B, 0, 0}, "")
-		return result
 	}
 
 	x := sceneOperand(ScriptX, 4, 2, -0x8000, 0x7FFF)
 	y := sceneOperand(ScriptY, 6, 2, -0x8000, 0x7FFF)
 	x.Help, y.Help = scriptWordCoordinateHelp, scriptWordCoordinateHelp
 	character := sceneOperand(ScriptCharacter, 4, 2, 0, 0xFF)
-	camera, flash := uint32(0x1D), uint32(0x64)
-	if f.kind == eventFE7U {
-		camera, flash = 0x1F, 0x66
-	}
-	if f.kind == eventFE6 {
-		flash = 0x2C
-		add(
-			ScriptCameraPosition,
-			scriptWords(0x0B, 0),
-			"script_camera_visible_help",
-			x,
-			y,
-		)
-		add(
-			ScriptCameraUnit,
-			scriptWords(0x0C, 1),
-			"script_camera_visible_help",
-			character,
-		)
-	} else {
-		cameraX := sceneOperand(ScriptX, 2, 1, 0, 0xFF)
-		cameraY := sceneOperand(ScriptY, 3, 1, 0, 0xFF)
-		add(
-			ScriptCameraPosition,
-			scriptWords(camera),
-			"script_camera_visible_help",
-			cameraX,
-			cameraY,
-		)
-		add(
-			ScriptCameraCenterPosition,
-			scriptWords(camera+3),
-			"script_camera_center_help",
-			cameraX,
-			cameraY,
-		)
-		add(
-			ScriptCameraUnit,
-			scriptWords(camera+1|1<<16),
-			"script_camera_visible_help",
-			sceneOperand(ScriptCharacter, 2, 2, 0, 0xFF),
+	add(
+		ScriptCameraPosition,
+		scriptWords(0x0B, 0),
+		"script_camera_visible_help",
+		x,
+		y,
+	)
+	add(
+		ScriptCameraUnit,
+		scriptWords(0x0C, 1),
+		"script_camera_visible_help",
+		character,
+	)
+	return append(result, wordCursorDefinitions(0x2C)...)
+}
+
+func fe7CameraDefinitions(camera, flash uint32) []scriptDefinition {
+	var result []scriptDefinition
+	add := func(op ScriptOp, raw []byte, help string, fields ...ScriptField) {
+		result = append(
+			result,
+			scriptDefinition{op: op, raw: raw, fields: fields, help: help},
 		)
 	}
+	cameraX := sceneOperand(ScriptX, 2, 1, 0, 0xFF)
+	cameraY := sceneOperand(ScriptY, 3, 1, 0, 0xFF)
+	add(
+		ScriptCameraPosition,
+		scriptWords(camera),
+		"script_camera_visible_help",
+		cameraX,
+		cameraY,
+	)
+	add(
+		ScriptCameraCenterPosition,
+		scriptWords(camera+3),
+		"script_camera_center_help",
+		cameraX,
+		cameraY,
+	)
+	add(
+		ScriptCameraUnit,
+		scriptWords(camera+1|1<<16),
+		"script_camera_visible_help",
+		sceneOperand(ScriptCharacter, 2, 2, 0, 0xFF),
+	)
+	return append(result, wordCursorDefinitions(flash)...)
+}
+
+func wordCursorDefinitions(flash uint32) []scriptDefinition {
+	var result []scriptDefinition
+	add := func(op ScriptOp, raw []byte, help string, fields ...ScriptField) {
+		result = append(
+			result,
+			scriptDefinition{op: op, raw: raw, fields: fields, help: help},
+		)
+	}
+
+	x := sceneOperand(ScriptX, 4, 2, -0x8000, 0x7FFF)
+	y := sceneOperand(ScriptY, 6, 2, -0x8000, 0x7FFF)
+	x.Help, y.Help = scriptWordCoordinateHelp, scriptWordCoordinateHelp
+	character := sceneOperand(ScriptCharacter, 4, 2, 0, 0xFF)
+
 	add(
 		ScriptCursorFlashPosition,
 		scriptWords(flash, 0),

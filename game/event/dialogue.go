@@ -1,6 +1,7 @@
 package event
 
 import (
+	"bytes"
 	"encoding/binary"
 	"slices"
 
@@ -56,39 +57,9 @@ func (s *Editor) DialogueText(id uint16) (result text.Value, err error) {
 }
 
 func (f Format) dialogueScript(id uint16) []byte {
-	if f.kind == eventFE8 {
-		return []byte{
-			0x20,
-			0x1A,
-			0,
-			0,
-			0x20,
-			0x1B,
-			byte(id & 0xFF),
-			byte(id >> 8),
-			0x20,
-			0x1D,
-			0,
-			0,
-			0x22,
-			0x1B,
-			0,
-			0,
-			0x20,
-			1,
-			0,
-			0,
-		}
-	}
-	words := []uint32{0x0D, uint32(id), 0x09, 0x0A, 0}
-	if f.kind == eventFE6 {
-		words = []uint32{0x07, uint32(id), 0x05, 0x06, 0}
-	}
-	var result []byte
-	for _, word := range words {
-		result = binary.LittleEndian.AppendUint32(result, word)
-	}
-	return result
+	raw := bytes.Clone(f.scripts.dialog)
+	binary.LittleEndian.PutUint16(raw[f.scripts.textOffset:], id)
+	return raw
 }
 
 // Text discovery uses confirmed direct operands and the same bounded control
@@ -99,9 +70,8 @@ func (s *deploymentScanner) collectTexts(at int, slots *eventSlotState) {
 		return
 	}
 	var ids []uint32
-	op := s.data[at]
-	switch s.format.kind {
-	case eventFE8:
+	if s.format.scripts.trackSlots {
+		op := s.data[at]
 		if (op == 0x20 || op == 0x21) && s.data[at+1] == 0x1B {
 			id := uint32(gba.Uint16(s.data, at+2))
 			if id >= 0x8000 {
@@ -114,20 +84,9 @@ func (s *deploymentScanner) collectTexts(at int, slots *eventSlotState) {
 			}
 			ids = append(ids, id)
 		}
-	case eventFE6:
-		if op == 0x07 || op == 0x08 {
-			ids = append(ids, gba.Uint32(s.data, at+4))
-		}
-	default:
-		switch op {
-		case 0x0D, 0x0E, 0x11:
-			ids = append(ids, gba.Uint32(s.data, at+4))
-		case 0x0F, 0x12:
-			ids = append(
-				ids,
-				gba.Uint32(s.data, at+4),
-				gba.Uint32(s.data, at+8),
-			)
+	} else {
+		for _, offset := range s.format.scripts.flow[s.data[at]].texts {
+			ids = append(ids, gba.Uint32(s.data, at+offset))
 		}
 	}
 	for _, id := range ids {

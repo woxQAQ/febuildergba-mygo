@@ -94,10 +94,7 @@ func (d *ConditionDraft) objectiveFields(index int) []records.Field {
 	}
 	fields := []records.Field{{ID: EventFlag, Offset: 2, Width: 2, Hex: true}}
 	if kind == 1 {
-		width := 2
-		if d.original.format.kind == eventFE8 {
-			width = 4
-		}
+		width := d.original.format.conditions.triggerWidth
 		fields = append(
 			fields,
 			records.Field{ID: EventTrigger, Offset: 8, Width: width, Hex: true},
@@ -246,16 +243,12 @@ func (d *ConditionDraft) AddObjective(
 		raw[2], trigger = 0, 0x65
 	}
 	if template == RoutVictory {
-		if d.original.format.kind == eventFE8 {
-			trigger = 6
-		} else {
-			raw[0] = 14
-			if d.original.format.kind == eventFE6 {
-				raw[0] = 13
-			}
+		raw[0] = d.original.format.conditions.routKind
+		trigger = d.original.format.conditions.routFlag
+		if trigger == 0 {
 			trigger = uint32(
 				d.original.format.Rout,
-			) // #nosec G115 -- Native Thumb callback constants fit in uint32.
+			) // #nosec G115 -- Native Thumb callback fits in uint32.
 		}
 	}
 	binary.LittleEndian.PutUint32(raw[8:], trigger)

@@ -29,21 +29,13 @@ type ScriptMovementStep struct {
 	Value   int
 }
 
-func (f Format) movementDefinitions() []scriptDefinition {
-	if f.kind == eventFE8 {
-		return nil
-	}
+func wordMovementDefinitions(
+	unit, position, faction uint32,
+) []scriptDefinition {
 	path := func(id string, offset int) ScriptField {
 		field := scriptOperand(id, offset, 4, 0xFFFFFFFF)
 		field.Target = ScriptMovementTarget
 		return field
-	}
-	unit, position := uint32(0x10), uint32(0x0E)
-	if f.kind == eventFE7J {
-		unit, position = 0x26, 0x23
-	}
-	if f.kind == eventFE7U {
-		unit, position = 0x28, 0x25
 	}
 	character := scriptOperand(ScriptCharacter, 4, 2, 0xFF)
 	character.Reference = records.Units
@@ -65,13 +57,10 @@ func (f Format) movementDefinitions() []scriptDefinition {
 			help: "script_movement_help",
 		},
 	}
-	if f.kind == eventFE6 {
+	if faction == 0 {
 		return result
 	}
-	code := uint32(0x29)
-	if f.kind == eventFE7U {
-		code += 2
-	}
+	code := faction
 	return append(
 		result,
 		scriptDefinition{

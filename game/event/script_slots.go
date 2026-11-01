@@ -129,7 +129,7 @@ func slotUnitLoad(raw []byte) bool {
 // survives a label or call, even if the linear byte listing suggests a value.
 func (d *ScriptDraft) unitLoadSources() map[int]int {
 	result := make(map[int]int)
-	if d.original.format.kind != eventFE8 {
+	if !d.original.format.scripts.trackSlots {
 		return result
 	}
 	var state eventSlotState
@@ -159,10 +159,7 @@ const (
 	ScriptSlotShiftRight ScriptOp = "script_slot_shift_right"
 )
 
-func (f Format) slotDefinitions() []scriptDefinition {
-	if f.kind != eventFE8 {
-		return nil
-	}
+func fe8SlotDefinitions() []scriptDefinition {
 	var result []scriptDefinition
 	for index, op := range []ScriptOp{
 		ScriptSlotAdd, ScriptSlotSubtract, ScriptSlotMultiply, ScriptSlotDivide,

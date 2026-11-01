@@ -156,7 +156,7 @@ func (d *ScriptDraft) Reference(index int, id string) (ScriptReference, error) {
 		value := field.value(d.rows[index].instruction.Raw)
 		site := d.rows[index].instruction.Address + field.offset
 		indirect := field.Target == ScriptDeploymentTarget &&
-			d.original.format.kind == eventFE8 &&
+			d.original.format.scripts.trackSlots &&
 			slotUnitLoad(d.rows[index].instruction.Raw)
 		if indirect {
 			source, ok := d.unitLoadSources()[index]

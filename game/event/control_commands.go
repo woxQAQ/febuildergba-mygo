@@ -40,26 +40,23 @@ const (
 	ScriptKeyMask      = "script_key_mask"
 )
 
-func (f Format) controlDefinitions() []scriptDefinition {
-	if f.kind != eventFE8 {
-		clearSkip := uint32(0x0A)
-		if f.kind == eventFE6 {
-			clearSkip = 6
-		}
-		return []scriptDefinition{
-			{
-				op:   ScriptClearSkip,
-				raw:  scriptWords(clearSkip),
-				help: "script_clear_skip_help",
-			},
-			{
-				op:       ScriptEarlyReturn,
-				raw:      scriptWords(1),
-				terminal: true,
-				help:     "script_early_return_help",
-			},
-		}
+func wordControlDefinitions(clearSkip uint32) []scriptDefinition {
+	return []scriptDefinition{
+		{
+			op:   ScriptClearSkip,
+			raw:  scriptWords(clearSkip),
+			help: "script_clear_skip_help",
+		},
+		{
+			op:       ScriptEarlyReturn,
+			raw:      scriptWords(1),
+			terminal: true,
+			help:     "script_early_return_help",
+		},
 	}
+}
+
+func fe8ControlDefinitions() []scriptDefinition {
 	var result []scriptDefinition
 	add := func(op ScriptOp, code, sub byte, help string, fields ...ScriptField) {
 		result = append(
@@ -144,16 +141,32 @@ const (
 	ScriptTurn                           = "script_turn"
 )
 
-func (f Format) wordConditionDefinitions() []scriptDefinition {
-	if f.kind == eventFE8 {
-		return nil
+func fe6ConditionDefinitions() []scriptDefinition {
+	label := scriptOperand(ScriptLabelID, 4, 4, 0xFFFFFFFF)
+	character := scriptOperand(ScriptCharacter, 8, 4, 0xFF)
+	character.Reference = records.Units
+	return []scriptDefinition{
+		{
+			op:     ScriptBranchSkipped,
+			raw:    scriptWords(0x21, 0),
+			fields: []ScriptField{label},
+			branch: true,
+			help:   "script_branch_skipped_help",
+		},
+		{
+			op:     ScriptBranchActive,
+			raw:    scriptWords(0x24, 0, 0),
+			fields: []ScriptField{label, character},
+			branch: true,
+			help:   "script_branch_active_help",
+		},
 	}
+}
+
+func fe7ConditionDefinitions(shift uint32) []scriptDefinition {
 	label := scriptOperand(ScriptLabelID, 4, 4, 0xFFFFFFFF)
 	character := scriptOperand(ScriptCharacter, 8, 1, 0xFF)
 	character.Reference = records.Units
-	if f.kind == eventFE6 {
-		character.width = 4
-	}
 	var result []scriptDefinition
 	add := func(op ScriptOp, code uint32, help string, fields ...ScriptField) {
 		size := 8
@@ -172,15 +185,6 @@ func (f Format) wordConditionDefinitions() []scriptDefinition {
 				help:   help,
 			},
 		)
-	}
-	if f.kind == eventFE6 {
-		add(ScriptBranchSkipped, 0x21, "script_branch_skipped_help")
-		add(ScriptBranchActive, 0x24, "script_branch_active_help", character)
-		return result
-	}
-	shift := uint32(0)
-	if f.kind == eventFE7U {
-		shift = 2
 	}
 	for _, entry := range []struct {
 		op   ScriptOp

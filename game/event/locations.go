@@ -57,14 +57,26 @@ type Location struct {
 	ShopKind                           ShopKind
 }
 
-func (f Format) goldItem() int {
-	switch f.kind {
-	case eventFE6:
-		return 0x6F
-	case eventFE8:
-		return 0x77
-	default:
-		return 0x76
+type locationLayout struct {
+	visit, seize, chest, door, center, shop          byte
+	goldItem, goldMinimum, itemMaximum, commandWidth int
+	indirectChest                                    LocationKind
+	indirectTarget                                   ConditionTarget
+}
+
+func wordLocations(goldItem int) locationLayout {
+	return locationLayout{
+		visit:          0x0E,
+		seize:          0x0F,
+		chest:          0x12,
+		door:           0x10,
+		center:         0x1D,
+		shop:           0x13,
+		goldItem:       goldItem,
+		itemMaximum:    65535,
+		commandWidth:   1,
+		indirectChest:  ScriptChest,
+		indirectTarget: ConditionScript,
 	}
 }
 
@@ -73,19 +85,29 @@ func (f Format) location(raw []byte) (Location, ConditionTarget) {
 		Position: image.Pt(int(raw[8]), int(raw[9])),
 		Command:  int(raw[10]),
 		Item:     int(gba.Uint16(raw, 4)), Money: int(gba.Uint16(raw, 6)),
-		GoldItem: f.goldItem(), ItemMaximum: 65535,
+		GoldItem: f.locations.goldItem, GoldMinimum: f.locations.goldMinimum,
+		ItemMaximum: f.locations.itemMaximum,
 	}
 	kind := gba.Uint16(raw, 0)
-	visit, seize, chest, door, center, shop := 0x0E, 0x0F, 0x12, 0x10, 0x1D, 0x13
-	if f.kind == eventFE8 {
-		location.GoldMinimum, location.ItemMaximum = 256, 255
-		visit, seize, chest, door, center, shop = 0x10, 0x11, 0x14, 0x12, 0x20, 0x16
-		// LOCA, VILL, CHES and SHOP read a halfword; DOOR reads a byte.
-		if kind != 8 {
-			location.Command = int(gba.Uint16(raw, 10))
-		}
+	// Door commands consume one byte even in the halfword location layout.
+	if f.locations.commandWidth == 2 && kind != 8 {
+		location.Command = int(gba.Uint16(raw, 10))
 	}
 	command := location.Command
+	visit, seize, chest := int(
+		f.locations.visit,
+	), int(
+		f.locations.seize,
+	), int(
+		f.locations.chest,
+	)
+	door, center, shop := int(
+		f.locations.door,
+	), int(
+		f.locations.center,
+	), int(
+		f.locations.shop,
+	)
 	switch {
 	case (kind == 5 || kind == 6) && command == visit:
 		location.Kind = House
@@ -100,12 +122,8 @@ func (f Format) location(raw []byte) (Location, ConditionTarget) {
 		location.Kind = VillageCenter
 		return location, NoTarget
 	case kind == 5 && command == chest:
-		if f.kind != eventFE8 {
-			location.Kind = ScriptChest
-			return location, ConditionScript
-		}
-		location.Kind = RandomChest
-		return location, RandomRewardTarget
+		location.Kind = f.locations.indirectChest
+		return location, f.locations.indirectTarget
 	case kind == 7 && command == chest:
 		location.Kind = Chest
 		return location, RewardTarget
@@ -157,10 +175,7 @@ func (d *ConditionDraft) AddLocation(s *Editor, kind LocationKind) error {
 	}
 	f := d.original.format
 	raw := make([]byte, 12)
-	raw[0], raw[10] = 5, 0x0E
-	if f.kind == eventFE8 {
-		raw[10] = 0x10
-	}
+	raw[0], raw[10] = 5, f.locations.visit
 	record := eventRecord{raw: raw}
 	switch kind {
 	case House, Village:
@@ -169,7 +184,7 @@ func (d *ConditionDraft) AddLocation(s *Editor, kind LocationKind) error {
 		}
 		record.message = new(uint16)
 	case Seize:
-		raw[10]++
+		raw[10] = f.locations.seize
 		raw[2] = 3
 		for _, ref := range d.scripts {
 			if ref.Kind == ChapterEndingScript {
@@ -185,20 +200,14 @@ func (d *ConditionDraft) AddLocation(s *Editor, kind LocationKind) error {
 			return ErrEventConditions
 		}
 	case Chest:
-		raw[0], raw[4], raw[10] = 7, 1, 0x12
-		if f.kind == eventFE8 {
-			raw[10] = 0x14
-		}
+		raw[0], raw[4], raw[10] = 7, 1, f.locations.chest
 	case Shop:
 		raw[0], raw[10] = 10, byte(
 			f.shopCommand(Armory),
 		) // #nosec G115 -- Native tile command fits in a byte.
 		record.inventory = shop.NewDraft()
 	case Door:
-		raw[0], raw[4], raw[10] = 8, 1, 0x10
-		if f.kind == eventFE8 {
-			raw[10] = 0x12
-		}
+		raw[0], raw[4], raw[10] = 8, 1, f.locations.door
 		record.event.Script = 1
 	default:
 		return edit.ErrValue

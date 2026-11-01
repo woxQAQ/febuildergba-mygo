@@ -17,7 +17,9 @@ type deploymentSlot struct {
 type Layout struct {
 	units           deployment.Format
 	opening, ending int
-	kind            deploymentEventKind
+	conditions      conditionLayout
+	locations       locationLayout
+	scripts         *scriptSet
 	slots           []deploymentSlot
 }
 
@@ -26,7 +28,26 @@ func FE8Layout() Layout {
 		units:   deployment.Format{Stride: 20},
 		opening: 72,
 		ending:  76,
-		kind:    eventFE8,
+		conditions: conditionLayout{
+			talkKind: 3, talkStride: 16, turnStride: 12, talkModeWidth: 2,
+			triggerWidth: 4, routKind: 1, routFlag: 6, reversedArea: true,
+			talkRequired: []int{9},
+		},
+		locations: locationLayout{
+			visit:          0x10,
+			seize:          0x11,
+			chest:          0x14,
+			door:           0x12,
+			center:         0x20,
+			shop:           0x16,
+			goldItem:       0x77,
+			goldMinimum:    256,
+			itemMaximum:    255,
+			commandWidth:   2,
+			indirectChest:  RandomChest,
+			indirectTarget: RandomRewardTarget,
+		},
+		scripts: fe8Scripts(),
 		slots: []deploymentSlot{
 			{"deploy_player_normal", 40, 0},
 			{"deploy_player_hard", 44, 0},
@@ -40,12 +61,17 @@ func FE8Layout() Layout {
 	}
 }
 
-func fe7Layout(kind deploymentEventKind) Layout {
+func fe7Layout(scripts *scriptSet) Layout {
 	return Layout{
 		units:   deployment.Format{Stride: 16},
 		opening: 56,
 		ending:  60,
-		kind:    kind,
+		conditions: conditionLayout{
+			talkKind: 3, talkStride: 16, turnStride: 16, talkModeWidth: 1,
+			triggerWidth: 2, routKind: 14, talkRequired: []int{9},
+		},
+		locations: wordLocations(0x76),
+		scripts:   scripts,
 		slots: []deploymentSlot{
 			{"deploy_eliwood_enemy_normal", 24, 2},
 			{"deploy_eliwood_enemy_hard", 28, 2},
@@ -59,15 +85,21 @@ func fe7Layout(kind deploymentEventKind) Layout {
 	}
 }
 
-func FE7JLayout() Layout { return fe7Layout(eventFE7J) }
-func FE7ULayout() Layout { return fe7Layout(eventFE7U) }
+func FE7JLayout() Layout { return fe7Layout(fe7Scripts(0, 0xCC, fe7jInstructionWords)) }
+
+func FE7ULayout() Layout { return fe7Layout(fe7Scripts(2, 0xCB, fe7uInstructionWords)) }
 
 func FE6Layout() Layout {
 	return Layout{
 		units:   deployment.Format{Stride: 16},
 		opening: -1,
 		ending:  24,
-		kind:    eventFE6,
+		conditions: conditionLayout{
+			talkKind: 4, talkStride: 12, turnStride: 12,
+			triggerWidth: 2, routKind: 13, talkRequired: []int{8, 9},
+		},
+		locations: wordLocations(0x6F),
+		scripts:   fe6Scripts(),
 		slots: []deploymentSlot{
 			{"deploy_enemy", 16, 2}, {"deploy_player", 20, 0},
 		},
@@ -123,12 +155,3 @@ func (f Format) HeaderSize() int {
 	}
 	return max(last, f.ending+4)
 }
-
-type deploymentEventKind uint8
-
-const (
-	eventFE8 deploymentEventKind = iota
-	eventFE7J
-	eventFE7U
-	eventFE6
-)
