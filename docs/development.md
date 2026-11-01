@@ -4,8 +4,6 @@
 
 ## 环境与命令
 
-通过 Nix 的机器配置提供 Go、`just`、`golangci-lint` 和 `oxfmt`，直接使用 PATH 上的工具。Go 版本须满足 `go.mod`；`golangci-lint` 使用支持该 Go 版本和 `.golangci.yml` v2 配置的版本。仓库不再维护独立的开发环境或 Nix 输入锁，工具版本随机器配置管理。
-
 `justfile` 为全部 recipe 及其子进程导出 `GOTOOLCHAIN=local`。直接运行 Go、语言服务器或其他 Go 工具时，按 [AGENTS 的工具链约束](../AGENTS.md#命令与验证)设置相同值。提升 `go.mod` 要求后，先通过 Nix 更新本地工具链；不足的本地版本会报错，不会自动下载补齐。既有终端、语言服务器和开发进程需要重新启动以使用更新后的工具。
 
 可用以下命令核对当前工具：
