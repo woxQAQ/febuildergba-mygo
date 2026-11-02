@@ -62,6 +62,7 @@ type Workspace struct {
 	zoomLevel int
 	menuState struct {
 		text, draft, undo, redo bool
+		busy, session           bool
 		zoom                    int
 	}
 }
@@ -329,10 +330,12 @@ func (w *Workspace) View(c *ui.Context) {
 	history := state.History()
 	context := struct {
 		text, draft, undo, redo bool
+		busy, session           bool
 		zoom                    int
 	}{
 		text: w.UsesTextHistory(), draft: state.DraftHistory != nil,
 		undo: history.Undo != nil, redo: history.Redo != nil,
+		busy: state.Busy, session: state.Session != nil,
 		zoom: w.ZoomPercent(),
 	}
 	if context != w.menuState {

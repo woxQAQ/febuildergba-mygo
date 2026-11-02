@@ -4,6 +4,17 @@
 
 ## 环境与命令
 
+仓库提供 `devenv.nix` 和 `devenv.yaml`，通过 `devenv.lock` 固定 Nix 输入。安装 Nix 和 devenv 后，在仓库根目录进入开发环境：
+
+```sh
+devenv shell
+just dev
+```
+
+也可直接运行 `devenv shell just dev`。使用 direnv 时，首次执行 `direnv allow`，之后进入仓库自动加载 `.envrc`。
+
+环境提供 Go 1.27、gopls、just、golangci-lint 和 oxfmt，并设置 `GOTOOLCHAIN=local`。Linux 下额外设置 `LD_LIBRARY_PATH`，供 MyGo 的 purego 后端按库名加载 GTK 3、GLib、Pango、Cairo 和 OpenGL 等原生依赖；NixOS 图形驱动通过系统的 `/run/opengl-driver/lib` 使用。环境还向 `XDG_DATA_DIRS` 前置 GTK 3 和桌面 GSettings schema 路径，保留已有数据目录，供原生文件选择器读取设置定义。运行编辑器仍需要可用的图形桌面会话。macOS 不设置这些 Linux 专用路径，使用系统原生框架。
+
 `justfile` 为全部 recipe 及其子进程导出 `GOTOOLCHAIN=local`。直接运行 Go、语言服务器或其他 Go 工具时，按 [AGENTS 的工具链约束](../AGENTS.md#命令与验证)设置相同值。提升 `go.mod` 要求后，先通过 Nix 更新本地工具链；不足的本地版本会报错，不会自动下载补齐。既有终端、语言服务器和开发进程需要重新启动以使用更新后的工具。
 
 可用以下命令核对当前工具：

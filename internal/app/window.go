@@ -2,6 +2,7 @@ package app
 
 import (
 	"path/filepath"
+	"runtime"
 
 	"github.com/egoist/mygo"
 	"github.com/egoist/mygo/ui"
@@ -21,13 +22,17 @@ func (m *application) newWindow(session *game.Session) *mygo.Window {
 	if session != nil {
 		a.SetSession(session)
 	}
+	titleBarStyle := mygo.TitleBarDefault
+	if runtime.GOOS == "darwin" {
+		titleBarStyle = mygo.TitleBarHidden
+	}
 	win := mygo.NewWindow(mygo.WindowOptions{
 		Title:          locales.AppTitle(),
 		Width:          1150,
 		Height:         780,
 		MinWidth:       880,
 		MinHeight:      560,
-		TitleBarStyle:  mygo.TitleBarHidden,
+		TitleBarStyle:  titleBarStyle,
 		TitleBarHeight: pages.HeaderHeight,
 		TrafficLightPosition: &mygo.Point{
 			X: 16,
@@ -36,7 +41,20 @@ func (m *application) newWindow(session *game.Session) *mygo.Window {
 		Content: ui.View(a.View),
 	})
 	m.windows[win] = a
-	a.Actions.MenuStateChanged = m.setMenu
+	// Native menus can replace GTK widgets, so update them after the view
+	// finishes building and the current native draw has returned.
+	a.Actions.MenuStateChanged = func() {
+		win.Update(func() {
+			if m.windows[win] != a {
+				return
+			}
+			if runtime.GOOS == "darwin" {
+				m.setMenu()
+			} else {
+				win.SetMenu(m.windowMenu(win))
+			}
+		})
+	}
 	a.Actions.Open = func() { m.openDialog(win, a) }
 	a.Actions.Save = func(as bool) { m.saveDocument(win, a, as) }
 	a.Actions.Reload = func() { reloadDocument(win, a) }

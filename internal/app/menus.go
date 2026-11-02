@@ -1,6 +1,8 @@
 package app
 
 import (
+	"runtime"
+
 	"github.com/egoist/mygo"
 
 	"github.com/woxQAQ/febuildergba-mygo/internal/locales"
@@ -8,6 +10,17 @@ import (
 )
 
 func (m *application) setMenu() {
+	if runtime.GOOS == "darwin" {
+		mygo.App.SetMenu(m.windowMenu(mygo.FocusedWindow()))
+		return
+	}
+	for win := range m.windows {
+		win.SetMenu(m.windowMenu(win))
+	}
+}
+
+func (m *application) windowMenu(win *mygo.Window) *mygo.Menu {
+	a := m.windows[win]
 	action := func(label, shortcut string, run func(*pages.Workspace)) *mygo.MenuItem {
 		return &mygo.MenuItem{
 			Label:       label,
@@ -30,7 +43,7 @@ func (m *application) setMenu() {
 		"CmdOrCtrl+Shift+Z",
 		func(a *pages.Workspace) { a.Editor.Redo() },
 	)
-	if a := m.windows[mygo.FocusedWindow()]; a == nil || a.UsesTextHistory() {
+	if a == nil || a.UsesTextHistory() {
 		undo = &mygo.MenuItem{Label: locales.Undo(), Role: mygo.RoleUndo}
 		redo = &mygo.MenuItem{Label: locales.Redo(), Role: mygo.RoleRedo}
 	} else {
@@ -55,7 +68,6 @@ func (m *application) setMenu() {
 		"CmdOrCtrl+0",
 		func(a *pages.Workspace) { a.ResetZoom() },
 	)
-	a := m.windows[mygo.FocusedWindow()]
 	zoomIn.Disabled = a == nil || !a.CanZoomIn()
 	zoomOut.Disabled = a == nil || !a.CanZoomOut()
 	resetZoom.Disabled = a == nil || a.ZoomPercent() == 100
@@ -71,20 +83,25 @@ func (m *application) setMenu() {
 			}
 		},
 	}
-	mygo.App.SetMenu(mygo.NewMenu([]*mygo.MenuItem{
+	open.Disabled = a != nil && a.Editor.Busy
+	save := action(
+		locales.Save(),
+		"CmdOrCtrl+S",
+		func(a *pages.Workspace) { a.Actions.Save(false) },
+	)
+	saveAs := action(
+		locales.SaveAs(),
+		"CmdOrCtrl+Shift+S",
+		func(a *pages.Workspace) { a.Actions.Save(true) },
+	)
+	save.Disabled = a == nil || a.Editor.Busy || a.Editor.Session == nil
+	saveAs.Disabled = save.Disabled
+	return mygo.NewMenu([]*mygo.MenuItem{
 		{Role: mygo.RoleAppMenu},
 		{Label: locales.File(), Submenu: []*mygo.MenuItem{
 			open,
-			action(
-				locales.Save(),
-				"CmdOrCtrl+S",
-				func(a *pages.Workspace) { a.Actions.Save(false) },
-			),
-			action(
-				locales.SaveAs(),
-				"CmdOrCtrl+Shift+S",
-				func(a *pages.Workspace) { a.Actions.Save(true) },
-			),
+			save,
+			saveAs,
 			{Role: mygo.RoleClose},
 		}},
 		{Label: locales.Edit(), Submenu: []*mygo.MenuItem{
@@ -101,5 +118,5 @@ func (m *application) setMenu() {
 			Submenu: []*mygo.MenuItem{zoomIn, zoomOut, resetZoom},
 		},
 		{Role: mygo.RoleWindowMenu},
-	}))
+	})
 }
