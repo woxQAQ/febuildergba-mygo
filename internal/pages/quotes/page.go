@@ -60,23 +60,24 @@ func (entry *tableState) index() int {
 }
 
 type Page struct {
-	state          *editor.State
-	openRecord     func(records.Kind, int)
-	openText       func(uint16)
-	openHex        func(int, int)
-	sidebar        components.Sidebar
-	category       int
-	categoryChoice string
-	query          string
-	advanced       bool
-	showHelp       bool
-	tables         []quote.Table
-	drafts         map[quote.Kind]*tableState
-	unit           int
-	extraKind      quote.Kind
-	thumbnails     components.Thumbnails
-	battleScope    int
-	scopeChoice    string
+	state              *editor.State
+	openRecord         func(records.Kind, int)
+	openText           func(uint16)
+	openHex            func(int, int)
+	sidebar            components.Sidebar
+	category           int
+	categoryChoice     string
+	query              string
+	advanced           bool
+	showHelp           bool
+	showDefeatSettings bool
+	tables             []quote.Table
+	drafts             map[quote.Kind]*tableState
+	unit               int
+	extraKind          quote.Kind
+	thumbnails         components.Thumbnails
+	battleScope        int
+	scopeChoice        string
 }
 
 func New(
@@ -356,26 +357,34 @@ func (p *Page) rawRecord(c *ui.Context, row quote.Entry) {
 	})
 }
 
+func (p *Page) addButton(
+	c *ui.Context,
+	entry *tableState,
+	disabled bool,
+) ui.Element {
+	return ui.Button(c, locales.QuoteAdd()).
+		Disabled(disabled || len(entry.rows) >= quote.MaxEntries || p.unit == 0 || p.unit > 255).
+		OnClick(func() {
+			p.state.Err = p.addRecord(entry)
+			if p.state.Err == nil && p.unit >= 0 {
+				p.state.Err = entry.draft.Set(
+					len(entry.draft.Entries())-1,
+					quote.Unit,
+					uint32(p.unit),
+				) // #nosec G115 -- Character IDs are bounded by the enabled action.
+			}
+			if p.state.Err == nil {
+				entry.preview = nil
+				p.query = ""
+				p.selectIndex(entry, len(entry.draft.Entries())-1)
+			}
+		})
+}
+
 func (p *Page) structure(c *ui.Context, entry *tableState, disabled bool) {
 	index := entry.index()
 	ui.Row(c).Wrap().Gap(6).Children(func() {
-		ui.Button(c, locales.QuoteAdd()).
-			Disabled(disabled || len(entry.rows) >= quote.MaxEntries || p.unit == 0 || p.unit > 255).
-			OnClick(func() {
-				p.state.Err = p.addRecord(entry)
-				if p.state.Err == nil && p.unit >= 0 {
-					p.state.Err = entry.draft.Set(
-						len(entry.draft.Entries())-1,
-						quote.Unit,
-						uint32(p.unit),
-					) // #nosec G115 -- Character IDs are bounded by the enabled action.
-				}
-				if p.state.Err == nil {
-					entry.preview = nil
-					p.query = ""
-					p.selectIndex(entry, len(entry.draft.Entries())-1)
-				}
-			})
+		p.addButton(c, entry, disabled)
 		ui.Button(c, locales.QuoteCopy()).
 			Disabled(disabled || index < 0 || entry.invalid() || len(entry.rows) >= quote.MaxEntries).
 			OnClick(func() {
@@ -736,6 +745,7 @@ func (p *Page) actions(c *ui.Context, entry *tableState, stale bool) {
 								p.query = ""
 								p.battleScope, p.scopeChoice = 0, ""
 								p.selectIndex(entry, index)
+								p.showDefeatSettings = true
 								return
 							}
 						}

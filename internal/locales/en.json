@@ -1337,6 +1337,7 @@
   "quote_singles": "Individual characters",
   "quote_fe8_views_help": "FE8 uses one battle table. Individual records retain attacker/defender roles; the triangle condition can apply to pairs or individuals. Filtering keeps the table and its order.",
   "quote_no_defeat": "This character has no defeat dialogue.",
+  "quote_defeat_settings": "More settings",
   "quote_control_only": "(Control commands only)",
   "quote_reading_preview": "Dialogue reading preview",
   "quote_unknown_unit": "Unknown character",

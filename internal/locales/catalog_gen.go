@@ -12988,6 +12988,16 @@ func (msgs Messages) QuoteNoDefeat() string {
 	return Catalog.Format(msgs.locale, "quote_no_defeat", nil)
 }
 
+// QuoteDefeatSettings says "More settings"
+// in the language the app shows.
+func QuoteDefeatSettings() string { return In(i18n.Locale()).QuoteDefeatSettings() }
+
+// QuoteDefeatSettings says "More settings"
+// in the language of msgs.
+func (msgs Messages) QuoteDefeatSettings() string {
+	return Catalog.Format(msgs.locale, "quote_defeat_settings", nil)
+}
+
 // QuoteControlOnly says "(Control commands only)"
 // in the language the app shows.
 func QuoteControlOnly() string { return In(i18n.Locale()).QuoteControlOnly() }

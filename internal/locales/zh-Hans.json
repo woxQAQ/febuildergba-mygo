@@ -1328,6 +1328,7 @@
   "quote_singles": "单人通用",
   "quote_fe8_views_help": "FE8 共用一张战斗对话表。单人通用保留攻击方／反击方的区别；三角攻击条件可以与双方或单人条件组合。筛选不拆表、不改顺序。",
   "quote_no_defeat": "此人物尚无死亡对话。",
+  "quote_defeat_settings": "更多设置",
   "quote_control_only": "（仅控制指令）",
   "quote_reading_preview": "对话正文预览",
   "quote_unknown_unit": "未知人物",
