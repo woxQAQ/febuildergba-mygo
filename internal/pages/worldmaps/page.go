@@ -1,4 +1,4 @@
-// Package worldmaps owns drafts and navigation for native world-map nodes.
+// Package worldmaps owns drafts and navigation for native world-map nodes and routes.
 package worldmaps
 
 import (
@@ -52,6 +52,8 @@ type Page struct {
 	rows           []worldmap.Node
 	drafts         map[int]*nodeState
 	advanced, more bool
+	tab            int
+	routes         routePage
 }
 
 func New(
@@ -69,6 +71,11 @@ func New(
 		openHex:    hex,
 		selected:   -1,
 		drafts:     make(map[int]*nodeState),
+		routes: routePage{
+			selected:   -1,
+			nodeFilter: -1,
+			drafts:     make(map[int]*routeState),
+		},
 	}
 }
 
@@ -79,6 +86,7 @@ func (p *Page) Reset() {
 }
 
 func (p *Page) Open(id int) {
+	p.tab = 0
 	p.query = ""
 	if p.refresh() != nil {
 		return
@@ -131,6 +139,18 @@ func (p *Page) refresh() error {
 }
 
 func (p *Page) View(c *ui.Context) {
+	ui.Column(c.Key("worldmap")).Fill().Children(func() {
+		ui.Tabs(c.Key("mode"), &p.tab, locales.WorldmapNodes(), locales.WorldmapRoutes()).
+			Disabled(p.state.Busy)
+		if p.tab == 1 {
+			p.viewRoutes(c)
+		} else {
+			p.viewNodes(c)
+		}
+	})
+}
+
+func (p *Page) viewNodes(c *ui.Context) {
 	if !p.state.Session.WorldMap.Available() {
 		ui.Text(c, locales.WorldmapUnavailable()).Padding(16)
 		return
@@ -261,6 +281,7 @@ func (p *Page) detail(c *ui.Context) {
 				)
 			})
 			p.fields(c, entry, disabled, worldmap.X, worldmap.Y)
+			p.connectedRoutes(c, node.ID)
 			ui.Text(c, locales.WorldmapChapters()).FontSize(13).Bold()
 			p.fields(
 				c,

@@ -343,7 +343,7 @@
 
 ## 世界地图节点
 
-FE8J/U 原生节点、字段及原地写入边界见[节点参考](reference/worldmap.md)，旧版入口为固定基线的 `WorldMapPointForm.cs`。商店货物仍见 shops.*。
+FE8J/U 原生节点、路线及写入边界见[世界地图参考](reference/worldmap.md)，节点旧版入口为固定基线的 `WorldMapPointForm.cs`。路线与移动编辑状态见下文 worldmap.paths／movement，商店货物仍见 shops.*。
 
 | ID              | 能力                       | 实现状态 | 范围与缺口                                                                                                               |
 | --------------- | -------------------------- | -------- | ------------------------------------------------------------------------------------------------------------------------ |
@@ -403,22 +403,22 @@ FE8J/U 原生节点、字段及原地写入边界见[节点参考](reference/wor
 
 以下能力从旧版独立入口补入。状态“待盘点”表示已找到来源，但版本、完整操作或对外格式尚未核完；“待实现”也只确认了所述操作，不表示整个来源文件已关闭盘点。全部入口均属于固定旧版基线，暂无对应完整新版工作流。
 
-| ID                 | 能力                   | 旧版来源                                                                                    | 实现状态 | 仍需核对                                                                                                                          |
-| ------------------ | ---------------------- | ------------------------------------------------------------------------------------------- | -------- | --------------------------------------------------------------------------------------------------------------------------------- |
-| events.battle-talk | 战斗对话表             | [EventBattleTalkForm.cs](../FEBuilderGBA/FEBuilderGBA/EventBattleTalkForm.cs)               | 部分实现 | 五版原生表流程见 quotes.*；专用导入导出格式、自定义消费者及补丁扩展待接入                                                         |
-| events.death-talk  | 死亡对话及死亡标志     | [EventHaikuForm.cs](../FEBuilderGBA/FEBuilderGBA/EventHaikuForm.cs)                         | 部分实现 | 五版原生表、FE6 终章台词、FE7 篇章脚本、FE8 路线及标志见 quotes.*；击杀者等补丁条件与全局脚本结构编辑待接入                       |
-| worldmap.points    | 世界地图节点           | [WorldMapPointForm.cs](../FEBuilderGBA/FEBuilderGBA/WorldMapPointForm.cs)                   | 部分实现 | FE8J/U 原生已有节点字段编辑见 worldmap.nodes／fields／links／write，货物见 shops.worldmap；图形定位、增删、扩展及外部格式继续盘点 |
-| worldmap.paths     | 世界地图路线连接       | [WorldMapPathForm.cs](../FEBuilderGBA/FEBuilderGBA/WorldMapPathForm.cs)                     | 待实现   | 已定位路线表；路线资源和扩展需继续核对                                                                                            |
-| worldmap.movement  | 世界地图路径及移动编辑 | [WorldMapPathMoveEditorForm.cs](../FEBuilderGBA/FEBuilderGBA/WorldMapPathMoveEditorForm.cs) | 待盘点   | 图形路径、移动数据及写入流程                                                                                                      |
-| worldmap.events    | 世界地图事件入口       | [WorldMapEventPointerForm.cs](../FEBuilderGBA/FEBuilderGBA/WorldMapEventPointerForm.cs)     | 待盘点   | 版本入口、指令及脚本导入导出                                                                                                      |
-| gameplay.support   | 支援关系、对话与属性   | [SupportUnitForm.cs](../FEBuilderGBA/FEBuilderGBA/SupportUnitForm.cs)                       | 部分实现 | 五版关系、可选双方同步、现有对话与加成值见 supports.*；加成表结构、对话扩表、外部格式及补丁扩展待接入                             |
-| gameplay.shops     | 商店货物编辑           | [ItemShopForm.cs](../FEBuilderGBA/FEBuilderGBA/ItemShopForm.cs)                             | 部分实现 | 章节、默认、FE8 准备／世界地图入口及原生货物已接入；容量补丁、外部格式与 IER 专用语义待接入                                       |
-| gameplay.arena     | 斗技场规则             | [ArenaClassForm.cs](../FEBuilderGBA/FEBuilderGBA/ArenaClassForm.cs)                         | 部分实现 | 原生职业、武器与 FE8 联机名单见 arena.*；外部格式、容量补丁及自定义消费者继续盘点                                                 |
-| tools.flag-names   | 标志命名与附属信息     | [ToolFlagNameForm.cs](../FEBuilderGBA/FEBuilderGBA/ToolFlagNameForm.cs)                     | 待实现   | 已定位名称修改；保存、载入与兼容契约待细化                                                                                        |
-| tools.flag-uses    | 标志使用处查询         | [ToolUseFlagForm.cs](../FEBuilderGBA/FEBuilderGBA/ToolUseFlagForm.cs)                       | 待盘点   | 扫描范围、定位和未识别引用                                                                                                        |
-| tools.diff-patch   | ROM 差异生成 BIN 补丁  | [ToolDiffForm.cs](../FEBuilderGBA/FEBuilderGBA/ToolDiffForm.cs)                             | 待实现   | 已定位 PATCH 文本及二进制输出；多文件流程需细化                                                                                   |
-| text.translation   | ROM 翻译与字库处理     | [ToolTranslateROMForm.cs](../FEBuilderGBA/FEBuilderGBA/ToolTranslateROMForm.cs)             | 待盘点   | 与已有文本 ID 编辑分开核对工作流                                                                                                  |
-| tools.event-export | EA 事件导出            | [ToolExportEAEventForm.cs](../FEBuilderGBA/FEBuilderGBA/ToolExportEAEventForm.cs)           | 待盘点   | 导出范围、资源引用与格式兼容                                                                                                      |
+| ID                 | 能力                   | 旧版来源                                                                                    | 实现状态 | 仍需核对                                                                                                                                                                                      |
+| ------------------ | ---------------------- | ------------------------------------------------------------------------------------------- | -------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| events.battle-talk | 战斗对话表             | [EventBattleTalkForm.cs](../FEBuilderGBA/FEBuilderGBA/EventBattleTalkForm.cs)               | 部分实现 | 五版原生表流程见 quotes.*；专用导入导出格式、自定义消费者及补丁扩展待接入                                                                                                                     |
+| events.death-talk  | 死亡对话及死亡标志     | [EventHaikuForm.cs](../FEBuilderGBA/FEBuilderGBA/EventHaikuForm.cs)                         | 部分实现 | 五版原生表、FE6 终章台词、FE7 篇章脚本、FE8 路线及标志见 quotes.*；击杀者等补丁条件与全局脚本结构编辑待接入                                                                                   |
+| worldmap.points    | 世界地图节点           | [WorldMapPointForm.cs](../FEBuilderGBA/FEBuilderGBA/WorldMapPointForm.cs)                   | 部分实现 | FE8J/U 原生已有节点字段编辑见 worldmap.nodes／fields／links／write，货物见 shops.worldmap；图形定位、增删、扩展及外部格式继续盘点                                                             |
+| worldmap.paths     | 世界地图路线连接       | [WorldMapPathForm.cs](../FEBuilderGBA/FEBuilderGBA/WorldMapPathForm.cs)                     | 部分实现 | FE8J/U 原生 32 条路线搜索、节点相连筛选、端点编辑、冲突检查及原子历史；底图／所选道路只读预览；无容量补丁前提；路线扩展、道路绘制和外部格式未支持                                             |
+| worldmap.movement  | 世界地图路径及移动编辑 | [WorldMapPathMoveEditorForm.cs](../FEBuilderGBA/FEBuilderGBA/WorldMapPathMoveEditorForm.cs) | 部分实现 | FE8J/U 已有路线最多六个中间控制点的坐标／进度、插删重排、地图定位及独立追加；空轨迹创建／清空、共享原载荷保留、预览／撤销／保存重开；仅显示控制点连线，样条运行模拟、扩展布局及外部格式未支持 |
+| worldmap.events    | 世界地图事件入口       | [WorldMapEventPointerForm.cs](../FEBuilderGBA/FEBuilderGBA/WorldMapEventPointerForm.cs)     | 待盘点   | 版本入口、指令及脚本导入导出                                                                                                                                                                  |
+| gameplay.support   | 支援关系、对话与属性   | [SupportUnitForm.cs](../FEBuilderGBA/FEBuilderGBA/SupportUnitForm.cs)                       | 部分实现 | 五版关系、可选双方同步、现有对话与加成值见 supports.*；加成表结构、对话扩表、外部格式及补丁扩展待接入                                                                                         |
+| gameplay.shops     | 商店货物编辑           | [ItemShopForm.cs](../FEBuilderGBA/FEBuilderGBA/ItemShopForm.cs)                             | 部分实现 | 章节、默认、FE8 准备／世界地图入口及原生货物已接入；容量补丁、外部格式与 IER 专用语义待接入                                                                                                   |
+| gameplay.arena     | 斗技场规则             | [ArenaClassForm.cs](../FEBuilderGBA/FEBuilderGBA/ArenaClassForm.cs)                         | 部分实现 | 原生职业、武器与 FE8 联机名单见 arena.*；外部格式、容量补丁及自定义消费者继续盘点                                                                                                             |
+| tools.flag-names   | 标志命名与附属信息     | [ToolFlagNameForm.cs](../FEBuilderGBA/FEBuilderGBA/ToolFlagNameForm.cs)                     | 待实现   | 已定位名称修改；保存、载入与兼容契约待细化                                                                                                                                                    |
+| tools.flag-uses    | 标志使用处查询         | [ToolUseFlagForm.cs](../FEBuilderGBA/FEBuilderGBA/ToolUseFlagForm.cs)                       | 待盘点   | 扫描范围、定位和未识别引用                                                                                                                                                                    |
+| tools.diff-patch   | ROM 差异生成 BIN 补丁  | [ToolDiffForm.cs](../FEBuilderGBA/FEBuilderGBA/ToolDiffForm.cs)                             | 待实现   | 已定位 PATCH 文本及二进制输出；多文件流程需细化                                                                                                                                               |
+| text.translation   | ROM 翻译与字库处理     | [ToolTranslateROMForm.cs](../FEBuilderGBA/FEBuilderGBA/ToolTranslateROMForm.cs)             | 待盘点   | 与已有文本 ID 编辑分开核对工作流                                                                                                                                                              |
+| tools.event-export | EA 事件导出            | [ToolExportEAEventForm.cs](../FEBuilderGBA/FEBuilderGBA/ToolExportEAEventForm.cs)           | 待盘点   | 导出范围、资源引用与格式兼容                                                                                                                                                                  |
 
 ## 新版工程事项
 
@@ -466,6 +466,8 @@ FE8J/U 原生节点、字段及原地写入边界见[节点参考](reference/wor
 支援验证入口：`game/support/workflow_test.go`、`internal/testutil/supports.go`、`tests/integration/supports_test.go`；五版合成样本与动态发现的真实 ROM 文件流程覆盖关系、对话、属性加成、未知字节、原子历史及保存重开。`game/support/dialogue_workflow_test.go` 另覆盖面板间草稿隔离及损坏关系下的独立对话编辑。`game/support/bonuses_workflow_test.go` 覆盖额外／重复属性 ID、全表保留、已知人物使用处、独立输入、保护冲突及失败原子性。临时无窗口 UI 复核覆盖关系与对话分离、输入校验、双向跳转、预览应用、过期草稿及宽窄布局；属性加成另复核六列输入、切页保留、预览应用、过期重读与窄窗口横向滚动；未执行游戏内支援触发或存档迁移验证。
 
 斗技场验证入口：`game/arena/workflow_test.go`、`internal/testutil/arena.go`、`tests/integration/arena_test.go`；五版合成流程检查独立固定字节、权重与层级、共享及内部引用、全部武器消费者、固定缓冲区和联机半字、失败原子性、历史及保存重开。真实 ROM 流程动态发现输入与可编辑组。临时无窗口 UI 复核覆盖复制排序、数值与非法输入、切组保留、预览应用、忙碌禁用、过期重读及宽窄布局；未执行游戏内斗技场或联机验证。
+
+世界地图路线验证入口：`game/worldmap/routes_workflow_test.go`、`internal/testutil/worldmap_routes.go` 及动态文件流程的 `worldmap-routes`。合成数据覆盖端点连接与容量、负坐标、空路径、共享隔离、插删载荷、结束尾字节、整条记录及图像资源冲突、失效与 ROM 容量失败、原子历史，以及固定像素的底图／道路解析。当次动态文件流程四份可用 FE8 输入通过修改、撤销重做和保存重开，所选路线的底图／道路可读；FE6／FE7 按能力跳过。临时无窗口 UI 复核覆盖 FE8J/U 连续输入和文本撤销、非法值跨路线保留、控制点插入／重排／删除／地图定位、进度顺序拒绝、预览应用、忙碌禁用、过期重读、节点／路线导航及宽窄布局；临时代码已移除。未执行游戏内移动、开放路线或剧情事件验证。
 
 世界地图节点验证入口：`game/worldmap/workflow_test.go`、`internal/testutil/worldmap.go`、`tests/integration/worldmap_test.go`；FE8J/U 固定字节、符号边界、保留位、未知值、名称共享用途、整条记录冲突、跨文档／修订／布局失败原子性，以及节点／商店草稿隔离、统一历史和保存重开。动态 ROM 文件流程按当前能力发现节点，修改坐标和可用引用。临时无窗口 UI 复核覆盖两版的连续输入与文本撤销、非法值跨节点保留、预览应用、忙碌禁用、过期重读、章节／文本／未启用商店导航及宽窄布局；未执行游戏内移动、进入章节和分支触发验证。
 

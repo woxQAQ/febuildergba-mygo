@@ -44,6 +44,286 @@ func (msgs Messages) Worldmap() string {
 	return Catalog.Format(msgs.locale, "worldmap", nil)
 }
 
+// WorldmapRoutes says "Routes"
+// in the language the app shows.
+func WorldmapRoutes() string { return In(i18n.Locale()).WorldmapRoutes() }
+
+// WorldmapRoutes says "Routes"
+// in the language of msgs.
+func (msgs Messages) WorldmapRoutes() string {
+	return Catalog.Format(msgs.locale, "worldmap_routes", nil)
+}
+
+// WorldmapConnectedRoutes says "Connected routes"
+// in the language the app shows.
+func WorldmapConnectedRoutes() string { return In(i18n.Locale()).WorldmapConnectedRoutes() }
+
+// WorldmapConnectedRoutes says "Connected routes"
+// in the language of msgs.
+func (msgs Messages) WorldmapConnectedRoutes() string {
+	return Catalog.Format(msgs.locale, "worldmap_connected_routes", nil)
+}
+
+// WorldmapAllRoutes says "Show all routes"
+// in the language the app shows.
+func WorldmapAllRoutes() string { return In(i18n.Locale()).WorldmapAllRoutes() }
+
+// WorldmapAllRoutes says "Show all routes"
+// in the language of msgs.
+func (msgs Messages) WorldmapAllRoutes() string {
+	return Catalog.Format(msgs.locale, "worldmap_all_routes", nil)
+}
+
+// WorldmapRouteScope says "Edit endpoints and movement points of the 32 existing routes. Road tiles are preserved; story events still control wh…"
+// in the language the app shows.
+func WorldmapRouteScope() string { return In(i18n.Locale()).WorldmapRouteScope() }
+
+// WorldmapRouteScope says "Edit endpoints and movement points of the 32 existing routes. Road tiles are preserved; story events still control wh…"
+// in the language of msgs.
+func (msgs Messages) WorldmapRouteScope() string {
+	return Catalog.Format(msgs.locale, "worldmap_route_scope", nil)
+}
+
+// WorldmapPreviewRoute says "Preview route changes"
+// in the language the app shows.
+func WorldmapPreviewRoute() string { return In(i18n.Locale()).WorldmapPreviewRoute() }
+
+// WorldmapPreviewRoute says "Preview route changes"
+// in the language of msgs.
+func (msgs Messages) WorldmapPreviewRoute() string {
+	return Catalog.Format(msgs.locale, "worldmap_preview_route", nil)
+}
+
+// WorldmapApplyRoute says "Apply route changes"
+// in the language the app shows.
+func WorldmapApplyRoute() string { return In(i18n.Locale()).WorldmapApplyRoute() }
+
+// WorldmapApplyRoute says "Apply route changes"
+// in the language of msgs.
+func (msgs Messages) WorldmapApplyRoute() string {
+	return Catalog.Format(msgs.locale, "worldmap_apply_route", nil)
+}
+
+// WorldmapApplyRouteHelp says "Apply endpoints and movement in one undo step. Changed movement is stored separately; other routes retain their origi…"
+// in the language the app shows.
+func WorldmapApplyRouteHelp() string { return In(i18n.Locale()).WorldmapApplyRouteHelp() }
+
+// WorldmapApplyRouteHelp says "Apply endpoints and movement in one undo step. Changed movement is stored separately; other routes retain their origi…"
+// in the language of msgs.
+func (msgs Messages) WorldmapApplyRouteHelp() string {
+	return Catalog.Format(msgs.locale, "worldmap_apply_route_help", nil)
+}
+
+// WorldmapRouteStart says "Start (progress 0)"
+// in the language the app shows.
+func WorldmapRouteStart() string { return In(i18n.Locale()).WorldmapRouteStart() }
+
+// WorldmapRouteStart says "Start (progress 0)"
+// in the language of msgs.
+func (msgs Messages) WorldmapRouteStart() string {
+	return Catalog.Format(msgs.locale, "worldmap_route_start", nil)
+}
+
+// WorldmapRouteEnd says "End (progress 4096)"
+// in the language the app shows.
+func WorldmapRouteEnd() string { return In(i18n.Locale()).WorldmapRouteEnd() }
+
+// WorldmapRouteEnd says "End (progress 4096)"
+// in the language of msgs.
+func (msgs Messages) WorldmapRouteEnd() string {
+	return Catalog.Format(msgs.locale, "worldmap_route_end", nil)
+}
+
+// WorldmapMovement says "Movement control points"
+// in the language the app shows.
+func WorldmapMovement() string { return In(i18n.Locale()).WorldmapMovement() }
+
+// WorldmapMovement says "Movement control points"
+// in the language of msgs.
+func (msgs Messages) WorldmapMovement() string {
+	return Catalog.Format(msgs.locale, "worldmap_movement", nil)
+}
+
+// WorldmapProgressHelp says "Progress is 1/4096 of total travel time and must increase strictly within 1–4095. Up to 6 intermediate points; the …"
+// in the language the app shows.
+func WorldmapProgressHelp() string { return In(i18n.Locale()).WorldmapProgressHelp() }
+
+// WorldmapProgressHelp says "Progress is 1/4096 of total travel time and must increase strictly within 1–4095. Up to 6 intermediate points; the …"
+// in the language of msgs.
+func (msgs Messages) WorldmapProgressHelp() string {
+	return Catalog.Format(msgs.locale, "worldmap_progress_help", nil)
+}
+
+// WorldmapProgress says "Progress"
+// in the language the app shows.
+func WorldmapProgress() string { return In(i18n.Locale()).WorldmapProgress() }
+
+// WorldmapProgress says "Progress"
+// in the language of msgs.
+func (msgs Messages) WorldmapProgress() string {
+	return Catalog.Format(msgs.locale, "worldmap_progress", nil)
+}
+
+// WorldmapAddPoint says "Insert control point"
+// in the language the app shows.
+func WorldmapAddPoint() string { return In(i18n.Locale()).WorldmapAddPoint() }
+
+// WorldmapAddPoint says "Insert control point"
+// in the language of msgs.
+func (msgs Messages) WorldmapAddPoint() string {
+	return Catalog.Format(msgs.locale, "worldmap_add_point", nil)
+}
+
+// WorldmapRemovePoint says "Remove"
+// in the language the app shows.
+func WorldmapRemovePoint() string { return In(i18n.Locale()).WorldmapRemovePoint() }
+
+// WorldmapRemovePoint says "Remove"
+// in the language of msgs.
+func (msgs Messages) WorldmapRemovePoint() string {
+	return Catalog.Format(msgs.locale, "worldmap_remove_point", nil)
+}
+
+// WorldmapPlacePoint says "Place selected point on map"
+// in the language the app shows.
+func WorldmapPlacePoint() string { return In(i18n.Locale()).WorldmapPlacePoint() }
+
+// WorldmapPlacePoint says "Place selected point on map"
+// in the language of msgs.
+func (msgs Messages) WorldmapPlacePoint() string {
+	return Catalog.Format(msgs.locale, "worldmap_place_point", nil)
+}
+
+// WorldmapNoPoints says "No intermediate points; movement connects the two locations directly."
+// in the language the app shows.
+func WorldmapNoPoints() string { return In(i18n.Locale()).WorldmapNoPoints() }
+
+// WorldmapNoPoints says "No intermediate points; movement connects the two locations directly."
+// in the language of msgs.
+func (msgs Messages) WorldmapNoPoints() string {
+	return Catalog.Format(msgs.locale, "worldmap_no_points", nil)
+}
+
+// WorldmapPoint says "Control point"
+// in the language the app shows.
+func WorldmapPoint() string { return In(i18n.Locale()).WorldmapPoint() }
+
+// WorldmapPoint says "Control point"
+// in the language of msgs.
+func (msgs Messages) WorldmapPoint() string {
+	return Catalog.Format(msgs.locale, "worldmap_point", nil)
+}
+
+// WorldmapMoveUp says "Move point up"
+// in the language the app shows.
+func WorldmapMoveUp() string { return In(i18n.Locale()).WorldmapMoveUp() }
+
+// WorldmapMoveUp says "Move point up"
+// in the language of msgs.
+func (msgs Messages) WorldmapMoveUp() string {
+	return Catalog.Format(msgs.locale, "worldmap_move_up", nil)
+}
+
+// WorldmapMoveDown says "Move point down"
+// in the language the app shows.
+func WorldmapMoveDown() string { return In(i18n.Locale()).WorldmapMoveDown() }
+
+// WorldmapMoveDown says "Move point down"
+// in the language of msgs.
+func (msgs Messages) WorldmapMoveDown() string {
+	return Catalog.Format(msgs.locale, "worldmap_move_down", nil)
+}
+
+// WorldmapNewMovement says "New movement address and length"
+// in the language the app shows.
+func WorldmapNewMovement() string { return In(i18n.Locale()).WorldmapNewMovement() }
+
+// WorldmapNewMovement says "New movement address and length"
+// in the language of msgs.
+func (msgs Messages) WorldmapNewMovement() string {
+	return Catalog.Format(msgs.locale, "worldmap_new_movement", nil)
+}
+
+// WorldmapSharedMovement says "Other routes retaining the original movement"
+// in the language the app shows.
+func WorldmapSharedMovement() string { return In(i18n.Locale()).WorldmapSharedMovement() }
+
+// WorldmapSharedMovement says "Other routes retaining the original movement"
+// in the language of msgs.
+func (msgs Messages) WorldmapSharedMovement() string {
+	return Catalog.Format(msgs.locale, "worldmap_shared_movement", nil)
+}
+
+// WorldmapSceneIncomplete says "Some graphics could not be read. Coordinates and route editing remain available."
+// in the language the app shows.
+func WorldmapSceneIncomplete() string { return In(i18n.Locale()).WorldmapSceneIncomplete() }
+
+// WorldmapSceneIncomplete says "Some graphics could not be read. Coordinates and route editing remain available."
+// in the language of msgs.
+func (msgs Messages) WorldmapSceneIncomplete() string {
+	return Catalog.Format(msgs.locale, "worldmap_scene_incomplete", nil)
+}
+
+// WorldmapControlLines says "Lines show control-point order; the game uses spline interpolation. Circles show location IDs."
+// in the language the app shows.
+func WorldmapControlLines() string { return In(i18n.Locale()).WorldmapControlLines() }
+
+// WorldmapControlLines says "Lines show control-point order; the game uses spline interpolation. Circles show location IDs."
+// in the language of msgs.
+func (msgs Messages) WorldmapControlLines() string {
+	return Catalog.Format(msgs.locale, "worldmap_control_lines", nil)
+}
+
+// WorldmapRouteCanvas says "Route map"
+// in the language the app shows.
+func WorldmapRouteCanvas() string { return In(i18n.Locale()).WorldmapRouteCanvas() }
+
+// WorldmapRouteCanvas says "Route map"
+// in the language of msgs.
+func (msgs Messages) WorldmapRouteCanvas() string {
+	return Catalog.Format(msgs.locale, "worldmap_route_canvas", nil)
+}
+
+// GameInvalidWorldmapRoutes says "The route table needs an aligned pointer and all 32 native records."
+// in the language the app shows.
+func GameInvalidWorldmapRoutes() string { return In(i18n.Locale()).GameInvalidWorldmapRoutes() }
+
+// GameInvalidWorldmapRoutes says "The route table needs an aligned pointer and all 32 native records."
+// in the language of msgs.
+func (msgs Messages) GameInvalidWorldmapRoutes() string {
+	return Catalog.Format(msgs.locale, "game_invalid_worldmap_routes", nil)
+}
+
+// GameInvalidWorldmapMovement says "Movement is unreadable or point progress is not strictly increasing. Native paths allow up to 6 intermediate points w…"
+// in the language the app shows.
+func GameInvalidWorldmapMovement() string { return In(i18n.Locale()).GameInvalidWorldmapMovement() }
+
+// GameInvalidWorldmapMovement says "Movement is unreadable or point progress is not strictly increasing. Native paths allow up to 6 intermediate points w…"
+// in the language of msgs.
+func (msgs Messages) GameInvalidWorldmapMovement() string {
+	return Catalog.Format(msgs.locale, "game_invalid_worldmap_movement", nil)
+}
+
+// GameWorldmapConnections says "Invalid endpoints: self-links, duplicate connections and connections beyond native node capacity are not allowed."
+// in the language the app shows.
+func GameWorldmapConnections() string { return In(i18n.Locale()).GameWorldmapConnections() }
+
+// GameWorldmapConnections says "Invalid endpoints: self-links, duplicate connections and connections beyond native node capacity are not allowed."
+// in the language of msgs.
+func (msgs Messages) GameWorldmapConnections() string {
+	return Catalog.Format(msgs.locale, "game_worldmap_connections", nil)
+}
+
+// GameInvalidWorldmapScene says "World-map graphics or road data cannot be read in the native format."
+// in the language the app shows.
+func GameInvalidWorldmapScene() string { return In(i18n.Locale()).GameInvalidWorldmapScene() }
+
+// GameInvalidWorldmapScene says "World-map graphics or road data cannot be read in the native format."
+// in the language of msgs.
+func (msgs Messages) GameInvalidWorldmapScene() string {
+	return Catalog.Format(msgs.locale, "game_invalid_worldmap_scene", nil)
+}
+
 // WorldmapNodes says "Locations"
 // in the language the app shows.
 func WorldmapNodes() string { return In(i18n.Locale()).WorldmapNodes() }
@@ -74,11 +354,11 @@ func (msgs Messages) WorldmapUnavailable() string {
 	return Catalog.Format(msgs.locale, "worldmap_unavailable", nil)
 }
 
-// WorldmapScope says "Edit the 29 native FE8 locations. Roads, movement paths and new nodes are separate resources."
+// WorldmapScope says "Edit the 29 native FE8 locations and open their connected routes. New nodes and expansion are separate operations."
 // in the language the app shows.
 func WorldmapScope() string { return In(i18n.Locale()).WorldmapScope() }
 
-// WorldmapScope says "Edit the 29 native FE8 locations. Roads, movement paths and new nodes are separate resources."
+// WorldmapScope says "Edit the 29 native FE8 locations and open their connected routes. New nodes and expansion are separate operations."
 // in the language of msgs.
 func (msgs Messages) WorldmapScope() string {
 	return Catalog.Format(msgs.locale, "worldmap_scope", nil)
@@ -414,11 +694,11 @@ func (msgs Messages) WorldmapStale() string {
 	return Catalog.Format(msgs.locale, "worldmap_stale", nil)
 }
 
-// GameWorldmapReferenceConflict says "The node overlaps another known resource. Automatic writing is stopped."
+// GameWorldmapReferenceConflict says "The world-map record overlaps another known resource. Automatic writing is stopped."
 // in the language the app shows.
 func GameWorldmapReferenceConflict() string { return In(i18n.Locale()).GameWorldmapReferenceConflict() }
 
-// GameWorldmapReferenceConflict says "The node overlaps another known resource. Automatic writing is stopped."
+// GameWorldmapReferenceConflict says "The world-map record overlaps another known resource. Automatic writing is stopped."
 // in the language of msgs.
 func (msgs Messages) GameWorldmapReferenceConflict() string {
 	return Catalog.Format(msgs.locale, "game_worldmap_reference_conflict", nil)

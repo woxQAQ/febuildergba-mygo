@@ -1,4 +1,4 @@
-// Package worldmap reads and edits native world-map nodes.
+// Package worldmap reads and edits native world-map nodes and routes.
 package worldmap
 
 import (
@@ -20,7 +20,10 @@ var ErrNodes = fault.Code{
 	Kind: fault.InvalidData,
 }
 
-type Format struct{ Pointer int }
+type Format struct {
+	Pointer, RoutePointer int
+	Scene                 SceneFormat
+}
 
 type Node struct {
 	ID, Address int
@@ -64,16 +67,17 @@ func (f Format) Nodes(data []byte) ([]Node, error) {
 	return nodes, nil
 }
 
-// Claims owns the node records and declares their hosted inventory pointers.
+// Claims owns nodes, routes and confirmed graphics, including hosted pointers.
 // Each inventory remains independently editable through its shop owner.
 func (f Format) Claims(data []byte) []space.Claim {
+	result := append(f.routeClaims(data), f.Scene.claims(data)...)
 	if f.Pointer < 0xC0 || !gba.Within(data, f.Pointer, 4) {
-		return nil
+		return result
 	}
-	result := []space.Claim{{
+	result = append(result, space.Claim{
 		Start: f.Pointer, End: f.Pointer + 4,
 		Owner: space.Owner{Resource: Resource, ID: -1}, Site: true,
-	}}
+	})
 	nodes, err := f.Nodes(data)
 	if err != nil {
 		return result

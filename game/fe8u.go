@@ -139,7 +139,13 @@ func fe8uFormat() format {
 			DefaultPointer:     0xB42B0,
 			PreparationPointer: 0x99E64,
 		},
-		worldmap: worldmap.Format{Pointer: 0xBE84},
+		worldmap: worldmap.Format{
+			Pointer: 0xBE84, RoutePointer: 0xC2C0,
+			Scene: worldmap.SceneFormat{
+				Image: 0xBA7FC, Palette: 0xBA808, PaletteMap: 0xBA800,
+				RoadTiles: 0xB8F98, RoadPalette: 0xB8F94,
+			},
+		},
 		maps: maps.Format{
 			Graphics:    0x19968,
 			Palette:     0x1999C,

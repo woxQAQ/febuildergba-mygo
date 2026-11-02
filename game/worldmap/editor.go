@@ -99,12 +99,16 @@ type Source struct {
 }
 
 type Editor struct {
-	context *edit.Context
-	format  Format
-	source  Source
-	stamp   edit.Stamp
-	nodes   []Node
-	err     error
+	context    *edit.Context
+	format     Format
+	source     Source
+	stamp      edit.Stamp
+	nodes      []Node
+	err        error
+	routeStamp edit.Stamp
+	routes     []Route
+	routeErr   error
+	scenery    sceneCache
 }
 
 func New(context *edit.Context, format Format, source Source) *Editor {

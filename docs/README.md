@@ -35,7 +35,7 @@
 | [章节、地图与事件](reference/chapters-and-events.md)      | 章节、地图、部署、REDA、条件、商店和脚本       |
 | [战斗与死亡对话](reference/battle-and-defeat-dialogue.md) | 原生表、匹配、死亡标志、消费者及重定位         |
 | [职业移动与地形](reference/terrain.md)                    | 原生移动消耗、地形加成、共享与写入边界         |
-| [世界地图节点](reference/worldmap.md)                     | FE8 原生节点字段、引用、草稿及原地写入         |
+| [世界地图](reference/worldmap.md)                         | FE8 节点、路线、移动控制点、预览和原子写入     |
 | [斗技场规则](reference/arena.md)                          | 对手职业、基础／升级武器、FE8 联机名单与消费者 |
 | [支援关系与对话](reference/supports.md)                   | 人物关系、双方数值同步、对话及原生消费者       |
 | [核对来源](sources.md)                                    | 旧版与原生游戏代码的仓库、提交和文件           |
