@@ -96,6 +96,19 @@ FE6／FE7 坐标未命中退回事件参数，FE8 则返回事件错误。FE7 �
 
 [src/worldmap_path.c](https://github.com/FireEmblemUniverse/fireemblem8u/blob/04d1edb163d14bd10777a065697e1a9f17be65f2/src/worldmap_path.c) 的 `WMMenu_IsArmoryAvailable`／`WMMenu_IsVendorAvailable`／`WMMenu_IsSecretShopAvailable` 直接读货物首个半字判定菜单，秘密商店另查通关标志；[src/worldmap_basemenu.c](https://github.com/FireEmblemUniverse/fireemblem8u/blob/04d1edb163d14bd10777a065697e1a9f17be65f2/src/worldmap_basemenu.c) 的进入函数将对应列表交给加载器。FE8J 原生 `0xC14B4`／`0xC14EC`／`0xC1524` 的相同指令段交叉确认节点乘 32、三个字段偏移及半字读取与零值分支；不能把零指针当成已关闭的节点商店。
 
+## 世界地图节点
+
+旧版来源为固定子模块 `WorldMapPointForm.cs`／`WorldMapPointForm.Designer.cs` 和 `ROMFE8U.cs`／`ROMFE8JP.cs`。两版根指针、32 字节记录、地名与商店字段沿用上节的交叉核对；新版原地编辑不假定其他消费者都通过该根指针读取，也不据旧版扫描结果推断可扩容。
+
+原生语义依据 FireEmblemUniverse/fireemblem8u 提交 `04d1edb163d14bd10777a065697e1a9f17be65f2`：
+
+- [include/worldmap.h](https://github.com/FireEmblemUniverse/fireemblem8u/blob/04d1edb163d14bd10777a065697e1a9f17be65f2/include/worldmap.h) 的 `GMapNodeData` 声明有符号坐标、分支标志、四个有符号后继、遭遇字段及保留字节；节点状态位定义同在此处。
+- [src/worldmap_screen2.c](https://github.com/FireEmblemUniverse/fireemblem8u/blob/04d1edb163d14bd10777a065697e1a9f17be65f2/src/worldmap_screen2.c) 的 `WMLoc_GetChapterId` 按路线读取 +4／+5；`WMLoc_GetNextLocId` 在 `CheckFlag` 成立时选择 +10／+11，否则 +8／+9。`GetNodeAtPosition`、节点绘制与旗帜绘制均在状态位 2 成立时取 +2 图标，否则取 +3。其结构成员名称和旧版表单的“前／后”标签与该分支相反，新版以消费者为依据。
+- [src/worldmap_node_data.c](https://github.com/FireEmblemUniverse/fireemblem8u/blob/04d1edb163d14bd10777a065697e1a9f17be65f2/src/worldmap_node_data.c) 提供 17 个原生图标、29 个节点、分支标志 FFFF 和后继 FF 的实际定义；[src/worldmap_main.c](https://github.com/FireEmblemUniverse/fireemblem8u/blob/04d1edb163d14bd10777a065697e1a9f17be65f2/src/worldmap_main.c) 核对放置类型与剧情状态共同控制进入行为。
+- [src/worldmap_mapmu.c](https://github.com/FireEmblemUniverse/fireemblem8u/blob/04d1edb163d14bd10777a065697e1a9f17be65f2/src/worldmap_mapmu.c) 的两端 `shipTravelFlag & 1` 判定支持只修改乘船低位，保留其他位；[src/eventinfo.c](https://github.com/FireEmblemUniverse/fireemblem8u/blob/04d1edb163d14bd10777a065697e1a9f17be65f2/src/eventinfo.c) 核对 `CheckFlag` 及零标志行为，不据此把任意有符号值解释为安全的运行时标志。
+
+字段与写入契约见[节点参考](reference/worldmap.md)。文件编辑证据与游戏内验证分别记录，不由 FE8U 来源推断任意改版消费者仍相同。
+
 ## 职业移动与地形
 
 旧版入口为固定基线的 `ClassForm.cs`、`ClassFE6Form.cs`、`MoveCostForm.cs`、`MoveCostFE6Form.cs`；后两者分别声明 65 与 51 个地形项，职业页提供普通／雨雪移动和回避／防御／魔防指针。

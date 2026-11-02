@@ -9,7 +9,9 @@ import (
 	"github.com/woxQAQ/febuildergba-mygo/game/graphics"
 	"github.com/woxQAQ/febuildergba-mygo/game/quote"
 	"github.com/woxQAQ/febuildergba-mygo/game/records"
+	"github.com/woxQAQ/febuildergba-mygo/game/shop"
 	"github.com/woxQAQ/febuildergba-mygo/game/support"
+	"github.com/woxQAQ/febuildergba-mygo/game/worldmap"
 	"github.com/woxQAQ/febuildergba-mygo/internal/components"
 	"github.com/woxQAQ/febuildergba-mygo/internal/editor"
 	"github.com/woxQAQ/febuildergba-mygo/internal/locales"
@@ -22,6 +24,7 @@ import (
 	"github.com/woxQAQ/febuildergba-mygo/internal/pages/shops"
 	"github.com/woxQAQ/febuildergba-mygo/internal/pages/supports"
 	"github.com/woxQAQ/febuildergba-mygo/internal/pages/texteditor"
+	"github.com/woxQAQ/febuildergba-mygo/internal/pages/worldmaps"
 )
 
 // HeaderHeight is the desktop title-bar height exposed by the page composition.
@@ -52,6 +55,7 @@ type Workspace struct {
 	defeats   map[int]*quotes.Page
 	supports  *supports.Page
 	arenas    *arenas.Page
+	worldmap  *worldmaps.Page
 	zoomLevel int
 	menuState struct {
 		text, draft, undo, redo bool
@@ -65,6 +69,10 @@ func New() *Workspace {
 	w.texts = texteditor.New(
 		w.Editor,
 		func(kind records.Kind, id int) {
+			if string(kind) == worldmap.Resource {
+				w.openWorldMap(id)
+				return
+			}
 			if string(kind) == support.TalkUse {
 				w.tab = len(records.Kinds) + 6
 				w.supports.OpenTalk(id)
@@ -101,6 +109,17 @@ func New() *Workspace {
 	w.portraits = portraits.New(w.Editor, assets, w.records.Open, w.openHex)
 	w.records.SetPortraitOpener(w.OpenPortrait)
 	w.shops = shops.New(w.Editor, w.records.OpenShop, w.openHex)
+	w.shops.SetNodeOpener(w.openWorldMap)
+	w.worldmap = worldmaps.New(
+		w.Editor,
+		w.records.Open,
+		w.openText,
+		func(key shop.Key) {
+			w.tab = len(records.Kinds) + 4
+			w.shops.Open(key)
+		},
+		w.openHex,
+	)
 	w.arenas = arenas.New(w.Editor, w.records.Open, w.openHex)
 	w.quotes = quotes.New(w.Editor, w.records.Open, w.openText, w.openHex)
 	w.defeats = make(map[int]*quotes.Page)
@@ -139,6 +158,7 @@ func (w *Workspace) SetSession(session *game.Session) {
 	w.defeats = make(map[int]*quotes.Page)
 	w.supports.Reset()
 	w.arenas.Reset()
+	w.worldmap.Reset()
 	w.tab = 0
 }
 
@@ -174,6 +194,11 @@ func (w *Workspace) OpenQuote(kind quote.Kind, index int) {
 	}
 	w.tab = len(records.Kinds) + 5
 	w.quotes.Open(kind, index)
+}
+
+func (w *Workspace) openWorldMap(id int) {
+	w.tab = len(records.Kinds) + 8
+	w.worldmap.Open(id)
 }
 
 func (w *Workspace) openHex(address, length int) {
@@ -243,6 +268,9 @@ func (w *Workspace) View(c *ui.Context) {
 			locales.SupportEditor(),
 			locales.ArenaEditor(),
 		)
+		if state.Session.WorldMap.Available() {
+			labels = append(labels, locales.Worldmap())
+		}
 		ui.ScrollHorizontal(c.Key("workspace-tabs")).Shrink(0).Children(func() {
 			ui.Tabs(c, &w.tab, labels...).Shrink(0)
 		})
@@ -266,6 +294,8 @@ func (w *Workspace) View(c *ui.Context) {
 			w.supports.View(c)
 		case len(records.Kinds) + 7:
 			w.arenas.View(c)
+		case len(records.Kinds) + 8:
+			w.worldmap.View(c)
 		default:
 			w.records.View(c, w.tab)
 		}

@@ -298,7 +298,7 @@ flowchart LR
 
 ## 准备界面、默认货物与世界地图商店
 
-`game/shop/editor.go` 管理所选独立入口的草稿和不可变计划；`game/shop_sources.go` 汇总已确认来源，`game/worldmap/nodes.go` 读取节点和保护范围，`internal/pages/shops` 提供统一列表。格式依据和各版本固定入口见[商店来源](../sources.md#商店货物)。
+`game/shop/editor.go` 管理所选独立入口的草稿和不可变计划；`game/shop_sources.go` 汇总已确认来源，`game/worldmap/nodes.go` 提供节点和保护范围，`internal/pages/shops` 提供统一列表。节点其他字段的独立编辑见[世界地图节点](worldmap.md)。格式依据和各版本固定入口见[商店来源](../sources.md#商店货物)。
 
 | 来源         | 原生版本 | 指针与空值语义                                                                                 |
 | ------------ | -------- | ---------------------------------------------------------------------------------------------- |

@@ -34,6 +34,396 @@ type Messages struct{ locale string }
 // source language.
 func In(locale string) Messages { return Messages{locale} }
 
+// Worldmap says "World map"
+// in the language the app shows.
+func Worldmap() string { return In(i18n.Locale()).Worldmap() }
+
+// Worldmap says "World map"
+// in the language of msgs.
+func (msgs Messages) Worldmap() string {
+	return Catalog.Format(msgs.locale, "worldmap", nil)
+}
+
+// WorldmapNodes says "Locations"
+// in the language the app shows.
+func WorldmapNodes() string { return In(i18n.Locale()).WorldmapNodes() }
+
+// WorldmapNodes says "Locations"
+// in the language of msgs.
+func (msgs Messages) WorldmapNodes() string {
+	return Catalog.Format(msgs.locale, "worldmap_nodes", nil)
+}
+
+// WorldmapSearch says "Search name or hexadecimal ID"
+// in the language the app shows.
+func WorldmapSearch() string { return In(i18n.Locale()).WorldmapSearch() }
+
+// WorldmapSearch says "Search name or hexadecimal ID"
+// in the language of msgs.
+func (msgs Messages) WorldmapSearch() string {
+	return Catalog.Format(msgs.locale, "worldmap_search", nil)
+}
+
+// WorldmapUnavailable says "No supported world-map node table in this ROM."
+// in the language the app shows.
+func WorldmapUnavailable() string { return In(i18n.Locale()).WorldmapUnavailable() }
+
+// WorldmapUnavailable says "No supported world-map node table in this ROM."
+// in the language of msgs.
+func (msgs Messages) WorldmapUnavailable() string {
+	return Catalog.Format(msgs.locale, "worldmap_unavailable", nil)
+}
+
+// WorldmapScope says "Edit the 29 native FE8 locations. Roads, movement paths and new nodes are separate resources."
+// in the language the app shows.
+func WorldmapScope() string { return In(i18n.Locale()).WorldmapScope() }
+
+// WorldmapScope says "Edit the 29 native FE8 locations. Roads, movement paths and new nodes are separate resources."
+// in the language of msgs.
+func (msgs Messages) WorldmapScope() string {
+	return Catalog.Format(msgs.locale, "worldmap_scope", nil)
+}
+
+// WorldmapName says "Location name"
+// in the language the app shows.
+func WorldmapName() string { return In(i18n.Locale()).WorldmapName() }
+
+// WorldmapName says "Location name"
+// in the language of msgs.
+func (msgs Messages) WorldmapName() string {
+	return Catalog.Format(msgs.locale, "worldmap_name", nil)
+}
+
+// WorldmapX says "X coordinate"
+// in the language the app shows.
+func WorldmapX() string { return In(i18n.Locale()).WorldmapX() }
+
+// WorldmapX says "X coordinate"
+// in the language of msgs.
+func (msgs Messages) WorldmapX() string {
+	return Catalog.Format(msgs.locale, "worldmap_x", nil)
+}
+
+// WorldmapY says "Y coordinate"
+// in the language the app shows.
+func WorldmapY() string { return In(i18n.Locale()).WorldmapY() }
+
+// WorldmapY says "Y coordinate"
+// in the language of msgs.
+func (msgs Messages) WorldmapY() string {
+	return Catalog.Format(msgs.locale, "worldmap_y", nil)
+}
+
+// WorldmapPositionHelp says "Signed pixel coordinate. Moving a node does not move roads or scripted paths."
+// in the language the app shows.
+func WorldmapPositionHelp() string { return In(i18n.Locale()).WorldmapPositionHelp() }
+
+// WorldmapPositionHelp says "Signed pixel coordinate. Moving a node does not move roads or scripted paths."
+// in the language of msgs.
+func (msgs Messages) WorldmapPositionHelp() string {
+	return Catalog.Format(msgs.locale, "worldmap_position_help", nil)
+}
+
+// WorldmapOpenChapter says "Open chapter"
+// in the language the app shows.
+func WorldmapOpenChapter() string { return In(i18n.Locale()).WorldmapOpenChapter() }
+
+// WorldmapOpenChapter says "Open chapter"
+// in the language of msgs.
+func (msgs Messages) WorldmapOpenChapter() string {
+	return Catalog.Format(msgs.locale, "worldmap_open_chapter", nil)
+}
+
+// WorldmapChapters says "Chapter entry"
+// in the language the app shows.
+func WorldmapChapters() string { return In(i18n.Locale()).WorldmapChapters() }
+
+// WorldmapChapters says "Chapter entry"
+// in the language of msgs.
+func (msgs Messages) WorldmapChapters() string {
+	return Catalog.Format(msgs.locale, "worldmap_chapters", nil)
+}
+
+// WorldmapEirikaChapter says "Eirika chapter"
+// in the language the app shows.
+func WorldmapEirikaChapter() string { return In(i18n.Locale()).WorldmapEirikaChapter() }
+
+// WorldmapEirikaChapter says "Eirika chapter"
+// in the language of msgs.
+func (msgs Messages) WorldmapEirikaChapter() string {
+	return Catalog.Format(msgs.locale, "worldmap_eirika_chapter", nil)
+}
+
+// WorldmapEphraimChapter says "Ephraim chapter"
+// in the language the app shows.
+func WorldmapEphraimChapter() string { return In(i18n.Locale()).WorldmapEphraimChapter() }
+
+// WorldmapEphraimChapter says "Ephraim chapter"
+// in the language of msgs.
+func (msgs Messages) WorldmapEphraimChapter() string {
+	return Catalog.Format(msgs.locale, "worldmap_ephraim_chapter", nil)
+}
+
+// WorldmapChapterHelp says "Choose a chapter or enter its ID (decimal or 0x hexadecimal). The active route selects which chapter opens here."
+// in the language the app shows.
+func WorldmapChapterHelp() string { return In(i18n.Locale()).WorldmapChapterHelp() }
+
+// WorldmapChapterHelp says "Choose a chapter or enter its ID (decimal or 0x hexadecimal). The active route selects which chapter opens here."
+// in the language of msgs.
+func (msgs Messages) WorldmapChapterHelp() string {
+	return Catalog.Format(msgs.locale, "worldmap_chapter_help", nil)
+}
+
+// WorldmapDestinations says "Next location"
+// in the language the app shows.
+func WorldmapDestinations() string { return In(i18n.Locale()).WorldmapDestinations() }
+
+// WorldmapDestinations says "Next location"
+// in the language of msgs.
+func (msgs Messages) WorldmapDestinations() string {
+	return Catalog.Format(msgs.locale, "worldmap_destinations", nil)
+}
+
+// WorldmapEirikaNext says "Eirika destination"
+// in the language the app shows.
+func WorldmapEirikaNext() string { return In(i18n.Locale()).WorldmapEirikaNext() }
+
+// WorldmapEirikaNext says "Eirika destination"
+// in the language of msgs.
+func (msgs Messages) WorldmapEirikaNext() string {
+	return Catalog.Format(msgs.locale, "worldmap_eirika_next", nil)
+}
+
+// WorldmapEphraimNext says "Ephraim destination"
+// in the language the app shows.
+func WorldmapEphraimNext() string { return In(i18n.Locale()).WorldmapEphraimNext() }
+
+// WorldmapEphraimNext says "Ephraim destination"
+// in the language of msgs.
+func (msgs Messages) WorldmapEphraimNext() string {
+	return Catalog.Format(msgs.locale, "worldmap_ephraim_next", nil)
+}
+
+// WorldmapEirikaAlternate says "Eirika branch destination"
+// in the language the app shows.
+func WorldmapEirikaAlternate() string { return In(i18n.Locale()).WorldmapEirikaAlternate() }
+
+// WorldmapEirikaAlternate says "Eirika branch destination"
+// in the language of msgs.
+func (msgs Messages) WorldmapEirikaAlternate() string {
+	return Catalog.Format(msgs.locale, "worldmap_eirika_alternate", nil)
+}
+
+// WorldmapEphraimAlternate says "Ephraim branch destination"
+// in the language the app shows.
+func WorldmapEphraimAlternate() string { return In(i18n.Locale()).WorldmapEphraimAlternate() }
+
+// WorldmapEphraimAlternate says "Ephraim branch destination"
+// in the language of msgs.
+func (msgs Messages) WorldmapEphraimAlternate() string {
+	return Catalog.Format(msgs.locale, "worldmap_ephraim_alternate", nil)
+}
+
+// WorldmapNextHelp says "The branch destination is used when the branch flag is set; otherwise the normal destination is used. -1 means no nex…"
+// in the language the app shows.
+func WorldmapNextHelp() string { return In(i18n.Locale()).WorldmapNextHelp() }
+
+// WorldmapNextHelp says "The branch destination is used when the branch flag is set; otherwise the normal destination is used. -1 means no nex…"
+// in the language of msgs.
+func (msgs Messages) WorldmapNextHelp() string {
+	return Catalog.Format(msgs.locale, "worldmap_next_help", nil)
+}
+
+// WorldmapNoNext says "No next location"
+// in the language the app shows.
+func WorldmapNoNext() string { return In(i18n.Locale()).WorldmapNoNext() }
+
+// WorldmapNoNext says "No next location"
+// in the language of msgs.
+func (msgs Messages) WorldmapNoNext() string {
+	return Catalog.Format(msgs.locale, "worldmap_no_next", nil)
+}
+
+// WorldmapBranchFlag says "Branch flag"
+// in the language the app shows.
+func WorldmapBranchFlag() string { return In(i18n.Locale()).WorldmapBranchFlag() }
+
+// WorldmapBranchFlag says "Branch flag"
+// in the language of msgs.
+func (msgs Messages) WorldmapBranchFlag() string {
+	return Catalog.Format(msgs.locale, "worldmap_branch_flag", nil)
+}
+
+// WorldmapFlagHelp says "Signed 16-bit event flag, in decimal or 0x hexadecimal. 0 is always unset; native records also contain -1. Existing f…"
+// in the language the app shows.
+func WorldmapFlagHelp() string { return In(i18n.Locale()).WorldmapFlagHelp() }
+
+// WorldmapFlagHelp says "Signed 16-bit event flag, in decimal or 0x hexadecimal. 0 is always unset; native records also contain -1. Existing f…"
+// in the language of msgs.
+func (msgs Messages) WorldmapFlagHelp() string {
+	return Catalog.Format(msgs.locale, "worldmap_flag_help", nil)
+}
+
+// WorldmapOtherRules says "Other node rules"
+// in the language the app shows.
+func WorldmapOtherRules() string { return In(i18n.Locale()).WorldmapOtherRules() }
+
+// WorldmapOtherRules says "Other node rules"
+// in the language of msgs.
+func (msgs Messages) WorldmapOtherRules() string {
+	return Catalog.Format(msgs.locale, "worldmap_other_rules", nil)
+}
+
+// WorldmapClearedIcon says "Cleared node icon"
+// in the language the app shows.
+func WorldmapClearedIcon() string { return In(i18n.Locale()).WorldmapClearedIcon() }
+
+// WorldmapClearedIcon says "Cleared node icon"
+// in the language of msgs.
+func (msgs Messages) WorldmapClearedIcon() string {
+	return Catalog.Format(msgs.locale, "worldmap_cleared_icon", nil)
+}
+
+// WorldmapUnclearedIcon says "Uncleared node icon"
+// in the language the app shows.
+func WorldmapUnclearedIcon() string { return In(i18n.Locale()).WorldmapUnclearedIcon() }
+
+// WorldmapUnclearedIcon says "Uncleared node icon"
+// in the language of msgs.
+func (msgs Messages) WorldmapUnclearedIcon() string {
+	return Catalog.Format(msgs.locale, "worldmap_uncleared_icon", nil)
+}
+
+// WorldmapIconHelp says "Native icon ID 0–16. The cleared icon is used when the node's cleared-state bit is set."
+// in the language the app shows.
+func WorldmapIconHelp() string { return In(i18n.Locale()).WorldmapIconHelp() }
+
+// WorldmapIconHelp says "Native icon ID 0–16. The cleared icon is used when the node's cleared-state bit is set."
+// in the language of msgs.
+func (msgs Messages) WorldmapIconHelp() string {
+	return Catalog.Format(msgs.locale, "worldmap_icon_help", nil)
+}
+
+// WorldmapPlacement says "Node placement type"
+// in the language the app shows.
+func WorldmapPlacement() string { return In(i18n.Locale()).WorldmapPlacement() }
+
+// WorldmapPlacement says "Node placement type"
+// in the language of msgs.
+func (msgs Messages) WorldmapPlacement() string {
+	return Catalog.Format(msgs.locale, "worldmap_placement", nil)
+}
+
+// WorldmapPlacementHelp says "0: story progression; 1: Frelia; 2: monster spawn; 3: dungeon. Entry also depends on game progress."
+// in the language the app shows.
+func WorldmapPlacementHelp() string { return In(i18n.Locale()).WorldmapPlacementHelp() }
+
+// WorldmapPlacementHelp says "0: story progression; 1: Frelia; 2: monster spawn; 3: dungeon. Entry also depends on game progress."
+// in the language of msgs.
+func (msgs Messages) WorldmapPlacementHelp() string {
+	return Catalog.Format(msgs.locale, "worldmap_placement_help", nil)
+}
+
+// WorldmapEncounters says "Encounter type"
+// in the language the app shows.
+func WorldmapEncounters() string { return In(i18n.Locale()).WorldmapEncounters() }
+
+// WorldmapEncounters says "Encounter type"
+// in the language of msgs.
+func (msgs Messages) WorldmapEncounters() string {
+	return Catalog.Format(msgs.locale, "worldmap_encounters", nil)
+}
+
+// WorldmapEncountersHelp says "1: none; 2: monsters; 3: dungeon. Existing custom values are preserved until replaced."
+// in the language the app shows.
+func WorldmapEncountersHelp() string { return In(i18n.Locale()).WorldmapEncountersHelp() }
+
+// WorldmapEncountersHelp says "1: none; 2: monsters; 3: dungeon. Existing custom values are preserved until replaced."
+// in the language of msgs.
+func (msgs Messages) WorldmapEncountersHelp() string {
+	return Catalog.Format(msgs.locale, "worldmap_encounters_help", nil)
+}
+
+// WorldmapShipTravel says "Ship travel"
+// in the language the app shows.
+func WorldmapShipTravel() string { return In(i18n.Locale()).WorldmapShipTravel() }
+
+// WorldmapShipTravel says "Ship travel"
+// in the language of msgs.
+func (msgs Messages) WorldmapShipTravel() string {
+	return Catalog.Format(msgs.locale, "worldmap_ship_travel", nil)
+}
+
+// WorldmapShipHelp says "0: off; 1: on. Both endpoints must enable ship travel. Other bits are preserved."
+// in the language the app shows.
+func WorldmapShipHelp() string { return In(i18n.Locale()).WorldmapShipHelp() }
+
+// WorldmapShipHelp says "0: off; 1: on. Both endpoints must enable ship travel. Other bits are preserved."
+// in the language of msgs.
+func (msgs Messages) WorldmapShipHelp() string {
+	return Catalog.Format(msgs.locale, "worldmap_ship_help", nil)
+}
+
+// WorldmapOpenNode says "Open location"
+// in the language the app shows.
+func WorldmapOpenNode() string { return In(i18n.Locale()).WorldmapOpenNode() }
+
+// WorldmapOpenNode says "Open location"
+// in the language of msgs.
+func (msgs Messages) WorldmapOpenNode() string {
+	return Catalog.Format(msgs.locale, "worldmap_open_node", nil)
+}
+
+// WorldmapPreview says "Preview node changes"
+// in the language the app shows.
+func WorldmapPreview() string { return In(i18n.Locale()).WorldmapPreview() }
+
+// WorldmapPreview says "Preview node changes"
+// in the language of msgs.
+func (msgs Messages) WorldmapPreview() string {
+	return Catalog.Format(msgs.locale, "worldmap_preview", nil)
+}
+
+// WorldmapApply says "Apply node changes"
+// in the language the app shows.
+func WorldmapApply() string { return In(i18n.Locale()).WorldmapApply() }
+
+// WorldmapApply says "Apply node changes"
+// in the language of msgs.
+func (msgs Messages) WorldmapApply() string {
+	return Catalog.Format(msgs.locale, "worldmap_apply", nil)
+}
+
+// WorldmapApplyHelp says "Apply this location's changes in one undo step. All readers of the node see the new values; other nodes and shop inve…"
+// in the language the app shows.
+func WorldmapApplyHelp() string { return In(i18n.Locale()).WorldmapApplyHelp() }
+
+// WorldmapApplyHelp says "Apply this location's changes in one undo step. All readers of the node see the new values; other nodes and shop inve…"
+// in the language of msgs.
+func (msgs Messages) WorldmapApplyHelp() string {
+	return Catalog.Format(msgs.locale, "worldmap_apply_help", nil)
+}
+
+// WorldmapStale says "The ROM or layout changed. Your input is retained; discard it and reload before applying."
+// in the language the app shows.
+func WorldmapStale() string { return In(i18n.Locale()).WorldmapStale() }
+
+// WorldmapStale says "The ROM or layout changed. Your input is retained; discard it and reload before applying."
+// in the language of msgs.
+func (msgs Messages) WorldmapStale() string {
+	return Catalog.Format(msgs.locale, "worldmap_stale", nil)
+}
+
+// GameWorldmapReferenceConflict says "The node overlaps another known resource. Automatic writing is stopped."
+// in the language the app shows.
+func GameWorldmapReferenceConflict() string { return In(i18n.Locale()).GameWorldmapReferenceConflict() }
+
+// GameWorldmapReferenceConflict says "The node overlaps another known resource. Automatic writing is stopped."
+// in the language of msgs.
+func (msgs Messages) GameWorldmapReferenceConflict() string {
+	return Catalog.Format(msgs.locale, "game_worldmap_reference_conflict", nil)
+}
+
 // ArenaEditor says "Arena"
 // in the language the app shows.
 func ArenaEditor() string { return In(i18n.Locale()).ArenaEditor() }

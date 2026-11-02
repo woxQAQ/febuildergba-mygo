@@ -1,14 +1,16 @@
-// Package worldmap reads native world-map node resources.
+// Package worldmap reads and edits native world-map nodes.
 package worldmap
 
 import (
 	"github.com/woxQAQ/febuildergba-mygo/fault"
 	"github.com/woxQAQ/febuildergba-mygo/game/shop"
+	"github.com/woxQAQ/febuildergba-mygo/game/text"
 	"github.com/woxQAQ/febuildergba-mygo/gba"
 	"github.com/woxQAQ/febuildergba-mygo/space"
 )
 
 const (
+	Resource  = "worldmap"
 	NodeCount = 29
 	NodeSize  = 32
 )
@@ -24,7 +26,10 @@ type Node struct {
 	ID, Address int
 	Name        uint16
 	Shops       [3]int
+	raw         [NodeSize]byte
 }
+
+func (n Node) Owner() space.Owner { return space.Owner{Resource: Resource, ID: n.ID} }
 
 func (f Format) Nodes(data []byte) ([]Node, error) {
 	if f.Pointer == 0 {
@@ -53,38 +58,68 @@ func (f Format) Nodes(data []byte) ([]Node, error) {
 			Address: address,
 			Name:    gba.Uint16(data, address+28),
 			Shops:   [3]int{address + 12, address + 16, address + 20},
+			raw:     [NodeSize]byte(data[address : address+NodeSize]),
 		}
 	}
 	return nodes, nil
 }
 
-// Ranges protects node records and every bounded inventory read, including
-// empty inventories. A protected read extent is not proof of ownership.
-func (f Format) Ranges(data []byte) []space.Range {
-	if f.Pointer == 0 {
+// Claims owns the node records and declares their hosted inventory pointers.
+// Each inventory remains independently editable through its shop owner.
+func (f Format) Claims(data []byte) []space.Claim {
+	if f.Pointer < 0xC0 || !gba.Within(data, f.Pointer, 4) {
 		return nil
 	}
-	result := []space.Range{{Start: f.Pointer, End: f.Pointer + 4}}
+	result := []space.Claim{{
+		Start: f.Pointer, End: f.Pointer + 4,
+		Owner: space.Owner{Resource: Resource, ID: -1}, Site: true,
+	}}
 	nodes, err := f.Nodes(data)
 	if err != nil {
 		return result
 	}
 	for _, node := range nodes {
-		result = append(
-			result,
-			space.Range{Start: node.Address, End: node.Address + NodeSize},
-		)
-		for _, site := range node.Shops {
-			if at, valid := gba.Pointer(
-				data,
-				site,
-			); valid && at >= 0xC0 && at%2 == 0 &&
-				gba.Within(data, at, shop.PayloadSize) {
-				result = append(
-					result,
-					space.Range{Start: at, End: at + shop.PayloadSize},
-				)
+		result = append(result, space.Claim{
+			Start: node.Address,
+			End:   node.Address + NodeSize,
+			Owner: node.Owner(),
+		})
+		for slot, site := range node.Shops {
+			owner := shop.Key{
+				Origin: shop.WorldMap,
+				ID:     node.ID,
+				Slot:   slot,
+			}.Owner()
+			result = append(result, space.Claim{
+				Start: site, End: site + 4,
+				Owner: owner, Host: node.Owner(), Site: true,
+			})
+			if at, valid := gba.Pointer(data, site); valid && at >= 0xC0 &&
+				at%2 == 0 && gba.Within(data, at, shop.PayloadSize) {
+				result = append(result, space.Claim{
+					Start: at, End: at + shop.PayloadSize,
+					Owner: owner,
+				})
 			}
+		}
+	}
+	return result
+}
+
+// Ranges protects bounded resources without proving exclusive ownership.
+func (f Format) Ranges(data []byte) []space.Range {
+	return space.ClaimRanges(f.Claims(data))
+}
+
+func (f Format) TextUses(data []byte, id uint16) []text.Use {
+	var result []text.Use
+	nodes, _ := f.Nodes(data)
+	for _, node := range nodes {
+		if node.Name == id {
+			result = append(
+				result,
+				text.Use{Kind: Resource, ID: node.ID, Field: "name"},
+			)
 		}
 	}
 	return result

@@ -50,6 +50,7 @@ func (entry *entryState) changed() {
 type Page struct {
 	state              *editor.State
 	openChapter        func(int, int)
+	openNode           func(int)
 	openHex            func(int, int)
 	sidebar            components.Sidebar
 	query              string
@@ -75,9 +76,27 @@ func New(state *editor.State, openChapter, openHex func(int, int)) *Page {
 }
 
 func (page *Page) Reset() {
-	state, chapter, hex, sidebar := page.state, page.openChapter, page.openHex, page.sidebar
+	state, chapter, hex, sidebar, node := page.state, page.openChapter, page.openHex, page.sidebar, page.openNode
 	*page = *New(state, chapter, hex)
-	page.sidebar = sidebar
+	page.sidebar, page.openNode = sidebar, node
+}
+
+func (page *Page) SetNodeOpener(open func(int)) { page.openNode = open }
+
+// Open reveals even an inactive entry without discarding pending inventory drafts.
+func (page *Page) Open(key shop.Key) {
+	page.query, page.sourceChoice = "", ""
+	page.category, page.selected = int(key.Origin)+1, -1
+	page.showInactive = true
+	page.list = ui.ListState{}
+	page.refresh()
+	for index, entry := range page.rows {
+		if entry.Key == key {
+			page.selected = index
+			page.list.ScrollTo(index, ui.Center)
+			break
+		}
+	}
 }
 
 func (page *Page) refresh() {
@@ -286,6 +305,12 @@ func (page *Page) detail(c *ui.Context) {
 			}
 			ui.Row(c).Wrap().Gap(8).Children(func() {
 				ui.Checkbox(c, &page.advanced, locales.Advanced())
+				if entry.entry.Key.Origin == shop.WorldMap &&
+					page.openNode != nil {
+					ui.Button(c, locales.WorldmapOpenNode()).
+						Disabled(page.state.Busy).
+						OnClick(func() { page.openNode(entry.entry.Key.ID) })
+				}
 				if entry.entry.Key.Origin == shop.Chapter {
 					ui.Button(c, locales.ShopOpenChapter()).
 						Disabled(page.state.Busy).

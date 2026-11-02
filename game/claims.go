@@ -4,8 +4,6 @@ import (
 	"github.com/woxQAQ/febuildergba-mygo/fault"
 	"github.com/woxQAQ/febuildergba-mygo/game/edit"
 	"github.com/woxQAQ/febuildergba-mygo/game/records"
-	"github.com/woxQAQ/febuildergba-mygo/game/shop"
-	"github.com/woxQAQ/febuildergba-mygo/game/worldmap"
 	"github.com/woxQAQ/febuildergba-mygo/gba"
 	"github.com/woxQAQ/febuildergba-mygo/space"
 )
@@ -140,44 +138,13 @@ func (s *Session) collectClaims(data []byte) []space.Claim {
 	addSite(g.icons.Pointer, space.Owner{Resource: "itemicon"})
 	addSite(g.icons.Palette, space.Owner{Resource: "itemicon"})
 	addSite(g.portraits.Pointer, space.Owner{Resource: "portrait"})
-	addSite(g.worldmap.Pointer, space.Owner{Resource: "worldmap", ID: -1})
 	if table, err := g.text.Table(data); err == nil {
 		add(table.Address, table.Count*4, textOwner)
 	}
 
-	// Loader shops and world-map node slots.
+	// Loader shops and world-map nodes own their hosted pointer declarations.
 	claims = append(claims, g.shops.Claims(data)...)
-	if nodes, err := g.worldmap.Nodes(data); err == nil {
-		for _, node := range nodes {
-			host := space.Owner{Resource: "worldmap", ID: node.ID}
-			add(node.Address, worldmap.NodeSize, host)
-			for slot, site := range node.Shops {
-				owner := shop.Key{
-					Origin: shop.WorldMap,
-					ID:     node.ID,
-					Slot:   slot,
-				}.Owner()
-				if gba.Within(data, site, 4) {
-					claims = append(
-						claims,
-						space.Claim{
-							Start: site, End: site + 4,
-							Owner: owner,
-							Host:  host,
-							Site:  true,
-						},
-					)
-				}
-				if at, valid := gba.Pointer(
-					data,
-					site,
-				); valid && at >= 0xC0 && at%2 == 0 &&
-					gba.Within(data, at, shop.PayloadSize) {
-					add(at, shop.PayloadSize, owner)
-				}
-			}
-		}
-	}
+	claims = append(claims, g.worldmap.Claims(data)...)
 
 	// Battle and defeat dialog, supports and class terrain.
 	claims = append(claims, g.quotes.Claims(data)...)
