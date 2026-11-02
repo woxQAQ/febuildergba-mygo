@@ -28,6 +28,10 @@ func (p *Page) routeMap(c *ui.Context, s *routeState, disabled bool) {
 	if road, err := s.draft.Road(); err == nil {
 		scene.Road = road.Preview()
 	}
+	if b := p.background; b.preview &&
+		b.draft.Current(p.state.Session.WorldMap) {
+		scene.Background, scene.BackgroundErr = b.image, nil
+	}
 	v := &p.routes.canvas
 	if !v.loaded || scene.Background != v.background || scene.Road != v.road {
 		v.loaded, v.background, v.road = true, scene.Background, scene.Road

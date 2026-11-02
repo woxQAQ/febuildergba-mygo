@@ -126,6 +126,8 @@ FE6／FE7 坐标未命中退回事件参数，FE8 则返回事件错误。FE7 �
 - [src/worldmap_mapmu.c](https://github.com/FireEmblemUniverse/fireemblem8u/blob/04d1edb163d14bd10777a065697e1a9f17be65f2/src/worldmap_mapmu.c) 的 `GmMuPrim_80BD444` 为每单位保留十六个坐标字，首尾加中间点最多八对；由此限定六个中间点。`GmMuPrim_80BD830` 调用 [src/spline.c](https://github.com/FireEmblemUniverse/fireemblem8u/blob/04d1edb163d14bd10777a065697e1a9f17be65f2/src/spline.c) 的 `sub_800A950`，页面仅展示控制点连线，不声称复制样条和帧量化。
 - [src/worldmap_screen.c](https://github.com/FireEmblemUniverse/fireemblem8u/blob/04d1edb163d14bd10777a065697e1a9f17be65f2/src/worldmap_screen.c) 核对底图逐行 60 图块、调色板地图每行 32 字节及四组日间调色板；[src/worldmap_main.c](https://github.com/FireEmblemUniverse/fireemblem8u/blob/04d1edb163d14bd10777a065697e1a9f17be65f2/src/worldmap_main.c) 的 `sub_80B8E60` 将独立道路调色板 `gUnknown_08A97FA4` 加载到 BG bank 14。旧版 `GetPathImage` 使用节点调色板，新版使用该原生道路调色板。FE8U `0xB8EC6` 与 FE8J `0xBDD8E` 的当前文件指令均为从上述独立根加载 r0、把 r1 设为 `0x1C0`、r2 设为 `0x20` 后调用调色板复制，核对 bank 14 的 32 字节来源；不据地址邻接关系自动发现新根。
 
+PNG 替换另核对固定旧版 `WorldMapImageForm.ImportButton_Click`／`ExportButton_Click`：480×320、四组 16 色、未压缩像素及调色板、LZ77 调色板地图。调色板编号按索引 PNG 保留，不依靠 RGB 颜色去合并重复项。同一原生固定提交的 [src/worldmap_palette_fade.c](https://github.com/FireEmblemUniverse/fireemblem8u/blob/04d1edb163d14bd10777a065697e1a9f17be65f2/src/worldmap_palette_fade.c) 中 `StartGmPalFade_` 使用独立日间／暗色色表；日间 PNG 替换不推断暗色颜色，也不更新其独立入口。`worldmap_screen.c` 的 `sub_80BAB0C` 另按标志位重新加载日间色表。实际 PC 相对加载确认 FE8U 的重载／压暗日间入口为 `0xBABEC`／`0xBF7AC`，FE8J 为 `0xBFA3C`／`0xC4590`；对应日版压暗包装函数 `0xC456C` 与美版 `0xBF788` 都传入 64 色及 BG 起点 144。暗色入口分别为 `0xBF7B0`／`0xC4594`。只有已确认日间消费者仍指向当前初始化色表时才一起更新，独立重定向的消费者保留。
+
 FE8J 的入口沿用固定旧版版本定义，并通过当前 FE8J 文件的记录、底图、道路读取及修改保存重开核对；FE8U 原生消费者不自动证明所有日版或改版运行语义相同。功能与游戏内验证边界见[世界地图参考](reference/worldmap.md)。
 
 ## 世界地图事件

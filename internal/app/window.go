@@ -9,6 +9,7 @@ import (
 	"github.com/woxQAQ/febuildergba-mygo/fault"
 	"github.com/woxQAQ/febuildergba-mygo/game"
 	"github.com/woxQAQ/febuildergba-mygo/game/graphics"
+	"github.com/woxQAQ/febuildergba-mygo/game/worldmap"
 	"github.com/woxQAQ/febuildergba-mygo/internal/locales"
 	"github.com/woxQAQ/febuildergba-mygo/internal/pages"
 )
@@ -41,6 +42,12 @@ func (m *application) newWindow(session *game.Session) *mygo.Window {
 	a.Actions.Reload = func() { reloadDocument(win, a) }
 	a.Actions.ImportPNG = func(done func([]byte, error)) { importPNG(win, a, done) }
 	a.Actions.ExportPNG = func(ref graphics.Ref) { m.exportPNG(win, a, ref) }
+	a.Actions.ImportWorldMapBackground = func(source *worldmap.Background, done func(*worldmap.BackgroundDraft, error)) {
+		importWorldMapBackground(win, a, source, done)
+	}
+	a.Actions.ExportWorldMapBackground = func(source *worldmap.Background) {
+		m.exportPNGContent(win, a, "worldmap-background", source.PNG)
+	}
 	a.Actions.Run = func() {
 		if a.Editor.Session == nil {
 			return

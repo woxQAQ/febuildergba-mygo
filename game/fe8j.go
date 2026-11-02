@@ -143,8 +143,14 @@ func fe8jFormat() format {
 		worldmap: worldmap.Format{
 			Pointer: 0xC8DC0, RoutePointer: 0xC598,
 			Scene: worldmap.SceneFormat{
-				Image: 0xBF698, Palette: 0xBF6A4, PaletteMap: 0xBF69C,
-				RoadTiles: 0xBDE60, RoadPalette: 0xBDE5C,
+				Image:         0xBF698,
+				Palette:       0xBF6A4,
+				PaletteMap:    0xBF69C,
+				PaletteReload: 0xBFA3C,
+				PaletteFade:   0xC4590,
+				DarkPalette:   0xC4594,
+				RoadTiles:     0xBDE60,
+				RoadPalette:   0xBDE5C,
 			},
 		},
 		maps: maps.Format{

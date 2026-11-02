@@ -96,6 +96,7 @@ type Source struct {
 	ValidateChapter func([]byte, int) error
 	ValidateText    func([]byte, uint16) error
 	ProtectRange    func([]byte, space.Owner, space.Range) error
+	ProtectPointer  func([]byte, space.Owner, int) error
 }
 
 type Editor struct {

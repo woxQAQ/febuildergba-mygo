@@ -364,6 +364,96 @@ func (msgs Messages) WorldmapSharedMovement() string {
 	return Catalog.Format(msgs.locale, "worldmap_shared_movement", nil)
 }
 
+// WorldmapExportBackground says "Export background PNG"
+// in the language the app shows.
+func WorldmapExportBackground() string { return In(i18n.Locale()).WorldmapExportBackground() }
+
+// WorldmapExportBackground says "Export background PNG"
+// in the language of msgs.
+func (msgs Messages) WorldmapExportBackground() string {
+	return Catalog.Format(msgs.locale, "worldmap_export_background", nil)
+}
+
+// WorldmapImportBackground says "Replace background PNG"
+// in the language the app shows.
+func WorldmapImportBackground() string { return In(i18n.Locale()).WorldmapImportBackground() }
+
+// WorldmapImportBackground says "Replace background PNG"
+// in the language of msgs.
+func (msgs Messages) WorldmapImportBackground() string {
+	return Catalog.Format(msgs.locale, "worldmap_import_background", nil)
+}
+
+// WorldmapPreviewBackground says "Show replacement"
+// in the language the app shows.
+func WorldmapPreviewBackground() string { return In(i18n.Locale()).WorldmapPreviewBackground() }
+
+// WorldmapPreviewBackground says "Show replacement"
+// in the language of msgs.
+func (msgs Messages) WorldmapPreviewBackground() string {
+	return Catalog.Format(msgs.locale, "worldmap_preview_background", nil)
+}
+
+// WorldmapApplyBackground says "Apply background"
+// in the language the app shows.
+func WorldmapApplyBackground() string { return In(i18n.Locale()).WorldmapApplyBackground() }
+
+// WorldmapApplyBackground says "Apply background"
+// in the language of msgs.
+func (msgs Messages) WorldmapApplyBackground() string {
+	return Catalog.Format(msgs.locale, "worldmap_apply_background", nil)
+}
+
+// WorldmapBackgroundFormat says "480 × 320 indexed PNG. Use indices 0–63; each 8 × 8 tile must use one group of 16 colors. Colors are converted to…"
+// in the language the app shows.
+func WorldmapBackgroundFormat() string { return In(i18n.Locale()).WorldmapBackgroundFormat() }
+
+// WorldmapBackgroundFormat says "480 × 320 indexed PNG. Use indices 0–63; each 8 × 8 tile must use one group of 16 colors. Colors are converted to…"
+// in the language of msgs.
+func (msgs Messages) WorldmapBackgroundFormat() string {
+	return Catalog.Format(msgs.locale, "worldmap_background_format", nil)
+}
+
+// WorldmapBackgroundScope says "All routes share this daytime background. Locations and roads keep their coordinates. Dark scenes use the new pixels …"
+// in the language the app shows.
+func WorldmapBackgroundScope() string { return In(i18n.Locale()).WorldmapBackgroundScope() }
+
+// WorldmapBackgroundScope says "All routes share this daytime background. Locations and roads keep their coordinates. Dark scenes use the new pixels …"
+// in the language of msgs.
+func (msgs Messages) WorldmapBackgroundScope() string {
+	return Catalog.Format(msgs.locale, "worldmap_background_scope", nil)
+}
+
+// GameWorldmapBackgroundPng says "Use an indexed PNG that preserves palette indices. True-color PNGs are not supported for this background."
+// in the language the app shows.
+func GameWorldmapBackgroundPng() string { return In(i18n.Locale()).GameWorldmapBackgroundPng() }
+
+// GameWorldmapBackgroundPng says "Use an indexed PNG that preserves palette indices. True-color PNGs are not supported for this background."
+// in the language of msgs.
+func (msgs Messages) GameWorldmapBackgroundPng() string {
+	return Catalog.Format(msgs.locale, "game_worldmap_background_png", nil)
+}
+
+// GameWorldmapBackgroundSize says "The background must be 480 × 320 pixels and the PNG no larger than 1 MiB."
+// in the language the app shows.
+func GameWorldmapBackgroundSize() string { return In(i18n.Locale()).GameWorldmapBackgroundSize() }
+
+// GameWorldmapBackgroundSize says "The background must be 480 × 320 pixels and the PNG no larger than 1 MiB."
+// in the language of msgs.
+func (msgs Messages) GameWorldmapBackgroundSize() string {
+	return Catalog.Format(msgs.locale, "game_worldmap_background_size", nil)
+}
+
+// GameWorldmapBackgroundColors says "Use opaque colors at indices 0–63. Every 8 × 8 tile must use just one group: 0–15, 16–31, 32–47 or 48–63."
+// in the language the app shows.
+func GameWorldmapBackgroundColors() string { return In(i18n.Locale()).GameWorldmapBackgroundColors() }
+
+// GameWorldmapBackgroundColors says "Use opaque colors at indices 0–63. Every 8 × 8 tile must use just one group: 0–15, 16–31, 32–47 or 48–63."
+// in the language of msgs.
+func (msgs Messages) GameWorldmapBackgroundColors() string {
+	return Catalog.Format(msgs.locale, "game_worldmap_background_colors", nil)
+}
+
 // WorldmapSceneIncomplete says "Some graphics could not be read. Coordinates and route editing remain available."
 // in the language the app shows.
 func WorldmapSceneIncomplete() string { return In(i18n.Locale()).WorldmapSceneIncomplete() }

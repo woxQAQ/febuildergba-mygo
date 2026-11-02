@@ -29,6 +29,7 @@ func (s *Session) worldmapSource() worldmap.Source {
 			_, err := s.format.text.Read(data, id)
 			return err
 		},
-		ProtectRange: s.protectRange,
+		ProtectRange:   s.protectRange,
+		ProtectPointer: s.protectPointer,
 	}
 }

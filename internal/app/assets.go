@@ -92,11 +92,30 @@ func (m *application) exportPNG(
 		workspace.Editor.Err = err
 		return
 	}
+	m.exportPNGContent(
+		win,
+		workspace,
+		fmt.Sprintf("%s-%04X", ref.Kind, ref.ID),
+		func() ([]byte, error) { return content, nil },
+	)
+}
+
+// exportPNGContent captures window paths before starting the worker. Encoders
+// receive immutable inputs and do not access the live editing session.
+func (m *application) exportPNGContent(
+	win *mygo.Window,
+	workspace *pages.Workspace,
+	suffix string,
+	encode func() ([]byte, error),
+) {
+	if workspace.Editor.Session == nil || workspace.Editor.Busy {
+		return
+	}
 	path := workspace.Editor.Session.Document.State().Path
 	stem := strings.TrimSuffix(filepath.Base(path), filepath.Ext(path))
 	defaultPath := filepath.Join(
 		filepath.Dir(path),
-		fmt.Sprintf("%s-%s-%04X.png", stem, ref.Kind, ref.ID),
+		stem+"-"+suffix+".png",
 	)
 	var romPaths []string
 	for _, workspace := range m.windows {
@@ -109,6 +128,10 @@ func (m *application) exportPNG(
 	}
 	title, question, replace, cancel := locales.ExportPng(), locales.ReplaceQuestion(), locales.Replace(), locales.Cancel()
 	background(win, workspace, "app.export_png", func() error {
+		content, err := encode()
+		if err != nil {
+			return err
+		}
 		path, err := mygo.Dialog.Save(
 			mygo.SaveDialogOptions{
 				Parent:      win,

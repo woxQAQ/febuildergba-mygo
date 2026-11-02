@@ -295,6 +295,7 @@ func (p *Page) routeDetail(c *ui.Context) {
 				current.ID,
 				&entry.eventsOpen,
 			)
+			p.backgroundControls(c)
 			ui.Column(c.Key("road-workspace")).
 				Bind(&entry.road.history).
 				Gap(8).

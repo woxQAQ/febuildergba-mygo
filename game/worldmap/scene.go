@@ -2,7 +2,6 @@ package worldmap
 
 import (
 	"image"
-	"image/draw"
 
 	"github.com/woxQAQ/febuildergba-mygo/fault"
 	"github.com/woxQAQ/febuildergba-mygo/game/edit"
@@ -21,7 +20,10 @@ var ErrScene = fault.Code{
 // Road words are relative to the engine's character and palette base.
 type SceneFormat struct {
 	Image, Palette, PaletteMap int
-	RoadTiles, RoadPalette     int
+	// Reload and fade are confirmed consumers of the daytime palette. The
+	// dark palette is an independent resource, protected but not replaced.
+	PaletteReload, PaletteFade, DarkPalette int
+	RoadTiles, RoadPalette                  int
 }
 
 type roadTile struct {
@@ -105,6 +107,9 @@ func (f SceneFormat) claims(data []byte) []space.Claim {
 	for _, asset := range []struct{ site, length, limit int }{
 		{f.Image, MapWidth * MapHeight / 2, 0},
 		{f.Palette, 128, 0},
+		{f.PaletteReload, 128, 0},
+		{f.PaletteFade, 128, 0},
+		{f.DarkPalette, 128, 0},
 		{f.PaletteMap, 0, 1280},
 		{f.RoadTiles, 0, 0x3000},
 		{f.RoadPalette, 32, 0},
@@ -141,55 +146,11 @@ func (f SceneFormat) claims(data []byte) []space.Claim {
 }
 
 func (f SceneFormat) background(data []byte) (*image.RGBA, error) {
-	pixels, _, err := fixedAsset(data, f.Image, MapWidth*MapHeight/2)
+	background, err := f.readBackground(data)
 	if err != nil {
 		return nil, err
 	}
-	colors, _, err := fixedAsset(data, f.Palette, 128)
-	if err != nil {
-		return nil, err
-	}
-	banks, _, _, err := compressedAsset(data, f.PaletteMap, 1280)
-	if err != nil {
-		return nil, err
-	}
-	if len(banks) != 1280 {
-		return nil, ErrScene
-	}
-	palette := make([]byte, 512)
-	copy(palette, colors)
-	out := image.NewRGBA(image.Rect(0, 0, MapWidth, MapHeight))
-	// Chunks keep character indices within the ten bits of a GBA tile word.
-	for row := 0; row < 40; row += 16 {
-		height := min(16, 40-row)
-		tiles := make([]uint16, 60*height)
-		for i := range tiles {
-			x, y := i%60, row+i/60
-			bank := banks[y*32+x/2] >> ((x % 2) * 4) & 15
-			if bank >= 4 {
-				return nil, ErrScene
-			}
-			tiles[i] = uint16(i) | uint16(bank)<<12
-		}
-		part, err := gba.Background4BPP(
-			pixels[row*60*32:(row+height)*60*32],
-			palette,
-			tiles,
-			60,
-			height,
-		)
-		if err != nil {
-			return nil, err
-		}
-		draw.Draw(
-			out,
-			image.Rect(0, row*8, MapWidth, (row+height)*8),
-			part,
-			image.Point{},
-			draw.Src,
-		)
-	}
-	return out, nil
+	return background.image(), nil
 }
 
 func (f SceneFormat) road(data []byte, route Route) (*image.RGBA, error) {

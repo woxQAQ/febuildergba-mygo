@@ -33,13 +33,15 @@ const HeaderHeight = components.HeaderHeight
 
 // Actions connects page intent to the owning desktop window.
 type Actions struct {
-	Open             func()
-	Save             func(bool)
-	Reload           func()
-	Run              func()
-	ImportPNG        func(func([]byte, error))
-	ExportPNG        func(graphics.Ref)
-	MenuStateChanged func()
+	Open                     func()
+	Save                     func(bool)
+	Reload                   func()
+	Run                      func()
+	ImportPNG                func(func([]byte, error))
+	ExportPNG                func(graphics.Ref)
+	ImportWorldMapBackground func(*worldmap.Background, func(*worldmap.BackgroundDraft, error))
+	ExportWorldMapBackground func(*worldmap.Background)
+	MenuStateChanged         func()
 }
 
 type Workspace struct {
@@ -143,6 +145,18 @@ func New() *Workspace {
 		w.openDeployment,
 	)
 	w.worldmap.SetScriptOpener(w.OpenScript)
+	w.worldmap.SetBackgroundActions(
+		func(source *worldmap.Background, done func(*worldmap.BackgroundDraft, error)) {
+			if w.Actions.ImportWorldMapBackground != nil {
+				w.Actions.ImportWorldMapBackground(source, done)
+			}
+		},
+		func(source *worldmap.Background) {
+			if w.Actions.ExportWorldMapBackground != nil {
+				w.Actions.ExportWorldMapBackground(source)
+			}
+		},
+	)
 	w.scripts.SetWorldMapOpener(func(target event.ScriptTarget, id int) {
 		w.tab = len(records.Kinds) + 8
 		if target == event.ScriptWorldMapRouteTarget {

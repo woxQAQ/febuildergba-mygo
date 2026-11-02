@@ -28,17 +28,17 @@
 
 ## 格式与行为参考
 
-| 文档                                                      | 内容                                                     |
-| --------------------------------------------------------- | -------------------------------------------------------- |
-| [ROM、版本与空间](reference/rom-editing.md)               | 表布局、写入、引用、分配和搬迁                           |
-| [文本与静态图像](reference/text-and-images.md)            | Huffman、字符与控制码、PNG、图块和调色板                 |
-| [章节、地图与事件](reference/chapters-and-events.md)      | 章节、地图、部署、REDA、条件、商店和脚本                 |
-| [战斗与死亡对话](reference/battle-and-defeat-dialogue.md) | 原生表、匹配、死亡标志、消费者及重定位                   |
-| [职业移动与地形](reference/terrain.md)                    | 原生移动消耗、地形加成、共享与写入边界                   |
-| [世界地图](reference/worldmap.md)                         | FE8 节点、路线、道路绘制、移动控制点、事件入口与原子写入 |
-| [斗技场规则](reference/arena.md)                          | 对手职业、基础／升级武器、FE8 联机名单与消费者           |
-| [支援关系与对话](reference/supports.md)                   | 人物关系、双方数值同步、对话及原生消费者                 |
-| [核对来源](sources.md)                                    | 旧版与原生游戏代码的仓库、提交和文件                     |
+| 文档                                                      | 内容                                                           |
+| --------------------------------------------------------- | -------------------------------------------------------------- |
+| [ROM、版本与空间](reference/rom-editing.md)               | 表布局、写入、引用、分配和搬迁                                 |
+| [文本与静态图像](reference/text-and-images.md)            | Huffman、字符与控制码、PNG、图块和调色板                       |
+| [章节、地图与事件](reference/chapters-and-events.md)      | 章节、地图、部署、REDA、条件、商店和脚本                       |
+| [战斗与死亡对话](reference/battle-and-defeat-dialogue.md) | 原生表、匹配、死亡标志、消费者及重定位                         |
+| [职业移动与地形](reference/terrain.md)                    | 原生移动消耗、地形加成、共享与写入边界                         |
+| [世界地图](reference/worldmap.md)                         | FE8 节点、路线、道路绘制、底图 PNG、移动控制点、事件与原子写入 |
+| [斗技场规则](reference/arena.md)                          | 对手职业、基础／升级武器、FE8 联机名单与消费者                 |
+| [支援关系与对话](reference/supports.md)                   | 人物关系、双方数值同步、对话及原生消费者                       |
+| [核对来源](sources.md)                                    | 旧版与原生游戏代码的仓库、提交和文件                           |
 
 ## 暂缓设计与历史
 

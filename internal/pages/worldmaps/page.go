@@ -42,21 +42,24 @@ func (s *nodeState) invalid() bool {
 }
 
 type Page struct {
-	state          *editor.State
-	openRecord     func(records.Kind, int)
-	openText       func(uint16)
-	openShop       func(shop.Key)
-	openHex        func(int, int)
-	openScript     func(int, int)
-	sidebar        components.Sidebar
-	query          string
-	selected       int
-	list           ui.ListState
-	rows           []worldmap.Node
-	drafts         map[int]*nodeState
-	advanced, more bool
-	tab            int
-	routes         routePage
+	state            *editor.State
+	openRecord       func(records.Kind, int)
+	openText         func(uint16)
+	openShop         func(shop.Key)
+	openHex          func(int, int)
+	openScript       func(int, int)
+	sidebar          components.Sidebar
+	query            string
+	selected         int
+	list             ui.ListState
+	rows             []worldmap.Node
+	drafts           map[int]*nodeState
+	advanced, more   bool
+	tab              int
+	routes           routePage
+	background       *backgroundState
+	importBackground func(*worldmap.Background, func(*worldmap.BackgroundDraft, error))
+	exportBackground func(*worldmap.Background)
 }
 
 func New(
@@ -68,6 +71,7 @@ func New(
 ) *Page {
 	return &Page{
 		state:      state,
+		background: &backgroundState{},
 		openRecord: record,
 		openText:   text,
 		openShop:   stock,
@@ -84,8 +88,10 @@ func New(
 
 func (p *Page) Reset() {
 	sidebar, openScript := p.sidebar, p.openScript
+	importBackground, exportBackground := p.importBackground, p.exportBackground
 	*p = *New(p.state, p.openRecord, p.openText, p.openShop, p.openHex)
 	p.sidebar, p.openScript = sidebar, openScript
+	p.importBackground, p.exportBackground = importBackground, exportBackground
 }
 
 func (p *Page) Open(id int) {
