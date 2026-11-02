@@ -317,6 +317,9 @@ func (s *Editor) mapScriptImpacts(
 	}
 	seen := make(map[int]bool)
 	for _, entry := range entries {
+		if entry.WorldMap {
+			continue
+		}
 		if entry.Err != nil {
 			report.warn(
 				chapter,

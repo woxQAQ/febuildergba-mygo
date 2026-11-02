@@ -15269,3 +15269,1393 @@ func TerrainMast() string { return In(i18n.Locale()).TerrainMast() }
 func (msgs Messages) TerrainMast() string {
 	return Catalog.Format(msgs.locale, "terrain_mast", nil)
 }
+
+// GameInvalidWorldmapEvents says "The native world-map event directory could not be confirmed. Check its pointer and complete bounds."
+// in the language the app shows.
+func GameInvalidWorldmapEvents() string { return In(i18n.Locale()).GameInvalidWorldmapEvents() }
+
+// GameInvalidWorldmapEvents says "The native world-map event directory could not be confirmed. Check its pointer and complete bounds."
+// in the language of msgs.
+func (msgs Messages) GameInvalidWorldmapEvents() string {
+	return Catalog.Format(msgs.locale, "game_invalid_worldmap_events", nil)
+}
+
+// ScriptWorldmapDirectory says "World map and endings"
+// in the language the app shows.
+func ScriptWorldmapDirectory() string { return In(i18n.Locale()).ScriptWorldmapDirectory() }
+
+// ScriptWorldmapDirectory says "World map and endings"
+// in the language of msgs.
+func (msgs Messages) ScriptWorldmapDirectory() string {
+	return Catalog.Format(msgs.locale, "script_worldmap_directory", nil)
+}
+
+// ScriptWorldmapBeginning says "World-map beginning event"
+// in the language the app shows.
+func ScriptWorldmapBeginning() string { return In(i18n.Locale()).ScriptWorldmapBeginning() }
+
+// ScriptWorldmapBeginning says "World-map beginning event"
+// in the language of msgs.
+func (msgs Messages) ScriptWorldmapBeginning() string {
+	return Catalog.Format(msgs.locale, "script_worldmap_beginning", nil)
+}
+
+// ScriptWorldmapIntro says "Chapter-entry event"
+// in the language the app shows.
+func ScriptWorldmapIntro() string { return In(i18n.Locale()).ScriptWorldmapIntro() }
+
+// ScriptWorldmapIntro says "Chapter-entry event"
+// in the language of msgs.
+func (msgs Messages) ScriptWorldmapIntro() string {
+	return Catalog.Format(msgs.locale, "script_worldmap_intro", nil)
+}
+
+// ScriptWorldmapEndingEirika says "Eirika route ending"
+// in the language the app shows.
+func ScriptWorldmapEndingEirika() string { return In(i18n.Locale()).ScriptWorldmapEndingEirika() }
+
+// ScriptWorldmapEndingEirika says "Eirika route ending"
+// in the language of msgs.
+func (msgs Messages) ScriptWorldmapEndingEirika() string {
+	return Catalog.Format(msgs.locale, "script_worldmap_ending_eirika", nil)
+}
+
+// ScriptWorldmapEndingEphraim says "Ephraim route ending"
+// in the language the app shows.
+func ScriptWorldmapEndingEphraim() string { return In(i18n.Locale()).ScriptWorldmapEndingEphraim() }
+
+// ScriptWorldmapEndingEphraim says "Ephraim route ending"
+// in the language of msgs.
+func (msgs Messages) ScriptWorldmapEndingEphraim() string {
+	return Catalog.Format(msgs.locale, "script_worldmap_ending_ephraim", nil)
+}
+
+// WorldmapRelatedEvents says "Find event references"
+// in the language the app shows.
+func WorldmapRelatedEvents() string { return In(i18n.Locale()).WorldmapRelatedEvents() }
+
+// WorldmapRelatedEvents says "Find event references"
+// in the language of msgs.
+func (msgs Messages) WorldmapRelatedEvents() string {
+	return Catalog.Format(msgs.locale, "worldmap_related_events", nil)
+}
+
+// WorldmapNoEventReferences says "No confirmed event references found."
+// in the language the app shows.
+func WorldmapNoEventReferences() string { return In(i18n.Locale()).WorldmapNoEventReferences() }
+
+// WorldmapNoEventReferences says "No confirmed event references found."
+// in the language of msgs.
+func (msgs Messages) WorldmapNoEventReferences() string {
+	return Catalog.Format(msgs.locale, "worldmap_no_event_references", nil)
+}
+
+// WorldmapEventPartial says "Only confirmed operands and static call references are listed. Unknown instructions, dynamic calls or damaged entries…"
+// in the language the app shows.
+func WorldmapEventPartial() string { return In(i18n.Locale()).WorldmapEventPartial() }
+
+// WorldmapEventPartial says "Only confirmed operands and static call references are listed. Unknown instructions, dynamic calls or damaged entries…"
+// in the language of msgs.
+func (msgs Messages) WorldmapEventPartial() string {
+	return Catalog.Format(msgs.locale, "worldmap_event_partial", nil)
+}
+
+// WorldmapOpenEvent says "Edit event script"
+// in the language the app shows.
+func WorldmapOpenEvent() string { return In(i18n.Locale()).WorldmapOpenEvent() }
+
+// WorldmapOpenEvent says "Edit event script"
+// in the language of msgs.
+func (msgs Messages) WorldmapOpenEvent() string {
+	return Catalog.Format(msgs.locale, "worldmap_open_event", nil)
+}
+
+// ScriptWmOpenNode says "Open node"
+// in the language the app shows.
+func ScriptWmOpenNode() string { return In(i18n.Locale()).ScriptWmOpenNode() }
+
+// ScriptWmOpenNode says "Open node"
+// in the language of msgs.
+func (msgs Messages) ScriptWmOpenNode() string {
+	return Catalog.Format(msgs.locale, "script_wm_open_node", nil)
+}
+
+// ScriptWmOpenRouteResource says "Open route"
+// in the language the app shows.
+func ScriptWmOpenRouteResource() string { return In(i18n.Locale()).ScriptWmOpenRouteResource() }
+
+// ScriptWmOpenRouteResource says "Open route"
+// in the language of msgs.
+func (msgs Messages) ScriptWmOpenRouteResource() string {
+	return Catalog.Format(msgs.locale, "script_wm_open_route_resource", nil)
+}
+
+// ScriptWmRevealRoute says "World map: reveal route"
+// in the language the app shows.
+func ScriptWmRevealRoute() string { return In(i18n.Locale()).ScriptWmRevealRoute() }
+
+// ScriptWmRevealRoute says "World map: reveal route"
+// in the language of msgs.
+func (msgs Messages) ScriptWmRevealRoute() string {
+	return Catalog.Format(msgs.locale, "script_wm_reveal_route", nil)
+}
+
+// ScriptWmOpenRoute says "World map: open route"
+// in the language the app shows.
+func ScriptWmOpenRoute() string { return In(i18n.Locale()).ScriptWmOpenRoute() }
+
+// ScriptWmOpenRoute says "World map: open route"
+// in the language of msgs.
+func (msgs Messages) ScriptWmOpenRoute() string {
+	return Catalog.Format(msgs.locale, "script_wm_open_route", nil)
+}
+
+// ScriptWmCloseRoute says "World map: close route"
+// in the language the app shows.
+func ScriptWmCloseRoute() string { return In(i18n.Locale()).ScriptWmCloseRoute() }
+
+// ScriptWmCloseRoute says "World map: close route"
+// in the language of msgs.
+func (msgs Messages) ScriptWmCloseRoute() string {
+	return Catalog.Format(msgs.locale, "script_wm_close_route", nil)
+}
+
+// ScriptWmEnableNode says "World map: enable node"
+// in the language the app shows.
+func ScriptWmEnableNode() string { return In(i18n.Locale()).ScriptWmEnableNode() }
+
+// ScriptWmEnableNode says "World map: enable node"
+// in the language of msgs.
+func (msgs Messages) ScriptWmEnableNode() string {
+	return Catalog.Format(msgs.locale, "script_wm_enable_node", nil)
+}
+
+// ScriptWmDisableNode says "World map: disable node"
+// in the language the app shows.
+func ScriptWmDisableNode() string { return In(i18n.Locale()).ScriptWmDisableNode() }
+
+// ScriptWmDisableNode says "World map: disable node"
+// in the language of msgs.
+func (msgs Messages) ScriptWmDisableNode() string {
+	return Catalog.Format(msgs.locale, "script_wm_disable_node", nil)
+}
+
+// ScriptWmRevealNode says "World map: reveal node"
+// in the language the app shows.
+func ScriptWmRevealNode() string { return In(i18n.Locale()).ScriptWmRevealNode() }
+
+// ScriptWmRevealNode says "World map: reveal node"
+// in the language of msgs.
+func (msgs Messages) ScriptWmRevealNode() string {
+	return Catalog.Format(msgs.locale, "script_wm_reveal_node", nil)
+}
+
+// ScriptWmRevealRouteNode says "World map: reveal disabled route endpoint"
+// in the language the app shows.
+func ScriptWmRevealRouteNode() string { return In(i18n.Locale()).ScriptWmRevealRouteNode() }
+
+// ScriptWmRevealRouteNode says "World map: reveal disabled route endpoint"
+// in the language of msgs.
+func (msgs Messages) ScriptWmRevealRouteNode() string {
+	return Catalog.Format(msgs.locale, "script_wm_reveal_route_node", nil)
+}
+
+// ScriptWmNextStoryNode says "World map: reveal next story node"
+// in the language the app shows.
+func ScriptWmNextStoryNode() string { return In(i18n.Locale()).ScriptWmNextStoryNode() }
+
+// ScriptWmNextStoryNode says "World map: reveal next story node"
+// in the language of msgs.
+func (msgs Messages) ScriptWmNextStoryNode() string {
+	return Catalog.Format(msgs.locale, "script_wm_next_story_node", nil)
+}
+
+// ScriptWmRouteStoryNode says "World map: set disabled route endpoint as story node"
+// in the language the app shows.
+func ScriptWmRouteStoryNode() string { return In(i18n.Locale()).ScriptWmRouteStoryNode() }
+
+// ScriptWmRouteStoryNode says "World map: set disabled route endpoint as story node"
+// in the language of msgs.
+func (msgs Messages) ScriptWmRouteStoryNode() string {
+	return Catalog.Format(msgs.locale, "script_wm_route_story_node", nil)
+}
+
+// ScriptWmWaitNode says "World map: wait for node display"
+// in the language the app shows.
+func ScriptWmWaitNode() string { return In(i18n.Locale()).ScriptWmWaitNode() }
+
+// ScriptWmWaitNode says "World map: wait for node display"
+// in the language of msgs.
+func (msgs Messages) ScriptWmWaitNode() string {
+	return Catalog.Format(msgs.locale, "script_wm_wait_node", nil)
+}
+
+// ScriptWmStoryNode says "World map: set story node and marker"
+// in the language the app shows.
+func ScriptWmStoryNode() string { return In(i18n.Locale()).ScriptWmStoryNode() }
+
+// ScriptWmStoryNode says "World map: set story node and marker"
+// in the language of msgs.
+func (msgs Messages) ScriptWmStoryNode() string {
+	return Catalog.Format(msgs.locale, "script_wm_story_node", nil)
+}
+
+// ScriptWmMarkStoryNode says "World map: set node story bit"
+// in the language the app shows.
+func ScriptWmMarkStoryNode() string { return In(i18n.Locale()).ScriptWmMarkStoryNode() }
+
+// ScriptWmMarkStoryNode says "World map: set node story bit"
+// in the language of msgs.
+func (msgs Messages) ScriptWmMarkStoryNode() string {
+	return Catalog.Format(msgs.locale, "script_wm_mark_story_node", nil)
+}
+
+// ScriptWmNextStorySilent says "World map: set next story node silently"
+// in the language the app shows.
+func ScriptWmNextStorySilent() string { return In(i18n.Locale()).ScriptWmNextStorySilent() }
+
+// ScriptWmNextStorySilent says "World map: set next story node silently"
+// in the language of msgs.
+func (msgs Messages) ScriptWmNextStorySilent() string {
+	return Catalog.Format(msgs.locale, "script_wm_next_story_silent", nil)
+}
+
+// ScriptWmClearStoryNode says "World map: clear node story bit"
+// in the language the app shows.
+func ScriptWmClearStoryNode() string { return In(i18n.Locale()).ScriptWmClearStoryNode() }
+
+// ScriptWmClearStoryNode says "World map: clear node story bit"
+// in the language of msgs.
+func (msgs Messages) ScriptWmClearStoryNode() string {
+	return Catalog.Format(msgs.locale, "script_wm_clear_story_node", nil)
+}
+
+// ScriptWmClassUnit says "World map: place class unit"
+// in the language the app shows.
+func ScriptWmClassUnit() string { return In(i18n.Locale()).ScriptWmClassUnit() }
+
+// ScriptWmClassUnit says "World map: place class unit"
+// in the language of msgs.
+func (msgs Messages) ScriptWmClassUnit() string {
+	return Catalog.Format(msgs.locale, "script_wm_class_unit", nil)
+}
+
+// ScriptWmCharacterUnit says "World map: place character unit"
+// in the language the app shows.
+func ScriptWmCharacterUnit() string { return In(i18n.Locale()).ScriptWmCharacterUnit() }
+
+// ScriptWmCharacterUnit says "World map: place character unit"
+// in the language of msgs.
+func (msgs Messages) ScriptWmCharacterUnit() string {
+	return Catalog.Format(msgs.locale, "script_wm_character_unit", nil)
+}
+
+// ScriptWmRemoveUnit says "World map: remove unit"
+// in the language the app shows.
+func ScriptWmRemoveUnit() string { return In(i18n.Locale()).ScriptWmRemoveUnit() }
+
+// ScriptWmRemoveUnit says "World map: remove unit"
+// in the language of msgs.
+func (msgs Messages) ScriptWmRemoveUnit() string {
+	return Catalog.Format(msgs.locale, "script_wm_remove_unit", nil)
+}
+
+// ScriptWmShowUnit says "World map: show unit"
+// in the language the app shows.
+func ScriptWmShowUnit() string { return In(i18n.Locale()).ScriptWmShowUnit() }
+
+// ScriptWmShowUnit says "World map: show unit"
+// in the language of msgs.
+func (msgs Messages) ScriptWmShowUnit() string {
+	return Catalog.Format(msgs.locale, "script_wm_show_unit", nil)
+}
+
+// ScriptWmHideUnit says "World map: hide unit"
+// in the language the app shows.
+func ScriptWmHideUnit() string { return In(i18n.Locale()).ScriptWmHideUnit() }
+
+// ScriptWmHideUnit says "World map: hide unit"
+// in the language of msgs.
+func (msgs Messages) ScriptWmHideUnit() string {
+	return Catalog.Format(msgs.locale, "script_wm_hide_unit", nil)
+}
+
+// ScriptWmFadeInUnit says "World map: fade in unit"
+// in the language the app shows.
+func ScriptWmFadeInUnit() string { return In(i18n.Locale()).ScriptWmFadeInUnit() }
+
+// ScriptWmFadeInUnit says "World map: fade in unit"
+// in the language of msgs.
+func (msgs Messages) ScriptWmFadeInUnit() string {
+	return Catalog.Format(msgs.locale, "script_wm_fade_in_unit", nil)
+}
+
+// ScriptWmFadeOutUnit says "World map: fade out unit"
+// in the language the app shows.
+func ScriptWmFadeOutUnit() string { return In(i18n.Locale()).ScriptWmFadeOutUnit() }
+
+// ScriptWmFadeOutUnit says "World map: fade out unit"
+// in the language of msgs.
+func (msgs Messages) ScriptWmFadeOutUnit() string {
+	return Catalog.Format(msgs.locale, "script_wm_fade_out_unit", nil)
+}
+
+// ScriptWmWaitUnitFade says "World map: wait for unit fade"
+// in the language the app shows.
+func ScriptWmWaitUnitFade() string { return In(i18n.Locale()).ScriptWmWaitUnitFade() }
+
+// ScriptWmWaitUnitFade says "World map: wait for unit fade"
+// in the language of msgs.
+func (msgs Messages) ScriptWmWaitUnitFade() string {
+	return Catalog.Format(msgs.locale, "script_wm_wait_unit_fade", nil)
+}
+
+// ScriptWmUnitNode says "World map: set unit node"
+// in the language the app shows.
+func ScriptWmUnitNode() string { return In(i18n.Locale()).ScriptWmUnitNode() }
+
+// ScriptWmUnitNode says "World map: set unit node"
+// in the language of msgs.
+func (msgs Messages) ScriptWmUnitNode() string {
+	return Catalog.Format(msgs.locale, "script_wm_unit_node", nil)
+}
+
+// ScriptWmUnitPosition says "World map: set unit position"
+// in the language the app shows.
+func ScriptWmUnitPosition() string { return In(i18n.Locale()).ScriptWmUnitPosition() }
+
+// ScriptWmUnitPosition says "World map: set unit position"
+// in the language of msgs.
+func (msgs Messages) ScriptWmUnitPosition() string {
+	return Catalog.Format(msgs.locale, "script_wm_unit_position", nil)
+}
+
+// ScriptWmFreeMove says "World map: move unit between coordinates"
+// in the language the app shows.
+func ScriptWmFreeMove() string { return In(i18n.Locale()).ScriptWmFreeMove() }
+
+// ScriptWmFreeMove says "World map: move unit between coordinates"
+// in the language of msgs.
+func (msgs Messages) ScriptWmFreeMove() string {
+	return Catalog.Format(msgs.locale, "script_wm_free_move", nil)
+}
+
+// ScriptWmRouteMove says "World map: move unit along route"
+// in the language the app shows.
+func ScriptWmRouteMove() string { return In(i18n.Locale()).ScriptWmRouteMove() }
+
+// ScriptWmRouteMove says "World map: move unit along route"
+// in the language of msgs.
+func (msgs Messages) ScriptWmRouteMove() string {
+	return Catalog.Format(msgs.locale, "script_wm_route_move", nil)
+}
+
+// ScriptWmPauseMove says "World map: pause unit movement"
+// in the language the app shows.
+func ScriptWmPauseMove() string { return In(i18n.Locale()).ScriptWmPauseMove() }
+
+// ScriptWmPauseMove says "World map: pause unit movement"
+// in the language of msgs.
+func (msgs Messages) ScriptWmPauseMove() string {
+	return Catalog.Format(msgs.locale, "script_wm_pause_move", nil)
+}
+
+// ScriptWmResumeMove says "World map: resume unit movement"
+// in the language the app shows.
+func ScriptWmResumeMove() string { return In(i18n.Locale()).ScriptWmResumeMove() }
+
+// ScriptWmResumeMove says "World map: resume unit movement"
+// in the language of msgs.
+func (msgs Messages) ScriptWmResumeMove() string {
+	return Catalog.Format(msgs.locale, "script_wm_resume_move", nil)
+}
+
+// ScriptWmWaitMove says "World map: wait for unit movement"
+// in the language the app shows.
+func ScriptWmWaitMove() string { return In(i18n.Locale()).ScriptWmWaitMove() }
+
+// ScriptWmWaitMove says "World map: wait for unit movement"
+// in the language of msgs.
+func (msgs Messages) ScriptWmWaitMove() string {
+	return Catalog.Format(msgs.locale, "script_wm_wait_move", nil)
+}
+
+// ScriptWmSpawnLord says "World map: set lord unit and node"
+// in the language the app shows.
+func ScriptWmSpawnLord() string { return In(i18n.Locale()).ScriptWmSpawnLord() }
+
+// ScriptWmSpawnLord says "World map: set lord unit and node"
+// in the language of msgs.
+func (msgs Messages) ScriptWmSpawnLord() string {
+	return Catalog.Format(msgs.locale, "script_wm_spawn_lord", nil)
+}
+
+// ScriptWmCameraPosition says "World map: set camera position"
+// in the language the app shows.
+func ScriptWmCameraPosition() string { return In(i18n.Locale()).ScriptWmCameraPosition() }
+
+// ScriptWmCameraPosition says "World map: set camera position"
+// in the language of msgs.
+func (msgs Messages) ScriptWmCameraPosition() string {
+	return Catalog.Format(msgs.locale, "script_wm_camera_position", nil)
+}
+
+// ScriptWmCameraNode says "World map: center camera on node"
+// in the language the app shows.
+func ScriptWmCameraNode() string { return In(i18n.Locale()).ScriptWmCameraNode() }
+
+// ScriptWmCameraNode says "World map: center camera on node"
+// in the language of msgs.
+func (msgs Messages) ScriptWmCameraNode() string {
+	return Catalog.Format(msgs.locale, "script_wm_camera_node", nil)
+}
+
+// ScriptWmCameraUnit says "World map: center camera on unit"
+// in the language the app shows.
+func ScriptWmCameraUnit() string { return In(i18n.Locale()).ScriptWmCameraUnit() }
+
+// ScriptWmCameraUnit says "World map: center camera on unit"
+// in the language of msgs.
+func (msgs Messages) ScriptWmCameraUnit() string {
+	return Catalog.Format(msgs.locale, "script_wm_camera_unit", nil)
+}
+
+// ScriptWmScrollCamera says "World map: scroll camera between coordinates"
+// in the language the app shows.
+func ScriptWmScrollCamera() string { return In(i18n.Locale()).ScriptWmScrollCamera() }
+
+// ScriptWmScrollCamera says "World map: scroll camera between coordinates"
+// in the language of msgs.
+func (msgs Messages) ScriptWmScrollCamera() string {
+	return Catalog.Format(msgs.locale, "script_wm_scroll_camera", nil)
+}
+
+// ScriptWmScrollNode says "World map: scroll camera to node"
+// in the language the app shows.
+func ScriptWmScrollNode() string { return In(i18n.Locale()).ScriptWmScrollNode() }
+
+// ScriptWmScrollNode says "World map: scroll camera to node"
+// in the language of msgs.
+func (msgs Messages) ScriptWmScrollNode() string {
+	return Catalog.Format(msgs.locale, "script_wm_scroll_node", nil)
+}
+
+// ScriptWmScrollUnit says "World map: scroll camera to unit"
+// in the language the app shows.
+func ScriptWmScrollUnit() string { return In(i18n.Locale()).ScriptWmScrollUnit() }
+
+// ScriptWmScrollUnit says "World map: scroll camera to unit"
+// in the language of msgs.
+func (msgs Messages) ScriptWmScrollUnit() string {
+	return Catalog.Format(msgs.locale, "script_wm_scroll_unit", nil)
+}
+
+// ScriptWmWaitCamera says "World map: wait for camera scroll"
+// in the language the app shows.
+func ScriptWmWaitCamera() string { return In(i18n.Locale()).ScriptWmWaitCamera() }
+
+// ScriptWmWaitCamera says "World map: wait for camera scroll"
+// in the language of msgs.
+func (msgs Messages) ScriptWmWaitCamera() string {
+	return Catalog.Format(msgs.locale, "script_wm_wait_camera", nil)
+}
+
+// ScriptWmNode says "World-map node"
+// in the language the app shows.
+func ScriptWmNode() string { return In(i18n.Locale()).ScriptWmNode() }
+
+// ScriptWmNode says "World-map node"
+// in the language of msgs.
+func (msgs Messages) ScriptWmNode() string {
+	return Catalog.Format(msgs.locale, "script_wm_node", nil)
+}
+
+// ScriptWmRoute says "World-map route"
+// in the language the app shows.
+func ScriptWmRoute() string { return In(i18n.Locale()).ScriptWmRoute() }
+
+// ScriptWmRoute says "World-map route"
+// in the language of msgs.
+func (msgs Messages) ScriptWmRoute() string {
+	return Catalog.Format(msgs.locale, "script_wm_route", nil)
+}
+
+// ScriptWmUnit says "World-map unit slot"
+// in the language the app shows.
+func ScriptWmUnit() string { return In(i18n.Locale()).ScriptWmUnit() }
+
+// ScriptWmUnit says "World-map unit slot"
+// in the language of msgs.
+func (msgs Messages) ScriptWmUnit() string {
+	return Catalog.Format(msgs.locale, "script_wm_unit", nil)
+}
+
+// ScriptWmCharacter says "Character ID"
+// in the language the app shows.
+func ScriptWmCharacter() string { return In(i18n.Locale()).ScriptWmCharacter() }
+
+// ScriptWmCharacter says "Character ID"
+// in the language of msgs.
+func (msgs Messages) ScriptWmCharacter() string {
+	return Catalog.Format(msgs.locale, "script_wm_character", nil)
+}
+
+// ScriptWmClass says "Class ID"
+// in the language the app shows.
+func ScriptWmClass() string { return In(i18n.Locale()).ScriptWmClass() }
+
+// ScriptWmClass says "Class ID"
+// in the language of msgs.
+func (msgs Messages) ScriptWmClass() string {
+	return Catalog.Format(msgs.locale, "script_wm_class", nil)
+}
+
+// ScriptWmFaction says "Faction (0 blue / 1 red / 2 green)"
+// in the language the app shows.
+func ScriptWmFaction() string { return In(i18n.Locale()).ScriptWmFaction() }
+
+// ScriptWmFaction says "Faction (0 blue / 1 red / 2 green)"
+// in the language of msgs.
+func (msgs Messages) ScriptWmFaction() string {
+	return Catalog.Format(msgs.locale, "script_wm_faction", nil)
+}
+
+// ScriptWmFromNode says "Departure node"
+// in the language the app shows.
+func ScriptWmFromNode() string { return In(i18n.Locale()).ScriptWmFromNode() }
+
+// ScriptWmFromNode says "Departure node"
+// in the language of msgs.
+func (msgs Messages) ScriptWmFromNode() string {
+	return Catalog.Format(msgs.locale, "script_wm_from_node", nil)
+}
+
+// ScriptWmToNode says "Destination node"
+// in the language the app shows.
+func ScriptWmToNode() string { return In(i18n.Locale()).ScriptWmToNode() }
+
+// ScriptWmToNode says "Destination node"
+// in the language of msgs.
+func (msgs Messages) ScriptWmToNode() string {
+	return Catalog.Format(msgs.locale, "script_wm_to_node", nil)
+}
+
+// ScriptWmDuration says "Duration / automatic timing"
+// in the language the app shows.
+func ScriptWmDuration() string { return In(i18n.Locale()).ScriptWmDuration() }
+
+// ScriptWmDuration says "Duration / automatic timing"
+// in the language of msgs.
+func (msgs Messages) ScriptWmDuration() string {
+	return Catalog.Format(msgs.locale, "script_wm_duration", nil)
+}
+
+// ScriptWmDelay says "Start delay"
+// in the language the app shows.
+func ScriptWmDelay() string { return In(i18n.Locale()).ScriptWmDelay() }
+
+// ScriptWmDelay says "Start delay"
+// in the language of msgs.
+func (msgs Messages) ScriptWmDelay() string {
+	return Catalog.Format(msgs.locale, "script_wm_delay", nil)
+}
+
+// ScriptWmFlags says "Movement flags"
+// in the language the app shows.
+func ScriptWmFlags() string { return In(i18n.Locale()).ScriptWmFlags() }
+
+// ScriptWmFlags says "Movement flags"
+// in the language of msgs.
+func (msgs Messages) ScriptWmFlags() string {
+	return Catalog.Format(msgs.locale, "script_wm_flags", nil)
+}
+
+// ScriptWmAcceleration says "Acceleration curve exponent"
+// in the language the app shows.
+func ScriptWmAcceleration() string { return In(i18n.Locale()).ScriptWmAcceleration() }
+
+// ScriptWmAcceleration says "Acceleration curve exponent"
+// in the language of msgs.
+func (msgs Messages) ScriptWmAcceleration() string {
+	return Catalog.Format(msgs.locale, "script_wm_acceleration", nil)
+}
+
+// ScriptWmX says "World-map X"
+// in the language the app shows.
+func ScriptWmX() string { return In(i18n.Locale()).ScriptWmX() }
+
+// ScriptWmX says "World-map X"
+// in the language of msgs.
+func (msgs Messages) ScriptWmX() string {
+	return Catalog.Format(msgs.locale, "script_wm_x", nil)
+}
+
+// ScriptWmY says "World-map Y"
+// in the language the app shows.
+func ScriptWmY() string { return In(i18n.Locale()).ScriptWmY() }
+
+// ScriptWmY says "World-map Y"
+// in the language of msgs.
+func (msgs Messages) ScriptWmY() string {
+	return Catalog.Format(msgs.locale, "script_wm_y", nil)
+}
+
+// ScriptWmStartX says "Start X"
+// in the language the app shows.
+func ScriptWmStartX() string { return In(i18n.Locale()).ScriptWmStartX() }
+
+// ScriptWmStartX says "Start X"
+// in the language of msgs.
+func (msgs Messages) ScriptWmStartX() string {
+	return Catalog.Format(msgs.locale, "script_wm_start_x", nil)
+}
+
+// ScriptWmStartY says "Start Y"
+// in the language the app shows.
+func ScriptWmStartY() string { return In(i18n.Locale()).ScriptWmStartY() }
+
+// ScriptWmStartY says "Start Y"
+// in the language of msgs.
+func (msgs Messages) ScriptWmStartY() string {
+	return Catalog.Format(msgs.locale, "script_wm_start_y", nil)
+}
+
+// ScriptWmEndX says "End X"
+// in the language the app shows.
+func ScriptWmEndX() string { return In(i18n.Locale()).ScriptWmEndX() }
+
+// ScriptWmEndX says "End X"
+// in the language of msgs.
+func (msgs Messages) ScriptWmEndX() string {
+	return Catalog.Format(msgs.locale, "script_wm_end_x", nil)
+}
+
+// ScriptWmEndY says "End Y"
+// in the language the app shows.
+func ScriptWmEndY() string { return In(i18n.Locale()).ScriptWmEndY() }
+
+// ScriptWmEndY says "End Y"
+// in the language of msgs.
+func (msgs Messages) ScriptWmEndY() string {
+	return Catalog.Format(msgs.locale, "script_wm_end_y", nil)
+}
+
+// ScriptWmUnitHelp says "Native display unit slots are 0–6. Show, hide and movement-wait commands also accept -1 for all units."
+// in the language the app shows.
+func ScriptWmUnitHelp() string { return In(i18n.Locale()).ScriptWmUnitHelp() }
+
+// ScriptWmUnitHelp says "Native display unit slots are 0–6. Show, hide and movement-wait commands also accept -1 for all units."
+// in the language of msgs.
+func (msgs Messages) ScriptWmUnitHelp() string {
+	return Catalog.Format(msgs.locale, "script_wm_unit_help", nil)
+}
+
+// ScriptWmFlagsHelp says "0x01 fades in before moving, 0x02 fades out on arrival, 0x04 enables footsteps. Other bits are preserved."
+// in the language the app shows.
+func ScriptWmFlagsHelp() string { return In(i18n.Locale()).ScriptWmFlagsHelp() }
+
+// ScriptWmFlagsHelp says "0x01 fades in before moving, 0x02 fades out on arrival, 0x04 enables footsteps. Other bits are preserved."
+// in the language of msgs.
+func (msgs Messages) ScriptWmFlagsHelp() string {
+	return Catalog.Format(msgs.locale, "script_wm_flags_help", nil)
+}
+
+// ScriptWmAccelerationHelp says "The native consumer uses the low eight bits: 0 is linear, positive values increase the curve exponent. Upper bits are…"
+// in the language the app shows.
+func ScriptWmAccelerationHelp() string { return In(i18n.Locale()).ScriptWmAccelerationHelp() }
+
+// ScriptWmAccelerationHelp says "The native consumer uses the low eight bits: 0 is linear, positive values increase the curve exponent. Upper bits are…"
+// in the language of msgs.
+func (msgs Messages) ScriptWmAccelerationHelp() string {
+	return Catalog.Format(msgs.locale, "script_wm_acceleration_help", nil)
+}
+
+// ScriptWmDurationHelp says "Route movement accepts negative values for native timing based on endpoint distance and magnitude. New free-movement,…"
+// in the language the app shows.
+func ScriptWmDurationHelp() string { return In(i18n.Locale()).ScriptWmDurationHelp() }
+
+// ScriptWmDurationHelp says "Route movement accepts negative values for native timing based on endpoint distance and magnitude. New free-movement,…"
+// in the language of msgs.
+func (msgs Messages) ScriptWmDurationHelp() string {
+	return Catalog.Format(msgs.locale, "script_wm_duration_help", nil)
+}
+
+// ScriptWmRouteHelp says "Route operands reference native routes 00–1F, with navigation to endpoints, movement and road painting. The running…"
+// in the language the app shows.
+func ScriptWmRouteHelp() string { return In(i18n.Locale()).ScriptWmRouteHelp() }
+
+// ScriptWmRouteHelp says "Route operands reference native routes 00–1F, with navigation to endpoints, movement and road painting. The running…"
+// in the language of msgs.
+func (msgs Messages) ScriptWmRouteHelp() string {
+	return Catalog.Format(msgs.locale, "script_wm_route_help", nil)
+}
+
+// ScriptWmNodeHelp says "Node operands reference native nodes 00–1C. Visibility and story bits are changed by their respective commands."
+// in the language the app shows.
+func ScriptWmNodeHelp() string { return In(i18n.Locale()).ScriptWmNodeHelp() }
+
+// ScriptWmNodeHelp says "Node operands reference native nodes 00–1C. Visibility and story bits are changed by their respective commands."
+// in the language of msgs.
+func (msgs Messages) ScriptWmNodeHelp() string {
+	return Catalog.Format(msgs.locale, "script_wm_node_help", nil)
+}
+
+// ScriptWmContextHelp says "This command requires the corresponding world-map runtime state. The editor does not simulate event execution order."
+// in the language the app shows.
+func ScriptWmContextHelp() string { return In(i18n.Locale()).ScriptWmContextHelp() }
+
+// ScriptWmContextHelp says "This command requires the corresponding world-map runtime state. The editor does not simulate event execution order."
+// in the language of msgs.
+func (msgs Messages) ScriptWmContextHelp() string {
+	return Catalog.Format(msgs.locale, "script_wm_context_help", nil)
+}
+
+// ScriptWmPlaceHelp says "Choose a display slot, character or class, and placement node. World-map scene units are separate from battlefield de…"
+// in the language the app shows.
+func ScriptWmPlaceHelp() string { return In(i18n.Locale()).ScriptWmPlaceHelp() }
+
+// ScriptWmPlaceHelp says "Choose a display slot, character or class, and placement node. World-map scene units are separate from battlefield de…"
+// in the language of msgs.
+func (msgs Messages) ScriptWmPlaceHelp() string {
+	return Catalog.Format(msgs.locale, "script_wm_place_help", nil)
+}
+
+// ScriptWmPositionHelp says "Coordinates are signed world-map pixels. The native display retains its own unit offsets."
+// in the language the app shows.
+func ScriptWmPositionHelp() string { return In(i18n.Locale()).ScriptWmPositionHelp() }
+
+// ScriptWmPositionHelp says "Coordinates are signed world-map pixels. The native display retains its own unit offsets."
+// in the language of msgs.
+func (msgs Messages) ScriptWmPositionHelp() string {
+	return Catalog.Format(msgs.locale, "script_wm_position_help", nil)
+}
+
+// ScriptWmFreeMoveHelp says "Move between pixel coordinates. New durations must be positive; unchanged bytes are preserved without treating old ne…"
+// in the language the app shows.
+func ScriptWmFreeMoveHelp() string { return In(i18n.Locale()).ScriptWmFreeMoveHelp() }
+
+// ScriptWmFreeMoveHelp says "Move between pixel coordinates. New durations must be positive; unchanged bytes are preserved without treating old ne…"
+// in the language of msgs.
+func (msgs Messages) ScriptWmFreeMoveHelp() string {
+	return Catalog.Format(msgs.locale, "script_wm_free_move_help", nil)
+}
+
+// ScriptWmRouteMoveHelp says "Move along an existing route between the two nodes. Changed endpoints require a confirmed connection and bounded move…"
+// in the language the app shows.
+func ScriptWmRouteMoveHelp() string { return In(i18n.Locale()).ScriptWmRouteMoveHelp() }
+
+// ScriptWmRouteMoveHelp says "Move along an existing route between the two nodes. Changed endpoints require a confirmed connection and bounded move…"
+// in the language of msgs.
+func (msgs Messages) ScriptWmRouteMoveHelp() string {
+	return Catalog.Format(msgs.locale, "script_wm_route_move_help", nil)
+}
+
+// ScriptWmWaitMoveHelp says "Wait for one unit to finish moving; -1 waits for all world-map units. The unused upper halfword is preserved."
+// in the language the app shows.
+func ScriptWmWaitMoveHelp() string { return In(i18n.Locale()).ScriptWmWaitMoveHelp() }
+
+// ScriptWmWaitMoveHelp says "Wait for one unit to finish moving; -1 waits for all world-map units. The unused upper halfword is preserved."
+// in the language of msgs.
+func (msgs Messages) ScriptWmWaitMoveHelp() string {
+	return Catalog.Format(msgs.locale, "script_wm_wait_move_help", nil)
+}
+
+// ScriptWmSpawnHelp says "Set the lord slot, character and node. An existing matching character is not repositioned; character 0 preserves an e…"
+// in the language the app shows.
+func ScriptWmSpawnHelp() string { return In(i18n.Locale()).ScriptWmSpawnHelp() }
+
+// ScriptWmSpawnHelp says "Set the lord slot, character and node. An existing matching character is not repositioned; character 0 preserves an e…"
+// in the language of msgs.
+func (msgs Messages) ScriptWmSpawnHelp() string {
+	return Catalog.Format(msgs.locale, "script_wm_spawn_help", nil)
+}
+
+// ScriptWmCameraHelp says "The world-map camera uses pixel coordinates. A scroll start of -1 uses the current camera coordinate; node or unit op…"
+// in the language the app shows.
+func ScriptWmCameraHelp() string { return In(i18n.Locale()).ScriptWmCameraHelp() }
+
+// ScriptWmCameraHelp says "The world-map camera uses pixel coordinates. A scroll start of -1 uses the current camera coordinate; node or unit op…"
+// in the language of msgs.
+func (msgs Messages) ScriptWmCameraHelp() string {
+	return Catalog.Format(msgs.locale, "script_wm_camera_help", nil)
+}
+
+// ScriptWmFadeBlack says "Fade world map to black"
+// in the language the app shows.
+func ScriptWmFadeBlack() string { return In(i18n.Locale()).ScriptWmFadeBlack() }
+
+// ScriptWmFadeBlack says "Fade world map to black"
+// in the language of msgs.
+func (msgs Messages) ScriptWmFadeBlack() string {
+	return Catalog.Format(msgs.locale, "script_wm_fade_black", nil)
+}
+
+// ScriptWmEndScene says "End world-map scene"
+// in the language the app shows.
+func ScriptWmEndScene() string { return In(i18n.Locale()).ScriptWmEndScene() }
+
+// ScriptWmEndScene says "End world-map scene"
+// in the language of msgs.
+func (msgs Messages) ScriptWmEndScene() string {
+	return Catalog.Format(msgs.locale, "script_wm_end_scene", nil)
+}
+
+// ScriptWmDarken says "Darken world-map palette"
+// in the language the app shows.
+func ScriptWmDarken() string { return In(i18n.Locale()).ScriptWmDarken() }
+
+// ScriptWmDarken says "Darken world-map palette"
+// in the language of msgs.
+func (msgs Messages) ScriptWmDarken() string {
+	return Catalog.Format(msgs.locale, "script_wm_darken", nil)
+}
+
+// ScriptWmWaitDarken says "Wait for palette fade"
+// in the language the app shows.
+func ScriptWmWaitDarken() string { return In(i18n.Locale()).ScriptWmWaitDarken() }
+
+// ScriptWmWaitDarken says "Wait for palette fade"
+// in the language of msgs.
+func (msgs Messages) ScriptWmWaitDarken() string {
+	return Catalog.Format(msgs.locale, "script_wm_wait_darken", nil)
+}
+
+// ScriptWmShowTextBox says "Expand narration background"
+// in the language the app shows.
+func ScriptWmShowTextBox() string { return In(i18n.Locale()).ScriptWmShowTextBox() }
+
+// ScriptWmShowTextBox says "Expand narration background"
+// in the language of msgs.
+func (msgs Messages) ScriptWmShowTextBox() string {
+	return Catalog.Format(msgs.locale, "script_wm_show_text_box", nil)
+}
+
+// ScriptWmWaitTextBox says "Wait for narration background"
+// in the language the app shows.
+func ScriptWmWaitTextBox() string { return In(i18n.Locale()).ScriptWmWaitTextBox() }
+
+// ScriptWmWaitTextBox says "Wait for narration background"
+// in the language of msgs.
+func (msgs Messages) ScriptWmWaitTextBox() string {
+	return Catalog.Format(msgs.locale, "script_wm_wait_text_box", nil)
+}
+
+// ScriptWmRevealScreen says "Reveal world-map screen"
+// in the language the app shows.
+func ScriptWmRevealScreen() string { return In(i18n.Locale()).ScriptWmRevealScreen() }
+
+// ScriptWmRevealScreen says "Reveal world-map screen"
+// in the language of msgs.
+func (msgs Messages) ScriptWmRevealScreen() string {
+	return Catalog.Format(msgs.locale, "script_wm_reveal_screen", nil)
+}
+
+// ScriptWmWaitRevealScreen says "Wait for screen reveal"
+// in the language the app shows.
+func ScriptWmWaitRevealScreen() string { return In(i18n.Locale()).ScriptWmWaitRevealScreen() }
+
+// ScriptWmWaitRevealScreen says "Wait for screen reveal"
+// in the language of msgs.
+func (msgs Messages) ScriptWmWaitRevealScreen() string {
+	return Catalog.Format(msgs.locale, "script_wm_wait_reveal_screen", nil)
+}
+
+// ScriptWmInitScene says "Initialize world-map display"
+// in the language the app shows.
+func ScriptWmInitScene() string { return In(i18n.Locale()).ScriptWmInitScene() }
+
+// ScriptWmInitScene says "Initialize world-map display"
+// in the language of msgs.
+func (msgs Messages) ScriptWmInitScene() string {
+	return Catalog.Format(msgs.locale, "script_wm_init_scene", nil)
+}
+
+// ScriptWmSkipScene says "Skip world-map travel"
+// in the language the app shows.
+func ScriptWmSkipScene() string { return In(i18n.Locale()).ScriptWmSkipScene() }
+
+// ScriptWmSkipScene says "Skip world-map travel"
+// in the language of msgs.
+func (msgs Messages) ScriptWmSkipScene() string {
+	return Catalog.Format(msgs.locale, "script_wm_skip_scene", nil)
+}
+
+// ScriptWmNoFade says "Suppress world-map fade"
+// in the language the app shows.
+func ScriptWmNoFade() string { return In(i18n.Locale()).ScriptWmNoFade() }
+
+// ScriptWmNoFade says "Suppress world-map fade"
+// in the language of msgs.
+func (msgs Messages) ScriptWmNoFade() string {
+	return Catalog.Format(msgs.locale, "script_wm_no_fade", nil)
+}
+
+// ScriptWmShowPortrait says "Show world-map portrait"
+// in the language the app shows.
+func ScriptWmShowPortrait() string { return In(i18n.Locale()).ScriptWmShowPortrait() }
+
+// ScriptWmShowPortrait says "Show world-map portrait"
+// in the language of msgs.
+func (msgs Messages) ScriptWmShowPortrait() string {
+	return Catalog.Format(msgs.locale, "script_wm_show_portrait", nil)
+}
+
+// ScriptWmClearPortrait says "Clear world-map portrait"
+// in the language the app shows.
+func ScriptWmClearPortrait() string { return In(i18n.Locale()).ScriptWmClearPortrait() }
+
+// ScriptWmClearPortrait says "Clear world-map portrait"
+// in the language of msgs.
+func (msgs Messages) ScriptWmClearPortrait() string {
+	return Catalog.Format(msgs.locale, "script_wm_clear_portrait", nil)
+}
+
+// ScriptWmText says "World-map narration"
+// in the language the app shows.
+func ScriptWmText() string { return In(i18n.Locale()).ScriptWmText() }
+
+// ScriptWmText says "World-map narration"
+// in the language of msgs.
+func (msgs Messages) ScriptWmText() string {
+	return Catalog.Format(msgs.locale, "script_wm_text", nil)
+}
+
+// ScriptWmTextBottom says "Show narration at bottom"
+// in the language the app shows.
+func ScriptWmTextBottom() string { return In(i18n.Locale()).ScriptWmTextBottom() }
+
+// ScriptWmTextBottom says "Show narration at bottom"
+// in the language of msgs.
+func (msgs Messages) ScriptWmTextBottom() string {
+	return Catalog.Format(msgs.locale, "script_wm_text_bottom", nil)
+}
+
+// ScriptWmTextTop says "Show narration at top"
+// in the language the app shows.
+func ScriptWmTextTop() string { return In(i18n.Locale()).ScriptWmTextTop() }
+
+// ScriptWmTextTop says "Show narration at top"
+// in the language of msgs.
+func (msgs Messages) ScriptWmTextTop() string {
+	return Catalog.Format(msgs.locale, "script_wm_text_top", nil)
+}
+
+// ScriptWmTextHide says "Hide world-map narration"
+// in the language the app shows.
+func ScriptWmTextHide() string { return In(i18n.Locale()).ScriptWmTextHide() }
+
+// ScriptWmTextHide says "Hide world-map narration"
+// in the language of msgs.
+func (msgs Messages) ScriptWmTextHide() string {
+	return Catalog.Format(msgs.locale, "script_wm_text_hide", nil)
+}
+
+// ScriptWmFaceSlot says "Portrait slot"
+// in the language the app shows.
+func ScriptWmFaceSlot() string { return In(i18n.Locale()).ScriptWmFaceSlot() }
+
+// ScriptWmFaceSlot says "Portrait slot"
+// in the language of msgs.
+func (msgs Messages) ScriptWmFaceSlot() string {
+	return Catalog.Format(msgs.locale, "script_wm_face_slot", nil)
+}
+
+// ScriptWmPortrait says "Portrait ID"
+// in the language the app shows.
+func ScriptWmPortrait() string { return In(i18n.Locale()).ScriptWmPortrait() }
+
+// ScriptWmPortrait says "Portrait ID"
+// in the language of msgs.
+func (msgs Messages) ScriptWmPortrait() string {
+	return Catalog.Format(msgs.locale, "script_wm_portrait", nil)
+}
+
+// ScriptWmFaceX says "Portrait X"
+// in the language the app shows.
+func ScriptWmFaceX() string { return In(i18n.Locale()).ScriptWmFaceX() }
+
+// ScriptWmFaceX says "Portrait X"
+// in the language of msgs.
+func (msgs Messages) ScriptWmFaceX() string {
+	return Catalog.Format(msgs.locale, "script_wm_face_x", nil)
+}
+
+// ScriptWmFaceSlide says "Slide direction"
+// in the language the app shows.
+func ScriptWmFaceSlide() string { return In(i18n.Locale()).ScriptWmFaceSlide() }
+
+// ScriptWmFaceSlide says "Slide direction"
+// in the language of msgs.
+func (msgs Messages) ScriptWmFaceSlide() string {
+	return Catalog.Format(msgs.locale, "script_wm_face_slide", nil)
+}
+
+// ScriptWmFaceFlip says "Mirror portrait"
+// in the language the app shows.
+func ScriptWmFaceFlip() string { return In(i18n.Locale()).ScriptWmFaceFlip() }
+
+// ScriptWmFaceFlip says "Mirror portrait"
+// in the language of msgs.
+func (msgs Messages) ScriptWmFaceFlip() string {
+	return Catalog.Format(msgs.locale, "script_wm_face_flip", nil)
+}
+
+// ScriptWmFaceLayer says "Portrait layer"
+// in the language the app shows.
+func ScriptWmFaceLayer() string { return In(i18n.Locale()).ScriptWmFaceLayer() }
+
+// ScriptWmFaceLayer says "Portrait layer"
+// in the language of msgs.
+func (msgs Messages) ScriptWmFaceLayer() string {
+	return Catalog.Format(msgs.locale, "script_wm_face_layer", nil)
+}
+
+// ScriptWmFaceDelay says "Portrait delay"
+// in the language the app shows.
+func ScriptWmFaceDelay() string { return In(i18n.Locale()).ScriptWmFaceDelay() }
+
+// ScriptWmFaceDelay says "Portrait delay"
+// in the language of msgs.
+func (msgs Messages) ScriptWmFaceDelay() string {
+	return Catalog.Format(msgs.locale, "script_wm_face_delay", nil)
+}
+
+// ScriptWmFadeFrames says "Palette fade frames"
+// in the language the app shows.
+func ScriptWmFadeFrames() string { return In(i18n.Locale()).ScriptWmFadeFrames() }
+
+// ScriptWmFadeFrames says "Palette fade frames"
+// in the language of msgs.
+func (msgs Messages) ScriptWmFadeFrames() string {
+	return Catalog.Format(msgs.locale, "script_wm_fade_frames", nil)
+}
+
+// ScriptWmTextBoxFrames says "Background expansion frames"
+// in the language the app shows.
+func ScriptWmTextBoxFrames() string { return In(i18n.Locale()).ScriptWmTextBoxFrames() }
+
+// ScriptWmTextBoxFrames says "Background expansion frames"
+// in the language of msgs.
+func (msgs Messages) ScriptWmTextBoxFrames() string {
+	return Catalog.Format(msgs.locale, "script_wm_text_box_frames", nil)
+}
+
+// ScriptWmTextBoxCurve says "Background easing"
+// in the language the app shows.
+func ScriptWmTextBoxCurve() string { return In(i18n.Locale()).ScriptWmTextBoxCurve() }
+
+// ScriptWmTextBoxCurve says "Background easing"
+// in the language of msgs.
+func (msgs Messages) ScriptWmTextBoxCurve() string {
+	return Catalog.Format(msgs.locale, "script_wm_text_box_curve", nil)
+}
+
+// ScriptWmRevealStyle says "Reveal speed mode"
+// in the language the app shows.
+func ScriptWmRevealStyle() string { return In(i18n.Locale()).ScriptWmRevealStyle() }
+
+// ScriptWmRevealStyle says "Reveal speed mode"
+// in the language of msgs.
+func (msgs Messages) ScriptWmRevealStyle() string {
+	return Catalog.Format(msgs.locale, "script_wm_reveal_style", nil)
+}
+
+// ScriptWmFaceSlotHelp says "The world-map portrait controller has slots 0 and 1."
+// in the language the app shows.
+func ScriptWmFaceSlotHelp() string { return In(i18n.Locale()).ScriptWmFaceSlotHelp() }
+
+// ScriptWmFaceSlotHelp says "The world-map portrait controller has slots 0 and 1."
+// in the language of msgs.
+func (msgs Messages) ScriptWmFaceSlotHelp() string {
+	return Catalog.Format(msgs.locale, "script_wm_face_slot_help", nil)
+}
+
+// ScriptWmFaceSlideHelp says "0: no slide; 1: enter from right; 2: enter from left; 3: both native direction flags."
+// in the language the app shows.
+func ScriptWmFaceSlideHelp() string { return In(i18n.Locale()).ScriptWmFaceSlideHelp() }
+
+// ScriptWmFaceSlideHelp says "0: no slide; 1: enter from right; 2: enter from left; 3: both native direction flags."
+// in the language of msgs.
+func (msgs Messages) ScriptWmFaceSlideHelp() string {
+	return Catalog.Format(msgs.locale, "script_wm_face_slide_help", nil)
+}
+
+// ScriptWmFaceClearSlideHelp says "0: retain direction; 1: exit left; 2: exit right; 3: both native direction flags."
+// in the language the app shows.
+func ScriptWmFaceClearSlideHelp() string { return In(i18n.Locale()).ScriptWmFaceClearSlideHelp() }
+
+// ScriptWmFaceClearSlideHelp says "0: retain direction; 1: exit left; 2: exit right; 3: both native direction flags."
+// in the language of msgs.
+func (msgs Messages) ScriptWmFaceClearSlideHelp() string {
+	return Catalog.Format(msgs.locale, "script_wm_face_clear_slide_help", nil)
+}
+
+// ScriptWmFaceXHelp says "Screen pixel position, 0–255. The camera position is unchanged."
+// in the language the app shows.
+func ScriptWmFaceXHelp() string { return In(i18n.Locale()).ScriptWmFaceXHelp() }
+
+// ScriptWmFaceXHelp says "Screen pixel position, 0–255. The camera position is unchanged."
+// in the language of msgs.
+func (msgs Messages) ScriptWmFaceXHelp() string {
+	return Catalog.Format(msgs.locale, "script_wm_face_x_help", nil)
+}
+
+// ScriptWmFaceFlipHelp says "0: original; 1: mirrored. The resource preview shows the original orientation."
+// in the language the app shows.
+func ScriptWmFaceFlipHelp() string { return In(i18n.Locale()).ScriptWmFaceFlipHelp() }
+
+// ScriptWmFaceFlipHelp says "0: original; 1: mirrored. The resource preview shows the original orientation."
+// in the language of msgs.
+func (msgs Messages) ScriptWmFaceFlipHelp() string {
+	return Catalog.Format(msgs.locale, "script_wm_face_flip_help", nil)
+}
+
+// ScriptWmFaceLayerHelp says "Values 0–3 select native object layers 3–6. Other configuration bits are preserved."
+// in the language the app shows.
+func ScriptWmFaceLayerHelp() string { return In(i18n.Locale()).ScriptWmFaceLayerHelp() }
+
+// ScriptWmFaceLayerHelp says "Values 0–3 select native object layers 3–6. Other configuration bits are preserved."
+// in the language of msgs.
+func (msgs Messages) ScriptWmFaceLayerHelp() string {
+	return Catalog.Format(msgs.locale, "script_wm_face_layer_help", nil)
+}
+
+// ScriptWmPortraitHelp says "Choose a readable face portrait. Empty entries and class cards cannot be newly assigned."
+// in the language the app shows.
+func ScriptWmPortraitHelp() string { return In(i18n.Locale()).ScriptWmPortraitHelp() }
+
+// ScriptWmPortraitHelp says "Choose a readable face portrait. Empty entries and class cards cannot be newly assigned."
+// in the language of msgs.
+func (msgs Messages) ScriptWmPortraitHelp() string {
+	return Catalog.Format(msgs.locale, "script_wm_portrait_help", nil)
+}
+
+// ScriptWmTextIdHelp says "Choose readable ROM text. Edit its content through the text editor."
+// in the language the app shows.
+func ScriptWmTextIdHelp() string { return In(i18n.Locale()).ScriptWmTextIdHelp() }
+
+// ScriptWmTextIdHelp says "Choose readable ROM text. Edit its content through the text editor."
+// in the language of msgs.
+func (msgs Messages) ScriptWmTextIdHelp() string {
+	return Catalog.Format(msgs.locale, "script_wm_text_id_help", nil)
+}
+
+// ScriptWmRevealStyleHelp says "2 selects the slower reveal; other values select normal speed. Only the low byte is consumed."
+// in the language the app shows.
+func ScriptWmRevealStyleHelp() string { return In(i18n.Locale()).ScriptWmRevealStyleHelp() }
+
+// ScriptWmRevealStyleHelp says "2 selects the slower reveal; other values select normal speed. Only the low byte is consumed."
+// in the language of msgs.
+func (msgs Messages) ScriptWmRevealStyleHelp() string {
+	return Catalog.Format(msgs.locale, "script_wm_reveal_style_help", nil)
+}
+
+// ScriptWmFadeBlackHelp says "Use the native blocking fade to black. Event skipping disables the display immediately."
+// in the language the app shows.
+func ScriptWmFadeBlackHelp() string { return In(i18n.Locale()).ScriptWmFadeBlackHelp() }
+
+// ScriptWmFadeBlackHelp says "Use the native blocking fade to black. Event skipping disables the display immediately."
+// in the language of msgs.
+func (msgs Messages) ScriptWmFadeBlackHelp() string {
+	return Catalog.Format(msgs.locale, "script_wm_fade_black_help", nil)
+}
+
+// ScriptWmEndSceneHelp says "Stop the world-map display and reset backgrounds. The event continues and still needs its own end command."
+// in the language the app shows.
+func ScriptWmEndSceneHelp() string { return In(i18n.Locale()).ScriptWmEndSceneHelp() }
+
+// ScriptWmEndSceneHelp says "Stop the world-map display and reset backgrounds. The event continues and still needs its own end command."
+// in the language of msgs.
+func (msgs Messages) ScriptWmEndSceneHelp() string {
+	return Catalog.Format(msgs.locale, "script_wm_end_scene_help", nil)
+}
+
+// ScriptWmDarkenHelp says "Fade between native world-map palettes. Use the wait command to synchronize later actions."
+// in the language the app shows.
+func ScriptWmDarkenHelp() string { return In(i18n.Locale()).ScriptWmDarkenHelp() }
+
+// ScriptWmDarkenHelp says "Fade between native world-map palettes. Use the wait command to synchronize later actions."
+// in the language of msgs.
+func (msgs Messages) ScriptWmDarkenHelp() string {
+	return Catalog.Format(msgs.locale, "script_wm_darken_help", nil)
+}
+
+// ScriptWmFadeFramesHelp says "Positive values set frame duration; zero or negative values apply the target palette immediately."
+// in the language the app shows.
+func ScriptWmFadeFramesHelp() string { return In(i18n.Locale()).ScriptWmFadeFramesHelp() }
+
+// ScriptWmFadeFramesHelp says "Positive values set frame duration; zero or negative values apply the target palette immediately."
+// in the language of msgs.
+func (msgs Messages) ScriptWmFadeFramesHelp() string {
+	return Catalog.Format(msgs.locale, "script_wm_fade_frames_help", nil)
+}
+
+// ScriptWmShowTextBoxHelp says "Expand the native narration background. Text and narration visibility use separate commands."
+// in the language the app shows.
+func ScriptWmShowTextBoxHelp() string { return In(i18n.Locale()).ScriptWmShowTextBoxHelp() }
+
+// ScriptWmShowTextBoxHelp says "Expand the native narration background. Text and narration visibility use separate commands."
+// in the language of msgs.
+func (msgs Messages) ScriptWmShowTextBoxHelp() string {
+	return Catalog.Format(msgs.locale, "script_wm_show_text_box_help", nil)
+}
+
+// ScriptWmTextBoxFramesHelp says "Frame duration, 0–65535. Zero completes without interpolation."
+// in the language the app shows.
+func ScriptWmTextBoxFramesHelp() string { return In(i18n.Locale()).ScriptWmTextBoxFramesHelp() }
+
+// ScriptWmTextBoxFramesHelp says "Frame duration, 0–65535. Zero completes without interpolation."
+// in the language of msgs.
+func (msgs Messages) ScriptWmTextBoxFramesHelp() string {
+	return Catalog.Format(msgs.locale, "script_wm_text_box_frames_help", nil)
+}
+
+// ScriptWmTextBoxCurveHelp says "Zero is linear; positive values increase the easing exponent. Negative values retain native signed behavior."
+// in the language the app shows.
+func ScriptWmTextBoxCurveHelp() string { return In(i18n.Locale()).ScriptWmTextBoxCurveHelp() }
+
+// ScriptWmTextBoxCurveHelp says "Zero is linear; positive values increase the easing exponent. Negative values retain native signed behavior."
+// in the language of msgs.
+func (msgs Messages) ScriptWmTextBoxCurveHelp() string {
+	return Catalog.Format(msgs.locale, "script_wm_text_box_curve_help", nil)
+}
+
+// ScriptWmRevealScreenHelp says "Use the native symmetric line fade. Add its wait command to synchronize following actions."
+// in the language the app shows.
+func ScriptWmRevealScreenHelp() string { return In(i18n.Locale()).ScriptWmRevealScreenHelp() }
+
+// ScriptWmRevealScreenHelp says "Use the native symmetric line fade. Add its wait command to synchronize following actions."
+// in the language of msgs.
+func (msgs Messages) ScriptWmRevealScreenHelp() string {
+	return Catalog.Format(msgs.locale, "script_wm_reveal_screen_help", nil)
+}
+
+// ScriptWmInitSceneHelp says "Initialize display resources for an existing world-map process. This does not create that process."
+// in the language the app shows.
+func ScriptWmInitSceneHelp() string { return In(i18n.Locale()).ScriptWmInitSceneHelp() }
+
+// ScriptWmInitSceneHelp says "Initialize display resources for an existing world-map process. This does not create that process."
+// in the language of msgs.
+func (msgs Messages) ScriptWmInitSceneHelp() string {
+	return Catalog.Format(msgs.locale, "script_wm_init_scene_help", nil)
+}
+
+// ScriptWmSkipSceneHelp says "Set the world-map skip flag for subsequent game flow. The current event continues."
+// in the language the app shows.
+func ScriptWmSkipSceneHelp() string { return In(i18n.Locale()).ScriptWmSkipSceneHelp() }
+
+// ScriptWmSkipSceneHelp says "Set the world-map skip flag for subsequent game flow. The current event continues."
+// in the language of msgs.
+func (msgs Messages) ScriptWmSkipSceneHelp() string {
+	return Catalog.Format(msgs.locale, "script_wm_skip_scene_help", nil)
+}
+
+// ScriptWmNoFadeHelp says "Set the native flag suppressing the following world-map fade. Transitions are not simulated here."
+// in the language the app shows.
+func ScriptWmNoFadeHelp() string { return In(i18n.Locale()).ScriptWmNoFadeHelp() }
+
+// ScriptWmNoFadeHelp says "Set the native flag suppressing the following world-map fade. Transitions are not simulated here."
+// in the language of msgs.
+func (msgs Messages) ScriptWmNoFadeHelp() string {
+	return Catalog.Format(msgs.locale, "script_wm_no_fade_help", nil)
+}
+
+// ScriptWmShowPortraitHelp says "Show a portrait in slot 0 or 1 with position, slide, mirror, layer and delay. Requires the world-map portrait control…"
+// in the language the app shows.
+func ScriptWmShowPortraitHelp() string { return In(i18n.Locale()).ScriptWmShowPortraitHelp() }
+
+// ScriptWmShowPortraitHelp says "Show a portrait in slot 0 or 1 with position, slide, mirror, layer and delay. Requires the world-map portrait control…"
+// in the language of msgs.
+func (msgs Messages) ScriptWmShowPortraitHelp() string {
+	return Catalog.Format(msgs.locale, "script_wm_show_portrait_help", nil)
+}
+
+// ScriptWmClearPortraitHelp says "Clear the selected portrait after an optional delay. Skipping clears the slot immediately."
+// in the language the app shows.
+func ScriptWmClearPortraitHelp() string { return In(i18n.Locale()).ScriptWmClearPortraitHelp() }
+
+// ScriptWmClearPortraitHelp says "Clear the selected portrait after an optional delay. Skipping clears the slot immediately."
+// in the language of msgs.
+func (msgs Messages) ScriptWmClearPortraitHelp() string {
+	return Catalog.Format(msgs.locale, "script_wm_clear_portrait_help", nil)
+}
+
+// ScriptWmFaceShowDelayHelp says "Zero is immediate; positive values count down in frames. Negative values defer without a countdown."
+// in the language the app shows.
+func ScriptWmFaceShowDelayHelp() string { return In(i18n.Locale()).ScriptWmFaceShowDelayHelp() }
+
+// ScriptWmFaceShowDelayHelp says "Zero is immediate; positive values count down in frames. Negative values defer without a countdown."
+// in the language of msgs.
+func (msgs Messages) ScriptWmFaceShowDelayHelp() string {
+	return Catalog.Format(msgs.locale, "script_wm_face_show_delay_help", nil)
+}
+
+// ScriptWmFaceClearDelayHelp says "Unsigned frame delay, 0–65535. Zero clears immediately."
+// in the language the app shows.
+func ScriptWmFaceClearDelayHelp() string { return In(i18n.Locale()).ScriptWmFaceClearDelayHelp() }
+
+// ScriptWmFaceClearDelayHelp says "Unsigned frame delay, 0–65535. Zero clears immediately."
+// in the language of msgs.
+func (msgs Messages) ScriptWmFaceClearDelayHelp() string {
+	return Catalog.Format(msgs.locale, "script_wm_face_clear_delay_help", nil)
+}
+
+// ScriptWmTextHelp says "Start narration. Use narration-position commands and the ordinary text-wait command for visibility and timing."
+// in the language the app shows.
+func ScriptWmTextHelp() string { return In(i18n.Locale()).ScriptWmTextHelp() }
+
+// ScriptWmTextHelp says "Start narration. Use narration-position commands and the ordinary text-wait command for visibility and timing."
+// in the language of msgs.
+func (msgs Messages) ScriptWmTextHelp() string {
+	return Catalog.Format(msgs.locale, "script_wm_text_help", nil)
+}
+
+// ScriptWmTextBottomHelp says "Show narration at the bottom of the screen."
+// in the language the app shows.
+func ScriptWmTextBottomHelp() string { return In(i18n.Locale()).ScriptWmTextBottomHelp() }
+
+// ScriptWmTextBottomHelp says "Show narration at the bottom of the screen."
+// in the language of msgs.
+func (msgs Messages) ScriptWmTextBottomHelp() string {
+	return Catalog.Format(msgs.locale, "script_wm_text_bottom_help", nil)
+}
+
+// ScriptWmTextTopHelp says "Show narration at the top of the screen."
+// in the language the app shows.
+func ScriptWmTextTopHelp() string { return In(i18n.Locale()).ScriptWmTextTopHelp() }
+
+// ScriptWmTextTopHelp says "Show narration at the top of the screen."
+// in the language of msgs.
+func (msgs Messages) ScriptWmTextTopHelp() string {
+	return Catalog.Format(msgs.locale, "script_wm_text_top_help", nil)
+}
+
+// ScriptWmTextHideHelp says "Hide narration. Portraits are cleared separately."
+// in the language the app shows.
+func ScriptWmTextHideHelp() string { return In(i18n.Locale()).ScriptWmTextHideHelp() }
+
+// ScriptWmTextHideHelp says "Hide narration. Portraits are cleared separately."
+// in the language of msgs.
+func (msgs Messages) ScriptWmTextHideHelp() string {
+	return Catalog.Format(msgs.locale, "script_wm_text_hide_help", nil)
+}
+
+// ScriptPortraitPreview says "Portrait resource preview"
+// in the language the app shows.
+func ScriptPortraitPreview() string { return In(i18n.Locale()).ScriptPortraitPreview() }
+
+// ScriptPortraitPreview says "Portrait resource preview"
+// in the language of msgs.
+func (msgs Messages) ScriptPortraitPreview() string {
+	return Catalog.Format(msgs.locale, "script_portrait_preview", nil)
+}
+
+// ScriptOpenPortrait says "Open portrait resource"
+// in the language the app shows.
+func ScriptOpenPortrait() string { return In(i18n.Locale()).ScriptOpenPortrait() }
+
+// ScriptOpenPortrait says "Open portrait resource"
+// in the language of msgs.
+func (msgs Messages) ScriptOpenPortrait() string {
+	return Catalog.Format(msgs.locale, "script_open_portrait", nil)
+}

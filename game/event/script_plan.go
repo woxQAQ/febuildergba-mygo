@@ -16,6 +16,8 @@ import (
 type ScriptUse struct {
 	Chapter, Pointer, Address int
 	Source                    string
+	WorldMap                  bool
+	EventID                   int
 }
 
 // ScriptPlan is one immutable parameter patch or append-and-pointer operation.
@@ -221,8 +223,11 @@ func (s *Editor) validateScriptEdit(
 		if row.definition == nil {
 			continue
 		}
+		old, found := originals[row.instruction.ID]
+		if err := s.validateWorldMapMovement(row, old, found); err != nil {
+			return err
+		}
 		for _, field := range row.definition.fields {
-			old, found := originals[row.instruction.ID]
 			if found && (!structural || field.Target != ScriptMovementTarget) &&
 				field.value(
 					old.instruction.Raw,
@@ -254,6 +259,9 @@ func (s *Editor) validateScriptOperand(
 	format Format,
 ) error {
 	value := field.value(data[address:])
+	if err := s.validateWorldMapOperand(field, value); err != nil {
+		return err
+	}
 	if value == 0 && field.Optional {
 		return nil
 	}
@@ -264,6 +272,8 @@ func (s *Editor) validateScriptOperand(
 		}
 		_, err := readScriptMovement(data, int(value)-0x08000000)
 		return err
+	case ScriptPortraitTarget:
+		return s.validateScriptPortrait(value)
 	case ScriptTextTarget:
 		if field.isIndirect(value) {
 			return nil
@@ -306,18 +316,14 @@ func (s *Editor) scriptUses(
 	length int,
 ) []ScriptUse {
 	var result []ScriptUse
-	table := s.records.Table(records.Chapters)
-	if table == nil || table.Err != nil {
-		return result
-	}
-	for _, chapter := range table.Rows {
-		index, err := s.scriptIndex(chapter.ID)
-		if err != nil {
-			continue
-		}
+	seen := make(map[int]bool)
+	consider := func(index scriptIndex, global bool) {
 		for _, candidate := range index.entries {
-			if candidate.Err != nil {
+			if candidate.Err != nil || global && seen[candidate.Pointer] {
 				continue
+			}
+			if !global {
+				seen[candidate.Pointer] = true
 			}
 			affected := candidate.Pointer == entry.Pointer
 			if !relocated {
@@ -333,13 +339,30 @@ func (s *Editor) scriptUses(
 				result = append(
 					result,
 					ScriptUse{
-						Chapter: chapter.ID,
-						Pointer: candidate.Pointer,
-						Address: candidate.Address,
-						Source:  candidate.Source,
+						Chapter:  candidate.Chapter,
+						Pointer:  candidate.Pointer,
+						Address:  candidate.Address,
+						Source:   candidate.Source,
+						WorldMap: candidate.WorldMap,
+						EventID:  candidate.EventID,
 					},
 				)
 			}
+		}
+	}
+	table := s.records.Table(records.Chapters)
+	if table != nil && table.Err == nil {
+		for _, chapter := range table.Rows {
+			index, err := s.scriptIndex(chapter.ID)
+			if err == nil {
+				consider(index, false)
+			}
+		}
+	}
+	if s.WorldMapEventsAvailable() {
+		index, err := s.scriptIndex(WorldMapScripts)
+		if err == nil {
+			consider(index, true)
 		}
 	}
 	return result

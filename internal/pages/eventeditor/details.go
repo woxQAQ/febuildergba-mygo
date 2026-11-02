@@ -112,12 +112,17 @@ func (page *Page) operands(
 	for _, field := range fields {
 		if field.Target == event.ScriptEventTarget ||
 			field.Target == event.ScriptDeploymentTarget ||
+			field.Target == event.ScriptWorldMapNodeTarget || field.Target == event.ScriptWorldMapRouteTarget ||
+			field.Target == event.ScriptPortraitTarget ||
 			field.Reference != "" {
 			references = append(references, field)
 		}
 	}
 	for _, field := range references {
 		page.referenceChoice(c, draft, row, field, len(references) > 1)
+		if field.Target == event.ScriptPortraitTarget {
+			page.portraitOperand(c, draft, field)
+		}
 	}
 	page.operandLinks(c, draft, row, fields)
 	page.mapChanges(c, draft, row)
@@ -172,6 +177,8 @@ func (page *Page) operandLinks(
 		for _, field := range fields {
 			value, _ := draft.data.Value(draft.selected, field.ID)
 			switch {
+			case field.Target == event.ScriptWorldMapNodeTarget || field.Target == event.ScriptWorldMapRouteTarget:
+				page.worldMapLink(c, draft, field, value)
 			case field.Target == event.ScriptEventTarget || field.Target == event.ScriptDeploymentTarget:
 				reference, err := draft.data.Reference(draft.selected, field.ID)
 				if err == nil && reference.Indirect {
@@ -291,6 +298,10 @@ func (page *Page) number(
 func (page *Page) referenceOptions(
 	field event.ScriptField,
 ) ([]int64, []string) {
+	if field.Target == event.ScriptWorldMapNodeTarget ||
+		field.Target == event.ScriptWorldMapRouteTarget {
+		return page.worldMapOptions(field)
+	}
 	var values []int64
 	var captions []string
 	add := func(address int, caption string) {
@@ -303,6 +314,9 @@ func (page *Page) referenceOptions(
 			captions,
 			fmt.Sprintf("0x%08X · %s", 0x08000000+address, caption),
 		)
+	}
+	if field.Target == event.ScriptPortraitTarget {
+		return page.portraitOptions(field)
 	}
 	if field.Reference != "" {
 		table := page.state.Session.Records.Table(field.Reference)
@@ -324,7 +338,7 @@ func (page *Page) referenceOptions(
 	if field.Target == event.ScriptEventTarget {
 		for _, entry := range page.entries {
 			if entry.Err == nil {
-				add(entry.Address, locales.Label(entry.Source))
+				add(entry.Address, entryCaption(entry))
 			}
 		}
 		return values, captions
@@ -419,7 +433,17 @@ func (page *Page) actions(c *ui.Context, draft *draftState) {
 	ui.Text(c, scope).FontSize(12).TextColor(c.Theme().TextMuted)
 	ui.Scroll(c).MaxHeight(120).Children(func() {
 		for _, use := range preview.Uses() {
-			ui.Textf(c, "%02X · %s · 0x%08X", use.Chapter, locales.Label(use.Source), use.Pointer).
+			caption := entryCaption(
+				event.ScriptEntry{
+					Source:   use.Source,
+					WorldMap: use.WorldMap,
+					EventID:  use.EventID,
+				},
+			)
+			if use.Chapter >= 0 {
+				caption = fmt.Sprintf("%02X · %s", use.Chapter, caption)
+			}
+			ui.Textf(c, "%s · 0x%08X", caption, use.Pointer).
 				FontSize(12).
 				FontFeatures("tnum")
 		}

@@ -132,8 +132,16 @@ func fe8uFormat() format {
 			},
 		},
 		events: event.Format{
-			Layout: event.FE8Layout(),
-			Root:   0x346DC, LoadHelper: 0x9EE248, Defeat: 0x592104,
+			WorldMapEvents: event.WorldMapEventsFormat{
+				Beginning:     0xBA3D0,
+				Intro:         0xBA41C,
+				EirikaEnding:  0x9EC0,
+				EphraimEnding: 0x9ED8,
+			},
+			Layout:     event.FE8Layout(),
+			Root:       0x346DC,
+			LoadHelper: 0x9EE248,
+			Defeat:     0x592104,
 		},
 		shops: shop.Format{
 			DefaultPointer:     0xB42B0,

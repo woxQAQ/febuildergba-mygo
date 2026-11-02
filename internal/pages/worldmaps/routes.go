@@ -8,6 +8,7 @@ import (
 
 	"github.com/egoist/mygo/ui"
 
+	"github.com/woxQAQ/febuildergba-mygo/game/event"
 	"github.com/woxQAQ/febuildergba-mygo/game/worldmap"
 	"github.com/woxQAQ/febuildergba-mygo/internal/components"
 	"github.com/woxQAQ/febuildergba-mygo/internal/input"
@@ -17,14 +18,15 @@ import (
 type (
 	pointInput struct{ values [3]valueInput }
 	routeState struct {
-		draft    *worldmap.RouteDraft
-		plan     *worldmap.RoutePlan
-		err      error
-		nodes    [2]valueInput
-		points   []*pointInput
-		selected int
-		placing  bool
-		road     roadPainter
+		draft      *worldmap.RouteDraft
+		plan       *worldmap.RoutePlan
+		err        error
+		nodes      [2]valueInput
+		points     []*pointInput
+		selected   int
+		placing    bool
+		road       roadPainter
+		eventsOpen bool
 	}
 )
 
@@ -89,6 +91,19 @@ type routePage struct {
 	drafts               map[int]*routeState
 	canvas               routeCanvas
 	active               *routeState
+}
+
+func (p *Page) OpenRoute(id int) {
+	p.tab = 1
+	routes, err := p.state.Session.WorldMap.Routes()
+	if err != nil || id < 0 || id >= len(routes) {
+		return
+	}
+	p.routes.query = ""
+	p.routes.nodeFilter = -1
+	p.routes.rows = routes
+	p.routes.selected = id
+	p.routes.list.ScrollTo(id, ui.Center)
 }
 
 func (p *Page) routeCaption(route worldmap.Route) string {
@@ -274,6 +289,12 @@ func (p *Page) routeDetail(c *ui.Context) {
 				p.routePreview(c, entry, reload)
 			}
 			p.routeEndpoints(c, entry, disabled)
+			p.relatedEvents(
+				c,
+				event.ScriptWorldMapRouteTarget,
+				current.ID,
+				&entry.eventsOpen,
+			)
 			ui.Column(c.Key("road-workspace")).
 				Bind(&entry.road.history).
 				Gap(8).

@@ -88,6 +88,9 @@ type Page struct {
 	openText       func(uint16)
 	openDeployment func(int, int)
 	openMapChange  func(int, int)
+	openWorldMap   func(event.ScriptTarget, int)
+	openPortrait   func(int)
+	portrait       portraitPreview
 	chapter        int
 	chapterChoice  string
 	site           int
@@ -122,17 +125,29 @@ func (page *Page) SetMapChangeOpener(
 	page.openMapChange = open
 }
 
+func (page *Page) SetWorldMapOpener(
+	open func(event.ScriptTarget, int),
+) {
+	page.openWorldMap = open
+}
+
+func (page *Page) SetPortraitOpener(open func(int)) { page.openPortrait = open }
+
 func (page *Page) Reset() {
-	mapChange := page.openMapChange
+	mapChange, worldMap, face := page.openMapChange, page.openWorldMap, page.openPortrait
 	state, hex, text, units, sidebar := page.state, page.openHex, page.openText, page.openDeployment, page.sidebar
 	*page = *New(state, hex, text, units)
 	page.sidebar = sidebar
 	page.openMapChange = mapChange
+	page.openWorldMap = worldMap
+	page.openPortrait = face
 }
 
 func (page *Page) refresh() {
+	selectedSource := ""
 	if page.selected >= 0 && page.selected < len(page.rows) {
 		page.site = page.rows[page.selected].Pointer
+		selectedSource = page.rows[page.selected].Source
 	}
 	page.entries, page.err = page.state.Session.Events.ScriptEntries(
 		page.chapter,
@@ -145,7 +160,7 @@ func (page *Page) refresh() {
 	for _, entry := range page.entries {
 		caption := fmt.Sprintf(
 			"%s %08X %08X",
-			locales.Label(entry.Source),
+			entryCaption(entry),
 			entry.Pointer,
 			entry.Address,
 		)
@@ -155,7 +170,8 @@ func (page *Page) refresh() {
 	}
 	page.selected = -1
 	for index, entry := range page.rows {
-		if entry.Pointer == page.site {
+		if entry.Pointer == page.site &&
+			(selectedSource == "" || entry.Source == selectedSource) {
 			page.selected = index
 			break
 		}
@@ -207,6 +223,13 @@ func (page *Page) navigation(c *ui.Context) {
 					)
 				}
 			}
+			if state.Session.Events.WorldMapEventsAvailable() {
+				chapters = append(chapters, event.WorldMapScripts)
+				captions = append(
+					captions,
+					locales.Label("script_worldmap_directory"),
+				)
+			}
 			selected := slices.Index(chapters, page.chapter)
 			if selected >= 0 &&
 				!slices.Contains(captions, page.chapterChoice) {
@@ -242,7 +265,13 @@ func (page *Page) navigation(c *ui.Context) {
 				return
 			}
 			page.list.Selected = &page.selected
-			page.list.Key = func(index int) any { return page.rows[index].Pointer }
+			page.list.Key = func(index int) any {
+				entry := page.rows[index]
+				return struct {
+					site   int
+					source string
+				}{entry.Pointer, entry.Source}
+			}
 			columns := []ui.TableColumn{
 				{ID: "source", Title: locales.ScriptSource()},
 				{
@@ -255,7 +284,7 @@ func (page *Page) navigation(c *ui.Context) {
 			ui.Table(c.Key("script-entries"), &page.list, columns, len(page.rows), func(index, column int) {
 				entry := page.rows[index]
 				if column == 0 {
-					ui.Text(c, locales.Label(entry.Source)).
+					ui.Text(c, entryCaption(entry)).
 						SingleLine().
 						Tooltip(fmt.Sprintf("0x%08X", entry.Pointer))
 				} else {
@@ -323,7 +352,7 @@ func (page *Page) editor(c *ui.Context) {
 				ui.Text(c, locales.ScriptEditor()).FontSize(20).Grow(1)
 				ui.Checkbox(c, &page.showRaw, locales.Advanced())
 			})
-			ui.Textf(c, "%s · 0x%08X → 0x%08X", locales.Label(entry.Source), entry.Pointer, entry.Address).
+			ui.Textf(c, "%s · 0x%08X → 0x%08X", entryCaption(entry), entry.Pointer, entry.Address).
 				Selectable().
 				FontFeatures("tnum").
 				Tooltip(locales.ScriptScope())

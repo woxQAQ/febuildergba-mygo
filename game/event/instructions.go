@@ -2,6 +2,7 @@ package event
 
 import (
 	"github.com/woxQAQ/febuildergba-mygo/game/records"
+	"github.com/woxQAQ/febuildergba-mygo/gba"
 )
 
 type ScriptOp string
@@ -60,6 +61,9 @@ const (
 	ScriptDeploymentTarget
 	ScriptMovementTarget
 	ScriptMapChangeTarget
+	ScriptWorldMapNodeTarget
+	ScriptWorldMapRouteTarget
+	ScriptPortraitTarget
 )
 
 // ScriptField describes a confirmed operand; the opcode and unrelated bytes
@@ -77,6 +81,8 @@ type ScriptField struct {
 	offset, width int
 	bits, shift   uint
 	indirect      *operandRange
+	// WM_TEXT combines two halfwords into one direct text ID.
+	orOffset int
 }
 
 type operandRange struct{ min, max int64 }
@@ -99,6 +105,9 @@ func (field ScriptField) value(raw []byte) int64 {
 	for index := range field.width {
 		result |= int64(raw[field.offset+index]) << (8 * index)
 	}
+	if field.orOffset != 0 {
+		result |= int64(gba.Uint16(raw, field.orOffset))
+	}
 	result = (result & field.mask()) >> field.shift
 	sign := ((field.mask() >> field.shift) + 1) >> 1
 	if field.Min < 0 && result&sign != 0 {
@@ -108,6 +117,20 @@ func (field ScriptField) value(raw []byte) int64 {
 }
 
 func (field ScriptField) put(raw []byte, value int64) {
+	if field.orOffset != 0 {
+		// Retain surviving bits in both halves; new bits go in the first.
+		first, second := int64(
+			gba.Uint16(raw, field.offset),
+		), int64(
+			gba.Uint16(raw, field.orOffset),
+		)
+		merged := field
+		merged.orOffset = 0
+		merged.put(raw, first&value|value&^(first|second))
+		merged.offset = field.orOffset
+		merged.put(raw, second&value)
+		return
+	}
 	mask := field.mask()
 	for index := range field.width {
 		shift := uint(8 * index)
@@ -124,6 +147,7 @@ type scriptDefinition struct {
 	label, branch bool
 	terminal      bool
 	help          string
+	preserved     []byte
 }
 
 func scriptOperand(id string, offset, width int, maximum int64) ScriptField {
@@ -368,6 +392,9 @@ func (definition scriptDefinition) matches(raw []byte) bool {
 	}
 	for index, value := range raw {
 		var mask byte
+		if index < len(definition.preserved) {
+			mask = definition.preserved[index]
+		}
 		for _, field := range definition.fields {
 			if index >= field.offset && index < field.offset+field.width {
 				mask |= byte(

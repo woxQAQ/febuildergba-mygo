@@ -100,22 +100,6 @@ func Open(path string) (session *Session, err error) {
 			},
 			s.Texts,
 		)
-		chapterConfig := format.chapterConfig()
-		chapterConfig.InventoryUses = s.inventoryUses
-		chapterConfig.ProtectPointer = s.protectPointer
-		chapterConfig.ProtectRange = s.protectRange
-		s.Chapters = chapter.New(context, chapterConfig, s.Records)
-		s.Events, s.Deployments, s.Maps = s.Chapters.Events, s.Chapters.Deployments, s.Chapters.Maps
-		s.Shops = shop.New(context, format.shops, s.shopSource())
-		s.WorldMap = worldmap.New(context, format.worldmap, s.worldmapSource())
-		s.Quotes = quote.New(context, format.quotes, s.quoteSource())
-		s.Supports = support.New(context, format.supports, s.supportSource())
-		s.Arena = arena.New(context, format.arena, s.arenaSource())
-		s.Terrain = terrain.New(
-			context,
-			format.terrain,
-			s.terrainSource(),
-		)
 		s.Portraits = portrait.New(
 			context,
 			format.portraits,
@@ -124,6 +108,24 @@ func Open(path string) (session *Session, err error) {
 			func(data []byte) []space.Range {
 				return space.ClaimRanges(s.claims(data))
 			},
+		)
+		s.WorldMap = worldmap.New(context, format.worldmap, s.worldmapSource())
+		chapterConfig := format.chapterConfig()
+		chapterConfig.WorldMap = s.WorldMap
+		chapterConfig.Portraits = s.Portraits
+		chapterConfig.InventoryUses = s.inventoryUses
+		chapterConfig.ProtectPointer = s.protectPointer
+		chapterConfig.ProtectRange = s.protectRange
+		s.Chapters = chapter.New(context, chapterConfig, s.Records)
+		s.Events, s.Deployments, s.Maps = s.Chapters.Events, s.Chapters.Deployments, s.Chapters.Maps
+		s.Shops = shop.New(context, format.shops, s.shopSource())
+		s.Quotes = quote.New(context, format.quotes, s.quoteSource())
+		s.Supports = support.New(context, format.supports, s.supportSource())
+		s.Arena = arena.New(context, format.arena, s.arenaSource())
+		s.Terrain = terrain.New(
+			context,
+			format.terrain,
+			s.terrainSource(),
 		)
 		s.Sprites = sprite.New(context, format.sprites)
 		s.Images = graphics.New(context, map[graphics.Kind]graphics.Backend{

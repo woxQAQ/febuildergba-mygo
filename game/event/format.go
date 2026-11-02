@@ -112,9 +112,10 @@ func FE6Layout() Layout {
 type Format struct {
 	Layout
 
-	Root         int
-	LoadHelper   int
-	Defeat, Rout int
+	Root           int
+	LoadHelper     int
+	Defeat, Rout   int
+	WorldMapEvents WorldMapEventsFormat
 }
 
 // Opening is the header offset of the opening script pointer, or -1 where the

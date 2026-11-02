@@ -37,7 +37,7 @@ func mapOperandStates(
 	rows []scriptRow,
 ) []mapOperandState {
 	state := mapOperandState{chapter: entry.Chapter}
-	if entry.Source == "script_call_entry" {
+	if entry.WorldMap || entry.Source == "script_call_entry" {
 		state.chapter = -1
 	}
 	result := make([]mapOperandState, len(rows))
@@ -277,6 +277,8 @@ func (s *Editor) validateSharedMapChangeScript(
 		shared.original.Entry.Chapter = use.Chapter
 		shared.original.Entry.Pointer = use.Pointer
 		shared.original.Entry.Source = use.Source
+		shared.original.Entry.WorldMap = use.WorldMap
+		shared.original.Entry.EventID = use.EventID
 		if _, err = s.validateMapChangeScript(&shared); err != nil {
 			return err
 		}

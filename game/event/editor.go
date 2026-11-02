@@ -5,9 +5,11 @@ import (
 	"github.com/woxQAQ/febuildergba-mygo/game/deployment"
 	"github.com/woxQAQ/febuildergba-mygo/game/edit"
 	"github.com/woxQAQ/febuildergba-mygo/game/maps"
+	"github.com/woxQAQ/febuildergba-mygo/game/portrait"
 	"github.com/woxQAQ/febuildergba-mygo/game/records"
 	"github.com/woxQAQ/febuildergba-mygo/game/shop"
 	"github.com/woxQAQ/febuildergba-mygo/game/text"
+	"github.com/woxQAQ/febuildergba-mygo/game/worldmap"
 	"github.com/woxQAQ/febuildergba-mygo/rom"
 	"github.com/woxQAQ/febuildergba-mygo/space"
 )
@@ -15,6 +17,8 @@ import (
 // Source resolves chapter resources after the event interpreter has established
 // their native operands and context.
 type Source struct {
+	WorldMap       *worldmap.Editor
+	Portraits      *portrait.Editor
 	ResolveMap     func(int, maps.Target) (maps.Change, error)
 	ProtectPointer func(data []byte, owner space.Owner, site int) error
 	ProtectRange   func(data []byte, owner space.Owner, region space.Range) error

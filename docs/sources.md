@@ -128,6 +128,30 @@ FE6／FE7 坐标未命中退回事件参数，FE8 则返回事件错误。FE7 �
 
 FE8J 的入口沿用固定旧版版本定义，并通过当前 FE8J 文件的记录、底图、道路读取及修改保存重开核对；FE8U 原生消费者不自动证明所有日版或改版运行语义相同。功能与游戏内验证边界见[世界地图参考](reference/worldmap.md)。
 
+## 世界地图事件
+
+旧版入口为固定子模块 `WorldMapEventPointerForm.cs`、`ROMFE8U.cs`、`ROMFE8JP.cs` 及 `FEBuilderGBA/FEBuilderGBA/bin/Debug/config/data/event_FE8.en.txt`。按实际消费者解释目录索引，不沿用旧快捷查询直接以章节编号查开始表的假设。
+
+| 指针位置           | FE8U      | FE8J      |
+| ------------------ | --------- | --------- |
+| 开始事件目录根     | `0xBA3D0` | `0xBF264` |
+| 进入章节事件目录根 | `0xBA41C` | `0xBF2B0` |
+| 艾瑞珂结局入口     | `0x9EC0`  | `0x9E20`  |
+| 艾弗拉姆结局入口   | `0x9ED8`  | `0x9E38`  |
+
+原生规则使用同一 `FireEmblemUniverse/fireemblem8u@04d1edb163d14bd10777a065697e1a9f17be65f2`：
+
+- [src/worldmap_main.c](https://github.com/FireEmblemUniverse/fireemblem8u/blob/04d1edb163d14bd10777a065697e1a9f17be65f2/src/worldmap_main.c) 的 `WorldMap_CallBeginningEvent` 和 `CallChapterWMIntroEvents` 分别取下一目的地章节与当前章节的 `gmapEventId`；开场分支使用开始表 1。[data/data_8B363C.s](https://github.com/FireEmblemUniverse/fireemblem8u/blob/04d1edb163d14bd10777a065697e1a9f17be65f2/data/data_8B363C.s) 声明两张 59 项目录；[src/gamecontrol.c](https://github.com/FireEmblemUniverse/fireemblem8u/blob/04d1edb163d14bd10777a065697e1a9f17be65f2/src/gamecontrol.c) 核对独立的两个结局调用。
+- [src/eventscr_gmap.c](https://github.com/FireEmblemUniverse/fireemblem8u/blob/04d1edb163d14bd10777a065697e1a9f17be65f2/src/eventscr_gmap.c) 和 [include/eventscript.h](https://github.com/FireEmblemUniverse/fireemblem8u/blob/04d1edb163d14bd10777a065697e1a9f17be65f2/include/eventscript.h) 核对 `83–89` 镜头、`90–9D` 路线与地点、`9E–AC` 单位及 `C3` 主角指令的长度、参数读取宽度和未用半字。`EventAC_WmUnitMoveWait` 只消费有符号低半字；`EventC3_SpawnLord` 的提前返回依赖现有单位类型和人物 ID，不能把人物 0 一律解释为保留当前人物。
+- [src/worldmap_automu.c](https://github.com/FireEmblemUniverse/fireemblem8u/blob/04d1edb163d14bd10777a065697e1a9f17be65f2/src/worldmap_automu.c) 核对淡入／淡出／脚步音三个位；[src/worldmap_mapmu.c](https://github.com/FireEmblemUniverse/fireemblem8u/blob/04d1edb163d14bd10777a065697e1a9f17be65f2/src/worldmap_mapmu.c) 的显示进程循环创建七个单位，虽然 [include/worldmap.h](https://github.com/FireEmblemUniverse/fireemblem8u/blob/04d1edb163d14bd10777a065697e1a9f17be65f2/include/worldmap.h) 的持久化数组有八槽。沿路线负计时以端点距离乘绝对值计算；直线负计时分支把坐标用于节点索引，新输入不使用该语义。`_DivArm2` 在 [src/spline.c](https://github.com/FireEmblemUniverse/fireemblem8u/blob/04d1edb163d14bd10777a065697e1a9f17be65f2/src/spline.c) 按加速参数迭代曲线，参数经原生结构截为低八位。
+
+- [src/eventscr_gmap.c](https://github.com/FireEmblemUniverse/fireemblem8u/blob/04d1edb163d14bd10777a065697e1a9f17be65f2/src/eventscr_gmap.c) 的 `EventC4_WmShowPortrait`、`EventC5_WmClearPortrait` 分别从 +4／+2 读取槽位，显示延迟为有符号半字、清除延迟为无符号半字；`EventC6_WmDisplayText` 把 +4 和 +6 的半字按位或，直接传给文本流程。当前 FE8J 文件的 `0xCF5C`、`0xCFB4`、`0xD014` 指令分别核对了这些读取方式（FE8U 对应 `0xCC8C`、`0xCCF0`、`0xCD50`），不按旧版显示模板把第二半字当作未用填充。
+- [src/worldmap_face.c](https://github.com/FireEmblemUniverse/fireemblem8u/blob/04d1edb163d14bd10777a065697e1a9f17be65f2/src/worldmap_face.c) 的两槽控制器、`WmDrawFace`、`WmClearFace` 核对横坐标、滑动、镜像和对象层级位；[src/worldmap_main.c](https://github.com/FireEmblemUniverse/fireemblem8u/blob/04d1edb163d14bd10777a065697e1a9f17be65f2/src/worldmap_main.c) 的 `WmMergeFace` 核对延迟进程及非正计时。[src/worldmap_text.c](https://github.com/FireEmblemUniverse/fireemblem8u/blob/04d1edb163d14bd10777a065697e1a9f17be65f2/src/worldmap_text.c) 的 `StartWmTextMsg`、`ShowWmText`、`HideWmText` 区分正文、位置和可见性。
+- [src/worldmap_palette_fade.c](https://github.com/FireEmblemUniverse/fireemblem8u/blob/04d1edb163d14bd10777a065697e1a9f17be65f2/src/worldmap_palette_fade.c)、[src/worldmap_entry.c](https://github.com/FireEmblemUniverse/fireemblem8u/blob/04d1edb163d14bd10777a065697e1a9f17be65f2/src/worldmap_entry.c)、[src/worldmap_line_fade.c](https://github.com/FireEmblemUniverse/fireemblem8u/blob/04d1edb163d14bd10777a065697e1a9f17be65f2/src/worldmap_line_fade.c) 核对压暗、旁白背景展开、扫描线转场与等待；后者把模式截为八位，2 使用 100 帧，其余为 50 帧。旁白背景曲线保存为有符号半字，再交给 [src/spline.c](https://github.com/FireEmblemUniverse/fireemblem8u/blob/04d1edb163d14bd10777a065697e1a9f17be65f2/src/spline.c) 的 `_DivArm1`。`GmMuEntryStartHide` 跳往没有声明的流程标签 2，因此不把 `B0` 开放成正常隐藏命令。
+- `Event81_WmFadeOut` 的普通执行与跳过分支分别阻塞淡出和关闭显示；`Event82_WmEnd` 调用 `EndWM` 后返回继续执行，故不作为事件脚本终止符。`C0` 初始化已有世界地图进程的显示资源，`C1`／`C2` 设置后续流程标志。
+
+FE8J 入口与字段偏移另对照固定旧版定义，两版当前文件的 59 项目录、独立结局及静态调用均进行了有界读取；动态文件流程按能力验证事件参数修改及完整旁白场景的文本／头像替换、路线指令插入、整体搬迁、历史和保存重开。这些证据不替代日版／改版执行器的完整审核或游戏内开放路线、移动及触发验证。格式与编辑边界见[世界地图事件](reference/worldmap.md#事件目录与章节归属)。
+
 ## 职业移动与地形
 
 旧版入口为固定基线的 `ClassForm.cs`、`ClassFE6Form.cs`、`MoveCostForm.cs`、`MoveCostFE6Form.cs`；后两者分别声明 65 与 51 个地形项，职业页提供普通／雨雪移动和回避／防御／魔防指针。

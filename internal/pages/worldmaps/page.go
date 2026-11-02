@@ -8,6 +8,7 @@ import (
 
 	"github.com/egoist/mygo/ui"
 
+	"github.com/woxQAQ/febuildergba-mygo/game/event"
 	"github.com/woxQAQ/febuildergba-mygo/game/records"
 	"github.com/woxQAQ/febuildergba-mygo/game/shop"
 	"github.com/woxQAQ/febuildergba-mygo/game/worldmap"
@@ -23,11 +24,12 @@ type valueInput struct {
 }
 
 type nodeState struct {
-	draft  *worldmap.Draft
-	plan   *worldmap.Plan
-	err    error
-	inputs map[worldmap.Field]*valueInput
-	name   components.TextReferenceState
+	draft      *worldmap.Draft
+	plan       *worldmap.Plan
+	err        error
+	inputs     map[worldmap.Field]*valueInput
+	name       components.TextReferenceState
+	eventsOpen bool
 }
 
 func (s *nodeState) invalid() bool {
@@ -45,6 +47,7 @@ type Page struct {
 	openText       func(uint16)
 	openShop       func(shop.Key)
 	openHex        func(int, int)
+	openScript     func(int, int)
 	sidebar        components.Sidebar
 	query          string
 	selected       int
@@ -80,9 +83,9 @@ func New(
 }
 
 func (p *Page) Reset() {
-	sidebar := p.sidebar
+	sidebar, openScript := p.sidebar, p.openScript
 	*p = *New(p.state, p.openRecord, p.openText, p.openShop, p.openHex)
-	p.sidebar = sidebar
+	p.sidebar, p.openScript = sidebar, openScript
 }
 
 func (p *Page) Open(id int) {
@@ -284,6 +287,12 @@ func (p *Page) detail(c *ui.Context) {
 			})
 			p.fields(c, entry, disabled, worldmap.X, worldmap.Y)
 			p.connectedRoutes(c, node.ID)
+			p.relatedEvents(
+				c,
+				event.ScriptWorldMapNodeTarget,
+				node.ID,
+				&entry.eventsOpen,
+			)
 			ui.Text(c, locales.WorldmapChapters()).FontSize(13).Bold()
 			p.fields(
 				c,

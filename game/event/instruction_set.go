@@ -38,6 +38,8 @@ func instructionDefinitions(groups ...[]scriptDefinition) []scriptDefinition {
 func fe8Scripts() *scriptSet {
 	result := &scriptSet{
 		definitions: instructionDefinitions(
+			fe8WorldMapDefinitions(),
+			fe8WorldMapSceneDefinitions(),
 			fe8SceneDefinitions(),
 			fe8CameraDefinitions(),
 			fe8UnitConditionDefinitions(),
@@ -57,7 +59,9 @@ func fe8Scripts() *scriptSet {
 			field := &result.definitions[index].fields[operand]
 			switch field.Target {
 			case ScriptTextTarget:
-				field.indirect = &operandRange{0x8000, 0xFFFF}
+				if result.definitions[index].op != ScriptWMText {
+					field.indirect = &operandRange{0x8000, 0xFFFF}
+				}
 			case ScriptEventTarget:
 				field.indirect = &operandRange{0xFFFFFFFF, 0xFFFFFFFF}
 			case ScriptDeploymentTarget:

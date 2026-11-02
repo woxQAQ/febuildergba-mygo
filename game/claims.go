@@ -145,6 +145,7 @@ func (s *Session) collectClaims(data []byte) []space.Claim {
 	// Loader shops and world-map nodes own their hosted pointer declarations.
 	claims = append(claims, g.shops.Claims(data)...)
 	claims = append(claims, g.worldmap.Claims(data)...)
+	claims = append(claims, g.events.WorldMapClaims(data)...)
 
 	// Battle and defeat dialog, supports and class terrain.
 	claims = append(claims, g.quotes.Claims(data)...)

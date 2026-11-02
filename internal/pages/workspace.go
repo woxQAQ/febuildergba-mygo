@@ -6,6 +6,7 @@ import (
 	"github.com/egoist/mygo/ui"
 
 	"github.com/woxQAQ/febuildergba-mygo/game"
+	"github.com/woxQAQ/febuildergba-mygo/game/event"
 	"github.com/woxQAQ/febuildergba-mygo/game/graphics"
 	"github.com/woxQAQ/febuildergba-mygo/game/quote"
 	"github.com/woxQAQ/febuildergba-mygo/game/records"
@@ -141,7 +142,17 @@ func New() *Workspace {
 		w.openText,
 		w.openDeployment,
 	)
+	w.worldmap.SetScriptOpener(w.OpenScript)
+	w.scripts.SetWorldMapOpener(func(target event.ScriptTarget, id int) {
+		w.tab = len(records.Kinds) + 8
+		if target == event.ScriptWorldMapRouteTarget {
+			w.worldmap.OpenRoute(id)
+		} else {
+			w.worldmap.Open(id)
+		}
+	})
 	w.scripts.SetMapChangeOpener(w.openMapChange)
+	w.scripts.SetPortraitOpener(w.OpenPortrait)
 	w.records.SetScriptOpener(w.OpenScript)
 	return w
 }

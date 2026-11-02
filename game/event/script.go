@@ -31,6 +31,8 @@ type ScriptEntry struct {
 	Chapter, Pointer, Address int
 	Source                    string
 	Err                       error
+	WorldMap                  bool
+	EventID                   int
 }
 
 type ScriptInstruction struct {
@@ -64,6 +66,7 @@ type scriptIndex struct {
 	binding  edit.Stamp
 	entries  []ScriptEntry
 	programs map[int]Script
+	partial  bool
 }
 
 func scriptRows(rows []scriptRow) []ScriptInstruction {
@@ -163,6 +166,21 @@ func (s *Editor) scriptIndex(chapter int) (scriptIndex, error) {
 		cached.binding.Current(s.context) {
 		return cached, nil
 	}
+	if chapter == WorldMapScripts {
+		if !s.WorldMapEventsAvailable() {
+			return scriptIndex{}, edit.ErrField
+		}
+		result := format.indexScripts(
+			s.image.Data,
+			format.worldMapEntries(s.image.Data),
+		)
+		result.binding = s.context.Bind(s.image.Revision)
+		if s.scriptIndexes == nil {
+			s.scriptIndexes = make(map[int]scriptIndex)
+		}
+		s.scriptIndexes[chapter] = result
+		return result, nil
+	}
 	_, row, field, err := s.records.Resolve(
 		records.Chapters,
 		chapter,
@@ -178,31 +196,16 @@ func (s *Editor) scriptIndex(chapter int) (scriptIndex, error) {
 	if err != nil {
 		return scriptIndex{}, err
 	}
-	result := scriptIndex{
-		binding:  s.context.Bind(s.image.Revision),
-		programs: make(map[int]Script),
-	}
-	seen := make(map[int]bool)
+	var entries []ScriptEntry
 	add := func(site int, source string) {
-		if seen[site] || len(result.entries) >= 512 ||
-			!gba.Within(s.image.Data, site, 4) {
+		if !gba.Within(s.image.Data, site, 4) ||
+			gba.Uint32(s.image.Data, site) == 1 {
 			return
 		}
-		seen[site] = true
-		word := gba.Uint32(s.image.Data, site)
-		if word == 1 {
-			return
-		}
-		entry := ScriptEntry{Chapter: chapter, Pointer: site, Source: source}
-		if word != 0 {
-			address, valid := gba.Pointer(s.image.Data, site)
-			if !valid || address < 0xC0 || address%4 != 0 {
-				entry.Err = ErrScript
-			} else {
-				entry.Address = address
-			}
-		}
-		result.entries = append(result.entries, entry)
+		entries = append(
+			entries,
+			scriptEntry(s.image.Data, chapter, site, source),
+		)
 	}
 	if format.opening >= 0 {
 		add(header+format.opening, "script_opening")
@@ -223,8 +226,74 @@ func (s *Editor) scriptIndex(chapter int) (scriptIndex, error) {
 			}
 		}
 	}
-	// Decode each address once; aliases remain individual pointer entries.
-	for cursor, budget := 0, 32768; cursor < len(result.entries) && budget > 0; cursor++ {
+	if s.WorldMapEventsAvailable() {
+		_, chapterRow, eventField, resolveErr := s.records.Resolve(
+			records.Chapters,
+			chapter,
+			WorldMapEventField,
+		)
+		if resolveErr == nil {
+			id := int(eventField.Value(s.image.Data, chapterRow.Address))
+			for _, entry := range format.worldMapEntries(s.image.Data) {
+				if entry.WorldMap && entry.EventID == id {
+					entry.Chapter = chapter
+					entries = append(entries, entry)
+				}
+			}
+		}
+	}
+	result := format.indexScripts(s.image.Data, entries)
+	result.binding = s.context.Bind(s.image.Revision)
+	if s.scriptIndexes == nil {
+		s.scriptIndexes = make(map[int]scriptIndex)
+	}
+	s.scriptIndexes[chapter] = result
+	return result, nil
+}
+
+func scriptEntry(data []byte, chapter, site int, source string) ScriptEntry {
+	entry := ScriptEntry{Chapter: chapter, Pointer: site, Source: source}
+	if site < 0xC0 || site%4 != 0 || !gba.Within(data, site, 4) {
+		entry.Err = ErrScript
+		return entry
+	}
+	if gba.Uint32(data, site) != 0 {
+		address, ok := gba.Pointer(data, site)
+		if !ok || address < 0xC0 || address%4 != 0 {
+			entry.Err = ErrScript
+		} else {
+			entry.Address = address
+		}
+	}
+	return entry
+}
+
+// indexScripts shares one bounded graph walk between chapter and independent
+// directories. Aliases keep their pointer sites; addresses are decoded once.
+func (f Format) indexScripts(data []byte, entries []ScriptEntry) scriptIndex {
+	result := scriptIndex{programs: make(map[int]Script)}
+	seen := make(map[int]bool)
+	add := func(entry ScriptEntry) {
+		if seen[entry.Pointer] {
+			return
+		}
+		if len(result.entries) >= 512 {
+			result.partial = true
+			return
+		}
+		seen[entry.Pointer] = true
+		result.entries = append(result.entries, entry)
+	}
+	for _, entry := range entries {
+		if len(result.entries) >= 512 {
+			result.partial = true
+			break
+		}
+		result.entries = append(result.entries, entry)
+		seen[entry.Pointer] = true
+	}
+	cursor, budget := 0, 32768
+	for ; cursor < len(result.entries) && budget > 0; cursor++ {
 		entry := result.entries[cursor]
 		if entry.Err != nil || entry.Address == 0 {
 			continue
@@ -232,20 +301,24 @@ func (s *Editor) scriptIndex(chapter int) (scriptIndex, error) {
 		if _, exists := result.programs[entry.Address]; exists {
 			continue
 		}
-		program := format.readScript(s.image.Data, entry)
+		program := f.readScript(data, entry)
 		result.programs[entry.Address] = program
 		budget -= len(program.rows)
 		for _, row := range program.rows {
 			if row.call >= 0 {
-				add(row.call, "script_call_entry")
+				child := scriptEntry(
+					data,
+					entry.Chapter,
+					row.call,
+					"script_call_entry",
+				)
+				child.WorldMap, child.EventID = entry.WorldMap, -1
+				add(child)
 			}
 		}
 	}
-	if s.scriptIndexes == nil {
-		s.scriptIndexes = make(map[int]scriptIndex)
-	}
-	s.scriptIndexes[chapter] = result
-	return result, nil
+	result.partial = result.partial || cursor < len(result.entries)
+	return result
 }
 
 func (s *Editor) ScriptEntries(chapter int) ([]ScriptEntry, error) {

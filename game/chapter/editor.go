@@ -7,9 +7,11 @@ import (
 	"github.com/woxQAQ/febuildergba-mygo/game/edit"
 	"github.com/woxQAQ/febuildergba-mygo/game/event"
 	"github.com/woxQAQ/febuildergba-mygo/game/maps"
+	"github.com/woxQAQ/febuildergba-mygo/game/portrait"
 	"github.com/woxQAQ/febuildergba-mygo/game/records"
 	"github.com/woxQAQ/febuildergba-mygo/game/shop"
 	"github.com/woxQAQ/febuildergba-mygo/game/text"
+	"github.com/woxQAQ/febuildergba-mygo/game/worldmap"
 	"github.com/woxQAQ/febuildergba-mygo/rom"
 	"github.com/woxQAQ/febuildergba-mygo/space"
 )
@@ -18,6 +20,8 @@ import (
 // ProtectPointer is the session's claim check; when it is nil, only record
 // tables are protected. ProtectRange is required for in-place script edits.
 type Config struct {
+	WorldMap       *worldmap.Editor
+	Portraits      *portrait.Editor
 	Table          Format
 	Events         event.Format
 	Maps           maps.Format
@@ -56,6 +60,8 @@ func New(
 		records,
 		s.Deployments,
 		event.Source{
+			WorldMap:      config.WorldMap,
+			Portraits:     config.Portraits,
 			DefaultShop:   config.Shops.Default,
 			InventoryUses: config.InventoryUses,
 			ResolveMap:    s.Maps.ResolveTarget,

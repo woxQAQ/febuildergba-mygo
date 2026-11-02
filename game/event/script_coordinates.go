@@ -59,6 +59,9 @@ type CoordinateTrace struct {
 // Coordinates interprets only the straight-line prefix in the entry's known
 // chapter. It stops at map changes, calls, branches or unknown instructions.
 func (p Script) Coordinates(data []byte) []CoordinateTrace {
+	if p.Entry.WorldMap {
+		return nil
+	}
 	scanner := deploymentScanner{format: p.format, data: data}
 	var result []CoordinateTrace
 	for index, row := range p.rows {

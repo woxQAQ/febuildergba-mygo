@@ -125,8 +125,16 @@ func fe8jFormat() format {
 			Pointers: []int{0xBAB1C, 0x34534, 0xBA9EC, 0xBAD44, 0xBAEAC},
 		},
 		events: event.Format{
-			Layout: event.FE8Layout(),
-			Root:   0x345E4, LoadHelper: 0xA60380, Defeat: 0x5B9EE8,
+			WorldMapEvents: event.WorldMapEventsFormat{
+				Beginning:     0xBF264,
+				Intro:         0xBF2B0,
+				EirikaEnding:  0x9E20,
+				EphraimEnding: 0x9E38,
+			},
+			Layout:     event.FE8Layout(),
+			Root:       0x345E4,
+			LoadHelper: 0xA60380,
+			Defeat:     0x5B9EE8,
 		},
 		shops: shop.Format{
 			DefaultPointer:     0xB8E38,
