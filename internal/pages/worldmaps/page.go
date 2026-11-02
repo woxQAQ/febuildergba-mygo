@@ -42,24 +42,30 @@ func (s *nodeState) invalid() bool {
 }
 
 type Page struct {
-	state            *editor.State
-	openRecord       func(records.Kind, int)
-	openText         func(uint16)
-	openShop         func(shop.Key)
-	openHex          func(int, int)
-	openScript       func(int, int)
-	sidebar          components.Sidebar
-	query            string
-	selected         int
-	list             ui.ListState
-	rows             []worldmap.Node
-	drafts           map[int]*nodeState
-	advanced, more   bool
-	tab              int
-	routes           routePage
-	background       *backgroundState
-	importBackground func(*worldmap.Background, func(*worldmap.BackgroundDraft, error))
-	exportBackground func(*worldmap.Background)
+	state             *editor.State
+	openRecord        func(records.Kind, int)
+	openText          func(uint16)
+	openShop          func(shop.Key)
+	openHex           func(int, int)
+	openScript        func(int, int)
+	sidebar           components.Sidebar
+	query             string
+	selected          int
+	list              ui.ListState
+	rows              []worldmap.Node
+	drafts            map[int]*nodeState
+	advanced, more    bool
+	tab               int
+	routes            routePage
+	imagesOpen        bool
+	imageFiles        ui.Handle
+	backgroundTone    int
+	backgrounds       [2]*backgroundState
+	importBackground  func(*worldmap.Background, func(*worldmap.BackgroundDraft, error))
+	exportBackground  func(*worldmap.Background)
+	roadTileset       *roadTilesetState
+	importRoadTileset func(*worldmap.RoadTileset, func(*worldmap.RoadTilesetDraft, error))
+	exportRoadTileset func(*worldmap.RoadTileset)
 }
 
 func New(
@@ -70,14 +76,15 @@ func New(
 	hex func(int, int),
 ) *Page {
 	return &Page{
-		state:      state,
-		background: &backgroundState{},
-		openRecord: record,
-		openText:   text,
-		openShop:   stock,
-		openHex:    hex,
-		selected:   -1,
-		drafts:     make(map[int]*nodeState),
+		state:       state,
+		backgrounds: [2]*backgroundState{{}, {}},
+		roadTileset: &roadTilesetState{},
+		openRecord:  record,
+		openText:    text,
+		openShop:    stock,
+		openHex:     hex,
+		selected:    -1,
+		drafts:      make(map[int]*nodeState),
 		routes: routePage{
 			selected:   -1,
 			nodeFilter: -1,
@@ -89,9 +96,11 @@ func New(
 func (p *Page) Reset() {
 	sidebar, openScript := p.sidebar, p.openScript
 	importBackground, exportBackground := p.importBackground, p.exportBackground
+	importRoadTileset, exportRoadTileset := p.importRoadTileset, p.exportRoadTileset
 	*p = *New(p.state, p.openRecord, p.openText, p.openShop, p.openHex)
 	p.sidebar, p.openScript = sidebar, openScript
 	p.importBackground, p.exportBackground = importBackground, exportBackground
+	p.importRoadTileset, p.exportRoadTileset = importRoadTileset, exportRoadTileset
 }
 
 func (p *Page) Open(id int) {

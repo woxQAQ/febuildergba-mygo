@@ -295,7 +295,7 @@ func (p *Page) routeDetail(c *ui.Context) {
 				current.ID,
 				&entry.eventsOpen,
 			)
-			p.backgroundControls(c)
+			p.imageControls(c)
 			ui.Column(c.Key("road-workspace")).
 				Bind(&entry.road.history).
 				Gap(8).
@@ -429,57 +429,98 @@ func (p *Page) movementPoints(c *ui.Context, s *routeState, disabled bool) {
 			ui.Text(c, locales.WorldmapNoPoints()).
 				TextColor(c.Theme().TextMuted)
 		}
-		for index, point := range s.points {
-			ui.Row(c.Key(point)).
-				Wrap().
-				Gap(6).
-				AlignItems(ui.Center).
+		if len(s.points) > 0 {
+			// Shared tracks keep inputs and row actions aligned, including disabled
+			// buttons. Narrow windows scroll the table without wrapping individual cells.
+			columns := []ui.Track{
+				ui.Fixed(32),
+				ui.Fixed(110),
+				ui.Fixed(110),
+				ui.Fixed(110),
+				ui.Fixed(32),
+				ui.Fixed(32),
+				ui.Fixed(64),
+			}
+			ui.ScrollHorizontal(c.Key("point-table")).
+				MinWidth(0).
 				Children(func() {
-					ui.Button(c.Key("select-point"), fmt.Sprintf("%d", index+1)).
-						Label(fmt.Sprintf("%s %d", locales.WorldmapPoint(), index+1)).
-						Selected(s.selected == index).
-						Disabled(p.state.Busy).
-						OnClick(func() { s.selected = index })
-					for field, label := range []string{locales.WorldmapProgress(), locales.WorldmapX(), locales.WorldmapY()} {
-						ui.Column(c.Key(field)).
-							Width(110).
-							Gap(3).
-							Children(func() {
-								ui.Text(c, label).FontSize(12)
-								control := ui.TextInput(c.Key("value"), &point.values[field].text).
-									Label(fmt.Sprintf("%s %d", label, index+1)).
-									TextAlign(ui.End).
-									Disabled(disabled).
-									OnChange(s.syncPoints)
-								components.TextDraft(p.state, control)
-								if point.values[field].invalid {
-									control.Error(locales.SupportInvalidInput())
-								}
-							})
-					}
-					ui.Button(c.Key("up"), "↑").
-						Label(fmt.Sprintf("%s %d", locales.WorldmapMoveUp(), index+1)).
-						Disabled(disabled || index == 0).
-						OnClick(func() {
-							s.points[index-1], s.points[index] = s.points[index], s.points[index-1]
-							s.selected = index - 1
-							s.syncPoints()
-						})
-					ui.Button(c.Key("down"), "↓").
-						Label(fmt.Sprintf("%s %d", locales.WorldmapMoveDown(), index+1)).
-						Disabled(disabled || index+1 == len(s.points)).
-						OnClick(func() {
-							s.points[index+1], s.points[index] = s.points[index], s.points[index+1]
-							s.selected = index + 1
-							s.syncPoints()
-						})
-					ui.Button(c.Key("remove"), locales.WorldmapRemovePoint()).
-						Label(fmt.Sprintf("%s %d", locales.WorldmapRemovePoint(), index+1)).
-						Disabled(disabled).
-						OnClick(func() {
-							s.points = slices.Delete(s.points, index, index+1)
-							s.selected = min(index, len(s.points)-1)
-							s.syncPoints()
+					ui.Column(c.Key("point-rows")).
+						Width(526).
+						Gap(6).
+						Children(func() {
+							ui.Grid(c.Key("point-headings")).
+								ColumnTracks(columns...).
+								GapX(6).
+								Children(func() {
+									ui.Box(c)
+									for _, label := range []string{locales.WorldmapProgress(), locales.WorldmapX(), locales.WorldmapY()} {
+										ui.Text(c, label).
+											FontSize(12).
+											TextAlign(ui.End).
+											PaddingX(6)
+									}
+								})
+							for index, point := range s.points {
+								ui.Grid(c.Key(point)).
+									ColumnTracks(columns...).GapX(6).
+									AlignItems(ui.Center).
+									Children(func() {
+										ui.Button(c.Key("select-point"), fmt.Sprintf("%d", index+1)).
+											Label(fmt.Sprintf("%s %d", locales.WorldmapPoint(), index+1)).
+											FontFeatures("tnum").
+											Selected(s.selected == index).
+											Disabled(p.state.Busy).
+											OnClick(func() { s.selected = index })
+										for field, label := range []string{locales.WorldmapProgress(), locales.WorldmapX(), locales.WorldmapY()} {
+											control := ui.TextInput(c.Key(field), &point.values[field].text).
+												Label(fmt.Sprintf("%s %d", label, index+1)).
+												TextAlign(ui.End).
+												FontFeatures("tnum").
+												Disabled(disabled).
+												OnChange(s.syncPoints)
+											components.TextDraft(
+												p.state,
+												control,
+											)
+											if point.values[field].invalid {
+												control.Error(
+													locales.SupportInvalidInput(),
+												)
+											}
+										}
+										ui.Button(c.Key("up"), "↑").
+											Label(fmt.Sprintf("%s %d", locales.WorldmapMoveUp(), index+1)).
+											Disabled(disabled || index == 0).
+											OnClick(func() {
+												s.points[index-1], s.points[index] = s.points[index], s.points[index-1]
+												s.selected = index - 1
+												s.syncPoints()
+											})
+										ui.Button(c.Key("down"), "↓").
+											Label(fmt.Sprintf("%s %d", locales.WorldmapMoveDown(), index+1)).
+											Disabled(disabled || index+1 == len(s.points)).
+											OnClick(func() {
+												s.points[index+1], s.points[index] = s.points[index], s.points[index+1]
+												s.selected = index + 1
+												s.syncPoints()
+											})
+										ui.Button(c.Key("remove"), locales.WorldmapRemovePoint()).
+											Label(fmt.Sprintf("%s %d", locales.WorldmapRemovePoint(), index+1)).
+											Disabled(disabled).
+											OnClick(func() {
+												s.points = slices.Delete(
+													s.points,
+													index,
+													index+1,
+												)
+												s.selected = min(
+													index,
+													len(s.points)-1,
+												)
+												s.syncPoints()
+											})
+									})
+							}
 						})
 				})
 		}

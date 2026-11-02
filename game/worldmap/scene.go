@@ -21,9 +21,10 @@ var ErrScene = fault.Code{
 type SceneFormat struct {
 	Image, Palette, PaletteMap int
 	// Reload and fade are confirmed consumers of the daytime palette. The
-	// dark palette is an independent resource, protected but not replaced.
+	// dark palette is replaced independently and never follows daytime writes.
 	PaletteReload, PaletteFade, DarkPalette int
-	RoadTiles, RoadPalette                  int
+	// The second image consumer reloads roads when returning to the map.
+	RoadTiles, RoadTilesReload, RoadPalette int
 }
 
 type roadTile struct {
@@ -112,6 +113,7 @@ func (f SceneFormat) claims(data []byte) []space.Claim {
 		{f.DarkPalette, 128, 0},
 		{f.PaletteMap, 0, 1280},
 		{f.RoadTiles, 0, 0x3000},
+		{f.RoadTilesReload, 0, 0x3000},
 		{f.RoadPalette, 32, 0},
 	} {
 		if asset.site < 0xC0 || !gba.Within(data, asset.site, 4) {
@@ -145,8 +147,11 @@ func (f SceneFormat) claims(data []byte) []space.Claim {
 	return claims
 }
 
-func (f SceneFormat) background(data []byte) (*image.RGBA, error) {
-	background, err := f.readBackground(data)
+func (f SceneFormat) background(
+	data []byte,
+	tone BackgroundTone,
+) (*image.RGBA, error) {
+	background, err := f.readBackground(data, tone)
 	if err != nil {
 		return nil, err
 	}
@@ -164,15 +169,15 @@ func (f SceneFormat) road(data []byte, route Route) (*image.RGBA, error) {
 // Scene contains independent background and selected-road results. A damaged
 // graphic does not prevent endpoint editing or hide node/control coordinates.
 type Scene struct {
-	Background, Road       *image.RGBA
-	BackgroundErr, RoadErr error
+	Background, DarkBackground, Road          *image.RGBA
+	BackgroundErr, DarkBackgroundErr, RoadErr error
 }
 
 type sceneCache struct {
-	stamp      edit.Stamp
-	background *image.RGBA
-	err        error
-	routes     map[int]Scene
+	stamp            edit.Stamp
+	background, dark *image.RGBA
+	err, darkErr     error
+	routes           map[int]Scene
 }
 
 func (e *Editor) Scene(id int) Scene {
@@ -186,15 +191,24 @@ func (e *Editor) Scene(id int) Scene {
 		if e.scenery.err == nil {
 			e.scenery.background, e.scenery.err = e.format.Scene.background(
 				image.Data,
+				Daytime,
 			)
+			e.scenery.dark, e.scenery.darkErr = e.format.Scene.background(
+				image.Data,
+				Darkened,
+			)
+		} else {
+			e.scenery.darkErr = e.scenery.err
 		}
 	}
 	if result, ok := e.scenery.routes[id]; ok {
 		return result
 	}
 	result := Scene{
-		Background:    e.scenery.background,
-		BackgroundErr: e.scenery.err,
+		Background:        e.scenery.background,
+		BackgroundErr:     e.scenery.err,
+		DarkBackground:    e.scenery.dark,
+		DarkBackgroundErr: e.scenery.darkErr,
 	}
 	routes, err := e.Routes()
 	if err == nil && id >= 0 && id < len(routes) {

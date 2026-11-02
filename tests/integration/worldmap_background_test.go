@@ -19,7 +19,7 @@ func editWorldMapBackground(t *testing.T, s *game.Session) {
 	if !s.WorldMap.Available() {
 		t.Skip("no native world-map background")
 	}
-	source, err := s.WorldMap.Background()
+	source, err := s.WorldMap.Background(worldmap.Daytime)
 	if err != nil {
 		t.Skipf("background unavailable: %v", err)
 	}
@@ -94,7 +94,7 @@ func editWorldMapBackground(t *testing.T, s *game.Session) {
 		t.Fatal("native pixel replacement differs")
 	}
 	reopened := historyAndReopen(t, s, before)
-	fresh, err := reopened.WorldMap.Background()
+	fresh, err := reopened.WorldMap.Background(worldmap.Daytime)
 	if err != nil {
 		t.Fatal(err)
 	}

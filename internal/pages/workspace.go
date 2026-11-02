@@ -33,15 +33,17 @@ const HeaderHeight = components.HeaderHeight
 
 // Actions connects page intent to the owning desktop window.
 type Actions struct {
-	Open                     func()
-	Save                     func(bool)
-	Reload                   func()
-	Run                      func()
-	ImportPNG                func(func([]byte, error))
-	ExportPNG                func(graphics.Ref)
-	ImportWorldMapBackground func(*worldmap.Background, func(*worldmap.BackgroundDraft, error))
-	ExportWorldMapBackground func(*worldmap.Background)
-	MenuStateChanged         func()
+	Open                      func()
+	Save                      func(bool)
+	Reload                    func()
+	Run                       func()
+	ImportPNG                 func(func([]byte, error))
+	ExportPNG                 func(graphics.Ref)
+	ImportWorldMapBackground  func(*worldmap.Background, func(*worldmap.BackgroundDraft, error))
+	ExportWorldMapBackground  func(*worldmap.Background)
+	ImportWorldMapRoadTileset func(*worldmap.RoadTileset, func(*worldmap.RoadTilesetDraft, error))
+	ExportWorldMapRoadTileset func(*worldmap.RoadTileset)
+	MenuStateChanged          func()
 }
 
 type Workspace struct {
@@ -155,6 +157,18 @@ func New() *Workspace {
 		func(source *worldmap.Background) {
 			if w.Actions.ExportWorldMapBackground != nil {
 				w.Actions.ExportWorldMapBackground(source)
+			}
+		},
+	)
+	w.worldmap.SetRoadTilesetActions(
+		func(source *worldmap.RoadTileset, done func(*worldmap.RoadTilesetDraft, error)) {
+			if w.Actions.ImportWorldMapRoadTileset != nil {
+				w.Actions.ImportWorldMapRoadTileset(source, done)
+			}
+		},
+		func(source *worldmap.RoadTileset) {
+			if w.Actions.ExportWorldMapRoadTileset != nil {
+				w.Actions.ExportWorldMapRoadTileset(source)
 			}
 		},
 	)

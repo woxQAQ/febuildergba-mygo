@@ -184,11 +184,11 @@ func (msgs Messages) WorldmapAllRoutes() string {
 	return Catalog.Format(msgs.locale, "worldmap_all_routes", nil)
 }
 
-// WorldmapRouteScope says "Edit roads, endpoints and movement points of the 32 existing routes. Story events still control when routes open."
+// WorldmapRouteScope says "Edit the 32 native FE8 routes. Story events control access; this entry does not detect whether a ROM hack uses overwo…"
 // in the language the app shows.
 func WorldmapRouteScope() string { return In(i18n.Locale()).WorldmapRouteScope() }
 
-// WorldmapRouteScope says "Edit roads, endpoints and movement points of the 32 existing routes. Story events still control when routes open."
+// WorldmapRouteScope says "Edit the 32 native FE8 routes. Story events control access; this entry does not detect whether a ROM hack uses overwo…"
 // in the language of msgs.
 func (msgs Messages) WorldmapRouteScope() string {
 	return Catalog.Format(msgs.locale, "worldmap_route_scope", nil)
@@ -304,11 +304,11 @@ func (msgs Messages) WorldmapPlacePoint() string {
 	return Catalog.Format(msgs.locale, "worldmap_place_point", nil)
 }
 
-// WorldmapNoPoints says "No intermediate points; movement connects the two locations directly."
+// WorldmapNoPoints says "No intermediate points; movement connects the two nodes directly."
 // in the language the app shows.
 func WorldmapNoPoints() string { return In(i18n.Locale()).WorldmapNoPoints() }
 
-// WorldmapNoPoints says "No intermediate points; movement connects the two locations directly."
+// WorldmapNoPoints says "No intermediate points; movement connects the two nodes directly."
 // in the language of msgs.
 func (msgs Messages) WorldmapNoPoints() string {
 	return Catalog.Format(msgs.locale, "worldmap_no_points", nil)
@@ -364,6 +364,230 @@ func (msgs Messages) WorldmapSharedMovement() string {
 	return Catalog.Format(msgs.locale, "worldmap_shared_movement", nil)
 }
 
+// WorldmapImageFiles says "PNG export / replace"
+// in the language the app shows.
+func WorldmapImageFiles() string { return In(i18n.Locale()).WorldmapImageFiles() }
+
+// WorldmapImageFiles says "PNG export / replace"
+// in the language of msgs.
+func (msgs Messages) WorldmapImageFiles() string {
+	return Catalog.Format(msgs.locale, "worldmap_image_files", nil)
+}
+
+// WorldmapImageDrafts says "Applying a resource makes other pending drafts stale. Finish those edits first if you need them."
+// in the language the app shows.
+func WorldmapImageDrafts() string { return In(i18n.Locale()).WorldmapImageDrafts() }
+
+// WorldmapImageDrafts says "Applying a resource makes other pending drafts stale. Finish those edits first if you need them."
+// in the language of msgs.
+func (msgs Messages) WorldmapImageDrafts() string {
+	return Catalog.Format(msgs.locale, "worldmap_image_drafts", nil)
+}
+
+// WorldmapExportDarkBackground says "Export dark PNG"
+// in the language the app shows.
+func WorldmapExportDarkBackground() string { return In(i18n.Locale()).WorldmapExportDarkBackground() }
+
+// WorldmapExportDarkBackground says "Export dark PNG"
+// in the language of msgs.
+func (msgs Messages) WorldmapExportDarkBackground() string {
+	return Catalog.Format(msgs.locale, "worldmap_export_dark_background", nil)
+}
+
+// WorldmapImportDarkBackground says "Replace dark palette PNG"
+// in the language the app shows.
+func WorldmapImportDarkBackground() string { return In(i18n.Locale()).WorldmapImportDarkBackground() }
+
+// WorldmapImportDarkBackground says "Replace dark palette PNG"
+// in the language of msgs.
+func (msgs Messages) WorldmapImportDarkBackground() string {
+	return Catalog.Format(msgs.locale, "worldmap_import_dark_background", nil)
+}
+
+// WorldmapPreviewDarkBackground says "Preview dark palette"
+// in the language the app shows.
+func WorldmapPreviewDarkBackground() string { return In(i18n.Locale()).WorldmapPreviewDarkBackground() }
+
+// WorldmapPreviewDarkBackground says "Preview dark palette"
+// in the language of msgs.
+func (msgs Messages) WorldmapPreviewDarkBackground() string {
+	return Catalog.Format(msgs.locale, "worldmap_preview_dark_background", nil)
+}
+
+// WorldmapApplyDarkBackground says "Apply dark palette"
+// in the language the app shows.
+func WorldmapApplyDarkBackground() string { return In(i18n.Locale()).WorldmapApplyDarkBackground() }
+
+// WorldmapApplyDarkBackground says "Apply dark palette"
+// in the language of msgs.
+func (msgs Messages) WorldmapApplyDarkBackground() string {
+	return Catalog.Format(msgs.locale, "worldmap_apply_dark_background", nil)
+}
+
+// WorldmapDarkBackgroundFormat says "Export the current dark PNG, then edit only its palette colors. Keep all pixel indices and palette groups unchanged. …"
+// in the language the app shows.
+func WorldmapDarkBackgroundFormat() string { return In(i18n.Locale()).WorldmapDarkBackgroundFormat() }
+
+// WorldmapDarkBackgroundFormat says "Export the current dark PNG, then edit only its palette colors. Keep all pixel indices and palette groups unchanged. …"
+// in the language of msgs.
+func (msgs Messages) WorldmapDarkBackgroundFormat() string {
+	return Catalog.Format(msgs.locale, "worldmap_dark_background_format", nil)
+}
+
+// WorldmapDaytime says "Daytime"
+// in the language the app shows.
+func WorldmapDaytime() string { return In(i18n.Locale()).WorldmapDaytime() }
+
+// WorldmapDaytime says "Daytime"
+// in the language of msgs.
+func (msgs Messages) WorldmapDaytime() string {
+	return Catalog.Format(msgs.locale, "worldmap_daytime", nil)
+}
+
+// WorldmapDarkened says "Darkened"
+// in the language the app shows.
+func WorldmapDarkened() string { return In(i18n.Locale()).WorldmapDarkened() }
+
+// WorldmapDarkened says "Darkened"
+// in the language of msgs.
+func (msgs Messages) WorldmapDarkened() string {
+	return Catalog.Format(msgs.locale, "worldmap_darkened", nil)
+}
+
+// WorldmapBackgroundTone says "Background palette"
+// in the language the app shows.
+func WorldmapBackgroundTone() string { return In(i18n.Locale()).WorldmapBackgroundTone() }
+
+// WorldmapBackgroundTone says "Background palette"
+// in the language of msgs.
+func (msgs Messages) WorldmapBackgroundTone() string {
+	return Catalog.Format(msgs.locale, "worldmap_background_tone", nil)
+}
+
+// WorldmapDarkBackgroundScope says "Changes only the dark palette; daytime colors and pixel indices stay the same."
+// in the language the app shows.
+func WorldmapDarkBackgroundScope() string { return In(i18n.Locale()).WorldmapDarkBackgroundScope() }
+
+// WorldmapDarkBackgroundScope says "Changes only the dark palette; daytime colors and pixel indices stay the same."
+// in the language of msgs.
+func (msgs Messages) WorldmapDarkBackgroundScope() string {
+	return Catalog.Format(msgs.locale, "worldmap_dark_background_scope", nil)
+}
+
+// GameWorldmapDarkBackgroundPixels says "The dark PNG changes pixel indices or palette groups. Export the current dark background and edit only its palette co…"
+// in the language the app shows.
+func GameWorldmapDarkBackgroundPixels() string {
+	return In(i18n.Locale()).GameWorldmapDarkBackgroundPixels()
+}
+
+// GameWorldmapDarkBackgroundPixels says "The dark PNG changes pixel indices or palette groups. Export the current dark background and edit only its palette co…"
+// in the language of msgs.
+func (msgs Messages) GameWorldmapDarkBackgroundPixels() string {
+	return Catalog.Format(msgs.locale, "game_worldmap_dark_background_pixels", nil)
+}
+
+// WorldmapExportRoadTileset says "Export road tiles PNG"
+// in the language the app shows.
+func WorldmapExportRoadTileset() string { return In(i18n.Locale()).WorldmapExportRoadTileset() }
+
+// WorldmapExportRoadTileset says "Export road tiles PNG"
+// in the language of msgs.
+func (msgs Messages) WorldmapExportRoadTileset() string {
+	return Catalog.Format(msgs.locale, "worldmap_export_road_tileset", nil)
+}
+
+// WorldmapImportRoadTileset says "Replace road tiles PNG"
+// in the language the app shows.
+func WorldmapImportRoadTileset() string { return In(i18n.Locale()).WorldmapImportRoadTileset() }
+
+// WorldmapImportRoadTileset says "Replace road tiles PNG"
+// in the language of msgs.
+func (msgs Messages) WorldmapImportRoadTileset() string {
+	return Catalog.Format(msgs.locale, "worldmap_import_road_tileset", nil)
+}
+
+// WorldmapPreviewRoadTileset says "Preview road tiles"
+// in the language the app shows.
+func WorldmapPreviewRoadTileset() string { return In(i18n.Locale()).WorldmapPreviewRoadTileset() }
+
+// WorldmapPreviewRoadTileset says "Preview road tiles"
+// in the language of msgs.
+func (msgs Messages) WorldmapPreviewRoadTileset() string {
+	return Catalog.Format(msgs.locale, "worldmap_preview_road_tileset", nil)
+}
+
+// WorldmapApplyRoadTileset says "Apply road tiles"
+// in the language the app shows.
+func WorldmapApplyRoadTileset() string { return In(i18n.Locale()).WorldmapApplyRoadTileset() }
+
+// WorldmapApplyRoadTileset says "Apply road tiles"
+// in the language of msgs.
+func (msgs Messages) WorldmapApplyRoadTileset() string {
+	return Catalog.Format(msgs.locale, "worldmap_apply_road_tileset", nil)
+}
+
+// WorldmapRoadTilesetScope says "All routes share these tiles and colors. Road layouts and tile IDs stay the same."
+// in the language the app shows.
+func WorldmapRoadTilesetScope() string { return In(i18n.Locale()).WorldmapRoadTilesetScope() }
+
+// WorldmapRoadTilesetScope says "All routes share these tiles and colors. Road layouts and tile IDs stay the same."
+// in the language of msgs.
+func (msgs Messages) WorldmapRoadTilesetScope() string {
+	return Catalog.Format(msgs.locale, "worldmap_road_tileset_scope", nil)
+}
+
+// WorldmapRoadTilesetFormat says "Keep the exported sheet size and tile order (16 columns). Indexed PNG: index 0 transparent, 1–15 opaque; unused cel…"
+// in the language the app shows.
+func WorldmapRoadTilesetFormat() string { return In(i18n.Locale()).WorldmapRoadTilesetFormat() }
+
+// WorldmapRoadTilesetFormat says "Keep the exported sheet size and tile order (16 columns). Indexed PNG: index 0 transparent, 1–15 opaque; unused cel…"
+// in the language of msgs.
+func (msgs Messages) WorldmapRoadTilesetFormat() string {
+	return Catalog.Format(msgs.locale, "worldmap_road_tileset_format", nil)
+}
+
+// GameWorldmapRoadTilesetPng says "Use an indexed PNG for the road tiles."
+// in the language the app shows.
+func GameWorldmapRoadTilesetPng() string { return In(i18n.Locale()).GameWorldmapRoadTilesetPng() }
+
+// GameWorldmapRoadTilesetPng says "Use an indexed PNG for the road tiles."
+// in the language of msgs.
+func (msgs Messages) GameWorldmapRoadTilesetPng() string {
+	return Catalog.Format(msgs.locale, "game_worldmap_road_tileset_png", nil)
+}
+
+// GameWorldmapRoadTilesetSize says "Keep the exported road sheet dimensions and tile count. PNG files must be no larger than 1 MiB."
+// in the language the app shows.
+func GameWorldmapRoadTilesetSize() string { return In(i18n.Locale()).GameWorldmapRoadTilesetSize() }
+
+// GameWorldmapRoadTilesetSize says "Keep the exported road sheet dimensions and tile count. PNG files must be no larger than 1 MiB."
+// in the language of msgs.
+func (msgs Messages) GameWorldmapRoadTilesetSize() string {
+	return Catalog.Format(msgs.locale, "game_worldmap_road_tileset_size", nil)
+}
+
+// GameWorldmapRoadTilesetColors says "Road tiles use indices 0–15: index 0 transparent, all other palette entries opaque."
+// in the language the app shows.
+func GameWorldmapRoadTilesetColors() string { return In(i18n.Locale()).GameWorldmapRoadTilesetColors() }
+
+// GameWorldmapRoadTilesetColors says "Road tiles use indices 0–15: index 0 transparent, all other palette entries opaque."
+// in the language of msgs.
+func (msgs Messages) GameWorldmapRoadTilesetColors() string {
+	return Catalog.Format(msgs.locale, "game_worldmap_road_tileset_colors", nil)
+}
+
+// GameWorldmapRoadTilesetPadding says "Unused cells after the last road tile must use transparent index 0."
+// in the language the app shows.
+func GameWorldmapRoadTilesetPadding() string {
+	return In(i18n.Locale()).GameWorldmapRoadTilesetPadding()
+}
+
+// GameWorldmapRoadTilesetPadding says "Unused cells after the last road tile must use transparent index 0."
+// in the language of msgs.
+func (msgs Messages) GameWorldmapRoadTilesetPadding() string {
+	return Catalog.Format(msgs.locale, "game_worldmap_road_tileset_padding", nil)
+}
+
 // WorldmapExportBackground says "Export background PNG"
 // in the language the app shows.
 func WorldmapExportBackground() string { return In(i18n.Locale()).WorldmapExportBackground() }
@@ -384,41 +608,41 @@ func (msgs Messages) WorldmapImportBackground() string {
 	return Catalog.Format(msgs.locale, "worldmap_import_background", nil)
 }
 
-// WorldmapPreviewBackground says "Show replacement"
+// WorldmapPreviewBackground says "Preview daytime background"
 // in the language the app shows.
 func WorldmapPreviewBackground() string { return In(i18n.Locale()).WorldmapPreviewBackground() }
 
-// WorldmapPreviewBackground says "Show replacement"
+// WorldmapPreviewBackground says "Preview daytime background"
 // in the language of msgs.
 func (msgs Messages) WorldmapPreviewBackground() string {
 	return Catalog.Format(msgs.locale, "worldmap_preview_background", nil)
 }
 
-// WorldmapApplyBackground says "Apply background"
+// WorldmapApplyBackground says "Apply daytime background"
 // in the language the app shows.
 func WorldmapApplyBackground() string { return In(i18n.Locale()).WorldmapApplyBackground() }
 
-// WorldmapApplyBackground says "Apply background"
+// WorldmapApplyBackground says "Apply daytime background"
 // in the language of msgs.
 func (msgs Messages) WorldmapApplyBackground() string {
 	return Catalog.Format(msgs.locale, "worldmap_apply_background", nil)
 }
 
-// WorldmapBackgroundFormat says "480 × 320 indexed PNG. Use indices 0–63; each 8 × 8 tile must use one group of 16 colors. Colors are converted to…"
+// WorldmapBackgroundFormat says "480 × 320 indexed PNG, opaque colors 0–63; each 8 × 8 tile uses one group of 16 colors. Up to 1 MiB. Preview show…"
 // in the language the app shows.
 func WorldmapBackgroundFormat() string { return In(i18n.Locale()).WorldmapBackgroundFormat() }
 
-// WorldmapBackgroundFormat says "480 × 320 indexed PNG. Use indices 0–63; each 8 × 8 tile must use one group of 16 colors. Colors are converted to…"
+// WorldmapBackgroundFormat says "480 × 320 indexed PNG, opaque colors 0–63; each 8 × 8 tile uses one group of 16 colors. Up to 1 MiB. Preview show…"
 // in the language of msgs.
 func (msgs Messages) WorldmapBackgroundFormat() string {
 	return Catalog.Format(msgs.locale, "worldmap_background_format", nil)
 }
 
-// WorldmapBackgroundScope says "All routes share this daytime background. Locations and roads keep their coordinates. Dark scenes use the new pixels …"
+// WorldmapBackgroundScope says "Shared by all routes. Dark scenes use the new pixels with the existing dark palette."
 // in the language the app shows.
 func WorldmapBackgroundScope() string { return In(i18n.Locale()).WorldmapBackgroundScope() }
 
-// WorldmapBackgroundScope says "All routes share this daytime background. Locations and roads keep their coordinates. Dark scenes use the new pixels …"
+// WorldmapBackgroundScope says "Shared by all routes. Dark scenes use the new pixels with the existing dark palette."
 // in the language of msgs.
 func (msgs Messages) WorldmapBackgroundScope() string {
 	return Catalog.Format(msgs.locale, "worldmap_background_scope", nil)
@@ -464,11 +688,11 @@ func (msgs Messages) WorldmapSceneIncomplete() string {
 	return Catalog.Format(msgs.locale, "worldmap_scene_incomplete", nil)
 }
 
-// WorldmapControlLines says "Lines show control-point order; the game uses spline interpolation. Circles show location IDs."
+// WorldmapControlLines says "Lines show control-point order; the game uses spline interpolation. Circles show node IDs."
 // in the language the app shows.
 func WorldmapControlLines() string { return In(i18n.Locale()).WorldmapControlLines() }
 
-// WorldmapControlLines says "Lines show control-point order; the game uses spline interpolation. Circles show location IDs."
+// WorldmapControlLines says "Lines show control-point order; the game uses spline interpolation. Circles show node IDs."
 // in the language of msgs.
 func (msgs Messages) WorldmapControlLines() string {
 	return Catalog.Format(msgs.locale, "worldmap_control_lines", nil)
@@ -524,21 +748,21 @@ func (msgs Messages) GameInvalidWorldmapScene() string {
 	return Catalog.Format(msgs.locale, "game_invalid_worldmap_scene", nil)
 }
 
-// WorldmapNodes says "Locations"
+// WorldmapNodes says "Nodes"
 // in the language the app shows.
 func WorldmapNodes() string { return In(i18n.Locale()).WorldmapNodes() }
 
-// WorldmapNodes says "Locations"
+// WorldmapNodes says "Nodes"
 // in the language of msgs.
 func (msgs Messages) WorldmapNodes() string {
 	return Catalog.Format(msgs.locale, "worldmap_nodes", nil)
 }
 
-// WorldmapSearch says "Search name or hexadecimal ID"
+// WorldmapSearch says "Search node name or hexadecimal ID"
 // in the language the app shows.
 func WorldmapSearch() string { return In(i18n.Locale()).WorldmapSearch() }
 
-// WorldmapSearch says "Search name or hexadecimal ID"
+// WorldmapSearch says "Search node name or hexadecimal ID"
 // in the language of msgs.
 func (msgs Messages) WorldmapSearch() string {
 	return Catalog.Format(msgs.locale, "worldmap_search", nil)
@@ -554,21 +778,21 @@ func (msgs Messages) WorldmapUnavailable() string {
 	return Catalog.Format(msgs.locale, "worldmap_unavailable", nil)
 }
 
-// WorldmapScope says "Edit the 29 native FE8 locations and open their connected routes. New nodes and expansion are separate operations."
+// WorldmapScope says "Edit the 29 native FE8J/U world-map nodes. FE6/FE7 do not use this node-and-road system. This entry does not detect w…"
 // in the language the app shows.
 func WorldmapScope() string { return In(i18n.Locale()).WorldmapScope() }
 
-// WorldmapScope says "Edit the 29 native FE8 locations and open their connected routes. New nodes and expansion are separate operations."
+// WorldmapScope says "Edit the 29 native FE8J/U world-map nodes. FE6/FE7 do not use this node-and-road system. This entry does not detect w…"
 // in the language of msgs.
 func (msgs Messages) WorldmapScope() string {
 	return Catalog.Format(msgs.locale, "worldmap_scope", nil)
 }
 
-// WorldmapName says "Location name"
+// WorldmapName says "Node name"
 // in the language the app shows.
 func WorldmapName() string { return In(i18n.Locale()).WorldmapName() }
 
-// WorldmapName says "Location name"
+// WorldmapName says "Node name"
 // in the language of msgs.
 func (msgs Messages) WorldmapName() string {
 	return Catalog.Format(msgs.locale, "worldmap_name", nil)
@@ -644,21 +868,21 @@ func (msgs Messages) WorldmapEphraimChapter() string {
 	return Catalog.Format(msgs.locale, "worldmap_ephraim_chapter", nil)
 }
 
-// WorldmapChapterHelp says "Choose a chapter or enter its ID (decimal or 0x hexadecimal). The active route selects which chapter opens here."
+// WorldmapChapterHelp says "Choose a chapter or enter its ID (decimal or 0x hexadecimal). The active route selects which chapter opens at this node."
 // in the language the app shows.
 func WorldmapChapterHelp() string { return In(i18n.Locale()).WorldmapChapterHelp() }
 
-// WorldmapChapterHelp says "Choose a chapter or enter its ID (decimal or 0x hexadecimal). The active route selects which chapter opens here."
+// WorldmapChapterHelp says "Choose a chapter or enter its ID (decimal or 0x hexadecimal). The active route selects which chapter opens at this node."
 // in the language of msgs.
 func (msgs Messages) WorldmapChapterHelp() string {
 	return Catalog.Format(msgs.locale, "worldmap_chapter_help", nil)
 }
 
-// WorldmapDestinations says "Next location"
+// WorldmapDestinations says "Next node"
 // in the language the app shows.
 func WorldmapDestinations() string { return In(i18n.Locale()).WorldmapDestinations() }
 
-// WorldmapDestinations says "Next location"
+// WorldmapDestinations says "Next node"
 // in the language of msgs.
 func (msgs Messages) WorldmapDestinations() string {
 	return Catalog.Format(msgs.locale, "worldmap_destinations", nil)
@@ -714,11 +938,11 @@ func (msgs Messages) WorldmapNextHelp() string {
 	return Catalog.Format(msgs.locale, "worldmap_next_help", nil)
 }
 
-// WorldmapNoNext says "No next location"
+// WorldmapNoNext says "No next node"
 // in the language the app shows.
 func WorldmapNoNext() string { return In(i18n.Locale()).WorldmapNoNext() }
 
-// WorldmapNoNext says "No next location"
+// WorldmapNoNext says "No next node"
 // in the language of msgs.
 func (msgs Messages) WorldmapNoNext() string {
 	return Catalog.Format(msgs.locale, "worldmap_no_next", nil)
@@ -844,11 +1068,11 @@ func (msgs Messages) WorldmapShipHelp() string {
 	return Catalog.Format(msgs.locale, "worldmap_ship_help", nil)
 }
 
-// WorldmapOpenNode says "Open location"
+// WorldmapOpenNode says "Open node"
 // in the language the app shows.
 func WorldmapOpenNode() string { return In(i18n.Locale()).WorldmapOpenNode() }
 
-// WorldmapOpenNode says "Open location"
+// WorldmapOpenNode says "Open node"
 // in the language of msgs.
 func (msgs Messages) WorldmapOpenNode() string {
 	return Catalog.Format(msgs.locale, "worldmap_open_node", nil)
@@ -874,11 +1098,11 @@ func (msgs Messages) WorldmapApply() string {
 	return Catalog.Format(msgs.locale, "worldmap_apply", nil)
 }
 
-// WorldmapApplyHelp says "Apply this location's changes in one undo step. All readers of the node see the new values; other nodes and shop inve…"
+// WorldmapApplyHelp says "Apply this node's changes in one undo step. All readers of the node see the new values; other nodes and shop inventor…"
 // in the language the app shows.
 func WorldmapApplyHelp() string { return In(i18n.Locale()).WorldmapApplyHelp() }
 
-// WorldmapApplyHelp says "Apply this location's changes in one undo step. All readers of the node see the new values; other nodes and shop inve…"
+// WorldmapApplyHelp says "Apply this node's changes in one undo step. All readers of the node see the new values; other nodes and shop inventor…"
 // in the language of msgs.
 func (msgs Messages) WorldmapApplyHelp() string {
 	return Catalog.Format(msgs.locale, "worldmap_apply_help", nil)

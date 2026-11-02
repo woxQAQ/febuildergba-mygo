@@ -79,6 +79,8 @@ func TestROMWorkflows(t *testing.T) {
 				{"worldmap-routes", editWorldMapRoute},
 				{"worldmap-roads", editWorldMapRoad},
 				{"worldmap-background", editWorldMapBackground},
+				{"worldmap-dark-palette", editWorldMapDarkPalette},
+				{"worldmap-road-tileset", editWorldMapRoadTileset},
 				{"worldmap-events", editWorldMapEvent},
 				{"worldmap-scenes", editWorldMapScene},
 				{"quotes", editQuotes},

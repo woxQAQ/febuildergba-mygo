@@ -58,7 +58,10 @@ func editArena(t *testing.T, session *game.Session) {
 					func(row arena.Row) bool {
 						return row.Editable &&
 							!bytes.Contains(base, []byte{byte(row.Value)}) &&
-							slices.ContainsFunc(items.Rows, func(item records.Row) bool { return item.ID == int(row.Value) })
+							slices.ContainsFunc(
+								items.Rows,
+								func(item records.Row) bool { return item.ID == int(row.Value) },
+							)
 					},
 				)
 				if index < 0 {

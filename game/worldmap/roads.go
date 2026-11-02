@@ -6,7 +6,6 @@ import (
 	"image/draw"
 
 	"github.com/woxQAQ/febuildergba-mygo/game/edit"
-	"github.com/woxQAQ/febuildergba-mygo/gba"
 )
 
 const (
@@ -66,30 +65,11 @@ func newRoadDraft(
 }
 
 func (f SceneFormat) roadTiles(data []byte) ([]*image.RGBA, error) {
-	pixels, _, _, err := compressedAsset(data, f.RoadTiles, 0x3000)
+	resource, err := f.readRoadTiles(data)
 	if err != nil {
 		return nil, err
 	}
-	if len(pixels) == 0 || len(pixels)%32 != 0 {
-		return nil, ErrScene
-	}
-	palette, _, err := fixedAsset(data, f.RoadPalette, 32)
-	if err != nil {
-		return nil, err
-	}
-	tiles := make([]*image.RGBA, len(pixels)/32)
-	for i := range tiles {
-		tiles[i], err = gba.Tiles4BPP(
-			pixels[i*32:i*32+32],
-			palette,
-			RoadTileSize,
-			RoadTileSize,
-		)
-		if err != nil {
-			return nil, err
-		}
-	}
-	return tiles, nil
+	return resource.tiles()
 }
 
 func (d *RoadDraft) Modified() bool { return *d.cells != *d.original }
@@ -108,54 +88,65 @@ func (d *RoadDraft) Cell(x, y int) (RoadCell, bool) {
 // in the final row are padding and cannot be selected.
 func (d *RoadDraft) Tileset() *image.RGBA {
 	if d.palette == nil {
-		d.palette = image.NewRGBA(
-			image.Rect(
-				0,
-				0,
-				16*RoadTileSize,
-				((len(d.tiles)+15)/16)*RoadTileSize,
-			),
-		)
-		for i, tile := range d.tiles {
-			x, y := (i%16)*RoadTileSize, (i/16)*RoadTileSize
-			draw.Draw(
-				d.palette,
-				image.Rect(x, y, x+RoadTileSize, y+RoadTileSize),
-				tile,
-				image.Point{},
-				draw.Src,
-			)
-		}
+		d.palette = roadTilesImage(d.tiles)
 	}
 	return d.palette
 }
 
+func roadTilesImage(tiles []*image.RGBA) *image.RGBA {
+	out := image.NewRGBA(
+		image.Rect(0, 0, 16*RoadTileSize, ((len(tiles)+15)/16)*RoadTileSize),
+	)
+	for i, tile := range tiles {
+		x, y := (i%16)*RoadTileSize, (i/16)*RoadTileSize
+		draw.Draw(
+			out,
+			image.Rect(x, y, x+RoadTileSize, y+RoadTileSize),
+			tile,
+			image.Point{},
+			draw.Src,
+		)
+	}
+	return out
+}
+
 func (d *RoadDraft) Preview() *image.RGBA {
 	if d.preview == nil {
-		d.preview = image.NewRGBA(image.Rect(0, 0, MapWidth, MapHeight))
-		for i, cell := range d.cells {
-			if cell.Present {
-				paintRoadTile(
-					d.preview,
-					image.Pt(
-						(i%RoadColumns)*RoadTileSize,
-						(i/RoadColumns)*RoadTileSize,
-					),
-					d.tiles[cell.Tile],
-					cell,
-				)
-			}
-		}
+		d.preview = roadImage(d.cells, d.tiles)
 	}
 	return d.preview
 }
 
-func (d *RoadDraft) Brush(cell RoadCell) (*image.RGBA, error) {
-	if !cell.Present || cell.Tile < 0 || cell.Tile >= len(d.tiles) {
+func roadImage(cells *roadGrid, tiles []*image.RGBA) *image.RGBA {
+	out := image.NewRGBA(image.Rect(0, 0, MapWidth, MapHeight))
+	for i, cell := range cells {
+		if cell.Present {
+			paintRoadTile(
+				out,
+				image.Pt(
+					i%RoadColumns*RoadTileSize,
+					i/RoadColumns*RoadTileSize,
+				),
+				tiles[cell.Tile],
+				cell,
+			)
+		}
+	}
+	return out
+}
+
+func (d *RoadDraft) Brush(
+	cell RoadCell,
+) (*image.RGBA, error) {
+	return roadBrush(d.tiles, cell)
+}
+
+func roadBrush(tiles []*image.RGBA, cell RoadCell) (*image.RGBA, error) {
+	if !cell.Present || cell.Tile < 0 || cell.Tile >= len(tiles) {
 		return nil, edit.ErrValue
 	}
 	out := image.NewRGBA(image.Rect(0, 0, RoadTileSize, RoadTileSize))
-	paintRoadTile(out, image.Point{}, d.tiles[cell.Tile], cell)
+	paintRoadTile(out, image.Point{}, tiles[cell.Tile], cell)
 	return out, nil
 }
 

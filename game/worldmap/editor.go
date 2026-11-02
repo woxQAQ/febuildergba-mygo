@@ -116,6 +116,8 @@ func New(context *edit.Context, format Format, source Source) *Editor {
 	return &Editor{context: context, format: format, source: source}
 }
 
+// Available reports a declared native node layout, not whether the current
+// game flow uses overworld travel. Readability is checked when loading records.
 func (e *Editor) Available() bool { return e.format.Pointer != 0 }
 
 func (e *Editor) Nodes() ([]Node, error) {

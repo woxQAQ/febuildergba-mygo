@@ -2,9 +2,7 @@ package worldmap
 
 import (
 	"bytes"
-	"encoding/binary"
 	"image"
-	"image/color"
 	"image/draw"
 	"image/png"
 
@@ -17,7 +15,30 @@ import (
 
 const MaxBackgroundPNG = 1 << 20
 
+// BackgroundTone selects the independent daytime or dark palette. Both use
+// the same pixel indices and palette map.
+type BackgroundTone uint8
+
+const (
+	Daytime BackgroundTone = iota
+	Darkened
+)
+
+func (f SceneFormat) paletteSite(tone BackgroundTone) int {
+	if tone == Darkened {
+		return f.DarkPalette
+	}
+	if tone == Daytime {
+		return f.Palette
+	}
+	return 0
+}
+
 var (
+	ErrDarkBackgroundPixels = fault.Code{
+		ID:   "game.worldmap_dark_background_pixels",
+		Kind: fault.InvalidInput,
+	}
 	ErrBackgroundPNG = fault.Code{
 		ID:   "game.worldmap_background_png",
 		Kind: fault.InvalidInput,
@@ -38,12 +59,15 @@ type backgroundData struct {
 	pixels, palette, banks []byte
 }
 
-func (f SceneFormat) readBackground(data []byte) (backgroundData, error) {
+func (f SceneFormat) readBackground(
+	data []byte,
+	tone BackgroundTone,
+) (backgroundData, error) {
 	pixels, _, err := fixedAsset(data, f.Image, MapWidth*MapHeight/2)
 	if err != nil {
 		return backgroundData{}, err
 	}
-	palette, _, err := fixedAsset(data, f.Palette, 128)
+	palette, _, err := fixedAsset(data, f.paletteSite(tone), 128)
 	if err != nil {
 		return backgroundData{}, err
 	}
@@ -65,17 +89,7 @@ func (f SceneFormat) readBackground(data []byte) (backgroundData, error) {
 }
 
 func (b backgroundData) indexed() *image.Paletted {
-	palette := make(color.Palette, 64)
-	for i := range palette {
-		v := binary.LittleEndian.Uint16(b.palette[i*2:])
-		expand := func(v uint16) uint8 { return uint8((v<<3 | v>>2) & 255) }
-		palette[i] = color.RGBA{
-			R: expand(v & 31),
-			G: expand(v >> 5 & 31),
-			B: expand(v >> 10 & 31),
-			A: 255,
-		}
-	}
+	palette := nativePalette(b.palette, false)
 	out := image.NewPaletted(image.Rect(0, 0, MapWidth, MapHeight), palette)
 	for y := range MapHeight {
 		for x := range MapWidth {
@@ -95,34 +109,42 @@ func (b backgroundData) image() *image.RGBA {
 	return out
 }
 
-// Background is an immutable copy of the three native daytime resources. PNG
+// Background is an immutable copy of the selected native background resources. PNG
 // encoding and import use only this copy and may run away from the UI thread.
 type Background struct {
 	stamp        edit.Stamp
 	original     backgroundData
 	format       SceneFormat
 	paletteSites []int
+	tone         BackgroundTone
 }
 
-func (e *Editor) Background() (*Background, error) {
+func (e *Editor) Background(tone BackgroundTone) (*Background, error) {
 	image := e.context.Document().Snapshot()
 	if err := e.context.Validate(image.Data); err != nil {
 		return nil, err
 	}
 	seen := make(map[int]bool)
-	for _, site := range []int{e.format.Scene.Image, e.format.Scene.Palette, e.format.Scene.PaletteMap} {
+	for _, site := range []int{e.format.Scene.Image, e.format.Scene.paletteSite(tone), e.format.Scene.PaletteMap} {
 		if site < 0xC0 || site%4 != 0 || seen[site] {
 			return nil, ErrScene
 		}
 		seen[site] = true
 	}
-	original, err := e.format.Scene.readBackground(image.Data)
+	original, err := e.format.Scene.readBackground(image.Data, tone)
 	if err != nil {
 		return nil, err
 	}
-	palette, _ := gba.Pointer(image.Data, e.format.Scene.Palette)
-	sites := []int{e.format.Scene.Palette}
-	for _, site := range []int{e.format.Scene.PaletteReload, e.format.Scene.PaletteFade} {
+	palette, _ := gba.Pointer(image.Data, e.format.Scene.paletteSite(tone))
+	sites := []int{e.format.Scene.paletteSite(tone)}
+	var consumers []int
+	if tone == Daytime {
+		consumers = []int{
+			e.format.Scene.PaletteReload,
+			e.format.Scene.PaletteFade,
+		}
+	}
+	for _, site := range consumers {
 		if site == 0 {
 			continue
 		}
@@ -139,6 +161,7 @@ func (e *Editor) Background() (*Background, error) {
 		}
 	}
 	return &Background{
+		tone:         tone,
 		paletteSites: sites,
 		stamp:        e.context.Bind(image.Revision),
 		original:     original,
@@ -151,6 +174,8 @@ func (b *Background) Current(
 ) bool {
 	return b != nil && b.stamp.Current(e.context)
 }
+
+func (b *Background) Tone() BackgroundTone { return b.tone }
 
 func (b *Background) PNG() ([]byte, error) {
 	var out bytes.Buffer
@@ -211,21 +236,13 @@ func (b *Background) ImportPNG(
 		bytes.Clone(b.original.palette),
 		bytes.Clone(b.original.banks),
 	}
-	for i := range min(64, len(indexed.Palette)) {
-		pixel := color.NRGBAModel.Convert(indexed.Palette[i]).(color.NRGBA)
-		if pixel.A != 255 {
-			return nil, ErrBackgroundColors
-		}
-		quantize := func(v uint8) uint16 { return (uint16(v)*31 + 127) / 255 }
-		value := quantize(
-			pixel.R,
-		) | quantize(
-			pixel.G,
-		)<<5 | quantize(
-			pixel.B,
-		)<<10
-		value |= binary.LittleEndian.Uint16(after.palette[i*2:]) & 0x8000
-		binary.LittleEndian.PutUint16(after.palette[i*2:], value)
+	if err := putPalette(after.palette, indexed.Palette, false); err != nil {
+		return nil, fault.New(
+			ErrBackgroundColors,
+			"worldmap.background_palette",
+			fault.Context{},
+			err,
+		)
 	}
 	for tileY := range 40 {
 		for tileX := range 60 {
@@ -247,6 +264,10 @@ func (b *Background) ImportPNG(
 			at, shift := tileY*32+tileX/2, (tileX%2)*4
 			after.banks[at] = after.banks[at]&^(15<<shift) | bank<<shift
 		}
+	}
+	if b.tone == Darkened &&
+		(!bytes.Equal(after.pixels, b.original.pixels) || !bytes.Equal(after.banks, b.original.banks)) {
+		return nil, ErrDarkBackgroundPixels
 	}
 	if bytes.Equal(after.pixels, b.original.pixels) &&
 		bytes.Equal(after.palette, b.original.palette) &&
@@ -305,14 +326,14 @@ func (e *Editor) PlanBackground(
 		compressed    bool
 	}{
 		{e.format.Scene.Image, d.source.original.pixels, d.after.pixels, false},
-		{e.format.Scene.Palette, d.source.original.palette, d.after.palette, false},
+		{e.format.Scene.paletteSite(d.source.tone), d.source.original.palette, d.after.palette, false},
 		{e.format.Scene.PaletteMap, d.source.original.banks, d.after.banks, true},
 	} {
 		if bytes.Equal(part.before, part.after) {
 			continue
 		}
 		sites := []int{part.site}
-		if part.site == e.format.Scene.Palette {
+		if part.site == e.format.Scene.paletteSite(d.source.tone) {
 			sites = d.source.paletteSites
 		}
 		for _, site := range sites {

@@ -29,6 +29,7 @@ type roadPainter struct {
 	brushBitmap                 *ui.Bitmap
 	shownBrush                  worldmap.RoadCell
 	palette                     []*ui.Bitmap
+	atlas                       *image.RGBA
 	stroke                      []image.Point
 	strokeTool                  roadTool
 	strokeBrush                 worldmap.RoadCell
@@ -110,8 +111,12 @@ func (p *Page) roadTools(c *ui.Context, s *routeState, disabled bool) {
 	if !r.brush.Present {
 		r.brush = worldmap.RoadCell{Present: true}
 	}
-	if r.palette == nil {
-		atlas := road.Tileset()
+	atlas := road.Tileset()
+	if p.previewRoadTileset() != nil {
+		atlas = p.roadTileset.image
+	}
+	if r.atlas != atlas {
+		r.atlas, r.palette, r.brushBitmap = atlas, nil, nil
 		columns := atlas.Bounds().Dx() / worldmap.RoadTileSize
 		for i := range road.TileCount() {
 			x, y := (i%columns)*worldmap.RoadTileSize, (i/columns)*worldmap.RoadTileSize
@@ -183,6 +188,9 @@ func (p *Page) roadTools(c *ui.Context, s *routeState, disabled bool) {
 	}
 	if r.brushBitmap == nil || r.shownBrush != r.brush {
 		brush, err := road.Brush(r.brush)
+		if replacement := p.previewRoadTileset(); replacement != nil {
+			brush, err = replacement.Brush(r.brush)
+		}
 		if err == nil {
 			r.brushBitmap = ui.NewBitmap(brush).Pixelated()
 			r.shownBrush = r.brush

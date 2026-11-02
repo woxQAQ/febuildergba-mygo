@@ -61,10 +61,36 @@ func (m *application) newWindow(session *game.Session) *mygo.Window {
 	a.Actions.ImportPNG = func(done func([]byte, error)) { importPNG(win, a, done) }
 	a.Actions.ExportPNG = func(ref graphics.Ref) { m.exportPNG(win, a, ref) }
 	a.Actions.ImportWorldMapBackground = func(source *worldmap.Background, done func(*worldmap.BackgroundDraft, error)) {
-		importWorldMapBackground(win, a, source, done)
+		title := locales.WorldmapImportBackground()
+		if source.Tone() == worldmap.Darkened {
+			title = locales.WorldmapImportDarkBackground()
+		}
+		importWorldMapPNG(
+			win,
+			a,
+			title,
+			source.ImportPNG,
+			done,
+		)
 	}
 	a.Actions.ExportWorldMapBackground = func(source *worldmap.Background) {
-		m.exportPNGContent(win, a, "worldmap-background", source.PNG)
+		suffix := "worldmap-background"
+		if source.Tone() == worldmap.Darkened {
+			suffix += "-dark"
+		}
+		m.exportPNGContent(win, a, suffix, source.PNG)
+	}
+	a.Actions.ImportWorldMapRoadTileset = func(source *worldmap.RoadTileset, done func(*worldmap.RoadTilesetDraft, error)) {
+		importWorldMapPNG(
+			win,
+			a,
+			locales.WorldmapImportRoadTileset(),
+			source.ImportPNG,
+			done,
+		)
+	}
+	a.Actions.ExportWorldMapRoadTileset = func(source *worldmap.RoadTileset) {
+		m.exportPNGContent(win, a, "worldmap-road-tileset", source.PNG)
 	}
 	a.Actions.Run = func() {
 		if a.Editor.Session == nil {

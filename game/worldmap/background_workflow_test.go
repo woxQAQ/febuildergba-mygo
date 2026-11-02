@@ -53,7 +53,7 @@ func TestWorldMapBackgroundReplacementAndHistory(t *testing.T) {
 			f := testutil.NewWorldMapBackgroundFixture(version)
 			s := testutil.Open(t, f)
 			before, state := s.Document.Snapshot(), s.Document.State()
-			source, err := s.WorldMap.Background()
+			source, err := s.WorldMap.Background(worldmap.Daytime)
 			if err != nil {
 				t.Fatal(err)
 			}
@@ -201,7 +201,7 @@ func TestWorldMapBackgroundReplacementAndHistory(t *testing.T) {
 				scene.RoadErr != nil {
 				t.Fatal("saved scene", scene.BackgroundErr, scene.RoadErr)
 			}
-			fresh, err := reopened.WorldMap.Background()
+			fresh, err := reopened.WorldMap.Background(worldmap.Daytime)
 			if err != nil {
 				t.Fatal(err)
 			}
@@ -219,7 +219,7 @@ func TestWorldMapBackgroundPartialReplacement(t *testing.T) {
 			// Unreadable roads do not block an independent background edit.
 			f.WriteU32(0xB8F98, 0)
 			s := testutil.Open(t, f)
-			source, err := s.WorldMap.Background()
+			source, err := s.WorldMap.Background(worldmap.Daytime)
 			if err != nil {
 				t.Fatal(err)
 			}
@@ -279,7 +279,7 @@ func TestWorldMapBackgroundIndependentPaletteConsumers(t *testing.T) {
 			f := testutil.NewWorldMapBackgroundFixture("FE8U")
 			f.WritePointer(f.GetPosition(independent+"_pointer"), 0x279000)
 			s := testutil.Open(t, f)
-			source, err := s.WorldMap.Background()
+			source, err := s.WorldMap.Background(worldmap.Daytime)
 			if err != nil {
 				t.Fatal(err)
 			}
@@ -320,7 +320,7 @@ func TestWorldMapBackgroundIndependentPaletteConsumers(t *testing.T) {
 
 func TestWorldMapBackgroundImportDuringDocumentEdit(t *testing.T) {
 	s := testutil.Open(t, testutil.NewWorldMapBackgroundFixture("FE8U"))
-	source, err := s.WorldMap.Background()
+	source, err := s.WorldMap.Background(worldmap.Daytime)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -363,7 +363,7 @@ func TestWorldMapBackgroundImportDuringDocumentEdit(t *testing.T) {
 
 func TestWorldMapBackgroundRejectedImports(t *testing.T) {
 	s := testutil.Open(t, testutil.NewWorldMapBackgroundFixture("FE8J"))
-	source, err := s.WorldMap.Background()
+	source, err := s.WorldMap.Background(worldmap.Daytime)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -446,7 +446,7 @@ func TestWorldMapBackgroundPlanFailures(t *testing.T) {
 					t.Fatal(err)
 				}
 			}
-			source, err := s.WorldMap.Background()
+			source, err := s.WorldMap.Background(worldmap.Daytime)
 			if scenario == "malformed" {
 				if !errors.Is(err, worldmap.ErrScene) {
 					t.Fatal(err)

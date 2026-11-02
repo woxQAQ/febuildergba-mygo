@@ -27,8 +27,19 @@ func (p *Page) routeMap(c *ui.Context, s *routeState, disabled bool) {
 	scene := p.state.Session.WorldMap.Scene(route.ID)
 	if road, err := s.draft.Road(); err == nil {
 		scene.Road = road.Preview()
+		if replacement := p.previewRoadTileset(); replacement != nil {
+			v := p.roadTileset
+			if v.route != s.draft || v.roadInput != scene.Road {
+				v.route, v.roadInput = s.draft, scene.Road
+				v.road, scene.RoadErr = replacement.Preview(s.draft)
+			}
+			scene.Road = v.road
+		}
 	}
-	if b := p.background; b.preview &&
+	if p.backgroundTone == int(worldmap.Darkened) {
+		scene.Background, scene.BackgroundErr = scene.DarkBackground, scene.DarkBackgroundErr
+	}
+	if b := p.backgrounds[p.backgroundTone]; b.preview &&
 		b.draft.Current(p.state.Session.WorldMap) {
 		scene.Background, scene.BackgroundErr = b.image, nil
 	}
