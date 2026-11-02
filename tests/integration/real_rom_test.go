@@ -77,6 +77,7 @@ func TestROMWorkflows(t *testing.T) {
 				{"native-shops", editNativeShops},
 				{"worldmap-nodes", editWorldMapNode},
 				{"worldmap-routes", editWorldMapRoute},
+				{"worldmap-roads", editWorldMapRoad},
 				{"quotes", editQuotes},
 				{"supports", editSupports},
 				{"terrain", editTerrain},

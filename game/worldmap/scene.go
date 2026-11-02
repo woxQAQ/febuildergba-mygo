@@ -193,47 +193,11 @@ func (f SceneFormat) background(data []byte) (*image.RGBA, error) {
 }
 
 func (f SceneFormat) road(data []byte, route Route) (*image.RGBA, error) {
-	tiles, _, err := readRoad(data, route.Road)
+	draft, err := newRoadDraft(data, f, route.Road)
 	if err != nil {
 		return nil, err
 	}
-	pixels, _, _, err := compressedAsset(data, f.RoadTiles, 0x3000)
-	if err != nil {
-		return nil, err
-	}
-	if len(pixels)%32 != 0 {
-		return nil, ErrScene
-	}
-	palette, _, err := fixedAsset(data, f.RoadPalette, 32)
-	if err != nil {
-		return nil, err
-	}
-	out := image.NewRGBA(image.Rect(0, 0, MapWidth, MapHeight))
-	for _, tile := range tiles {
-		index := int(tile.word & 0x3FF)
-		// Only the road atlas and its loaded palette are confirmed resources.
-		if tile.word&0xF000 != 0 || index*32+32 > len(pixels) {
-			return nil, ErrScene
-		}
-		part, err := gba.Tiles4BPP(pixels[index*32:index*32+32], palette, 8, 8)
-		if err != nil {
-			return nil, err
-		}
-		x, y := (tile.index%60)*8, (tile.index/60)*8
-		for dy := range 8 {
-			for dx := range 8 {
-				sx, sy := dx, dy
-				if tile.word&0x400 != 0 {
-					sx = 7 - dx
-				}
-				if tile.word&0x800 != 0 {
-					sy = 7 - dy
-				}
-				out.SetRGBA(x+dx, y+dy, part.RGBAAt(sx, sy))
-			}
-		}
-	}
-	return out, nil
+	return draft.Preview(), nil
 }
 
 // Scene contains independent background and selected-road results. A damaged

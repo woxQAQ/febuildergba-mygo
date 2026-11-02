@@ -24,6 +24,7 @@ type (
 		points   []*pointInput
 		selected int
 		placing  bool
+		road     roadPainter
 	}
 )
 
@@ -87,6 +88,7 @@ type routePage struct {
 	list                 ui.ListState
 	drafts               map[int]*routeState
 	canvas               routeCanvas
+	active               *routeState
 }
 
 func (p *Page) routeCaption(route worldmap.Route) string {
@@ -219,10 +221,12 @@ func (p *Page) viewRoutes(c *ui.Context) {
 func (p *Page) routeDetail(c *ui.Context) {
 	r := &p.routes
 	if r.selected < 0 || r.selected >= len(r.rows) {
+		p.activateRoute(nil)
 		return
 	}
 	current := r.rows[r.selected]
 	entry := p.routeDraft(current.ID)
+	p.activateRoute(entry)
 	reload := func() { delete(r.drafts, current.ID) }
 	ui.Scroll(c.Key(entry)).
 		Fill().
@@ -270,9 +274,15 @@ func (p *Page) routeDetail(c *ui.Context) {
 				p.routePreview(c, entry, reload)
 			}
 			p.routeEndpoints(c, entry, disabled)
-			if !stale {
-				p.routeMap(c, entry, disabled)
-			}
+			ui.Column(c.Key("road-workspace")).
+				Bind(&entry.road.history).
+				Gap(8).
+				Children(func() {
+					p.roadHistory(c, entry, disabled)
+					if !stale {
+						p.routeMap(c, entry, disabled)
+					}
+				})
 			p.movementPoints(c, entry, disabled)
 			if p.advanced {
 				ui.Row(c.Key("route-address")).Wrap().Gap(8).Children(func() {
@@ -385,7 +395,13 @@ func (p *Page) movementPoints(c *ui.Context, s *routeState, disabled bool) {
 					s.syncPoints()
 				})
 			ui.Checkbox(c, &s.placing, locales.WorldmapPlacePoint()).
-				Disabled(disabled || s.selected < 0 || s.invalid())
+				Disabled(disabled || s.selected < 0 || s.invalid()).
+				OnChange(func() {
+					if s.placing {
+						s.road.tool = int(roadInspect)
+						s.clearRoadGesture()
+					}
+				})
 		})
 		if len(s.points) == 0 {
 			ui.Text(c, locales.WorldmapNoPoints()).
@@ -469,12 +485,20 @@ func (p *Page) routePreview(c *ui.Context, s *routeState, reload func()) {
 					FontSize(12)
 			}
 			if appended := plan.Appended(); appended.End > appended.Start {
-				ui.Textf(c, "%s: 0x%08X · %d B", locales.WorldmapNewMovement(), appended.Start, appended.End-appended.Start).
+				ui.Textf(c, "%s: 0x%08X · %d B", locales.WorldmapNewRouteData(), appended.Start, appended.End-appended.Start).
 					FontSize(12)
 			}
 			if shared := plan.Shared(); len(shared) > 0 {
 				ui.Textf(c, "%s: %X", locales.WorldmapSharedMovement(), shared).
 					FontSize(12)
+			}
+			if changes := plan.RoadChanges(); len(changes) > 0 {
+				ui.Textf(c, "%s: %d", locales.WorldmapRoadChangedCells(), len(changes)).
+					FontSize(13)
+				if shared := plan.RoadShared(); len(shared) > 0 {
+					ui.Textf(c, "%s: %X", locales.WorldmapSharedRoad(), shared).
+						FontSize(12)
+				}
 			}
 			ui.PrimaryButton(c.Key("apply-route"), locales.WorldmapApplyRoute()).
 				Disabled(p.state.Busy || s.invalid() || !plan.Current(p.state.Session.WorldMap)).

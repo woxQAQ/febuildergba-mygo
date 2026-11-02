@@ -204,12 +204,14 @@ func (e *Editor) Routes() ([]Route, error) {
 	return slices.Clone(e.routes), e.routeErr
 }
 
-// RouteDraft keeps the endpoints and movement independent of road graphics.
+// RouteDraft owns the endpoints, movement and road layout of one native route.
 type RouteDraft struct {
 	stamp    edit.Stamp
 	original Route
 	nodes    [2]int
 	points   []MovementPoint
+	road     *RoadDraft
+	roadErr  error
 }
 
 func (e *Editor) NewRouteDraft(id int) (*RouteDraft, error) {
@@ -221,11 +223,17 @@ func (e *Editor) NewRouteDraft(id int) (*RouteDraft, error) {
 		return nil, edit.ErrValue
 	}
 	r := routes[id]
+	road, roadErr := newRoadDraft(
+		e.context.Document().Snapshot().Data,
+		e.format.Scene,
+		r.Road,
+	)
 	return &RouteDraft{
 		stamp:    e.routeStamp,
 		original: r,
 		nodes:    r.Nodes,
 		points:   r.Points(),
+		road:     road, roadErr: roadErr,
 	}, nil
 }
 
@@ -235,9 +243,14 @@ func (d *RouteDraft) Current(
 	return d != nil && d.stamp.Current(e.context)
 }
 
+func (d *RouteDraft) Road() (*RoadDraft, error) { return d.road, d.roadErr }
+
 func (d *RouteDraft) Modified() bool {
 	return d.nodes != d.original.Nodes ||
-		!slices.Equal(d.points, d.original.points)
+		!slices.Equal(
+			d.points,
+			d.original.points,
+		) || d.road != nil && d.road.Modified()
 }
 
 func (d *RouteDraft) Route() Route {
@@ -281,6 +294,8 @@ type RoutePlan struct {
 	before, after Route
 	appended      space.Range
 	shared        []int
+	roadShared    []int
+	roadChanges   []RoadChange
 }
 
 func (p *RoutePlan) Current(
@@ -294,6 +309,10 @@ func (p *RoutePlan) Appended() space.Range { return p.appended }
 
 // Shared lists known route IDs still using the old movement pointer.
 func (p *RoutePlan) Shared() []int { return slices.Clone(p.shared) }
+
+func (p *RoutePlan) RoadShared() []int { return slices.Clone(p.roadShared) }
+
+func (p *RoutePlan) RoadChanges() []RoadChange { return slices.Clone(p.roadChanges) }
 
 func (e *Editor) PlanRoute(d *RouteDraft) (plan *RoutePlan, err error) {
 	defer func() { err = fault.Wrap(err, "worldmap.plan_route", fault.Context{Resource: RouteResource}) }()
@@ -336,7 +355,20 @@ func (e *Editor) PlanRoute(d *RouteDraft) (plan *RoutePlan, err error) {
 		}
 	}
 	plan = &RoutePlan{before: r, after: d.Route()}
-	change := rom.Edit{Size: len(image.Data)}
+	appender := space.NewAppender(len(image.Data))
+	var direct []rom.Change
+	if d.road != nil && d.road.Modified() {
+		plan.roadChanges = d.road.changes()
+		for _, other := range routes {
+			if other.ID != r.ID && other.Road == r.Road {
+				plan.roadShared = append(plan.roadShared, other.ID)
+			}
+		}
+		plan.after.Road, err = appender.Add(d.road.encode(), r.Address)
+		if err != nil {
+			return nil, err
+		}
+	}
 	if !slices.Equal(d.points, r.points) {
 		previous := 0
 		for _, point := range d.points {
@@ -352,8 +384,8 @@ func (e *Editor) PlanRoute(d *RouteDraft) (plan *RoutePlan, err error) {
 			}
 		}
 		if len(d.points) == 0 {
-			change.Changes = append(
-				change.Changes,
+			direct = append(
+				direct,
 				rom.Change{Offset: r.Address + 8, Data: make([]byte, 4)},
 			)
 			plan.after.Movement = 0
@@ -372,25 +404,25 @@ func (e *Editor) PlanRoute(d *RouteDraft) (plan *RoutePlan, err error) {
 				end = [8]byte{0xFF, 0xFF, 0xFF, 0xFF, 0, 0, 0, 0}
 			}
 			payload = append(payload, end[:]...)
-			appender := space.NewAppender(len(image.Data))
 			plan.after.Movement, err = appender.Add(payload, r.Address+8)
 			if err != nil {
 				return nil, err
 			}
-			allocation := appender.Plan()
-			change, plan.appended = allocation.Edit, allocation.Destination
 		}
 	}
 	if d.nodes != r.Nodes {
-		change.Changes = append(
-			change.Changes,
+		direct = append(
+			direct,
 			rom.Change{
 				Offset: r.Address + 4,
 				Data:   []byte{byte(d.nodes[0]), byte(d.nodes[1])},
 			},
 		)
 	}
-	plan.commit = edit.NewPlan(d.stamp, RouteResource, change)
+	allocation := appender.Plan()
+	allocation.Edit.Changes = append(allocation.Edit.Changes, direct...)
+	plan.appended = allocation.Destination
+	plan.commit = edit.NewPlan(d.stamp, RouteResource, allocation.Edit)
 	return plan, nil
 }
 

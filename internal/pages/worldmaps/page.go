@@ -139,12 +139,14 @@ func (p *Page) refresh() error {
 }
 
 func (p *Page) View(c *ui.Context) {
-	ui.Column(c.Key("worldmap")).Fill().Children(func() {
+	ui.Column(c.Key("worldmap")).Grow(1).Children(func() {
 		ui.Tabs(c.Key("mode"), &p.tab, locales.WorldmapNodes(), locales.WorldmapRoutes()).
+			Shrink(0).
 			Disabled(p.state.Busy)
 		if p.tab == 1 {
 			p.viewRoutes(c)
 		} else {
+			p.activateRoute(nil)
 			p.viewNodes(c)
 		}
 	})

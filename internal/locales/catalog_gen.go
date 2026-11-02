@@ -44,6 +44,116 @@ func (msgs Messages) Worldmap() string {
 	return Catalog.Format(msgs.locale, "worldmap", nil)
 }
 
+// WorldmapUndoRoad says "Undo road stroke"
+// in the language the app shows.
+func WorldmapUndoRoad() string { return In(i18n.Locale()).WorldmapUndoRoad() }
+
+// WorldmapUndoRoad says "Undo road stroke"
+// in the language of msgs.
+func (msgs Messages) WorldmapUndoRoad() string {
+	return Catalog.Format(msgs.locale, "worldmap_undo_road", nil)
+}
+
+// WorldmapRedoRoad says "Redo road stroke"
+// in the language the app shows.
+func WorldmapRedoRoad() string { return In(i18n.Locale()).WorldmapRedoRoad() }
+
+// WorldmapRedoRoad says "Redo road stroke"
+// in the language of msgs.
+func (msgs Messages) WorldmapRedoRoad() string {
+	return Catalog.Format(msgs.locale, "worldmap_redo_road", nil)
+}
+
+// WorldmapInspect says "Inspect route"
+// in the language the app shows.
+func WorldmapInspect() string { return In(i18n.Locale()).WorldmapInspect() }
+
+// WorldmapInspect says "Inspect route"
+// in the language of msgs.
+func (msgs Messages) WorldmapInspect() string {
+	return Catalog.Format(msgs.locale, "worldmap_inspect", nil)
+}
+
+// WorldmapEraseRoad says "Erase"
+// in the language the app shows.
+func WorldmapEraseRoad() string { return In(i18n.Locale()).WorldmapEraseRoad() }
+
+// WorldmapEraseRoad says "Erase"
+// in the language of msgs.
+func (msgs Messages) WorldmapEraseRoad() string {
+	return Catalog.Format(msgs.locale, "worldmap_erase_road", nil)
+}
+
+// WorldmapRoadTools says "Road tools"
+// in the language the app shows.
+func WorldmapRoadTools() string { return In(i18n.Locale()).WorldmapRoadTools() }
+
+// WorldmapRoadTools says "Road tools"
+// in the language of msgs.
+func (msgs Messages) WorldmapRoadTools() string {
+	return Catalog.Format(msgs.locale, "worldmap_road_tools", nil)
+}
+
+// WorldmapRoadTile says "Road tile"
+// in the language the app shows.
+func WorldmapRoadTile() string { return In(i18n.Locale()).WorldmapRoadTile() }
+
+// WorldmapRoadTile says "Road tile"
+// in the language of msgs.
+func (msgs Messages) WorldmapRoadTile() string {
+	return Catalog.Format(msgs.locale, "worldmap_road_tile", nil)
+}
+
+// WorldmapFlipX says "Flip horizontally"
+// in the language the app shows.
+func WorldmapFlipX() string { return In(i18n.Locale()).WorldmapFlipX() }
+
+// WorldmapFlipX says "Flip horizontally"
+// in the language of msgs.
+func (msgs Messages) WorldmapFlipX() string {
+	return Catalog.Format(msgs.locale, "worldmap_flip_x", nil)
+}
+
+// WorldmapFlipY says "Flip vertically"
+// in the language the app shows.
+func WorldmapFlipY() string { return In(i18n.Locale()).WorldmapFlipY() }
+
+// WorldmapFlipY says "Flip vertically"
+// in the language of msgs.
+func (msgs Messages) WorldmapFlipY() string {
+	return Catalog.Format(msgs.locale, "worldmap_flip_y", nil)
+}
+
+// WorldmapRoadHelp says "Drag to paint or erase; each stroke is one undo step. Sampling retains flips. Transparent tiles still overwrite overl…"
+// in the language the app shows.
+func WorldmapRoadHelp() string { return In(i18n.Locale()).WorldmapRoadHelp() }
+
+// WorldmapRoadHelp says "Drag to paint or erase; each stroke is one undo step. Sampling retains flips. Transparent tiles still overwrite overl…"
+// in the language of msgs.
+func (msgs Messages) WorldmapRoadHelp() string {
+	return Catalog.Format(msgs.locale, "worldmap_road_help", nil)
+}
+
+// WorldmapRoadChangedCells says "Changed road cells"
+// in the language the app shows.
+func WorldmapRoadChangedCells() string { return In(i18n.Locale()).WorldmapRoadChangedCells() }
+
+// WorldmapRoadChangedCells says "Changed road cells"
+// in the language of msgs.
+func (msgs Messages) WorldmapRoadChangedCells() string {
+	return Catalog.Format(msgs.locale, "worldmap_road_changed_cells", nil)
+}
+
+// WorldmapSharedRoad says "Other routes retaining the original road"
+// in the language the app shows.
+func WorldmapSharedRoad() string { return In(i18n.Locale()).WorldmapSharedRoad() }
+
+// WorldmapSharedRoad says "Other routes retaining the original road"
+// in the language of msgs.
+func (msgs Messages) WorldmapSharedRoad() string {
+	return Catalog.Format(msgs.locale, "worldmap_shared_road", nil)
+}
+
 // WorldmapRoutes says "Routes"
 // in the language the app shows.
 func WorldmapRoutes() string { return In(i18n.Locale()).WorldmapRoutes() }
@@ -74,11 +184,11 @@ func (msgs Messages) WorldmapAllRoutes() string {
 	return Catalog.Format(msgs.locale, "worldmap_all_routes", nil)
 }
 
-// WorldmapRouteScope says "Edit endpoints and movement points of the 32 existing routes. Road tiles are preserved; story events still control wh…"
+// WorldmapRouteScope says "Edit roads, endpoints and movement points of the 32 existing routes. Story events still control when routes open."
 // in the language the app shows.
 func WorldmapRouteScope() string { return In(i18n.Locale()).WorldmapRouteScope() }
 
-// WorldmapRouteScope says "Edit endpoints and movement points of the 32 existing routes. Road tiles are preserved; story events still control wh…"
+// WorldmapRouteScope says "Edit roads, endpoints and movement points of the 32 existing routes. Story events still control when routes open."
 // in the language of msgs.
 func (msgs Messages) WorldmapRouteScope() string {
 	return Catalog.Format(msgs.locale, "worldmap_route_scope", nil)
@@ -104,11 +214,11 @@ func (msgs Messages) WorldmapApplyRoute() string {
 	return Catalog.Format(msgs.locale, "worldmap_apply_route", nil)
 }
 
-// WorldmapApplyRouteHelp says "Apply endpoints and movement in one undo step. Changed movement is stored separately; other routes retain their origi…"
+// WorldmapApplyRouteHelp says "Apply roads, endpoints and movement in one undo step. Changed roads and movement are stored separately; other routes …"
 // in the language the app shows.
 func WorldmapApplyRouteHelp() string { return In(i18n.Locale()).WorldmapApplyRouteHelp() }
 
-// WorldmapApplyRouteHelp says "Apply endpoints and movement in one undo step. Changed movement is stored separately; other routes retain their origi…"
+// WorldmapApplyRouteHelp says "Apply roads, endpoints and movement in one undo step. Changed roads and movement are stored separately; other routes …"
 // in the language of msgs.
 func (msgs Messages) WorldmapApplyRouteHelp() string {
 	return Catalog.Format(msgs.locale, "worldmap_apply_route_help", nil)
@@ -234,14 +344,14 @@ func (msgs Messages) WorldmapMoveDown() string {
 	return Catalog.Format(msgs.locale, "worldmap_move_down", nil)
 }
 
-// WorldmapNewMovement says "New movement address and length"
+// WorldmapNewRouteData says "Appended data address and length"
 // in the language the app shows.
-func WorldmapNewMovement() string { return In(i18n.Locale()).WorldmapNewMovement() }
+func WorldmapNewRouteData() string { return In(i18n.Locale()).WorldmapNewRouteData() }
 
-// WorldmapNewMovement says "New movement address and length"
+// WorldmapNewRouteData says "Appended data address and length"
 // in the language of msgs.
-func (msgs Messages) WorldmapNewMovement() string {
-	return Catalog.Format(msgs.locale, "worldmap_new_movement", nil)
+func (msgs Messages) WorldmapNewRouteData() string {
+	return Catalog.Format(msgs.locale, "worldmap_new_route_data", nil)
 }
 
 // WorldmapSharedMovement says "Other routes retaining the original movement"

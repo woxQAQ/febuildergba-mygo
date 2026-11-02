@@ -25,6 +25,9 @@ type routeCanvas struct {
 func (p *Page) routeMap(c *ui.Context, s *routeState, disabled bool) {
 	route := s.draft.Route()
 	scene := p.state.Session.WorldMap.Scene(route.ID)
+	if road, err := s.draft.Road(); err == nil {
+		scene.Road = road.Preview()
+	}
 	v := &p.routes.canvas
 	if !v.loaded || scene.Background != v.background || scene.Road != v.road {
 		v.loaded, v.background, v.road = true, scene.Background, scene.Road
@@ -52,6 +55,7 @@ func (p *Page) routeMap(c *ui.Context, s *routeState, disabled bool) {
 		v.bitmap = ui.NewBitmap(combined).Pixelated()
 	}
 	ui.Column(c.Key("route-map")).Gap(6).Children(func() {
+		p.roadTools(c, s, disabled)
 		if scene.BackgroundErr != nil || scene.RoadErr != nil {
 			ui.Text(c, locales.WorldmapSceneIncomplete()).
 				FontSize(12).
@@ -104,7 +108,8 @@ func (p *Page) routeMap(c *ui.Context, s *routeState, disabled bool) {
 				}
 				nodes, _ := p.state.Session.WorldMap.Nodes()
 				points := route.Points()
-				if canvas.Clicked() && !p.state.Busy {
+				editingRoad := p.roadInput(c, canvas, s, scale, disabled)
+				if !editingRoad && canvas.Clicked() && !p.state.Busy {
 					x, y, over := canvas.PointerPosition()
 					if over {
 						point := image.Pt(int(x/scale), int(y/scale))
@@ -149,6 +154,7 @@ func (p *Page) routeMap(c *ui.Context, s *routeState, disabled bool) {
 				accent := c.Theme().Accent
 				canvas.DrawOver(func(painter *ui.Painter, bounds ui.Rect) {
 					painter.Clip(bounds, 0, func() {
+						s.roadOverlay(painter, bounds, scale, accent)
 						position := func(x, y int) (float32, float32) { return bounds.X + float32(x)*scale, bounds.Y + float32(y)*scale }
 						var line *ui.Path
 						add := func(x, y int) {

@@ -134,11 +134,11 @@ func (p *Page) talkCaption(row support.Talk) string {
 }
 
 func (p *Page) View(c *ui.Context) {
-	ui.Column(c).Fill().Children(func() {
+	ui.Column(c).Grow(1).Children(func() {
 		ui.Tabs(c.Key("support-section"), &p.section, locales.SupportDialogues(), locales.SupportBonuses()).
 			Shrink(0).
 			Disabled(p.state.Busy)
-		ui.Column(c.Key(p.section)).Fill().Children(func() {
+		ui.Column(c.Key(p.section)).Grow(1).Children(func() {
 			if p.section == 1 {
 				p.bonusView(c)
 			} else {
