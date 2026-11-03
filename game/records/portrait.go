@@ -23,7 +23,7 @@ func (p PortraitSelection) Current(
 
 func (s *Editor) Portrait(kind Kind, id int) (PortraitSelection, error) {
 	s.Refresh()
-	result := PortraitSelection{binding: s.context.Bind(s.image.Revision)}
+	result := PortraitSelection{binding: s.image.Stamp()}
 	if kind != Units && kind != Classes {
 		return result, edit.ErrField
 	}

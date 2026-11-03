@@ -8,7 +8,6 @@ import (
 	"github.com/woxQAQ/febuildergba-mygo/game/edit"
 	"github.com/woxQAQ/febuildergba-mygo/game/graphics"
 	"github.com/woxQAQ/febuildergba-mygo/gba"
-	"github.com/woxQAQ/febuildergba-mygo/rom"
 )
 
 // Format holds the confirmed native sprite and weapon-icon locations.
@@ -23,7 +22,7 @@ type Format struct {
 type Reader struct {
 	context *edit.Context
 	format  Format
-	image   rom.Snapshot
+	image   edit.Input
 	binding edit.Stamp
 }
 
@@ -33,8 +32,8 @@ func New(context *edit.Context, format Format) *Reader {
 
 func (s *Reader) refresh() error {
 	if !s.binding.Current(s.context) {
-		s.image = s.context.Document().Snapshot()
-		s.binding = s.context.Bind(s.image.Revision)
+		s.image = s.context.Capture()
+		s.binding = s.image.Stamp()
 	}
 	return s.context.Validate(s.image.Data)
 }

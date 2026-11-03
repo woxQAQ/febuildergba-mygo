@@ -1,5 +1,3 @@
-// Package space plans resource writes and moves using declared free ranges and
-// verified references.
 package space
 
 import (
@@ -47,28 +45,37 @@ type FreeRange struct {
 }
 
 // Reference identifies a pointer to a byte within the moved resource.
-// Offset is relative to the source, and Address is the pointer's ROM location.
+// Offset is relative to the source, and Address is the pointer's file offset.
 type Reference struct {
+	// Owner authorizes an external pointer update. Internal references are
+	// rewritten only in the copy and do not write their original sites.
+	Owner           Owner
 	Address, Offset int
 }
 
+// Move declares the source, selected references and allocation evidence for
+// a relocation. Owner authorizes reuse of an existing destination interval.
 type Move struct {
+	Owner      Owner
 	Source     Range
 	References []Reference
 	Available  []FreeRange
 	Reserved   []Range
 }
 
-// Plan contains a complete document edit. Planning never changes the input
-// bytes.
-type Plan struct {
+// WritePlan describes resolved writes and allocation without binding them to a
+// document or revision. The result owns its byte slices but remains mutable;
+// the caller freezes Edit with its original input stamp at the commit boundary.
+type WritePlan struct {
+	// Destination bounds all allocated payloads. Gaps can contain retained bytes
+	// and do not grant write access. It is zero for patch/repoint-only plans.
 	Destination Range
 	Edit        rom.Edit
 }
 
-// PlanAppend allocates aligned space at the ROM end without reusing existing
+// planAppend allocates aligned space at the ROM end without reusing existing
 // bytes.
-func PlanAppend(size int, content []byte) (result Plan, err error) {
+func planAppend(size int, content []byte) (result WritePlan, err error) {
 	defer func() {
 		err = fault.Wrap(
 			err,
@@ -83,13 +90,13 @@ func PlanAppend(size int, content []byte) (result Plan, err error) {
 		)
 	}()
 	if size < 1 || size > rom.MaxSize || len(content) == 0 {
-		return Plan{}, ErrRange
+		return WritePlan{}, ErrRange
 	}
 	destination, err := allocate(size, len(content), nil, nil)
 	if err != nil {
-		return Plan{}, err
+		return WritePlan{}, err
 	}
-	return Plan{
+	return WritePlan{
 		Destination: destination,
 		Edit: rom.Edit{
 			Size: destination.End,
@@ -100,105 +107,45 @@ func PlanAppend(size int, content []byte) (result Plan, err error) {
 	}, nil
 }
 
-// Appender accumulates appended payloads and the pointer sites that must
-// reference each payload start into one plan. Planning never changes the
-// input bytes.
-type Appender struct {
-	size       int
-	edit       rom.Edit
-	start, end int
-	appended   bool
-}
-
-// NewAppender starts an append plan at the current document end.
-func NewAppender(size int) *Appender {
-	return &Appender{size: size, edit: rom.Edit{Size: size}}
-}
-
-// Next is the aligned destination the next Add would use.
-func (a *Appender) Next() int {
-	return (a.edit.Size + 3) &^ 3
-}
-
-// Add appends content and schedules every site to reference the appended
-// payload start. It returns the payload destination. Sites must be aligned
-// pointer locations inside the current document.
-func (a *Appender) Add(content []byte, sites ...int) (int, error) {
-	allocation, err := PlanAppend(a.edit.Size, content)
-	if err != nil {
-		return 0, err
-	}
-	for _, site := range sites {
-		if site < 0 || site%4 != 0 || site+4 > a.size {
-			return 0, fault.Wrap(
-				ErrRange,
-				"space.repoint",
-				fault.Context{
-					Range: &fault.Range{Offset: site, Length: 4, Size: a.size},
-				},
-			)
-		}
-	}
-	a.edit.Size = allocation.Edit.Size
-	a.edit.Changes = append(a.edit.Changes, allocation.Edit.Changes...)
-	pointer := uint32(
-		0x08000000 + allocation.Destination.Start,
-	) // #nosec G115 -- PlanAppend bounds the destination by ROM MaxSize.
-	for _, site := range sites {
-		a.edit.Changes = append(
-			a.edit.Changes,
-			rom.Change{
-				Offset: site,
-				Data:   binary.LittleEndian.AppendUint32(nil, pointer),
-			},
-		)
-	}
-	if !a.appended {
-		a.start = allocation.Destination.Start
-		a.appended = true
-	}
-	a.end = allocation.Destination.End
-	return allocation.Destination.Start, nil
-}
-
-// Plan freezes the accumulated writes. Destination spans every appended
-// payload and is empty when nothing was appended.
-func (a *Appender) Plan() Plan {
-	return Plan{
-		Destination: Range{Start: a.start, End: a.end},
-		Edit:        a.edit,
-	}
-}
-
-// PlanMove preserves the source and updates only explicitly selected
-// references.
-// Internal references are rewritten in the copy, leaving the original intact.
-func PlanMove(data []byte, move Move) (result Plan, err error) {
+// Relocate copies a declared resource and redirects selected references.
+// The original source remains protected from other writes in this builder.
+// Reusing an existing interval also requires the range protection callback.
+func (b *Builder) Relocate(move Move) (result Range, err error) {
+	data := b.data
 	defer func() {
-		err = fault.Wrap(
-			err,
-			"space.move",
-			fault.Context{
-				Range: &fault.Range{
-					Offset: move.Source.Start,
-					Length: move.Source.End - move.Source.Start,
-					Size:   len(data),
-				},
+		err = fault.Wrap(err, "space.move", fault.Context{
+			Range: &fault.Range{
+				Offset: move.Source.Start,
+				Length: move.Source.End - move.Source.Start,
+				Size:   len(data),
 			},
-		)
+		})
 	}()
-	if len(data) > rom.MaxSize || !move.Source.valid(len(data)) ||
+	if b.encoding || len(data) > rom.MaxSize || !move.Source.valid(len(data)) ||
 		move.Source.Start%4 != 0 {
-		return Plan{}, ErrRange
+		return Range{}, ErrRange
 	}
 	if len(move.References) == 0 {
-		return Plan{}, ErrReference
+		return Range{}, ErrReference
 	}
 	reserved := append([]Range{move.Source}, move.Reserved...)
 	for _, region := range reserved {
 		if !region.valid(len(data)) {
-			return Plan{}, ErrRange
+			return Range{}, ErrRange
 		}
+	}
+	for _, region := range move.Available {
+		if !region.valid(len(data)) {
+			return Range{}, ErrRange
+		}
+	}
+	reserved = append(reserved, b.sources...)
+	for _, change := range b.plan.Edit.Changes {
+		region := Range{change.Offset, change.Offset + len(change.Data)}
+		if region.overlaps(move.Source) {
+			return Range{}, ErrRange
+		}
+		reserved = append(reserved, region)
 	}
 	references := slices.Clone(move.References)
 	slices.SortFunc(
@@ -208,7 +155,7 @@ func PlanMove(data []byte, move Move) (result Plan, err error) {
 	previous := -1
 	for _, ref := range references {
 		if !validReference(data, move.Source, ref) || ref.Address == previous {
-			return Plan{}, fault.Wrap(
+			return Range{}, fault.Wrap(
 				ErrReference,
 				"space.verify_reference",
 				fault.Context{
@@ -222,22 +169,41 @@ func PlanMove(data []byte, move Move) (result Plan, err error) {
 		}
 		previous = ref.Address
 		reserved = append(reserved, Range{ref.Address, ref.Address + 4})
+		if ref.Address < move.Source.Start || ref.Address >= move.Source.End {
+			if err = b.checkPointer(PointerSite{
+				Owner:   ref.Owner,
+				Address: ref.Address,
+				ExpectedWord: uint32(
+					0x08000000 + move.Source.Start + ref.Offset,
+				),
+			}); err != nil {
+				return Range{}, err
+			}
+		}
 	}
 	destination, err := allocate(
-		len(data),
+		b.plan.Edit.Size,
 		move.Source.End-move.Source.Start,
 		move.Available,
 		reserved,
 	)
 	if err != nil {
-		return Plan{}, err
+		return Range{}, err
+	}
+	if destination.Start < len(data) {
+		if b.protection.Range == nil {
+			return Range{}, ErrClaim
+		}
+		if err = b.protection.Range(data, move.Owner, destination); err != nil {
+			return Range{}, err
+		}
 	}
 	content := bytes.Clone(data[move.Source.Start:move.Source.End])
-	edit := rom.Edit{Size: max(len(data), destination.End)}
+	edit := rom.Edit{Size: max(b.plan.Edit.Size, destination.End)}
 	for _, ref := range references {
 		value := uint32(
 			0x08000000 + destination.Start + ref.Offset,
-		) // #nosec G115 -- bounded by MaxSize.
+		) // #nosec G115 -- allocation and reference offsets are bounded by ROM MaxSize.
 		if ref.Address >= move.Source.Start && ref.Address < move.Source.End {
 			binary.LittleEndian.PutUint32(
 				content[ref.Address-move.Source.Start:],
@@ -245,17 +211,21 @@ func PlanMove(data []byte, move Move) (result Plan, err error) {
 			)
 			continue
 		}
-		encoded := binary.LittleEndian.AppendUint32(nil, value)
-		edit.Changes = append(
-			edit.Changes,
-			rom.Change{Offset: ref.Address, Data: encoded},
-		)
+		edit.Changes = append(edit.Changes, rom.Change{
+			Offset: ref.Address,
+			Data:   binary.LittleEndian.AppendUint32(nil, value),
+		})
 	}
 	edit.Changes = append(
 		edit.Changes,
 		rom.Change{Offset: destination.Start, Data: content},
 	)
-	return Plan{Destination: destination, Edit: edit}, nil
+	if err = b.add(edit); err != nil {
+		return Range{}, err
+	}
+	b.sources = append(b.sources, move.Source)
+	b.allocated(destination)
+	return destination, nil
 }
 
 func validReference(data []byte, source Range, ref Reference) bool {

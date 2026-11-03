@@ -55,7 +55,7 @@ func (m Preview) Cell(x, y int) (Cell, bool) {
 // tables, and reads resources from the same snapshot as the chapter fields.
 func (s *Editor) Read(id int) (preview Preview, err error) {
 	s.Refresh()
-	defer func() { preview.binding = s.context.Bind(s.image.Revision) }()
+	defer func() { preview.binding = s.image.Stamp() }()
 	defer func() {
 		err = fault.Wrap(
 			err,

@@ -60,7 +60,7 @@ func (s *Editor) NewConditions(
 		return nil, err
 	}
 	d := &ConditionDraft{
-		binding:  s.context.Bind(s.image.Revision),
+		binding:  s.image.Stamp(),
 		chapter:  chapter,
 		original: resource,
 	}
@@ -301,9 +301,9 @@ func (d *ConditionDraft) Deployment(index int) *deployment.Draft {
 }
 
 type ConditionPlan struct {
-	commit                          *edit.Plan
+	commit                          *edit.Commit
 	chapter, pointer, before, after int
-	plan                            space.Plan
+	plan                            space.WritePlan
 	uses                            []int
 	inventories                     []InventoryChange
 }
@@ -339,98 +339,103 @@ func (s *Editor) PlanConditions(
 		return nil, edit.ErrValue
 	}
 	site := d.original.Pointer
-	if err = s.resourcePointer(
-		ConditionsOwner(site, d.original.Table),
-		site,
-	); err != nil {
-		return nil, err
-	}
-	appender := space.NewAppender(len(s.image.Data))
-	base := appender.Next()
-	var content []byte
-	offsets := make([]int, len(d.records))
-	for i, record := range d.records {
-		if err = d.validateLocation(record); err != nil {
-			return nil, err
-		}
-		if record.message != nil {
-			if _, readErr := s.DialogueText(*record.message); readErr != nil {
-				return nil, readErr
+	builder := space.NewBuilder(
+		s.image.Data,
+		space.Protection{Pointer: s.source.ProtectPointer},
+	)
+	var inventories []InventoryChange
+	if _, err = builder.ReplaceEncoded(func(base int) ([]byte, error) {
+		var content []byte
+		offsets := make([]int, len(d.records))
+		for i, record := range d.records {
+			if err = d.validateLocation(record); err != nil {
+				return nil, err
 			}
-			if d.original.Table == TalkEvents {
-				for _, offset := range d.original.format.conditions.talkRequired {
-					if record.raw[offset] == 0 {
-						return nil, edit.ErrValue
+			if record.message != nil {
+				if _, readErr := s.DialogueText(
+					*record.message,
+				); readErr != nil {
+					return nil, readErr
+				}
+				if d.original.Table == TalkEvents {
+					for _, offset := range d.original.format.conditions.talkRequired {
+						if record.raw[offset] == 0 {
+							return nil, edit.ErrValue
+						}
 					}
 				}
 			}
+			offsets[i] = len(content)
+			content = append(content, record.raw...)
 		}
-		offsets[i] = len(content)
-		content = append(content, record.raw...)
-	}
-	content = append(content, 0, 0, 0, 0)
-	var inventories []InventoryChange
-	for i, record := range d.records {
-		if record.inventory != nil && record.inventory.Modified() {
-			for len(content)%2 != 0 {
-				content = append(content, 0)
+		content = append(content, 0, 0, 0, 0)
+		for i, record := range d.records {
+			if record.inventory != nil && record.inventory.Modified() {
+				for len(content)%2 != 0 {
+					content = append(content, 0)
+				}
+				address := base + len(content)
+				content = append(content, record.inventory.Payload()...)
+				binary.LittleEndian.PutUint32(
+					content[offsets[i]+4:],
+					uint32(0x08000000+address),
+				) // #nosec G115 -- Builder bounds the complete payload.
+				inventories = append(inventories, InventoryChange{
+					Location: i,
+					Before:   record.inventory.Address(),
+					After:    address,
+					Count:    record.inventory.Count(),
+					Uses:     s.inventoryUses(record.inventory.Address()),
+				})
 			}
-			address := base + len(content)
-			content = append(content, record.inventory.Payload()...)
-			binary.LittleEndian.PutUint32(
-				content[offsets[i]+4:],
-				uint32(0x08000000+address),
-			) // #nosec G115 -- PlanAppend bounds the complete payload.
-			inventories = append(inventories, InventoryChange{
-				Location: i, Before: record.inventory.Address(), After: address,
-				Count: record.inventory.Count(),
-				Uses:  s.inventoryUses(record.inventory.Address()),
-			})
-		}
-		if record.deployment == nil && record.message == nil {
-			continue
-		}
-		for len(content)%4 != 0 {
-			content = append(content, 0)
-		}
-		scriptOffset := len(content)
-		if record.message != nil {
-			content = append(
-				content,
-				d.original.format.dialogueScript(*record.message)...)
-		} else {
-			if !record.deployment.Current(s.deployments) {
-				return nil, rom.ErrStale
+			if record.deployment == nil && record.message == nil {
+				continue
 			}
-			if err = record.deployment.Validate(); err != nil {
-				return nil, err
-			}
-			content = append(
-				content,
-				d.original.format.reinforcementScript()...)
 			for len(content)%4 != 0 {
 				content = append(content, 0)
 			}
-			unitOffset := len(content)
-			content = append(
-				content,
-				record.deployment.Payload(base+unitOffset)...)
+			scriptOffset := len(content)
+			if record.message != nil {
+				content = append(
+					content,
+					d.original.format.dialogueScript(*record.message)...)
+			} else {
+				if !record.deployment.Current(s.deployments) {
+					return nil, rom.ErrStale
+				}
+				if err = record.deployment.Validate(); err != nil {
+					return nil, err
+				}
+				content = append(
+					content,
+					d.original.format.reinforcementScript()...)
+				for len(content)%4 != 0 {
+					content = append(content, 0)
+				}
+				unitOffset := len(content)
+				content = append(
+					content,
+					record.deployment.Payload(base+unitOffset)...)
+				binary.LittleEndian.PutUint32(
+					content[scriptOffset+4:],
+					uint32(0x08000000+base+unitOffset),
+				) // #nosec G115 -- Builder bounds the complete resource before application.
+			}
 			binary.LittleEndian.PutUint32(
-				content[scriptOffset+4:],
-				uint32(0x08000000+base+unitOffset),
-			) // #nosec G115 -- PlanAppend bounds the complete resource before application.
+				content[offsets[i]+4:],
+				uint32(0x08000000+base+scriptOffset),
+			) // #nosec G115 -- Builder bounds the complete resource before application.
 		}
-		binary.LittleEndian.PutUint32(
-			content[offsets[i]+4:],
-			uint32(0x08000000+base+scriptOffset),
-		) // #nosec G115 -- PlanAppend bounds the complete resource before application.
-	}
-	if _, err = appender.Add(content, site); err != nil {
+		return content, nil
+	}, space.PointerSite{
+		Owner: ConditionsOwner(site, d.original.Table), Address: site,
+		ExpectedWord: gba.Uint32(s.image.Data, site),
+	}); err != nil {
 		return nil, err
 	}
-	plan := appender.Plan()
+	plan := builder.Plan()
 	result = &ConditionPlan{
-		commit: edit.NewPlan(
+		commit: edit.NewCommit(
 			d.binding,
 			eventConditionsResource,
 			plan.Edit,
@@ -475,9 +480,3 @@ func (s *Editor) ApplyConditions(plan *ConditionPlan) (err error) {
 }
 
 func (f Format) reinforcementScript() []byte { return bytes.Clone(f.scripts.reinforcement) }
-
-// Resource pointers are four-byte writes, distinct from the immutable appended
-// resources. A corrupted graph cannot authorize overwriting claimed resources.
-func (s *Editor) resourcePointer(owner space.Owner, site int) error {
-	return s.source.ProtectPointer(s.image.Data, owner, site)
-}

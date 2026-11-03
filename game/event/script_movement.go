@@ -210,7 +210,7 @@ func (d *ScriptDraft) SetMovement(
 }
 
 func (d *ScriptDraft) prepareMovements(
-	appender *space.Appender,
+	builder *space.Builder,
 ) (*ScriptDraft, int, error) {
 	prepared := *d
 	prepared.rows = cloneScriptRows(d.rows)
@@ -226,7 +226,7 @@ func (d *ScriptDraft) prepareMovements(
 			if err != nil {
 				return nil, 0, err
 			}
-			destination, err := appender.Add(raw)
+			destination, err := builder.Append(raw)
 			if err != nil {
 				return nil, 0, err
 			}

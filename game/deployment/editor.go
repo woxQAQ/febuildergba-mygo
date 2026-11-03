@@ -4,7 +4,6 @@ package deployment
 import (
 	"github.com/woxQAQ/febuildergba-mygo/game/edit"
 	"github.com/woxQAQ/febuildergba-mygo/game/records"
-	"github.com/woxQAQ/febuildergba-mygo/rom"
 	"github.com/woxQAQ/febuildergba-mygo/space"
 )
 
@@ -28,7 +27,7 @@ type Editor struct {
 	context *edit.Context
 	records *records.Editor
 	source  Source
-	image   rom.Snapshot
+	image   edit.Input
 	binding edit.Stamp
 }
 
@@ -42,8 +41,8 @@ func New(
 
 func (s *Editor) Refresh() {
 	if !s.binding.Current(s.context) {
-		s.image = s.context.Document().Snapshot()
-		s.binding = s.context.Bind(s.image.Revision)
+		s.image = s.context.Capture()
+		s.binding = s.image.Stamp()
 	}
 	s.records.Refresh()
 }

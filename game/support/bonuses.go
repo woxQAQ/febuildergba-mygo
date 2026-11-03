@@ -94,7 +94,7 @@ type BonusDraft struct {
 }
 
 func (e *Editor) NewBonusDraft() (*BonusDraft, error) {
-	image := e.context.Document().Snapshot()
+	image := e.context.Capture()
 	if err := e.context.Validate(image.Data); err != nil {
 		return nil, err
 	}
@@ -110,7 +110,7 @@ func (e *Editor) NewBonusDraft() (*BonusDraft, error) {
 		})
 	}
 	return &BonusDraft{
-		binding: e.context.Bind(image.Revision), address: table.address,
+		binding: image.Stamp(), address: table.address,
 		original: table.raw, raw: bytes.Clone(table.raw),
 	}, nil
 }
@@ -162,7 +162,7 @@ type BonusChange struct {
 }
 
 type BonusPlan struct {
-	commit                       *edit.Plan
+	commit                       *edit.Commit
 	pointer, before, destination int
 	changes                      []BonusChange
 	usesErr                      error
@@ -197,25 +197,24 @@ func (e *Editor) PlanBonuses(d *BonusDraft) (result *BonusPlan, err error) {
 	if !d.Modified() || e.source.ProtectPointer == nil {
 		return nil, edit.ErrValue
 	}
-	image := e.context.Document().Snapshot()
+	image := e.context.Capture()
 	if err = e.context.Validate(image.Data); err != nil {
 		return nil, err
 	}
 	site := e.format.BonusPointer
-	if err = e.source.ProtectPointer(
+	builder := space.NewBuilder(
 		image.Data,
-		space.Owner{Resource: bonusResource},
-		site,
-	); err != nil {
-		return nil, err
-	}
-	appender := space.NewAppender(len(image.Data))
-	destination, err := appender.Add(d.raw, site)
+		space.Protection{Pointer: e.source.ProtectPointer},
+	)
+	destination, err := builder.Replace(d.raw, space.PointerSite{
+		Owner: space.Owner{Resource: bonusResource}, Address: site,
+		ExpectedWord: uint32(0x08000000 + d.address),
+	})
 	if err != nil {
 		return nil, err
 	}
 	result = &BonusPlan{
-		commit:  edit.NewPlan(d.binding, bonusResource, appender.Plan().Edit),
+		commit:  edit.NewCommit(d.binding, bonusResource, builder.Plan().Edit),
 		pointer: site, before: d.address, destination: destination,
 	}
 	units, usesErr := e.source.Units(image.Data)

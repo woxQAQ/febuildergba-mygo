@@ -41,7 +41,7 @@ func (s *Editor) NewScriptDraft(chapter, site int) (*ScriptDraft, error) {
 		return nil, err
 	}
 	return &ScriptDraft{
-		binding:  s.context.Bind(s.image.Revision),
+		binding:  s.image.Stamp(),
 		original: program,
 		source:   s.image.Data,
 		rows:     cloneScriptRows(program.rows),

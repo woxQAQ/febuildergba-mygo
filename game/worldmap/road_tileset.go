@@ -89,7 +89,7 @@ type RoadTileset struct {
 }
 
 func (e *Editor) RoadTileset() (*RoadTileset, error) {
-	snapshot := e.context.Document().Snapshot()
+	snapshot := e.context.Capture()
 	if err := e.context.Validate(snapshot.Data); err != nil {
 		return nil, err
 	}
@@ -120,7 +120,7 @@ func (e *Editor) RoadTileset() (*RoadTileset, error) {
 		}
 	}
 	return &RoadTileset{
-		stamp:     e.context.Bind(snapshot.Revision),
+		stamp:     snapshot.Stamp(),
 		format:    f,
 		original:  original,
 		tileSites: sites,
@@ -261,7 +261,7 @@ func (d *RoadTilesetDraft) Preview(route *RouteDraft) (*image.RGBA, error) {
 }
 
 type RoadTilesetPlan struct {
-	commit   *edit.Plan
+	commit   *edit.Commit
 	appended space.Range
 }
 
@@ -285,11 +285,23 @@ func (e *Editor) PlanRoadTileset(
 	if e.source.ProtectPointer == nil || d.source.format != e.format.Scene {
 		return nil, edit.ErrLayout
 	}
-	snapshot := e.context.Document().Snapshot()
+	snapshot := e.context.Capture()
 	if err = e.context.Validate(snapshot.Data); err != nil {
 		return nil, err
 	}
-	appender := space.NewAppender(len(snapshot.Data))
+	builder := space.NewBuilder(snapshot.Data, space.Protection{
+		Pointer: func(data []byte, owner space.Owner, site int) error {
+			if err := e.source.ProtectPointer(data, owner, site); err != nil {
+				return fault.New(
+					ErrReference,
+					"worldmap.protect_road_tileset",
+					fault.Context{},
+					err,
+				)
+			}
+			return nil
+		},
+	})
 	for _, part := range []struct {
 		site          int
 		before, after []byte
@@ -305,18 +317,11 @@ func (e *Editor) PlanRoadTileset(
 		if part.site == e.format.Scene.RoadTiles {
 			sites = d.source.tileSites
 		}
-		for _, site := range sites {
-			if err = e.source.ProtectPointer(
-				snapshot.Data,
-				space.Owner{Resource: "worldmap.scene", ID: site},
-				site,
-			); err != nil {
-				return nil, fault.New(
-					ErrReference,
-					"worldmap.protect_road_tileset",
-					fault.Context{},
-					err,
-				)
+		pointers := make([]space.PointerSite, len(sites))
+		for i, site := range sites {
+			pointers[i] = space.PointerSite{
+				Owner:   space.Owner{Resource: "worldmap.scene", ID: site},
+				Address: site, ExpectedWord: gba.Uint32(snapshot.Data, site),
 			}
 		}
 		payload := part.after
@@ -326,13 +331,13 @@ func (e *Editor) PlanRoadTileset(
 				return nil, err
 			}
 		}
-		if _, err = appender.Add(payload, sites...); err != nil {
+		if _, err = builder.Replace(payload, pointers...); err != nil {
 			return nil, err
 		}
 	}
-	allocation := appender.Plan()
+	allocation := builder.Plan()
 	return &RoadTilesetPlan{
-		commit: edit.NewPlan(
+		commit: edit.NewCommit(
 			d.source.stamp,
 			"worldmap.road_tileset",
 			allocation.Edit,

@@ -10,6 +10,7 @@ import (
 	"github.com/woxQAQ/febuildergba-mygo/game/edit"
 	"github.com/woxQAQ/febuildergba-mygo/game/text"
 	"github.com/woxQAQ/febuildergba-mygo/rom"
+	"github.com/woxQAQ/febuildergba-mygo/space"
 )
 
 // Editor owns record interpretation, manual table layouts and field edits.
@@ -19,7 +20,8 @@ type Editor struct {
 	source     func([]byte) Format
 	definition Format
 	texts      *text.Editor
-	image      rom.Snapshot
+	protection space.Protection
+	image      edit.Input
 	binding    edit.Stamp
 	layouts    map[Kind]Layout
 	tables     []Table
@@ -30,22 +32,28 @@ func New(
 	context *edit.Context,
 	source func([]byte) Format,
 	texts *text.Editor,
+	protection space.Protection,
 ) *Editor {
-	s := &Editor{context: context, source: source, texts: texts}
+	s := &Editor{
+		context:    context,
+		source:     source,
+		texts:      texts,
+		protection: protection,
+	}
 	s.Refresh()
 	return s
 }
 
 func (s *Editor) Refresh() {
 	if !s.binding.Current(s.context) {
-		s.refresh(s.context.Document().Snapshot())
+		s.syncInterpretation()
+		s.refresh(s.context.Capture())
 	}
 }
 
-func (s *Editor) refresh(image rom.Snapshot) {
+func (s *Editor) refresh(image edit.Input) {
 	s.image = image
-	s.syncInterpretation()
-	s.binding = s.context.Bind(image.Revision)
+	s.binding = image.Stamp()
 	s.definition = s.source(image.Data)
 	inspection := s.definition.Inspect(image.Data, s.layouts)
 	s.tables, s.patches = inspection.Tables, inspection.Patches
@@ -160,7 +168,7 @@ func (s *Editor) Set(
 	}
 	ctx.RecordID = nil
 	if err := s.context.Document().Apply(
-		s.image.Revision,
+		s.image.Stamp().Revision(),
 		string(kind)+"."+fieldID,
 		changes,
 	); err != nil {
@@ -207,9 +215,9 @@ func (s *Editor) UseLayout(kind Kind, layout Layout) (err error) {
 		if table.Err != nil {
 			return table.Err
 		}
-		s.layouts, s.tables, s.patches = layouts, inspection.Tables, inspection.Patches
+		s.layouts = layouts
 		s.syncInterpretation()
-		s.binding = s.context.Bind(s.image.Revision)
+		s.refresh(s.context.Capture())
 		return nil
 	}
 	return edit.ErrLayout
@@ -217,7 +225,8 @@ func (s *Editor) UseLayout(kind Kind, layout Layout) (err error) {
 
 func (s *Editor) UseAutomaticLayout(kind Kind) {
 	delete(s.layouts, kind)
-	s.refresh(s.context.Document().Snapshot())
+	s.syncInterpretation()
+	s.refresh(s.context.Capture())
 }
 
 func resolveField(

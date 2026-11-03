@@ -12,10 +12,10 @@ import (
 
 // MovePlan is an immutable preview tied to one document revision.
 type MovePlan struct {
-	commit *edit.Plan
+	commit *edit.Commit
 	kind   Kind
 	source space.Range
-	plan   space.Plan
+	plan   space.WritePlan
 	refs   int
 }
 
@@ -43,7 +43,11 @@ func (s *Editor) PlanTableMove(
 	if table == nil || table.Err != nil || table.Manual {
 		return nil, edit.ErrLayout
 	}
-	move, err := s.definition.TableMove(s.image.Data, *table)
+	input := s.context.CaptureBytes()
+	if input.Stamp().Revision() != s.binding.Revision() {
+		return nil, rom.ErrStale
+	}
+	move, err := s.definition.TableMove(input.Data, *table)
 	if err != nil {
 		return nil, err
 	}
@@ -59,14 +63,15 @@ func (s *Editor) PlanTableMove(
 			)
 		}
 	}
-	plan, err := space.PlanMove(s.image.Data, move)
-	if err != nil {
+	builder := space.NewBuilder(input.Data, s.protection)
+	if _, err = builder.Relocate(move); err != nil {
 		return nil, err
 	}
+	plan := builder.Plan()
 	// Re-run automatic interpretation against the prospective bytes before
 	// offering the move.
 	data := bytes.Repeat([]byte{0xFF}, plan.Edit.Size)
-	copy(data, s.image.Data)
+	copy(data, input.Data)
 	for _, change := range plan.Edit.Changes {
 		copy(data[change.Offset:], change.Data)
 	}
@@ -83,8 +88,8 @@ func (s *Editor) PlanTableMove(
 		return nil, edit.ErrLayout
 	}
 	return &MovePlan{
-		commit: edit.NewPlan(
-			s.context.BindBytes(s.image.Revision),
+		commit: edit.NewCommit(
+			input.Stamp(),
 			"move."+string(kind),
 			plan.Edit,
 		),
@@ -117,7 +122,7 @@ func (s *Editor) ApplyTableMove(move *MovePlan) (err error) {
 }
 
 func (g Format) TableMove(data []byte, table Table) (space.Move, error) {
-	var move space.Move
+	move := space.Move{Owner: space.Owner{Resource: string(table.Kind), ID: -1}}
 	for _, rule := range g.Rules {
 		if rule.Kind != table.Kind {
 			continue
@@ -135,7 +140,7 @@ func (g Format) TableMove(data []byte, table Table) (space.Move, error) {
 				target == source.Start {
 				move.References = append(
 					move.References,
-					space.Reference{Address: address},
+					space.Reference{Owner: move.Owner, Address: address},
 				)
 			}
 		}
@@ -151,6 +156,10 @@ func (g Format) TableMove(data []byte, table Table) (space.Move, error) {
 					move.References = append(
 						move.References,
 						space.Reference{
+							Owner: space.Owner{
+								Resource: string(table.Kind),
+								ID:       row.ID,
+							},
 							Address: row.Address + offset,
 							Offset:  target - source.Start,
 						},

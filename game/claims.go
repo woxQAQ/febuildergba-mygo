@@ -1,6 +1,8 @@
 package game
 
 import (
+	"bytes"
+
 	"github.com/woxQAQ/febuildergba-mygo/fault"
 	"github.com/woxQAQ/febuildergba-mygo/game/edit"
 	"github.com/woxQAQ/febuildergba-mygo/game/records"
@@ -14,16 +16,20 @@ func recordOwner(kind records.Kind, id int) space.Owner {
 	return space.Owner{Resource: string(kind), ID: id}
 }
 
-// claims aggregates every domain's confirmed resource claims, cached by the
-// bound document stamp. Callers pass the current snapshot; domain editors
-// refresh before planning, so the cache cannot outlive the data it describes.
+// claims caches declarations only when the supplied read-only bytes match a
+// captured document input. Prospective or older images are interpreted without
+// publishing their results under the current document's stamp.
 func (s *Session) claims(data []byte) []space.Claim {
-	if s.claimsStamp.Current(s.context) {
+	if s.claimsStamp.Current(s.context) && bytes.Equal(data, s.claimsData) {
 		return s.claimsCache
 	}
+	input := s.context.Capture()
 	claims := s.collectClaims(data)
-	s.claimsStamp = s.context.Bind(s.context.Document().State().Revision)
-	s.claimsCache = claims
+	if input.Stamp().Current(s.context) && bytes.Equal(data, input.Data) {
+		s.claimsStamp = input.Stamp()
+		s.claimsData = data
+		s.claimsCache = claims
+	}
 	return claims
 }
 

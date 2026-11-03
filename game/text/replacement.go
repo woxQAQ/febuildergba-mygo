@@ -17,17 +17,31 @@ func (g Format) plan(
 	content string,
 	role Role,
 	entry int,
-	aliases map[byte]string,
-) (space.Plan, error) {
+	references References,
+) (space.WritePlan, error) {
 	encoded, expected, err := g.encodeText(data, entry, id, content, role)
 	if err != nil {
-		return space.Plan{}, err
+		return space.WritePlan{}, err
 	}
-	appender := space.NewAppender(len(data))
-	if _, err := appender.Add(encoded, entry); err != nil {
-		return space.Plan{}, err
+	builder := space.NewBuilder(data, space.Protection{
+		Pointer: func(data []byte, _ space.Owner, site int) error {
+			expected, err := g.entry(data, id, references)
+			if err != nil {
+				return err
+			}
+			if site != expected {
+				return ErrText
+			}
+			return nil
+		},
+	})
+	if _, err := builder.Replace(encoded, space.PointerSite{
+		Owner:   space.Owner{Resource: Resource, ID: int(id)},
+		Address: entry, ExpectedWord: gba.Uint32(data, entry),
+	}); err != nil {
+		return space.WritePlan{}, err
 	}
-	plan := appender.Plan()
+	plan := builder.Plan()
 	prospective := bytes.Repeat([]byte{0xFF}, plan.Edit.Size)
 	copy(prospective, data)
 	for _, change := range plan.Edit.Changes {
@@ -37,16 +51,16 @@ func (g Format) plan(
 		decoded, decodeErr := g.Read(prospective, id)
 		if decodeErr != nil || !decoded.Editable ||
 			decoded.Content != expected {
-			return space.Plan{}, ErrTextEncoding
+			return space.WritePlan{}, ErrTextEncoding
 		}
 	} else {
 		if decoded, decodeErr := g.ReadName(
 			prospective,
 			id,
-			aliases,
+			references.Aliases,
 		); decodeErr != nil ||
 			decoded != expected {
-			return space.Plan{}, ErrNameEncoding
+			return space.WritePlan{}, ErrNameEncoding
 		}
 	}
 	return plan, nil
@@ -55,7 +69,7 @@ func (g Format) plan(
 // Plan is an immutable replacement preview bound to the document and parsing
 // settings used during planning.
 type Plan struct {
-	commit      *edit.Plan
+	commit      *edit.Commit
 	textID      uint16
 	fieldID     string
 	content     string
@@ -107,21 +121,13 @@ func (s *Editor) Plan(
 		content,
 		role,
 		entry,
-		references.Aliases,
+		references,
 	)
 	if err != nil {
 		return nil, err
 	}
-	for _, region := range references.Manual {
-		for _, change := range plan.Edit.Changes {
-			if change.Offset < region.End &&
-				region.Start < change.Offset+len(change.Data) {
-				return nil, edit.ErrLayout
-			}
-		}
-	}
 	return &Plan{
-		commit: edit.NewPlan(s.stamp, "text."+fieldID, plan.Edit),
+		commit: edit.NewCommit(s.stamp, "text."+fieldID, plan.Edit),
 		textID: id, fieldID: fieldID, content: content,
 		uses: slices.Clone(references.Uses), destination: plan.Destination,
 	}, nil
@@ -154,6 +160,11 @@ func (f Format) entry(
 		return 0, ErrText
 	}
 	for _, region := range references.Ranges {
+		if entry < region.End && region.Start < entry+4 {
+			return 0, edit.ErrLayout
+		}
+	}
+	for _, region := range references.Manual {
 		if entry < region.End && region.Start < entry+4 {
 			return 0, edit.ErrLayout
 		}

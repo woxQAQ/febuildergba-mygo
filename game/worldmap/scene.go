@@ -182,9 +182,9 @@ type sceneCache struct {
 
 func (e *Editor) Scene(id int) Scene {
 	if !e.scenery.stamp.Current(e.context) {
-		image := e.context.Document().Snapshot()
+		image := e.context.Capture()
 		e.scenery = sceneCache{
-			stamp:  e.context.Bind(image.Revision),
+			stamp:  image.Stamp(),
 			routes: make(map[int]Scene),
 		}
 		e.scenery.err = e.context.Validate(image.Data)
@@ -213,7 +213,7 @@ func (e *Editor) Scene(id int) Scene {
 	routes, err := e.Routes()
 	if err == nil && id >= 0 && id < len(routes) {
 		result.Road, result.RoadErr = e.format.Scene.road(
-			e.context.Document().Snapshot().Data,
+			e.context.Capture().Data,
 			routes[id],
 		)
 	} else {

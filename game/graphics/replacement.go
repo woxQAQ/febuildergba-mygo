@@ -72,21 +72,24 @@ func (s *Editor) Plan(ref Ref, content []byte) (result *Plan, err error) {
 	if !validTargets(s.image.Data, encoding.Parts, references) {
 		return nil, edit.ErrLayout
 	}
-	appender := space.NewAppender(len(s.image.Data))
+	builder := space.NewBuilder(s.image.Data, space.Protection{
+		Pointer: func(data []byte, _ space.Owner, site int) error {
+			if !validTargets(data, []Replacement{{Pointer: site}}, references) {
+				return edit.ErrLayout
+			}
+			return nil
+		},
+	})
 	for _, part := range encoding.Parts {
-		if _, err := appender.Add(part.Data, part.Pointer); err != nil {
+		if _, err := builder.Replace(part.Data, space.PointerSite{
+			Owner:        space.Owner{Resource: string(ref.Kind), ID: ref.ID},
+			Address:      part.Pointer,
+			ExpectedWord: gba.Uint32(s.image.Data, part.Pointer),
+		}); err != nil {
 			return nil, err
 		}
 	}
-	plan := appender.Plan()
-	for _, region := range references.Ranges {
-		for _, change := range plan.Edit.Changes {
-			if change.Offset < region.End &&
-				region.Start < change.Offset+len(change.Data) {
-				return nil, edit.ErrLayout
-			}
-		}
-	}
+	plan := builder.Plan()
 	prospective := bytes.Repeat([]byte{0xFF}, plan.Edit.Size)
 	copy(prospective, s.image.Data)
 	for _, change := range plan.Edit.Changes {
@@ -108,7 +111,7 @@ func (s *Editor) Plan(ref Ref, content []byte) (result *Plan, err error) {
 		return nil, ErrImage
 	}
 	return &Plan{
-		commit: edit.NewPlan(
+		commit: edit.NewCommit(
 			s.binding,
 			"asset."+string(ref.Kind),
 			plan.Edit,
@@ -190,7 +193,7 @@ type Use struct {
 // state. Other asset IDs retain their existing pointers, even when their old
 // data aliases.
 type Plan struct {
-	commit *edit.Plan
+	commit *edit.Commit
 	ref    Ref
 	uses   []Use
 	image  *image.RGBA

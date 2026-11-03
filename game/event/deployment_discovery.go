@@ -40,7 +40,7 @@ func (s *Editor) Deployments(
 		)
 	}()
 	s.Refresh()
-	defer func() { result.binding = s.context.Bind(s.image.Revision) }()
+	defer func() { result.binding = s.image.Stamp() }()
 	if s.context.Validate(s.image.Data) != nil {
 		return result, edit.ErrVersion
 	}

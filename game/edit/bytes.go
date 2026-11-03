@@ -44,7 +44,7 @@ func (s *Bytes) Read(
 		return nil, rom.ErrRange
 	}
 	return &Region{
-		binding:  s.context.BindBytes(s.image.Revision),
+		binding:  s.image.Stamp(),
 		address:  address,
 		original: bytes.Clone(s.image.Data[address : address+length]),
 	}, nil
@@ -65,7 +65,7 @@ func (s *Bytes) Apply(
 		}
 	}
 	defer func() { err = fault.Wrap(err, "game.apply_region", ctx) }()
-	if region == nil || !region.binding.SameDocument(s.context) {
+	if region == nil || !region.binding.sameDocument(s.context) {
 		return rom.ErrStale
 	}
 	if len(replacement) != len(region.original) {
@@ -85,12 +85,12 @@ func (s *Bytes) Apply(
 // Bytes provides bounded raw access without depending on game interpretation.
 type Bytes struct {
 	context *Context
-	image   rom.Snapshot
+	image   Input
 }
 
 func NewBytes(context *Context) *Bytes { return &Bytes{context: context} }
 
-func (s *Bytes) Refresh() { s.image = s.context.Document().Snapshot() }
+func (s *Bytes) Refresh() { s.image = s.context.CaptureBytes() }
 
 func (s *Bytes) Slice(address, length int) ([]byte, error) {
 	s.Refresh()

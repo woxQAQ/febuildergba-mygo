@@ -55,7 +55,7 @@ func (e *Editor) NewDraft(group Kind) (draft *Draft, err error) {
 	if !slices.Contains(e.Groups(), group) {
 		return nil, edit.ErrValue
 	}
-	image := e.context.Document().Snapshot()
+	image := e.context.Capture()
 	if err = e.context.Validate(image.Data); err != nil {
 		return nil, err
 	}
@@ -63,7 +63,7 @@ func (e *Editor) NewDraft(group Kind) (draft *Draft, err error) {
 	if group == BaseWeapons {
 		kinds = append(kinds, Upgrades)
 	}
-	draft = &Draft{binding: e.context.Bind(image.Revision)}
+	draft = &Draft{binding: image.Stamp()}
 	for _, kind := range kinds {
 		t, readErr := e.format.read(image.Data, kind)
 		if readErr != nil {
@@ -227,7 +227,7 @@ type Change struct {
 	BeforeValues, AfterValues []uint16
 }
 type Plan struct {
-	commit  *edit.Plan
+	commit  *edit.Commit
 	changes []Change
 }
 
@@ -265,29 +265,30 @@ func (e *Editor) Plan(d *Draft) (plan *Plan, err error) {
 	if e.source.ProtectPointer == nil {
 		return nil, edit.ErrLayout
 	}
-	image := e.context.Document().Snapshot()
+	image := e.context.Capture()
 	if err = e.context.Validate(image.Data); err != nil {
 		return nil, err
 	}
 	if err = e.validate(image.Data, d); err != nil {
 		return nil, err
 	}
-	appender := space.NewAppender(len(image.Data))
+	builder := space.NewBuilder(
+		image.Data,
+		space.Protection{Pointer: e.source.ProtectPointer},
+	)
 	plan = &Plan{}
 	for _, t := range d.tables {
 		if bytes.Equal(t.original, t.raw) {
 			continue
 		}
-		for _, site := range t.pointers {
-			if err = e.source.ProtectPointer(
-				image.Data,
-				t.kind.Owner(),
-				site,
-			); err != nil {
-				return nil, err
+		pointers := make([]space.PointerSite, len(t.pointers))
+		for i, site := range t.pointers {
+			pointers[i] = space.PointerSite{
+				Owner: t.kind.Owner(), Address: site,
+				ExpectedWord: uint32(0x08000000 + t.address),
 			}
 		}
-		destination, appendErr := appender.Add(t.raw, t.pointers...)
+		destination, appendErr := builder.Replace(t.raw, pointers...)
 		if appendErr != nil {
 			return nil, appendErr
 		}
@@ -322,7 +323,7 @@ func (e *Editor) Plan(d *Draft) (plan *Plan, err error) {
 		}
 		plan.changes = append(plan.changes, change)
 	}
-	plan.commit = edit.NewPlan(d.binding, "arena", appender.Plan().Edit)
+	plan.commit = edit.NewCommit(d.binding, "arena", builder.Plan().Edit)
 	return plan, nil
 }
 

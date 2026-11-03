@@ -177,7 +177,7 @@ func (s *Editor) scriptIndex(chapter int) (scriptIndex, error) {
 				s.records.Table(records.Chapters),
 			),
 		)
-		result.binding = s.context.Bind(s.image.Revision)
+		result.binding = s.image.Stamp()
 		if s.scriptIndexes == nil {
 			s.scriptIndexes = make(map[int]scriptIndex)
 		}
@@ -259,7 +259,7 @@ func (s *Editor) scriptIndex(chapter int) (scriptIndex, error) {
 		}
 	}
 	result := format.indexScripts(s.image.Data, entries)
-	result.binding = s.context.Bind(s.image.Revision)
+	result.binding = s.image.Stamp()
 	if s.scriptIndexes == nil {
 		s.scriptIndexes = make(map[int]scriptIndex)
 	}

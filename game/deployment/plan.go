@@ -16,9 +16,9 @@ type Use struct {
 }
 
 type Plan struct {
-	commit                          *edit.Plan
+	commit                          *edit.Commit
 	chapter, pointer, before, after int
-	plan                            space.Plan
+	plan                            space.WritePlan
 	uses                            []Use
 }
 
@@ -55,21 +55,27 @@ func (s *Editor) Plan(
 	if s.source.ProtectPointer == nil {
 		return nil, edit.ErrLayout
 	}
-	if err = s.source.ProtectPointer(
+	builder := space.NewBuilder(
 		s.image.Data,
-		Owner(site),
-		site,
+		space.Protection{Pointer: s.source.ProtectPointer},
+	)
+	expected := uint32(0)
+	if draft.group.Address != 0 {
+		expected = uint32(0x08000000 + draft.group.Address)
+	}
+	if _, err = builder.ReplaceEncoded(
+		func(at int) ([]byte, error) { return draft.Payload(at), nil },
+		space.PointerSite{
+			Owner:        Owner(site),
+			Address:      site,
+			ExpectedWord: expected,
+		},
 	); err != nil {
 		return nil, err
 	}
-	appender := space.NewAppender(len(s.image.Data))
-	content := draft.Payload(appender.Next())
-	if _, err = appender.Add(content, site); err != nil {
-		return nil, err
-	}
-	plan := appender.Plan()
+	plan := builder.Plan()
 	result = &Plan{
-		commit:  edit.NewPlan(draft.binding, Resource, plan.Edit),
+		commit:  edit.NewCommit(draft.binding, Resource, plan.Edit),
 		chapter: draft.chapter,
 		pointer: site,
 		before:  len(draft.group.records),

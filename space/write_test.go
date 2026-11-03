@@ -11,6 +11,19 @@ import (
 	"github.com/woxQAQ/febuildergba-mygo/rom"
 )
 
+func relocationProtection() Protection {
+	owner := Owner{Resource: "resource"}
+	claims := []Claim{
+		{Start: 4, End: 8, Owner: owner, Site: true},
+		{Start: 8, End: 12, Owner: Owner{Resource: "independent"}, Site: true},
+		{Start: 32, End: 48, Owner: owner},
+	}
+	return Protection{
+		Pointer: func(_ []byte, owner Owner, site int) error { return CheckWrite(claims, owner, site) },
+		Range:   func(_ []byte, owner Owner, region Range) error { return CheckRangeWrite(claims, owner, region) },
+	}
+}
+
 func TestResourceMove(t *testing.T) {
 	for _, reuse := range []bool{false, true} {
 		t.Run(
@@ -27,10 +40,12 @@ func TestResourceMove(t *testing.T) {
 					0x08000024,
 				) // Known internal reference.
 				copy(data[36:48], "resourceDATA")
+				owner := Owner{Resource: "resource"}
 				move := Move{
+					Owner:  owner,
 					Source: Range{32, 48},
 					References: []Reference{
-						{Address: 4},
+						{Owner: owner, Address: 4},
 						{Address: 32, Offset: 4},
 					},
 				}
@@ -49,10 +64,11 @@ func TestResourceMove(t *testing.T) {
 				if err != nil {
 					t.Fatal(err)
 				}
-				plan, err := PlanMove(data, move)
-				if err != nil {
+				builder := NewBuilder(data, relocationProtection())
+				if _, err = builder.Relocate(move); err != nil {
 					t.Fatal(err)
 				}
+				plan := builder.Plan()
 				if plan.Destination.Start != want {
 					t.Fatalf(
 						"destination %d, want %d",
@@ -112,7 +128,11 @@ func TestMoveRejectsConflicts(t *testing.T) {
 		{"free range overlap", Move{Source: Range{32, 48}, References: []Reference{{Address: 4}}, Available: []FreeRange{{Range: Range{64, 96}, Source: "declared"}, {Range: Range{80, 100}, Source: "declared"}}}, ErrRange},
 	} {
 		t.Run(tt.name, func(t *testing.T) {
-			if _, err := PlanMove(data, tt.move); !errors.Is(err, tt.want) {
+			for i := range tt.move.References {
+				tt.move.References[i].Owner = Owner{Resource: "resource"}
+			}
+			builder := NewBuilder(data, relocationProtection())
+			if _, err := builder.Relocate(tt.move); !errors.Is(err, tt.want) {
 				t.Fatalf("error %v, want %v", err, tt.want)
 			}
 		})
@@ -122,8 +142,14 @@ func TestMoveRejectsConflicts(t *testing.T) {
 func TestFullROMRequiresDeclaredSpace(t *testing.T) {
 	data := bytes.Repeat([]byte{0xFF}, rom.MaxSize)
 	binary.LittleEndian.PutUint32(data[4:], 0x08000020)
-	move := Move{Source: Range{32, 48}, References: []Reference{{Address: 4}}}
-	if _, err := PlanMove(data, move); !errors.Is(err, ErrCapacity) {
+	owner := Owner{Resource: "resource"}
+	move := Move{
+		Owner:      owner,
+		Source:     Range{32, 48},
+		References: []Reference{{Owner: owner, Address: 4}},
+	}
+	builder := NewBuilder(data, relocationProtection())
+	if _, err := builder.Relocate(move); !errors.Is(err, ErrCapacity) {
 		t.Fatalf("FF bytes treated as free space: %v", err)
 	}
 	move.Available = []FreeRange{
@@ -132,7 +158,8 @@ func TestFullROMRequiresDeclaredSpace(t *testing.T) {
 			Source: "declared interval",
 		},
 	}
-	plan, err := PlanMove(data, move)
+	_, err := builder.Relocate(move)
+	plan := builder.Plan()
 	if err != nil || plan.Edit.Size != rom.MaxSize ||
 		plan.Destination.Start != rom.MaxSize-16 {
 		t.Fatalf("last addressable interval: %+v, %v", plan.Destination, err)

@@ -46,6 +46,7 @@ type Session struct {
 	format      format
 	context     *edit.Context
 	claimsStamp edit.Stamp
+	claimsData  []byte
 	claimsCache []space.Claim
 }
 
@@ -99,6 +100,7 @@ func Open(path string) (session *Session, err error) {
 				return resolved
 			},
 			s.Texts,
+			space.Protection{Pointer: s.protectPointer, Range: s.protectRange},
 		)
 		s.Portraits = portrait.New(
 			context,

@@ -120,7 +120,7 @@ type Background struct {
 }
 
 func (e *Editor) Background(tone BackgroundTone) (*Background, error) {
-	image := e.context.Document().Snapshot()
+	image := e.context.Capture()
 	if err := e.context.Validate(image.Data); err != nil {
 		return nil, err
 	}
@@ -163,7 +163,7 @@ func (e *Editor) Background(tone BackgroundTone) (*Background, error) {
 	return &Background{
 		tone:         tone,
 		paletteSites: sites,
-		stamp:        e.context.Bind(image.Revision),
+		stamp:        image.Stamp(),
 		original:     original,
 		format:       e.format.Scene,
 	}, nil
@@ -291,7 +291,7 @@ func (d *BackgroundDraft) Image() *image.RGBA {
 }
 
 type BackgroundPlan struct {
-	commit   *edit.Plan
+	commit   *edit.Commit
 	appended space.Range
 }
 
@@ -315,11 +315,23 @@ func (e *Editor) PlanBackground(
 	if e.source.ProtectPointer == nil || d.source.format != e.format.Scene {
 		return nil, edit.ErrLayout
 	}
-	image := e.context.Document().Snapshot()
+	image := e.context.Capture()
 	if err = e.context.Validate(image.Data); err != nil {
 		return nil, err
 	}
-	appender := space.NewAppender(len(image.Data))
+	builder := space.NewBuilder(image.Data, space.Protection{
+		Pointer: func(data []byte, owner space.Owner, site int) error {
+			if err := e.source.ProtectPointer(data, owner, site); err != nil {
+				return fault.New(
+					ErrReference,
+					"worldmap.protect_background",
+					fault.Context{},
+					err,
+				)
+			}
+			return nil
+		},
+	})
 	for _, part := range []struct {
 		site          int
 		before, after []byte
@@ -336,19 +348,11 @@ func (e *Editor) PlanBackground(
 		if part.site == e.format.Scene.paletteSite(d.source.tone) {
 			sites = d.source.paletteSites
 		}
-		for _, site := range sites {
-			owner := space.Owner{Resource: "worldmap.scene", ID: site}
-			if err = e.source.ProtectPointer(
-				image.Data,
-				owner,
-				site,
-			); err != nil {
-				return nil, fault.New(
-					ErrReference,
-					"worldmap.protect_background",
-					fault.Context{},
-					err,
-				)
+		pointers := make([]space.PointerSite, len(sites))
+		for i, site := range sites {
+			pointers[i] = space.PointerSite{
+				Owner:   space.Owner{Resource: "worldmap.scene", ID: site},
+				Address: site, ExpectedWord: gba.Uint32(image.Data, site),
 			}
 		}
 		payload := part.after
@@ -358,13 +362,13 @@ func (e *Editor) PlanBackground(
 				return nil, err
 			}
 		}
-		if _, err = appender.Add(payload, sites...); err != nil {
+		if _, err = builder.Replace(payload, pointers...); err != nil {
 			return nil, err
 		}
 	}
-	allocation := appender.Plan()
+	allocation := builder.Plan()
 	return &BackgroundPlan{
-		commit: edit.NewPlan(
+		commit: edit.NewCommit(
 			d.source.stamp,
 			"worldmap.background",
 			allocation.Edit,

@@ -22,7 +22,7 @@ type ScriptUse struct {
 
 // ScriptPlan is one immutable parameter patch or append-and-pointer operation.
 type ScriptPlan struct {
-	commit                      *edit.Plan
+	commit                      *edit.Commit
 	source, destination, length int
 	relocated                   bool
 	before, after               int
@@ -71,8 +71,13 @@ func (s *Editor) PlanScriptEdit(
 	if current.Entry.Address != entry.Address {
 		return nil, rom.ErrStale
 	}
-	appender := space.NewAppender(len(s.image.Data))
-	draft, movements, err := draft.prepareMovements(appender)
+	builder := space.NewBuilder(s.image.Data, space.Protection{
+		Pointer: s.source.ProtectPointer,
+		Range: func(_ []byte, _ space.Owner, region space.Range) error {
+			return s.scriptWriteRange(region.Start, region.End)
+		},
+	})
+	draft, movements, err := draft.prepareMovements(builder)
 	if err != nil {
 		return nil, err
 	}
@@ -86,23 +91,26 @@ func (s *Editor) PlanScriptEdit(
 		}
 	}
 	destination := entry.Address
+	var content []byte
+	var positions []int
 	if structural {
-		destination = appender.Next()
+		destination, err = builder.ReplaceEncoded(func(at int) ([]byte, error) {
+			content, positions, err = draft.scriptContent(at, true)
+			return content, err
+		}, space.PointerSite{
+			Owner: ScriptOwner(entry.Pointer), Address: entry.Pointer,
+			ExpectedWord: gba.Uint32(s.image.Data, entry.Pointer),
+		})
+	} else {
+		content, positions, err = draft.scriptContent(destination, false)
+		if err == nil {
+			err = s.patchScript(draft, builder, content)
+		}
 	}
-	content, positions, err := draft.scriptContent(destination, structural)
 	if err != nil {
 		return nil, err
 	}
-	write, err := s.scriptWritePlan(
-		draft,
-		appender,
-		destination,
-		content,
-		structural,
-	)
-	if err != nil {
-		return nil, err
-	}
+	write := builder.Plan()
 	prospective := bytes.Repeat([]byte{0xFF}, write.Edit.Size)
 	copy(prospective, s.image.Data)
 	for _, change := range write.Edit.Changes {
@@ -117,7 +125,7 @@ func (s *Editor) PlanScriptEdit(
 		return nil, err
 	}
 	result = &ScriptPlan{
-		commit:      edit.NewPlan(draft.binding, scriptResource, write.Edit),
+		commit:      edit.NewCommit(draft.binding, scriptResource, write.Edit),
 		source:      entry.Address,
 		destination: destination,
 		length:      len(content),
@@ -157,48 +165,33 @@ func (d *ScriptDraft) labelsChanged(structural bool) bool {
 	return false
 }
 
-func (s *Editor) scriptWritePlan(
+func (s *Editor) patchScript(
 	draft *ScriptDraft,
-	appender *space.Appender,
-	destination int,
+	builder *space.Builder,
 	content []byte,
-	structural bool,
-) (space.Plan, error) {
+) error {
 	entry := draft.Entry()
-	if structural {
-		if err := s.resourcePointer(
-			ScriptOwner(entry.Pointer),
-			entry.Pointer,
-		); err != nil {
-			return space.Plan{}, err
-		}
-		if _, err := appender.Add(content, entry.Pointer); err != nil {
-			return space.Plan{}, err
-		}
-		return appender.Plan(), nil
-	}
 	if err := s.scriptWriteRange(
 		entry.Address,
 		entry.Address+len(content),
 	); err != nil {
-		return space.Plan{}, err
+		return err
 	}
-	plan := appender.Plan()
 	for index, row := range draft.rows {
 		if !bytes.Equal(
 			row.instruction.Raw,
 			draft.original.rows[index].instruction.Raw,
 		) {
-			plan.Edit.Changes = append(
-				plan.Edit.Changes,
-				rom.Change{
-					Offset: row.instruction.Address,
-					Data:   bytes.Clone(row.instruction.Raw),
-				},
-			)
+			if err := builder.Patch(
+				ScriptCodeOwner(),
+				row.instruction.Address,
+				row.instruction.Raw,
+			); err != nil {
+				return err
+			}
 		}
 	}
-	return plan, nil
+	return nil
 }
 
 func (s *Editor) validateScriptEdit(

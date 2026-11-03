@@ -17,8 +17,8 @@ import (
 // ChangesPlan appends a frozen table and only changed tile payloads. The
 // selected PLIST entry is the sole existing write site; scripts stay intact.
 type ChangesPlan struct {
-	commit                                   *edit.Plan
-	plan                                     space.Plan
+	commit                                   *edit.Commit
+	plan                                     space.WritePlan
 	source, pointer, before, after, payloads int
 	uses                                     []Use
 	references                               ChangeReferences
@@ -118,13 +118,6 @@ func (s *Editor) PlanChanges(
 	if s.context.Validate(s.image.Data) != nil {
 		return nil, edit.ErrVersion
 	}
-	if err = s.mapWriteSite(
-		format,
-		draft.original.pointer,
-		ChangesField,
-	); err != nil {
-		return nil, err
-	}
 	uses, err := s.mapResourceUses(
 		format,
 		ChangesField,
@@ -137,40 +130,49 @@ func (s *Editor) PlanChanges(
 	if err = s.validateMapChanges(format, draft, uses); err != nil {
 		return nil, err
 	}
-	content := make([]byte, len(draft.rows)*12)
-	content = append(content, draft.original.terminator...)
-	appender := space.NewAppender(len(s.image.Data))
-	destination := appender.Next()
+	builder := space.NewBuilder(s.image.Data, space.Protection{
+		Pointer: func(_ []byte, _ space.Owner, site int) error {
+			return s.mapWriteSite(format, site, ChangesField)
+		},
+	})
 	payloads := 0
-	for index, row := range draft.rows {
-		header := row.header
-		if !bytes.Equal(row.tiles, row.originalTiles) {
-			for len(content)%4 != 0 {
-				content = append(content, 0)
+	if _, err = builder.ReplaceEncoded(func(destination int) ([]byte, error) {
+		content := make([]byte, len(draft.rows)*12)
+		content = append(content, draft.original.terminator...)
+		for index, row := range draft.rows {
+			header := row.header
+			if !bytes.Equal(row.tiles, row.originalTiles) {
+				for len(content)%4 != 0 {
+					content = append(content, 0)
+				}
+				address := destination + len(content)
+				if address > rom.MaxSize {
+					return nil, space.ErrCapacity
+				}
+				binary.LittleEndian.PutUint32(
+					header[8:],
+					uint32(0x08000000+address),
+				) // #nosec G115 -- Bounded by the native ROM capacity.
+				content = append(content, row.tiles...)
+				payloads++
 			}
-			address := destination + len(content)
-			if address > rom.MaxSize {
-				return nil, space.ErrCapacity
-			}
-			binary.LittleEndian.PutUint32(
-				header[8:],
-				uint32(0x08000000+address),
-			) // #nosec G115 -- Bounded by the native ROM capacity.
-			content = append(content, row.tiles...)
-			payloads++
+			copy(content[index*12:], header[:])
 		}
-		copy(content[index*12:], header[:])
-	}
-	if _, err = appender.Add(content, draft.original.pointer); err != nil {
+		return content, nil
+	}, space.PointerSite{
+		Owner:        resourceOwner(ChangesField, draft.original.pointer),
+		Address:      draft.original.pointer,
+		ExpectedWord: gba.Uint32(s.image.Data, draft.original.pointer),
+	}); err != nil {
 		return nil, err
 	}
-	plan := appender.Plan()
+	plan := builder.Plan()
 	references := s.source.References(draft, uses)
 	if err = draft.base.binding.Check(s.context); err != nil {
 		return nil, err
 	}
 	return &ChangesPlan{
-		commit:     edit.NewPlan(draft.base.binding, ChangesField, plan.Edit),
+		commit:     edit.NewCommit(draft.base.binding, ChangesField, plan.Edit),
 		plan:       plan,
 		source:     draft.original.address,
 		pointer:    draft.original.pointer,

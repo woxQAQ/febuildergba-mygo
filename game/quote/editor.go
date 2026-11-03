@@ -19,7 +19,7 @@ type Editor struct {
 	context *edit.Context
 	format  Format
 	source  Source
-	image   rom.Snapshot
+	image   edit.Input
 	binding edit.Stamp
 	tables  []Table
 }
@@ -32,8 +32,8 @@ func (s *Editor) refresh() {
 	if s.binding.Current(s.context) {
 		return
 	}
-	s.image = s.context.Document().Snapshot()
-	s.binding = s.context.Bind(s.image.Revision)
+	s.image = s.context.Capture()
+	s.binding = s.image.Stamp()
 	s.tables = s.format.Tables(s.image.Data)
 }
 
@@ -101,7 +101,7 @@ type (
 )
 
 func (s *Editor) NewDraft(kind Kind) (*Draft, error) {
-	image := s.context.Document().Snapshot()
+	image := s.context.Capture()
 	if err := s.context.Validate(image.Data); err != nil {
 		return nil, err
 	}
@@ -113,7 +113,7 @@ func (s *Editor) NewDraft(kind Kind) (*Draft, error) {
 			return nil, table.Err
 		}
 		draft := &Draft{
-			binding:          s.context.Bind(image.Revision),
+			binding:          image.Stamp(),
 			table:            table,
 			battleConditions: s.format.BattleConditions,
 			anyChapter:       s.format.AnyChapter,
@@ -249,7 +249,7 @@ func (d *Draft) Modified() bool {
 }
 
 type Plan struct {
-	commit               *edit.Plan
+	commit               *edit.Commit
 	kind                 Kind
 	before, after, count int
 	pointers             []int
@@ -278,7 +278,7 @@ func (s *Editor) Plan(d *Draft) (result *Plan, err error) {
 	if err = d.binding.Check(s.context); err != nil {
 		return nil, err
 	}
-	image := s.context.Document().Snapshot()
+	image := s.context.Capture()
 	if err = s.context.Validate(image.Data); err != nil {
 		return nil, err
 	}
@@ -287,12 +287,6 @@ func (s *Editor) Plan(d *Draft) (result *Plan, err error) {
 	}
 	if s.source.ProtectPointer == nil {
 		return nil, edit.ErrLayout
-	}
-	owner := space.Owner{Resource: string(d.table.Kind)}
-	for _, site := range d.table.Pointers {
-		if err = s.source.ProtectPointer(image.Data, owner, site); err != nil {
-			return nil, err
-		}
 	}
 	payload := make([]byte, 0, (len(d.rows)+1)*d.table.Stride)
 	for _, row := range d.rows {
@@ -333,16 +327,27 @@ func (s *Editor) Plan(d *Draft) (result *Plan, err error) {
 		payload = append(payload, row.Raw...)
 	}
 	payload = append(payload, d.table.terminator...)
-	appender := space.NewAppender(len(image.Data))
-	after, err := appender.Add(payload, d.table.Pointers...)
+	builder := space.NewBuilder(
+		image.Data,
+		space.Protection{Pointer: s.source.ProtectPointer},
+	)
+	pointers := make([]space.PointerSite, len(d.table.Pointers))
+	for i, site := range d.table.Pointers {
+		pointers[i] = space.PointerSite{
+			Owner:        space.Owner{Resource: string(d.table.Kind)},
+			Address:      site,
+			ExpectedWord: uint32(0x08000000 + d.table.Address),
+		}
+	}
+	after, err := builder.Replace(payload, pointers...)
 	if err != nil {
 		return nil, err
 	}
 	result = &Plan{
-		commit: edit.NewPlan(
+		commit: edit.NewCommit(
 			d.binding,
 			"Edit battle and defeat dialog",
-			appender.Plan().Edit,
+			builder.Plan().Edit,
 		),
 		kind:     d.Kind(),
 		before:   d.table.Address,

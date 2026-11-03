@@ -194,8 +194,8 @@ func (f Format) routeClaims(data []byte) []space.Claim {
 func (e *Editor) RoutesAvailable() bool { return e.format.RoutePointer != 0 }
 func (e *Editor) Routes() ([]Route, error) {
 	if !e.routeStamp.Current(e.context) {
-		image := e.context.Document().Snapshot()
-		e.routeStamp = e.context.Bind(image.Revision)
+		image := e.context.Capture()
+		e.routeStamp = image.Stamp()
 		e.routes, e.routeErr = nil, e.context.Validate(image.Data)
 		if e.routeErr == nil {
 			e.routes, e.routeErr = e.format.Routes(image.Data)
@@ -224,7 +224,7 @@ func (e *Editor) NewRouteDraft(id int) (*RouteDraft, error) {
 	}
 	r := routes[id]
 	road, roadErr := newRoadDraft(
-		e.context.Document().Snapshot().Data,
+		e.context.Capture().Data,
 		e.format.Scene,
 		r.Road,
 	)
@@ -290,7 +290,7 @@ func (d *RouteDraft) SetPoints(points []MovementPoint) error {
 }
 
 type RoutePlan struct {
-	commit        *edit.Plan
+	commit        *edit.Commit
 	before, after Route
 	appended      space.Range
 	shared        []int
@@ -325,7 +325,7 @@ func (e *Editor) PlanRoute(d *RouteDraft) (plan *RoutePlan, err error) {
 	if !d.Modified() || e.source.ProtectRange == nil {
 		return nil, edit.ErrValue
 	}
-	image := e.context.Document().Snapshot()
+	image := e.context.Capture()
 	if err = e.context.Validate(image.Data); err != nil {
 		return nil, err
 	}
@@ -355,8 +355,9 @@ func (e *Editor) PlanRoute(d *RouteDraft) (plan *RoutePlan, err error) {
 		}
 	}
 	plan = &RoutePlan{before: r, after: d.Route()}
-	appender := space.NewAppender(len(image.Data))
-	var direct []rom.Change
+	builder := space.NewBuilder(image.Data, space.Protection{
+		Pointer: e.source.ProtectPointer, Range: e.source.ProtectRange,
+	})
 	if d.road != nil && d.road.Modified() {
 		plan.roadChanges = d.road.changes()
 		for _, other := range routes {
@@ -364,7 +365,14 @@ func (e *Editor) PlanRoute(d *RouteDraft) (plan *RoutePlan, err error) {
 				plan.roadShared = append(plan.roadShared, other.ID)
 			}
 		}
-		plan.after.Road, err = appender.Add(d.road.encode(), r.Address)
+		plan.after.Road, err = builder.Replace(
+			d.road.encode(),
+			space.PointerSite{
+				Owner:        space.Owner{Resource: "worldmap.roads", ID: r.ID},
+				Address:      r.Address,
+				ExpectedWord: gba.Uint32(image.Data, r.Address),
+			},
+		)
 		if err != nil {
 			return nil, err
 		}
@@ -383,11 +391,15 @@ func (e *Editor) PlanRoute(d *RouteDraft) (plan *RoutePlan, err error) {
 				plan.shared = append(plan.shared, other.ID)
 			}
 		}
+		pointer := space.PointerSite{
+			Owner:        space.Owner{Resource: "worldmap.movement", ID: r.ID},
+			Address:      r.Address + 8,
+			ExpectedWord: gba.Uint32(image.Data, r.Address+8),
+		}
 		if len(d.points) == 0 {
-			direct = append(
-				direct,
-				rom.Change{Offset: r.Address + 8, Data: make([]byte, 4)},
-			)
+			if err = builder.ClearPointer(pointer); err != nil {
+				return nil, err
+			}
 			plan.after.Movement = 0
 		} else {
 			var payload []byte
@@ -404,25 +416,24 @@ func (e *Editor) PlanRoute(d *RouteDraft) (plan *RoutePlan, err error) {
 				end = [8]byte{0xFF, 0xFF, 0xFF, 0xFF, 0, 0, 0, 0}
 			}
 			payload = append(payload, end[:]...)
-			plan.after.Movement, err = appender.Add(payload, r.Address+8)
+			plan.after.Movement, err = builder.Replace(payload, pointer)
 			if err != nil {
 				return nil, err
 			}
 		}
 	}
 	if d.nodes != r.Nodes {
-		direct = append(
-			direct,
-			rom.Change{
-				Offset: r.Address + 4,
-				Data:   []byte{byte(d.nodes[0]), byte(d.nodes[1])},
-			},
-		)
+		if err = builder.Patch(
+			r.Owner(),
+			r.Address+4,
+			[]byte{byte(d.nodes[0]), byte(d.nodes[1])},
+		); err != nil {
+			return nil, err
+		}
 	}
-	allocation := appender.Plan()
-	allocation.Edit.Changes = append(allocation.Edit.Changes, direct...)
+	allocation := builder.Plan()
 	plan.appended = allocation.Destination
-	plan.commit = edit.NewPlan(d.stamp, RouteResource, allocation.Edit)
+	plan.commit = edit.NewCommit(d.stamp, RouteResource, allocation.Edit)
 	return plan, nil
 }
 

@@ -61,7 +61,7 @@ func (s *Editor) NewDraft(chapter int) (*Draft, error) {
 	// Retaining a draft need not retain the entire ROM snapshot through its palette.
 	resources.palette = bytes.Clone(resources.palette)
 	return &Draft{
-		binding:   s.context.Bind(s.image.Revision),
+		binding:   s.image.Stamp(),
 		chapter:   chapter,
 		pointer:   site,
 		address:   address,

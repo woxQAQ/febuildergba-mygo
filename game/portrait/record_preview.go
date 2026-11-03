@@ -62,7 +62,7 @@ func (s *Editor) Preview(
 	s.Refresh()
 	result := RecordPreview{
 		PortraitSelection: selection,
-		binding:           s.context.Bind(s.image.Revision),
+		binding:           s.image.Stamp(),
 	}
 	if !selection.Current(s.records) {
 		return result, rom.ErrStale

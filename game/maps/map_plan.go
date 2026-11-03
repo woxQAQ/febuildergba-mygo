@@ -22,10 +22,10 @@ type Use struct {
 // Plan owns an immutable compressed layout and one pointer update. All
 // chapters using that pointer entry change together; independent entries stay.
 type Plan struct {
-	commit                                *edit.Plan
+	commit                                *edit.Commit
 	source, destination, pointer, changed int
 	uses                                  []Use
-	plan                                  space.Plan
+	plan                                  space.WritePlan
 	beforeSize, afterSize                 image.Point
 	impacts                               []Impact
 	warnings                              []ImpactWarning
@@ -59,13 +59,6 @@ func (s *Editor) Plan(draft *Draft) (result *Plan, err error) {
 	if s.context.Validate(s.image.Data) != nil {
 		return nil, edit.ErrVersion
 	}
-	if err = s.mapWriteSite(
-		format,
-		draft.pointer,
-		LayoutField,
-	); err != nil {
-		return nil, err
-	}
 	uses, err := s.mapUses(format, draft)
 	if err != nil {
 		return nil, err
@@ -74,11 +67,19 @@ func (s *Editor) Plan(draft *Draft) (result *Plan, err error) {
 	if err != nil {
 		return nil, err
 	}
-	appender := space.NewAppender(len(s.image.Data))
-	if _, err = appender.Add(compressed, draft.pointer); err != nil {
+	builder := space.NewBuilder(s.image.Data, space.Protection{
+		Pointer: func(_ []byte, _ space.Owner, site int) error {
+			return s.mapWriteSite(format, site, LayoutField)
+		},
+	})
+	if _, err = builder.Replace(compressed, space.PointerSite{
+		Owner:        resourceOwner(LayoutField, draft.pointer),
+		Address:      draft.pointer,
+		ExpectedWord: uint32(0x08000000 + draft.address),
+	}); err != nil {
 		return nil, err
 	}
-	plan := appender.Plan()
+	plan := builder.Plan()
 	impacts, warnings := s.source.Resize(
 		Resize{
 			Before: draft.originalSize(),
@@ -90,7 +91,7 @@ func (s *Editor) Plan(draft *Draft) (result *Plan, err error) {
 		return nil, err
 	}
 	return &Plan{
-		commit:      edit.NewPlan(draft.binding, LayoutField, plan.Edit),
+		commit:      edit.NewCommit(draft.binding, LayoutField, plan.Edit),
 		source:      draft.address,
 		destination: plan.Destination.Start,
 		pointer:     draft.pointer,

@@ -6,7 +6,6 @@ import (
 
 	"github.com/woxQAQ/febuildergba-mygo/fault"
 	"github.com/woxQAQ/febuildergba-mygo/game/edit"
-	"github.com/woxQAQ/febuildergba-mygo/rom"
 	"github.com/woxQAQ/febuildergba-mygo/space"
 )
 
@@ -36,7 +35,7 @@ type Editor struct {
 	context    *edit.Context
 	format     Format
 	references func([]byte, uint16) References
-	image      rom.Snapshot
+	image      edit.Input
 	stamp      edit.Stamp
 	entries    []Entry
 }
@@ -51,8 +50,8 @@ func New(
 
 func (s *Editor) refresh() error {
 	if !s.stamp.Current(s.context) {
-		s.image = s.context.Document().Snapshot()
-		s.stamp = s.context.Bind(s.image.Revision)
+		s.image = s.context.Capture()
+		s.stamp = s.image.Stamp()
 		s.entries = nil
 	}
 	return s.context.Validate(s.image.Data)

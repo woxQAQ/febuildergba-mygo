@@ -402,7 +402,7 @@ func (s *Editor) deploymentDraft(
 		group.faction = group.Units[0].Faction
 	}
 	return &Draft{
-		binding: s.context.Bind(s.image.Revision),
+		binding: s.image.Stamp(),
 		chapter: chapter,
 		group:   group,
 		records: cloneDeploymentRecords(group.records),
@@ -427,7 +427,7 @@ func (d *Draft) Payload(address int) []byte {
 		binary.LittleEndian.PutUint32(
 			content[i*d.group.Stride+8:],
 			uint32(0x08000000+address+len(content)),
-		) // #nosec G115 -- PlanAppend validates the complete size before application.
+		) // #nosec G115 -- Builder validates the complete size before application.
 		content = append(content, record.movement...)
 	}
 	return content

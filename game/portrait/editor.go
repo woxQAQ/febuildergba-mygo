@@ -23,7 +23,7 @@ type Editor struct {
 	generic         GenericFormat
 	records         *records.Editor
 	protected       func([]byte) []space.Range
-	image           rom.Snapshot
+	image           edit.Input
 	binding         edit.Stamp
 	portraitEntries []Entry
 }
@@ -46,8 +46,8 @@ func New(
 
 func (s *Editor) Refresh() {
 	if !s.binding.Current(s.context) {
-		s.image = s.context.Document().Snapshot()
-		s.binding = s.context.Bind(s.image.Revision)
+		s.image = s.context.Capture()
+		s.binding = s.image.Stamp()
 		s.portraitEntries = nil
 	}
 }
@@ -213,7 +213,7 @@ func (s *Editor) Read(id int) (*Portrait, error) {
 	f, data, at := g, s.image.Data, entry.Address
 	p := &Portrait{
 		Entry:   entry,
-		binding: s.context.Bind(s.image.Revision),
+		binding: s.image.Stamp(),
 		id:      id,
 		address: at,
 	}

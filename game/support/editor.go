@@ -34,9 +34,9 @@ func New(context *edit.Context, format Format, source Source) *Editor {
 
 func (e *Editor) Records() ([]Record, error) {
 	if !e.binding.Current(e.context) {
-		image := e.context.Document().Snapshot()
+		image := e.context.Capture()
 		units, err := e.source.Units(image.Data)
-		e.binding = e.context.Bind(image.Revision)
+		e.binding = image.Stamp()
 		e.recordErr = err
 		e.records = make([]Record, len(units))
 		for i, unit := range units {
@@ -51,7 +51,7 @@ func (e *Editor) Records() ([]Record, error) {
 }
 
 func (e *Editor) Talks() ([]Talk, error) {
-	table := e.format.talks(e.context.Document().Snapshot().Data)
+	table := e.format.talks(e.context.Capture().Data)
 	return table.rows, table.err
 }
 
@@ -64,10 +64,10 @@ type TalkDraft struct {
 	rows    []Talk
 }
 
-func (e *Editor) talkDraft(image rom.Snapshot) *TalkDraft {
+func (e *Editor) talkDraft(image edit.Input) *TalkDraft {
 	table := e.format.talks(image.Data)
 	return &TalkDraft{
-		binding: e.context.Bind(image.Revision),
+		binding: image.Stamp(),
 		format:  e.format,
 		table:   table,
 		rows:    cloneTalks(table.rows),
@@ -75,7 +75,7 @@ func (e *Editor) talkDraft(image rom.Snapshot) *TalkDraft {
 }
 
 func (e *Editor) NewTalkDraft() (*TalkDraft, error) {
-	image := e.context.Document().Snapshot()
+	image := e.context.Capture()
 	if err := e.context.Validate(image.Data); err != nil {
 		return nil, err
 	}
@@ -128,7 +128,7 @@ type Draft struct {
 }
 
 func (e *Editor) NewDraft(id int) (*Draft, error) {
-	image := e.context.Document().Snapshot()
+	image := e.context.Capture()
 	if err := e.context.Validate(image.Data); err != nil {
 		return nil, err
 	}
@@ -149,7 +149,7 @@ func (e *Editor) NewDraft(id int) (*Draft, error) {
 			raw = make([]byte, e.format.Size)
 		}
 		return &Draft{
-			binding:  e.context.Bind(image.Revision),
+			binding:  image.Stamp(),
 			format:   e.format,
 			record:   r,
 			original: raw,
@@ -255,7 +255,7 @@ type Move struct {
 }
 
 type Plan struct {
-	commit  *edit.Plan
+	commit  *edit.Commit
 	moves   []Move
 	missing []Unit
 }
@@ -300,7 +300,7 @@ func (e *Editor) plan(
 	if err = binding.Check(e.context); err != nil {
 		return nil, err
 	}
-	image := e.context.Document().Snapshot()
+	image := e.context.Capture()
 	if err = e.context.Validate(image.Data); err != nil {
 		return nil, err
 	}
@@ -359,20 +359,19 @@ func (e *Editor) plan(
 			}
 		}
 	}
-	appender := space.NewAppender(len(image.Data))
+	builder := space.NewBuilder(
+		image.Data,
+		space.Protection{Pointer: e.source.ProtectPointer},
+	)
 	appendResource := func(payload []byte, move Move) error {
-		for _, site := range move.Pointers {
-			// The claim check rejects a character pointer aliasing a native
-			// talk consumer, another owner's payload, or the reverse.
-			if err := e.source.ProtectPointer(
-				image.Data,
-				space.Owner{Resource: "support", ID: move.Unit},
-				site,
-			); err != nil {
-				return err
+		pointers := make([]space.PointerSite, len(move.Pointers))
+		for i, site := range move.Pointers {
+			pointers[i] = space.PointerSite{
+				Owner:   space.Owner{Resource: "support", ID: move.Unit},
+				Address: site, ExpectedWord: gba.Uint32(image.Data, site),
 			}
 		}
-		destination, err := appender.Add(payload, move.Pointers...)
+		destination, err := builder.Replace(payload, pointers...)
 		if err != nil {
 			return err
 		}
@@ -437,7 +436,11 @@ func (e *Editor) plan(
 			return nil, err
 		}
 	}
-	result.commit = edit.NewPlan(binding, "Edit supports", appender.Plan().Edit)
+	result.commit = edit.NewCommit(
+		binding,
+		"Edit supports",
+		builder.Plan().Edit,
+	)
 	return result, nil
 }
 

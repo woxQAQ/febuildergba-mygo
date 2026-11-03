@@ -122,8 +122,8 @@ func (e *Editor) Available() bool { return e.format.Pointer != 0 }
 
 func (e *Editor) Nodes() ([]Node, error) {
 	if !e.stamp.Current(e.context) {
-		image := e.context.Document().Snapshot()
-		e.stamp = e.context.Bind(image.Revision)
+		image := e.context.Capture()
+		e.stamp = image.Stamp()
 		e.nodes, e.err = nil, e.context.Validate(image.Data)
 		if e.err == nil {
 			e.nodes, e.err = e.format.Nodes(image.Data)
@@ -185,7 +185,7 @@ type Change struct {
 }
 
 type Plan struct {
-	commit  *edit.Plan
+	commit  *edit.Commit
 	node    Node
 	changes []Change
 }
@@ -209,7 +209,7 @@ func (e *Editor) Plan(d *Draft) (plan *Plan, err error) {
 	if !d.Modified() || e.source.ProtectRange == nil {
 		return nil, edit.ErrValue
 	}
-	image := e.context.Document().Snapshot()
+	image := e.context.Capture()
 	if err = e.context.Validate(image.Data); err != nil {
 		return nil, err
 	}
@@ -267,7 +267,7 @@ func (e *Editor) Plan(d *Draft) (plan *Plan, err error) {
 			Data:   node.raw[f.offset : f.offset+f.width],
 		})
 	}
-	plan.commit = edit.NewPlan(d.stamp, Resource, change)
+	plan.commit = edit.NewCommit(d.stamp, Resource, change)
 	return plan, nil
 }
 

@@ -42,7 +42,7 @@ func cloneTables(tables []Table) []Table {
 
 func (e *Editor) NewDraft(id int) (result *Draft, err error) {
 	defer func() { err = fault.Wrap(err, "terrain.draft", fault.Context{Resource: "terrain", RecordID: &id}) }()
-	image := e.context.Document().Snapshot()
+	image := e.context.Capture()
 	if err = e.context.Validate(image.Data); err != nil {
 		return nil, err
 	}
@@ -59,7 +59,7 @@ func (e *Editor) NewDraft(id int) (result *Draft, err error) {
 		}
 		tables := e.format.Read(image.Data, class)
 		return &Draft{
-			binding:  e.context.Bind(image.Revision),
+			binding:  image.Stamp(),
 			class:    class,
 			tables:   tables,
 			original: cloneTables(tables),
@@ -120,7 +120,7 @@ type Move struct {
 }
 
 type Plan struct {
-	commit *edit.Plan
+	commit *edit.Commit
 	moves  []Move
 }
 
@@ -147,7 +147,7 @@ func (e *Editor) Plan(d *Draft) (result *Plan, err error) {
 	if err = d.binding.Check(e.context); err != nil {
 		return nil, err
 	}
-	image := e.context.Document().Snapshot()
+	image := e.context.Capture()
 	if err = e.context.Validate(image.Data); err != nil {
 		return nil, err
 	}
@@ -169,7 +169,10 @@ func (e *Editor) Plan(d *Draft) (result *Plan, err error) {
 		}
 	}
 	result = &Plan{}
-	appender := space.NewAppender(len(image.Data))
+	builder := space.NewBuilder(
+		image.Data,
+		space.Protection{Pointer: e.source.ProtectPointer},
+	)
 	for i, table := range d.tables {
 		if !pending[table.Pointer] {
 			continue
@@ -180,15 +183,6 @@ func (e *Editor) Plan(d *Draft) (result *Plan, err error) {
 				other.Address < table.Address+e.format.count && table.Address < other.Address+e.format.count {
 				move.Shared = append(move.Shared, other.Reference)
 			}
-		}
-		// The claim check rejects aliased pointers and payload overlaps,
-		// including another class or column declaring the same position.
-		if err = e.source.ProtectPointer(
-			image.Data,
-			space.Owner{Resource: "terrain", ID: table.Class.ID, Slot: i},
-			table.Pointer,
-		); err != nil {
-			return nil, err
 		}
 		payload := make([]byte, len(table.Values))
 		for id, value := range table.Values {
@@ -202,17 +196,25 @@ func (e *Editor) Plan(d *Draft) (result *Plan, err error) {
 				)
 			}
 		}
-		destination, err := appender.Add(payload, table.Pointer)
+		destination, err := builder.Replace(payload, space.PointerSite{
+			Owner: space.Owner{
+				Resource: "terrain",
+				ID:       table.Class.ID,
+				Slot:     i,
+			},
+			Address:      table.Pointer,
+			ExpectedWord: uint32(0x08000000 + table.Address),
+		})
 		if err != nil {
 			return nil, err
 		}
 		move.Destination = destination
 		result.moves = append(result.moves, move)
 	}
-	result.commit = edit.NewPlan(
+	result.commit = edit.NewCommit(
 		d.binding,
 		"Edit class terrain tables",
-		appender.Plan().Edit,
+		builder.Plan().Edit,
 	)
 	return result, nil
 }

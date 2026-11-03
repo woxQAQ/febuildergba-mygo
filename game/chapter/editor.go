@@ -12,7 +12,6 @@ import (
 	"github.com/woxQAQ/febuildergba-mygo/game/shop"
 	"github.com/woxQAQ/febuildergba-mygo/game/text"
 	"github.com/woxQAQ/febuildergba-mygo/game/worldmap"
-	"github.com/woxQAQ/febuildergba-mygo/rom"
 	"github.com/woxQAQ/febuildergba-mygo/space"
 )
 
@@ -41,7 +40,7 @@ type Editor struct {
 	context     *edit.Context
 	format      Config
 	records     *records.Editor
-	image       rom.Snapshot
+	image       edit.Input
 	binding     edit.Stamp
 }
 
@@ -109,8 +108,8 @@ func (g Config) protect(
 
 func (s *Editor) Refresh() {
 	if !s.binding.Current(s.context) {
-		s.image = s.context.Document().Snapshot()
-		s.binding = s.context.Bind(s.image.Revision)
+		s.image = s.context.Capture()
+		s.binding = s.image.Stamp()
 	}
 	s.records.Refresh()
 }

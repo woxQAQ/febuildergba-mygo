@@ -28,7 +28,7 @@ type Editor struct {
 	context  *edit.Context
 	format   Format
 	source   Source
-	image    rom.Snapshot
+	image    edit.Input
 	binding  edit.Stamp
 	entries  []Entry
 	warnings []error
@@ -42,8 +42,8 @@ func (s *Editor) Refresh() {
 	if s.binding.Current(s.context) {
 		return
 	}
-	s.image = s.context.Document().Snapshot()
-	s.binding = s.context.Bind(s.image.Revision)
+	s.image = s.context.Capture()
+	s.binding = s.image.Stamp()
 	s.entries, s.warnings = nil, nil
 	refs := s.format.References()
 	if s.source.References != nil {
@@ -145,7 +145,7 @@ func (s *Editor) NewDraft(key Key) (*EntryDraft, error) {
 // EntryPlan freezes both the appended inventory and its one selected pointer.
 // Known uses describe sharing before the change, not a complete ROM reference index.
 type EntryPlan struct {
-	commit               *edit.Plan
+	commit               *edit.Commit
 	before, after, count int
 	uses, affected       []Reference
 }
@@ -180,23 +180,22 @@ func (s *Editor) Plan(d *EntryDraft) (*EntryPlan, error) {
 	if s.source.ProtectPointer == nil {
 		return nil, edit.ErrLayout
 	}
-	if err := s.source.ProtectPointer(
+	builder := space.NewBuilder(
 		s.image.Data,
-		d.entry.Key.Owner(),
-		d.entry.Pointer,
-	); err != nil {
-		return nil, err
-	}
-	appender := space.NewAppender(len(s.image.Data))
-	after, err := appender.Add(d.inventory.Payload(), d.entry.Pointer)
+		space.Protection{Pointer: s.source.ProtectPointer},
+	)
+	after, err := builder.Replace(d.inventory.Payload(), space.PointerSite{
+		Owner: d.entry.Key.Owner(), Address: d.entry.Pointer,
+		ExpectedWord: gba.Uint32(s.image.Data, d.entry.Pointer),
+	})
 	if err != nil {
 		return nil, err
 	}
 	result := &EntryPlan{
-		commit: edit.NewPlan(
+		commit: edit.NewCommit(
 			d.binding,
 			"Edit shop inventory",
-			appender.Plan().Edit,
+			builder.Plan().Edit,
 		),
 		before: d.entry.Address,
 		after:  after,
