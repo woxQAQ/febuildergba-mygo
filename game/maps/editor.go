@@ -7,6 +7,7 @@ import (
 	"github.com/woxQAQ/febuildergba-mygo/game/edit"
 	"github.com/woxQAQ/febuildergba-mygo/game/records"
 	"github.com/woxQAQ/febuildergba-mygo/rom"
+	"github.com/woxQAQ/febuildergba-mygo/space"
 )
 
 // Resize describes the dimensions and confirmed shared uses being reviewed.
@@ -20,7 +21,7 @@ type Resize struct {
 // not expose their private drafts or give maps access to a parent session.
 type Source struct {
 	Bindings   []Binding
-	Protect    func([]byte, int) error
+	Protect    func([]byte, space.Owner, int) error
 	Resize     func(Resize) ([]Impact, []ImpactWarning)
 	References func(*ChangesDraft, []Use) ChangeReferences
 }

@@ -15,6 +15,9 @@ func (page *Page) instructionTable(
 	draft *draftState,
 	rows []event.ScriptInstruction,
 ) {
+	_, height := c.Size()
+	rowHeight := c.Theme().Space(9)
+	viewportHeight := min(330, max(rowHeight*4, height/3))
 	draft.list.Selected = &draft.selected
 	draft.list.Key = func(index int) any { return rows[index].ID }
 	columns := []ui.TableColumn{
@@ -35,10 +38,12 @@ func (page *Page) instructionTable(
 				ui.Text(c, "+")
 			} else {
 				ui.Textf(c, "%08X", row.Address).
-					FontFeatures("tnum")
+					Font("monospace")
 			}
 		case 1:
-			ui.Text(c, locales.Label(string(row.Op))).SingleLine()
+			ui.Text(c, locales.Label(string(row.Op))).
+				SingleLine().
+				Tooltip(locales.Label(string(row.Op)))
 		case 2:
 			if !row.Editable {
 				ui.Textf(c, "% X", row.Raw).
@@ -60,6 +65,6 @@ func (page *Page) instructionTable(
 			}
 		}
 	}).
-		Height(min(330, c.Theme().Space(9)*float32(len(rows)+1))).
+		Height(min(viewportHeight, rowHeight*float32(len(rows)+1))).
 		Label(locales.ScriptInstructions())
 }

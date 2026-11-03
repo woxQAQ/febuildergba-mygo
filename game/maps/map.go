@@ -74,8 +74,8 @@ func (s *Editor) Read(id int) (preview Preview, err error) {
 }
 
 type Format struct {
-	Graphics, Palette, Config, Layout           int
-	Animation, Animation2, Changes, WorldEvents int
+	Graphics, Palette, Config, Layout int
+	Animation, Animation2, Changes    int
 }
 
 // Resource kinds can have separate pointer lists after the legacy PLIST split.

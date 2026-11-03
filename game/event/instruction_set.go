@@ -1,6 +1,9 @@
 package event
 
-import "bytes"
+import (
+	"bytes"
+	"slices"
+)
 
 // scriptSet is the selected native instruction set. Editable operands and
 // discovery share these definitions; opaque commands retain explicit lengths
@@ -11,7 +14,7 @@ type scriptSet struct {
 	words                 [256]byte
 	flow                  [256]wordFlow
 	asmOffset             int
-	asmOpcode             byte
+	asmOpcodes            []byte
 	labelStop             []byte
 	trackSlots            bool
 	positionFallback      bool
@@ -52,7 +55,7 @@ func fe8Scripts() *scriptSet {
 			fe8CoreDefinitions(),
 		),
 		decode:    (*deploymentScanner).sizedInstruction,
-		asmOffset: 1, asmOpcode: 0x0D, trackSlots: true, textOffset: 6,
+		asmOffset: 1, asmOpcodes: []byte{0x0D}, trackSlots: true, textOffset: 6,
 	}
 	for index := range result.definitions {
 		for operand := range result.definitions[index].fields {
@@ -87,6 +90,7 @@ func fe8Scripts() *scriptSet {
 func fe6Scripts() *scriptSet {
 	result := &scriptSet{
 		definitions: instructionDefinitions(
+			fe6WorldMapDefinitions(),
 			fe6SceneDefinitions(),
 			fe6CameraDefinitions(),
 			wordUnitConditionDefinitions(0x1D),
@@ -100,7 +104,7 @@ func fe6Scripts() *scriptSet {
 			fe6CoreDefinitions(),
 		),
 		decode: (*deploymentScanner).wordInstruction,
-		words:  fe6InstructionWords, asmOpcode: 0x17,
+		words:  fe6InstructionWords, asmOpcodes: []byte{0x17, 0x4B},
 		labelStop: scriptWords(0), positionFallback: true, textOffset: 4,
 	}
 	result.flow[0x3F].mapID = 4
@@ -112,9 +116,14 @@ func fe6Scripts() *scriptSet {
 	return result
 }
 
-func fe7Scripts(shift, call uint32, words [256]byte) *scriptSet {
+func fe7Scripts(
+	shift, call uint32,
+	worldMapBase byte,
+	words [256]byte,
+) *scriptSet {
 	result := &scriptSet{
 		definitions: instructionDefinitions(
+			fe7WorldMapDefinitions(worldMapBase),
 			fe7SceneDefinitions(
 				shift,
 			),
@@ -133,9 +142,11 @@ func fe7Scripts(shift, call uint32, words [256]byte) *scriptSet {
 		),
 		decode: (*deploymentScanner).wordInstruction,
 		words:  words,
-		asmOpcode: byte(
-			0x3C + shift,
-		), // #nosec G115 -- Native opcode variants fit in one byte.
+		// The second opcode installs an ASM callback for event skipping.
+		asmOpcodes: []byte{
+			byte(0x3C + shift),
+			byte(0x97 + shift),
+		}, // #nosec G115 -- Native opcode variants fit in one byte.
 		labelStop:        scriptWords(0),
 		positionFallback: true,
 		textOffset:       4,
@@ -209,5 +220,6 @@ func (f Format) labelSearchEnd(raw []byte) bool {
 }
 
 func (f Format) scriptASM(raw []byte) bool {
-	return len(raw) == 8 && raw[f.scripts.asmOffset] == f.scripts.asmOpcode
+	return len(raw) == 8 &&
+		slices.Contains(f.scripts.asmOpcodes, raw[f.scripts.asmOffset])
 }

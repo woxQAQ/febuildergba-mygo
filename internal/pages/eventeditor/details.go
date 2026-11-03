@@ -78,7 +78,7 @@ func (page *Page) operands(
 			FontSize(12).
 			TextColor(c.Theme().TextMuted)
 	}
-	ui.Row(c).Wrap().Gap(16).Children(func() {
+	ui.Row(c).Wrap().Gap(8).Children(func() {
 		for _, field := range fields {
 			if field.Target == event.ScriptTextTarget {
 				continue

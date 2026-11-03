@@ -158,6 +158,32 @@ FE8J 的入口沿用固定旧版版本定义，并通过当前 FE8J 文件的记
 
 FE8J 入口与字段偏移另对照固定旧版定义，两版当前文件的 59 项目录、独立结局及静态调用均进行了有界读取；动态文件流程按能力验证事件参数修改及完整旁白场景的文本／头像替换、路线指令插入、整体搬迁、历史和保存重开。这些证据不替代日版／改版执行器的完整审核或游戏内开放路线、移动及触发验证。格式与编辑边界见[世界地图事件](reference/worldmap.md#事件目录与章节归属)。
 
+## FE6 世界地图演出来源
+
+旧版来源为固定子模块的 `WorldMapEventPointerFE6Form.cs`、`ROMFE6JP.cs` 与 `event_FE6.en.txt`。原生依据为 `StanHash/fe6@f9ea5f67f3f1048ca9836d7350077231ba54b589`：
+
+- [asm/code.s](https://github.com/StanHash/fe6/blob/f9ea5f67f3f1048ca9836d7350077231ba54b589/asm/code.s) 的 `StartWorldMapIntroScen` 从当前章节 +3B 取得索引，经独立字面量根 `0x9310C` 查 `ChapterAssets`，仅检查结果指针是否非零。索引 0 不是原生的禁用哨兵，不沿用旧版表单跳过零索引的发现规则。
+- [src/event.c](https://github.com/StanHash/fe6/blob/f9ea5f67f3f1048ca9836d7350077231ba54b589/src/event.c) 的 `sEventCmdInfoTable`、`EvtCmd_WmStart` 至 `EvtCmd_WmRemoveMapText` 核对 4D–63 的字数、直接文本字、坐标高位到 -1 的转换，以及头像的低半字／完整字差异。`WmMoveFace_OnLoop` 只修改 X；初始化 4D 的第二字没有消费。4A 的 `EvtCmd_DisableAutoClear` 为一字，4B 的 `EvtCmd_FuncOnSkip` 为两字 ASM 回调；保持只读边界。
+- [include/face.h](https://github.com/StanHash/fe6/blob/f9ea5f67f3f1048ca9836d7350077231ba54b589/include/face.h) 的 `FACE_SLOT_COUNT` 与事件头像配置为四槽。[asm/code.s](https://github.com/StanHash/fe6/blob/f9ea5f67f3f1048ca9836d7350077231ba54b589/asm/code.s) 的 `func_fe6_0809331C` 初始化旗帜四槽、圆点两槽、高亮两槽及图像标签两槽；各 Get／Set 函数核对偏移，不能把邻接内存当作额外槽位。
+- `func_fe6_080934BC` 以轨迹编号索引 12 字节记录，配色经过有符号坐标转换后传给箭头对象；不是像素坐标。`StartWMHighlight` 和 `func_fe6_080937D4` 核对区域图像索引；`StartWMMapText`、`func_fe6_08093C24` 的标签使用预绘图形。[data/data.s](https://github.com/StanHash/fe6/blob/f9ea5f67f3f1048ca9836d7350077231ba54b589/data/data.s) 中对应数组边界确认为 47 条轨迹、7 个区域、35 个标签。当前编辑保留箭头配色及标签方向／引线配置。
+- `func_fe6_080939F0` 和 `StartWMFlag` 确认配色只使用低四位；已有圆点的移动分支固定使用其原生参数，不消费新建时的配色操作数。事件处理函数中的实参次序与汇编消费为坐标、坐标、配色、槽位；不采纳 `unknown_funcs.h` 中相互矛盾的形参名称。
+
+动态 `worldmap-fe6-scenes` 流程按能力选择当前可读取的旁白、头像和缩放参数，核对精确字节、共享预览、撤销重做与保存重开；含回调的原版／翻译版场景仍不可搬迁。合成流程验证可重定位场景、索引 0 新建、混合 PLIST 交叉资源保护及失败原子性。未执行游戏内演出验证。格式见[FE6 章节演出](reference/worldmap.md#fe6-章节演出)。
+
+## FE7 世界地图演出来源
+
+旧版来源为固定子模块的 `WorldMapEventPointerFE7Form.cs`、`ROMFE7U.cs`、`ROMFE7JP.cs` 与 `bin/Debug/config/data/event_FE7.en.txt`。原生核对使用 `StanHash/fe7_us@5c8b3c5e254e00f0f3458b9772c27e1a5a326e3b`：
+
+- [asm/code.s](https://github.com/StanHash/fe7_us/blob/5c8b3c5e254e00f0f3458b9772c27e1a5a326e3b/asm/code.s) 的 `func_080B55E4` 按当前章节 +79 的事件 ID 索引目录。U 根为 `0xB561C`，J 根为 `0xB643C`；两版原生目录均为 45 项。U 原目录结束于 `0xC9CE58`，后续六个指针由 `func_0806DB94` 等单位调色板调用消费，不是脚本。旧版按连续指针扫描的终止规则不能作为新表长度依据。结局根 U 为 `0x12A94/0x12ADC`，J 为 `0x1314C/0x13194`。
+- [asm/event.s](https://github.com/StanHash/fe7_us/blob/5c8b3c5e254e00f0f3458b9772c27e1a5a326e3b/asm/event.s) 的 `EvtCmd_0800F36C`、`F3D4/F418`，`func_0800F560/F5B4/F61C`、`F65C/F67C/F69C`、`F6B8/F730` 与 `FAF0` 核对初始化、淡出／结束、头像、旁白、单位和滚动。U 分发表在 `0xB90E48`，J 在 `0xC00038`；U AC–C9 与 J AD–CA 的长度分别核对。对应处理函数在排除 BL 重定位与 PC 加载的地址字面量后，日美原版字节相同。特别是淡出 U AD／J AE 仅一字，不采纳旧版冲突的四字模式。
+- 同一 `asm/event.s` 的 `EvtCmd_OnSkipFunc`（U 99／J 97）设置跳过回调，长度两字；保留为只读 ASM，不跟踪为静态脚本调用。它允许后续指令边界继续解析，但不证明回调内的引用可重定位。
+- 同一 `asm/code.s` 的 `func_080B4310` 初始化五个对象记录，`func_080B4510` 消费四个头像槽；`func_080B4D4C/4E88` 的配置低半字对应位置、滑动、镜像和层级。`func_080B4904` 核对新建职业及调色板位；`func_080B4F9C` 保存镜头时长低半字，`func_080B565C/5760` 保存有符号 32 位延迟并在计数非正时执行。`func_080B4FE4` 接收直接文本编号并调用旁白流程。
+- 标记指令另核对同一 `asm/event.s` 的 `func_0800F770/F7B8/F804/F828/F9B0/FA30`：U B9–BE 与 J BA–BF 的原生长度为 4／3／1／2／5／2 字。U BB 立即清除全部高亮，U BC 启动淡出，第二字不消费但必须保留长度；旧版把 U BC／J BD 标为解除高亮的模板不能代表立即清除语义。六个日美原生处理函数在排除 BL 重定位后指令相同，圆点坐标的常数字面量也一致。
+- 同一 `asm/code.s` 的 `func_080B3918/39D8/3AFC/3B70/3BE8/3940` 确认高亮四槽、空槽创建、单个移除、立即全部清除与异步淡出。`func_080B39D8` 以 20 字节步长读取区域描述；U `0x5E99B4`、J 对应消费者 `0xB4810` 读取的 `0x622B38`，分别到独立的配色动画序列 `0x5E9A68`／`0x622BEC` 恰好各九项。后者由 U `func_080B4738`／J `0xB5558` 的复制操作确认用途，不能把相邻数据当作额外区域，只开放区域 0–8。日美对应消费者在排除 BL、ROM／RAM 地址字面量后相同。
+- `func_080B4310/4328/4738` 初始化并逐帧访问五个圆点记录；`func_080B4C60/4D14` 处理地点圆点的创建／重定位与移除，配色仅消费低四位，已有圆点不更新配色。它们与 U BF／C0 的另一组四槽对象不同，不能合并槽位或套用地图单位规则。`func_080B565C/5760` 的队列类型 2／3／5 分别调度高亮、移除高亮与地点圆点，延迟按有符号 32 位保存。
+
+动态文件流程按可用指令和资源选择场景，验证旁白及标记参数修改和历史／保存重开；合成样本另验证空入口和可重定位场景、目录重定向、字节保留与失败原子性。未执行游戏内演出验证。格式与操作见[FE7 世界地图演出](reference/worldmap.md#fe7-章节演出)。
+
 ## 职业移动与地形
 
 旧版入口为固定基线的 `ClassForm.cs`、`ClassFE6Form.cs`、`MoveCostForm.cs`、`MoveCostFE6Form.cs`；后两者分别声明 65 与 51 个地形项，职业页提供普通／雨雪移动和回避／防御／魔防指针。

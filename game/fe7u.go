@@ -113,17 +113,32 @@ func fe7uFormat() format {
 		events: event.Format{
 			Layout: event.FE7ULayout(),
 			Root:   0x315D4, Defeat: 0xCA749C, Rout: 0x08079FE9,
+			WorldMapEvents: event.WorldMapEventsFormat{
+				Tables: []event.WorldMapEventTable{
+					{
+						Pointer: 0xB561C,
+						Count:   45,
+						Source:  "script_worldmap_intro",
+					},
+				},
+				Endings: []event.WorldMapEventEnding{
+					{
+						Pointer: 0x12A94,
+						Source:  "script_worldmap_ending_eliwood",
+					},
+					{Pointer: 0x12ADC, Source: "script_worldmap_ending_hector"},
+				},
+			},
 		},
 		shops: shop.Format{DefaultPointer: 0xB04D4},
 		maps: maps.Format{
-			Graphics:    0x19230,
-			Palette:     0x19264,
-			Config:      0x191C8,
-			Layout:      0x3159C,
-			Animation:   0x2D364,
-			Animation2:  0x2DEA4,
-			Changes:     0x315B8,
-			WorldEvents: 0,
+			Graphics:   0x19230,
+			Palette:    0x19264,
+			Config:     0x191C8,
+			Layout:     0x3159C,
+			Animation:  0x2D364,
+			Animation2: 0x2DEA4,
+			Changes:    0x315B8,
 		},
 		text: text.Format{
 			Pointer:     0x12CB8,

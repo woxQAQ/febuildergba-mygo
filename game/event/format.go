@@ -85,9 +85,9 @@ func fe7Layout(scripts *scriptSet) Layout {
 	}
 }
 
-func FE7JLayout() Layout { return fe7Layout(fe7Scripts(0, 0xCC, fe7jInstructionWords)) }
+func FE7JLayout() Layout { return fe7Layout(fe7Scripts(0, 0xCC, 0xAD, fe7jInstructionWords)) }
 
-func FE7ULayout() Layout { return fe7Layout(fe7Scripts(2, 0xCB, fe7uInstructionWords)) }
+func FE7ULayout() Layout { return fe7Layout(fe7Scripts(2, 0xCB, 0xAC, fe7uInstructionWords)) }
 
 func FE6Layout() Layout {
 	return Layout{

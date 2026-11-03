@@ -13,6 +13,10 @@ func (s *Editor) mapSource() maps.Source {
 	return maps.Source{
 		Bindings: []maps.Binding{
 			{
+				Field: event.WorldMapEventField,
+				Root:  g.Events.WorldMapEvents.ChapterPLIST,
+			},
+			{
 				Field:    event.HeaderField,
 				Root:     g.Events.Root,
 				Length:   g.Events.HeaderSize(),
@@ -29,14 +33,12 @@ func (s *Editor) mapSource() maps.Source {
 	}
 }
 
-// mapProtection guards a map PLIST entry with every claimed resource. No map
-// claim declares the site, so any overlap conflicts; a map's own PLIST
-// siblings are checked by the maps package itself.
-func (s *Editor) mapProtection(data []byte, site int) error {
+// mapProtection authorizes the selected map resource under the session claims.
+func (s *Editor) mapProtection(data []byte, owner space.Owner, site int) error {
 	if err := s.format.protect(
 		data,
 		s.records,
-		space.Owner{Resource: "maps"},
+		owner,
 		site,
 	); err != nil {
 		return fault.New(

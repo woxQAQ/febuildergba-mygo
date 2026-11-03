@@ -140,16 +140,6 @@ func (f Format) bindings(extra []Binding) []Binding {
 		{Field: "tile_animation_2_id", Root: f.Animation2, Optional: true},
 		{Field: "map_changes_id", Root: f.Changes},
 	}
-	if f.WorldEvents != 0 {
-		bindings = append(
-			bindings,
-			Binding{
-				Field:    "world_map_events_id",
-				Root:     f.WorldEvents,
-				Optional: true,
-			},
-		)
-	}
 	return append(bindings, extra...)
 }
 
@@ -158,7 +148,11 @@ func (s *Editor) mapWriteSite(
 	site int,
 	field string,
 ) error {
-	if err := s.source.Protect(s.image.Data, site); err != nil {
+	if err := s.source.Protect(
+		s.image.Data,
+		resourceOwner(field, site),
+		site,
+	); err != nil {
 		return err
 	}
 	overlap := func(at, length int) bool { return at >= 0xC0 && length > 0 && site < at+length && at < site+4 }
@@ -168,6 +162,9 @@ func (s *Editor) mapWriteSite(
 	}
 	seen := make(map[[2]int]bool)
 	for _, binding := range format.bindings(s.source.Bindings) {
+		if binding.Root == 0 {
+			continue
+		}
 		if overlap(binding.Root, 4) {
 			return edit.ErrLayout
 		}

@@ -15,7 +15,6 @@ import (
 const (
 	WorldMapScripts    = -1
 	WorldMapEventField = "world_map_events_id"
-	WorldMapEventCount = 59
 )
 
 var ErrWorldMapEvents = fault.Code{
@@ -23,11 +22,23 @@ var ErrWorldMapEvents = fault.Code{
 	Kind: fault.InvalidData,
 }
 
-// WorldMapEventsFormat contains pointer sites, not table addresses. The opening
-// scene is beginning entry 1; the two endings have independent native callers.
+// WorldMapEventsFormat declares native directories and independent endings.
+// Pointer values are root sites, never the current table or script addresses.
 type WorldMapEventsFormat struct {
-	Beginning, Intro            int
-	EirikaEnding, EphraimEnding int
+	// ChapterPLIST resolves only entries referenced by the effective chapter table.
+	ChapterPLIST int
+	Tables       []WorldMapEventTable
+	Endings      []WorldMapEventEnding
+}
+
+type WorldMapEventTable struct {
+	Pointer, Count int
+	Source         string
+}
+
+type WorldMapEventEnding struct {
+	Pointer int
+	Source  string
 }
 
 type WorldMapEvent struct {
@@ -36,31 +47,26 @@ type WorldMapEvent struct {
 }
 
 func (s *Editor) WorldMapEventsAvailable() bool {
-	return s.format.WorldMapEvents.Beginning != 0 &&
-		s.format.WorldMapEvents.Intro != 0
+	return s.format.WorldMapEvents.ChapterPLIST != 0 ||
+		len(s.format.WorldMapEvents.Tables) != 0 ||
+		len(s.format.WorldMapEvents.Endings) != 0
 }
 
-func (f Format) worldMapEntries(data []byte) []ScriptEntry {
-	if f.WorldMapEvents.Beginning == 0 || f.WorldMapEvents.Intro == 0 {
-		return nil
-	}
-	var entries []ScriptEntry
-	for _, table := range []struct {
-		site   int
-		source string
-	}{
-		{f.WorldMapEvents.Beginning, "script_worldmap_beginning"},
-		{f.WorldMapEvents.Intro, "script_worldmap_intro"},
-	} {
-		base, ok := gba.Pointer(data, table.site)
+func (f Format) worldMapEntries(
+	data []byte,
+	chapters *records.Table,
+) []ScriptEntry {
+	entries := f.chapterWorldMapEntries(data, chapters)
+	for _, table := range f.WorldMapEvents.Tables {
+		base, ok := gba.Pointer(data, table.Pointer)
 		if !ok || base < 0xC0 || base%4 != 0 ||
-			!gba.Within(data, base, WorldMapEventCount*4) {
+			!gba.Within(data, base, table.Count*4) {
 			entries = append(
 				entries,
 				ScriptEntry{
 					Chapter:  WorldMapScripts,
-					Pointer:  table.site,
-					Source:   table.source,
+					Pointer:  table.Pointer,
+					Source:   table.Source,
 					WorldMap: true,
 					EventID:  -1,
 					Err:      ErrWorldMapEvents,
@@ -68,27 +74,79 @@ func (f Format) worldMapEntries(data []byte) []ScriptEntry {
 			)
 			continue
 		}
-		for id := range WorldMapEventCount {
-			entry := scriptEntry(data, WorldMapScripts, base+id*4, table.source)
+		for id := range table.Count {
+			entry := scriptEntry(data, WorldMapScripts, base+id*4, table.Source)
 			entry.WorldMap, entry.EventID = true, id
 			entries = append(entries, entry)
 		}
 	}
-	for _, ending := range []struct {
-		site   int
-		source string
-	}{
-		{f.WorldMapEvents.EirikaEnding, "script_worldmap_ending_eirika"},
-		{f.WorldMapEvents.EphraimEnding, "script_worldmap_ending_ephraim"},
-	} {
-		if ending.site == 0 {
-			continue
-		}
-		entry := scriptEntry(data, WorldMapScripts, ending.site, ending.source)
+	for _, ending := range f.WorldMapEvents.Endings {
+		entry := scriptEntry(
+			data,
+			WorldMapScripts,
+			ending.Pointer,
+			ending.Source,
+		)
 		entry.EventID = -1
 		entries = append(entries, entry)
 	}
 	return entries
+}
+
+// A chapter PLIST also contains unrelated graphics and maps. Only explicit
+// chapter references establish script sites; even ID zero may contain a script.
+func (f Format) chapterWorldMapEntries(
+	data []byte,
+	chapters *records.Table,
+) []ScriptEntry {
+	root := f.WorldMapEvents.ChapterPLIST
+	if root == 0 {
+		return nil
+	}
+	invalid := []ScriptEntry{
+		{
+			Chapter:  WorldMapScripts,
+			Pointer:  root,
+			Source:   "script_worldmap_intro",
+			WorldMap: true,
+			EventID:  -1,
+			Err:      ErrWorldMapEvents,
+		},
+	}
+	if chapters == nil || chapters.Err != nil {
+		return invalid
+	}
+	base, ok := gba.Pointer(data, root)
+	if !ok || base < 0xC0 || base%4 != 0 {
+		return invalid
+	}
+	for _, field := range chapters.Fields {
+		if field.ID != WorldMapEventField {
+			continue
+		}
+		var entries []ScriptEntry
+		seen := make(map[int]bool)
+		for _, row := range chapters.Rows {
+			id := int(field.Value(data, row.Address))
+			if id < 0 || id > 255 {
+				return invalid
+			}
+			if seen[id] {
+				continue
+			}
+			seen[id] = true
+			entry := scriptEntry(
+				data,
+				WorldMapScripts,
+				base+id*4,
+				"script_worldmap_intro",
+			)
+			entry.WorldMap, entry.EventID = true, id
+			entries = append(entries, entry)
+		}
+		return entries
+	}
+	return invalid
 }
 
 func (s *Editor) WorldMapEvents() ([]WorldMapEvent, error) {
@@ -99,7 +157,10 @@ func (s *Editor) WorldMapEvents() ([]WorldMapEvent, error) {
 	if !s.WorldMapEventsAvailable() {
 		return nil, edit.ErrField
 	}
-	entries := format.worldMapEntries(s.image.Data)
+	entries := format.worldMapEntries(
+		s.image.Data,
+		s.records.Table(records.Chapters),
+	)
 	var result []WorldMapEvent
 	table := s.records.Table(records.Chapters)
 	for _, entry := range entries {
@@ -125,12 +186,25 @@ func (s *Editor) WorldMapEvents() ([]WorldMapEvent, error) {
 
 // WorldMapClaims protects native directories even without a readable chapter
 // table. Calls and decoded payloads share the ordinary event-script ownership.
-func (f Format) WorldMapClaims(data []byte) []space.Claim {
-	if f.WorldMapEvents.Beginning == 0 || f.WorldMapEvents.Intro == 0 {
-		return nil
-	}
+func (f Format) WorldMapClaims(
+	data []byte,
+	chapters *records.Table,
+) []space.Claim {
 	var claims []space.Claim
-	for _, site := range []int{f.WorldMapEvents.Beginning, f.WorldMapEvents.Intro} {
+	if site := f.WorldMapEvents.ChapterPLIST; site >= 0xC0 &&
+		gba.Within(data, site, 4) {
+		claims = append(
+			claims,
+			space.Claim{
+				Start: site,
+				End:   site + 4,
+				Owner: space.Owner{Resource: "event.worldmap_root", ID: site},
+				Site:  true,
+			},
+		)
+	}
+	for _, table := range f.WorldMapEvents.Tables {
+		site := table.Pointer
 		if site >= 0xC0 && gba.Within(data, site, 4) {
 			owner := space.Owner{Resource: "event.worldmap_root", ID: site}
 			claims = append(
@@ -144,20 +218,20 @@ func (f Format) WorldMapClaims(data []byte) []space.Claim {
 			)
 			base, ok := gba.Pointer(data, site)
 			if ok && base >= 0xC0 &&
-				(base%4 != 0 || !gba.Within(data, base, WorldMapEventCount*4)) &&
+				(base%4 != 0 || !gba.Within(data, base, table.Count*4)) &&
 				base < len(data) {
 				claims = append(
 					claims,
 					space.Claim{
 						Start: base,
-						End:   min(base+WorldMapEventCount*4, len(data)),
+						End:   min(base+table.Count*4, len(data)),
 						Owner: owner,
 					},
 				)
 			}
 		}
 	}
-	entries := f.worldMapEntries(data)
+	entries := f.worldMapEntries(data, chapters)
 	index := f.indexScripts(data, entries)
 	for _, entry := range index.entries {
 		if entry.Pointer < 0xC0 || !gba.Within(data, entry.Pointer, 4) {

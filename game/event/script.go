@@ -172,7 +172,10 @@ func (s *Editor) scriptIndex(chapter int) (scriptIndex, error) {
 		}
 		result := format.indexScripts(
 			s.image.Data,
-			format.worldMapEntries(s.image.Data),
+			format.worldMapEntries(
+				s.image.Data,
+				s.records.Table(records.Chapters),
+			),
 		)
 		result.binding = s.context.Bind(s.image.Revision)
 		if s.scriptIndexes == nil {
@@ -189,14 +192,41 @@ func (s *Editor) scriptIndex(chapter int) (scriptIndex, error) {
 	if err != nil {
 		return scriptIndex{}, err
 	}
+	var entries []ScriptEntry
+	if s.WorldMapEventsAvailable() {
+		_, chapterRow, eventField, resolveErr := s.records.Resolve(
+			records.Chapters,
+			chapter,
+			WorldMapEventField,
+		)
+		if resolveErr == nil {
+			id := int(eventField.Value(s.image.Data, chapterRow.Address))
+			for _, entry := range format.worldMapEntries(s.image.Data, s.records.Table(records.Chapters)) {
+				if entry.WorldMap && entry.EventID == id {
+					entry.Chapter = chapter
+					entries = append(entries, entry)
+				}
+			}
+		}
+	}
 	header, err := format.eventHeader(
 		s.image.Data,
 		s.image.Data[row.Address+field.Offset],
 	)
 	if err != nil {
-		return scriptIndex{}, err
+		if len(entries) == 0 {
+			return scriptIndex{}, err
+		}
+		entries = append(
+			entries,
+			ScriptEntry{
+				Chapter: chapter,
+				Pointer: format.Root,
+				Source:  "script_chapter_events",
+				Err:     err,
+			},
+		)
 	}
-	var entries []ScriptEntry
 	add := func(site int, source string) {
 		if !gba.Within(s.image.Data, site, 4) ||
 			gba.Uint32(s.image.Data, site) == 1 {
@@ -207,37 +237,23 @@ func (s *Editor) scriptIndex(chapter int) (scriptIndex, error) {
 			scriptEntry(s.image.Data, chapter, site, source),
 		)
 	}
-	if format.opening >= 0 {
-		add(header+format.opening, "script_opening")
-	}
-	add(header+format.ending, "script_ending")
-	for _, table := range eventTables {
-		conditions, readErr := format.readEvents(
-			s.image.Data,
-			header+table.offset(),
-			table,
-		)
-		if readErr != nil {
-			continue
+	if err == nil {
+		if format.opening >= 0 {
+			add(header+format.opening, "script_opening")
 		}
-		for _, condition := range conditions.Events {
-			if condition.OperandKind == ConditionScript {
-				add(condition.Address+4, condition.source(table))
+		add(header+format.ending, "script_ending")
+		for _, table := range eventTables {
+			conditions, readErr := format.readEvents(
+				s.image.Data,
+				header+table.offset(),
+				table,
+			)
+			if readErr != nil {
+				continue
 			}
-		}
-	}
-	if s.WorldMapEventsAvailable() {
-		_, chapterRow, eventField, resolveErr := s.records.Resolve(
-			records.Chapters,
-			chapter,
-			WorldMapEventField,
-		)
-		if resolveErr == nil {
-			id := int(eventField.Value(s.image.Data, chapterRow.Address))
-			for _, entry := range format.worldMapEntries(s.image.Data) {
-				if entry.WorldMap && entry.EventID == id {
-					entry.Chapter = chapter
-					entries = append(entries, entry)
+			for _, condition := range conditions.Events {
+				if condition.OperandKind == ConditionScript {
+					add(condition.Address+4, condition.source(table))
 				}
 			}
 		}

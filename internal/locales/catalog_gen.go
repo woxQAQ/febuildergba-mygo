@@ -34,6 +34,500 @@ type Messages struct{ locale string }
 // source language.
 func In(locale string) Messages { return Messages{locale} }
 
+// ScriptWmFadeHighlights says "Fade out all world-map highlights"
+// in the language the app shows.
+func ScriptWmFadeHighlights() string { return In(i18n.Locale()).ScriptWmFadeHighlights() }
+
+// ScriptWmFadeHighlights says "Fade out all world-map highlights"
+// in the language of msgs.
+func (msgs Messages) ScriptWmFadeHighlights() string {
+	return Catalog.Format(msgs.locale, "script_wm_fade_highlights", nil)
+}
+
+// ScriptWmRegion says "Region ID"
+// in the language the app shows.
+func ScriptWmRegion() string { return In(i18n.Locale()).ScriptWmRegion() }
+
+// ScriptWmRegion says "Region ID"
+// in the language of msgs.
+func (msgs Messages) ScriptWmRegion() string {
+	return Catalog.Format(msgs.locale, "script_wm_region", nil)
+}
+
+// ScriptFe7WmHighlightSlotHelp says "FE7 region highlights use slots 0–3, separate from sprites and dots."
+// in the language the app shows.
+func ScriptFe7WmHighlightSlotHelp() string { return In(i18n.Locale()).ScriptFe7WmHighlightSlotHelp() }
+
+// ScriptFe7WmHighlightSlotHelp says "FE7 region highlights use slots 0–3, separate from sprites and dots."
+// in the language of msgs.
+func (msgs Messages) ScriptFe7WmHighlightSlotHelp() string {
+	return Catalog.Format(msgs.locale, "script_fe7_wm_highlight_slot_help", nil)
+}
+
+// ScriptFe7WmDotSlotHelp says "FE7 location dots use slots 0–4, separate from sprites and region highlights."
+// in the language the app shows.
+func ScriptFe7WmDotSlotHelp() string { return In(i18n.Locale()).ScriptFe7WmDotSlotHelp() }
+
+// ScriptFe7WmDotSlotHelp says "FE7 location dots use slots 0–4, separate from sprites and region highlights."
+// in the language of msgs.
+func (msgs Messages) ScriptFe7WmDotSlotHelp() string {
+	return Catalog.Format(msgs.locale, "script_fe7_wm_dot_slot_help", nil)
+}
+
+// ScriptFe7WmRegionHelp says "Choose one of the nine native region graphics, 0–8. These are separate from chapter and text IDs."
+// in the language the app shows.
+func ScriptFe7WmRegionHelp() string { return In(i18n.Locale()).ScriptFe7WmRegionHelp() }
+
+// ScriptFe7WmRegionHelp says "Choose one of the nine native region graphics, 0–8. These are separate from chapter and text IDs."
+// in the language of msgs.
+func (msgs Messages) ScriptFe7WmRegionHelp() string {
+	return Catalog.Format(msgs.locale, "script_fe7_wm_region_help", nil)
+}
+
+// ScriptFe7WmHighlightHelp says "Highlight region 0–8 in slot 0–3, with an optional delay. An occupied slot keeps its current region. The editor d…"
+// in the language the app shows.
+func ScriptFe7WmHighlightHelp() string { return In(i18n.Locale()).ScriptFe7WmHighlightHelp() }
+
+// ScriptFe7WmHighlightHelp says "Highlight region 0–8 in slot 0–3, with an optional delay. An occupied slot keeps its current region. The editor d…"
+// in the language of msgs.
+func (msgs Messages) ScriptFe7WmHighlightHelp() string {
+	return Catalog.Format(msgs.locale, "script_fe7_wm_highlight_help", nil)
+}
+
+// ScriptFe7WmClearHighlightHelp says "Remove the region highlight in slot 0–3, with an optional delay."
+// in the language the app shows.
+func ScriptFe7WmClearHighlightHelp() string { return In(i18n.Locale()).ScriptFe7WmClearHighlightHelp() }
+
+// ScriptFe7WmClearHighlightHelp says "Remove the region highlight in slot 0–3, with an optional delay."
+// in the language of msgs.
+func (msgs Messages) ScriptFe7WmClearHighlightHelp() string {
+	return Catalog.Format(msgs.locale, "script_fe7_wm_clear_highlight_help", nil)
+}
+
+// ScriptFe7WmClearHighlightsHelp says "Immediately remove all four region highlights."
+// in the language the app shows.
+func ScriptFe7WmClearHighlightsHelp() string {
+	return In(i18n.Locale()).ScriptFe7WmClearHighlightsHelp()
+}
+
+// ScriptFe7WmClearHighlightsHelp says "Immediately remove all four region highlights."
+// in the language of msgs.
+func (msgs Messages) ScriptFe7WmClearHighlightsHelp() string {
+	return Catalog.Format(msgs.locale, "script_fe7_wm_clear_highlights_help", nil)
+}
+
+// ScriptFe7WmFadeHighlightsHelp says "Start fading out all region highlights. Subsequent commands continue without waiting for the fade."
+// in the language the app shows.
+func ScriptFe7WmFadeHighlightsHelp() string { return In(i18n.Locale()).ScriptFe7WmFadeHighlightsHelp() }
+
+// ScriptFe7WmFadeHighlightsHelp says "Start fading out all region highlights. Subsequent commands continue without waiting for the fade."
+// in the language of msgs.
+func (msgs Messages) ScriptFe7WmFadeHighlightsHelp() string {
+	return Catalog.Format(msgs.locale, "script_fe7_wm_fade_highlights_help", nil)
+}
+
+// ScriptFe7WmDotPaletteHelp says "Palette bank 0–15 applies only when creating a dot. An existing dot keeps its palette."
+// in the language the app shows.
+func ScriptFe7WmDotPaletteHelp() string { return In(i18n.Locale()).ScriptFe7WmDotPaletteHelp() }
+
+// ScriptFe7WmDotPaletteHelp says "Palette bank 0–15 applies only when creating a dot. An existing dot keeps its palette."
+// in the language of msgs.
+func (msgs Messages) ScriptFe7WmDotPaletteHelp() string {
+	return Catalog.Format(msgs.locale, "script_fe7_wm_dot_palette_help", nil)
+}
+
+// ScriptFe7WmDotHelp says "Place or reposition a location dot in slot 0–4, with pixel coordinates and an optional delay. Existing dots keep th…"
+// in the language the app shows.
+func ScriptFe7WmDotHelp() string { return In(i18n.Locale()).ScriptFe7WmDotHelp() }
+
+// ScriptFe7WmDotHelp says "Place or reposition a location dot in slot 0–4, with pixel coordinates and an optional delay. Existing dots keep th…"
+// in the language of msgs.
+func (msgs Messages) ScriptFe7WmDotHelp() string {
+	return Catalog.Format(msgs.locale, "script_fe7_wm_dot_help", nil)
+}
+
+// ScriptFe7WmClearDotHelp says "Immediately remove the location dot in slot 0–4. An empty slot has no effect."
+// in the language the app shows.
+func ScriptFe7WmClearDotHelp() string { return In(i18n.Locale()).ScriptFe7WmClearDotHelp() }
+
+// ScriptFe7WmClearDotHelp says "Immediately remove the location dot in slot 0–4. An empty slot has no effect."
+// in the language of msgs.
+func (msgs Messages) ScriptFe7WmClearDotHelp() string {
+	return Catalog.Format(msgs.locale, "script_fe7_wm_clear_dot_help", nil)
+}
+
+// ScriptWmFaceY says "Portrait Y"
+// in the language the app shows.
+func ScriptWmFaceY() string { return In(i18n.Locale()).ScriptWmFaceY() }
+
+// ScriptWmFaceY says "Portrait Y"
+// in the language of msgs.
+func (msgs Messages) ScriptWmFaceY() string {
+	return Catalog.Format(msgs.locale, "script_wm_face_y", nil)
+}
+
+// ScriptChapterEvents says "Chapter event directory"
+// in the language the app shows.
+func ScriptChapterEvents() string { return In(i18n.Locale()).ScriptChapterEvents() }
+
+// ScriptChapterEvents says "Chapter event directory"
+// in the language of msgs.
+func (msgs Messages) ScriptChapterEvents() string {
+	return Catalog.Format(msgs.locale, "script_chapter_events", nil)
+}
+
+// ScriptWmZoomTo says "Zoom into world-map region"
+// in the language the app shows.
+func ScriptWmZoomTo() string { return In(i18n.Locale()).ScriptWmZoomTo() }
+
+// ScriptWmZoomTo says "Zoom into world-map region"
+// in the language of msgs.
+func (msgs Messages) ScriptWmZoomTo() string {
+	return Catalog.Format(msgs.locale, "script_wm_zoom_to", nil)
+}
+
+// ScriptWmZoomBack says "Restore world-map overview"
+// in the language the app shows.
+func ScriptWmZoomBack() string { return In(i18n.Locale()).ScriptWmZoomBack() }
+
+// ScriptWmZoomBack says "Restore world-map overview"
+// in the language of msgs.
+func (msgs Messages) ScriptWmZoomBack() string {
+	return Catalog.Format(msgs.locale, "script_wm_zoom_back", nil)
+}
+
+// ScriptWmMovePortrait says "Move world-map portrait"
+// in the language the app shows.
+func ScriptWmMovePortrait() string { return In(i18n.Locale()).ScriptWmMovePortrait() }
+
+// ScriptWmMovePortrait says "Move world-map portrait"
+// in the language of msgs.
+func (msgs Messages) ScriptWmMovePortrait() string {
+	return Catalog.Format(msgs.locale, "script_wm_move_portrait", nil)
+}
+
+// ScriptWmArrow says "Show world-map arrow"
+// in the language the app shows.
+func ScriptWmArrow() string { return In(i18n.Locale()).ScriptWmArrow() }
+
+// ScriptWmArrow says "Show world-map arrow"
+// in the language of msgs.
+func (msgs Messages) ScriptWmArrow() string {
+	return Catalog.Format(msgs.locale, "script_wm_arrow", nil)
+}
+
+// ScriptWmHighlight says "Highlight world-map region"
+// in the language the app shows.
+func ScriptWmHighlight() string { return In(i18n.Locale()).ScriptWmHighlight() }
+
+// ScriptWmHighlight says "Highlight world-map region"
+// in the language of msgs.
+func (msgs Messages) ScriptWmHighlight() string {
+	return Catalog.Format(msgs.locale, "script_wm_highlight", nil)
+}
+
+// ScriptWmClearHighlight says "Remove world-map highlight"
+// in the language the app shows.
+func ScriptWmClearHighlight() string { return In(i18n.Locale()).ScriptWmClearHighlight() }
+
+// ScriptWmClearHighlight says "Remove world-map highlight"
+// in the language of msgs.
+func (msgs Messages) ScriptWmClearHighlight() string {
+	return Catalog.Format(msgs.locale, "script_wm_clear_highlight", nil)
+}
+
+// ScriptWmClearHighlights says "Remove all world-map highlights"
+// in the language the app shows.
+func ScriptWmClearHighlights() string { return In(i18n.Locale()).ScriptWmClearHighlights() }
+
+// ScriptWmClearHighlights says "Remove all world-map highlights"
+// in the language of msgs.
+func (msgs Messages) ScriptWmClearHighlights() string {
+	return Catalog.Format(msgs.locale, "script_wm_clear_highlights", nil)
+}
+
+// ScriptWmDot says "Place world-map dot"
+// in the language the app shows.
+func ScriptWmDot() string { return In(i18n.Locale()).ScriptWmDot() }
+
+// ScriptWmDot says "Place world-map dot"
+// in the language of msgs.
+func (msgs Messages) ScriptWmDot() string {
+	return Catalog.Format(msgs.locale, "script_wm_dot", nil)
+}
+
+// ScriptWmClearDot says "Remove world-map dot"
+// in the language the app shows.
+func ScriptWmClearDot() string { return In(i18n.Locale()).ScriptWmClearDot() }
+
+// ScriptWmClearDot says "Remove world-map dot"
+// in the language of msgs.
+func (msgs Messages) ScriptWmClearDot() string {
+	return Catalog.Format(msgs.locale, "script_wm_clear_dot", nil)
+}
+
+// ScriptWmFlag says "Place world-map flag"
+// in the language the app shows.
+func ScriptWmFlag() string { return In(i18n.Locale()).ScriptWmFlag() }
+
+// ScriptWmFlag says "Place world-map flag"
+// in the language of msgs.
+func (msgs Messages) ScriptWmFlag() string {
+	return Catalog.Format(msgs.locale, "script_wm_flag", nil)
+}
+
+// ScriptWmClearFlag says "Remove world-map flag"
+// in the language the app shows.
+func ScriptWmClearFlag() string { return In(i18n.Locale()).ScriptWmClearFlag() }
+
+// ScriptWmClearFlag says "Remove world-map flag"
+// in the language of msgs.
+func (msgs Messages) ScriptWmClearFlag() string {
+	return Catalog.Format(msgs.locale, "script_wm_clear_flag", nil)
+}
+
+// ScriptWmMapLabel says "Place world-map image label"
+// in the language the app shows.
+func ScriptWmMapLabel() string { return In(i18n.Locale()).ScriptWmMapLabel() }
+
+// ScriptWmMapLabel says "Place world-map image label"
+// in the language of msgs.
+func (msgs Messages) ScriptWmMapLabel() string {
+	return Catalog.Format(msgs.locale, "script_wm_map_label", nil)
+}
+
+// ScriptWmClearMapLabel says "Remove world-map image label"
+// in the language the app shows.
+func ScriptWmClearMapLabel() string { return In(i18n.Locale()).ScriptWmClearMapLabel() }
+
+// ScriptWmClearMapLabel says "Remove world-map image label"
+// in the language of msgs.
+func (msgs Messages) ScriptWmClearMapLabel() string {
+	return Catalog.Format(msgs.locale, "script_wm_clear_map_label", nil)
+}
+
+// ScriptWmMarkerSlot says "Marker slot"
+// in the language the app shows.
+func ScriptWmMarkerSlot() string { return In(i18n.Locale()).ScriptWmMarkerSlot() }
+
+// ScriptWmMarkerSlot says "Marker slot"
+// in the language of msgs.
+func (msgs Messages) ScriptWmMarkerSlot() string {
+	return Catalog.Format(msgs.locale, "script_wm_marker_slot", nil)
+}
+
+// ScriptWmGraphicId says "Graphic ID"
+// in the language the app shows.
+func ScriptWmGraphicId() string { return In(i18n.Locale()).ScriptWmGraphicId() }
+
+// ScriptWmGraphicId says "Graphic ID"
+// in the language of msgs.
+func (msgs Messages) ScriptWmGraphicId() string {
+	return Catalog.Format(msgs.locale, "script_wm_graphic_id", nil)
+}
+
+// ScriptWmPaletteBank says "Palette bank"
+// in the language the app shows.
+func ScriptWmPaletteBank() string { return In(i18n.Locale()).ScriptWmPaletteBank() }
+
+// ScriptWmPaletteBank says "Palette bank"
+// in the language of msgs.
+func (msgs Messages) ScriptWmPaletteBank() string {
+	return Catalog.Format(msgs.locale, "script_wm_palette_bank", nil)
+}
+
+// ScriptFe6WmCoordinateHelp says "Pixel coordinates; enter -1 or 0–32767."
+// in the language the app shows.
+func ScriptFe6WmCoordinateHelp() string { return In(i18n.Locale()).ScriptFe6WmCoordinateHelp() }
+
+// ScriptFe6WmCoordinateHelp says "Pixel coordinates; enter -1 or 0–32767."
+// in the language of msgs.
+func (msgs Messages) ScriptFe6WmCoordinateHelp() string {
+	return Catalog.Format(msgs.locale, "script_fe6_wm_coordinate_help", nil)
+}
+
+// ScriptFe6WmInitHelp says "Initialize the FE6 world-map scene. The editor does not play it."
+// in the language the app shows.
+func ScriptFe6WmInitHelp() string { return In(i18n.Locale()).ScriptFe6WmInitHelp() }
+
+// ScriptFe6WmInitHelp says "Initialize the FE6 world-map scene. The editor does not play it."
+// in the language of msgs.
+func (msgs Messages) ScriptFe6WmInitHelp() string {
+	return Catalog.Format(msgs.locale, "script_fe6_wm_init_help", nil)
+}
+
+// ScriptFe6WmEndHelp says "Fade to black, then continue with subsequent commands. The script still needs an end command."
+// in the language the app shows.
+func ScriptFe6WmEndHelp() string { return In(i18n.Locale()).ScriptFe6WmEndHelp() }
+
+// ScriptFe6WmEndHelp says "Fade to black, then continue with subsequent commands. The script still needs an end command."
+// in the language of msgs.
+func (msgs Messages) ScriptFe6WmEndHelp() string {
+	return Catalog.Format(msgs.locale, "script_fe6_wm_end_help", nil)
+}
+
+// ScriptFe6WmZoomHelp says "Coordinates are offsets from screen center (120, 80). Wait for the zoom to finish."
+// in the language the app shows.
+func ScriptFe6WmZoomHelp() string { return In(i18n.Locale()).ScriptFe6WmZoomHelp() }
+
+// ScriptFe6WmZoomHelp says "Coordinates are offsets from screen center (120, 80). Wait for the zoom to finish."
+// in the language of msgs.
+func (msgs Messages) ScriptFe6WmZoomHelp() string {
+	return Catalog.Format(msgs.locale, "script_fe6_wm_zoom_help", nil)
+}
+
+// ScriptFe6WmZoomBackHelp says "Restore the overview and wait for the zoom to finish."
+// in the language the app shows.
+func ScriptFe6WmZoomBackHelp() string { return In(i18n.Locale()).ScriptFe6WmZoomBackHelp() }
+
+// ScriptFe6WmZoomBackHelp says "Restore the overview and wait for the zoom to finish."
+// in the language of msgs.
+func (msgs Messages) ScriptFe6WmZoomBackHelp() string {
+	return Catalog.Format(msgs.locale, "script_fe6_wm_zoom_back_help", nil)
+}
+
+// ScriptFe6WmShowPortraitHelp says "Show a portrait in slot 0–3. Screen position determines the slide-in side."
+// in the language the app shows.
+func ScriptFe6WmShowPortraitHelp() string { return In(i18n.Locale()).ScriptFe6WmShowPortraitHelp() }
+
+// ScriptFe6WmShowPortraitHelp says "Show a portrait in slot 0–3. Screen position determines the slide-in side."
+// in the language of msgs.
+func (msgs Messages) ScriptFe6WmShowPortraitHelp() string {
+	return Catalog.Format(msgs.locale, "script_fe6_wm_show_portrait_help", nil)
+}
+
+// ScriptFe6WmClearPortraitHelp says "Remove the portrait in the selected slot. Its current position determines the exit side."
+// in the language the app shows.
+func ScriptFe6WmClearPortraitHelp() string { return In(i18n.Locale()).ScriptFe6WmClearPortraitHelp() }
+
+// ScriptFe6WmClearPortraitHelp says "Remove the portrait in the selected slot. Its current position determines the exit side."
+// in the language of msgs.
+func (msgs Messages) ScriptFe6WmClearPortraitHelp() string {
+	return Catalog.Format(msgs.locale, "script_fe6_wm_clear_portrait_help", nil)
+}
+
+// ScriptFe6WmMovePortraitHelp says "Move an existing portrait horizontally, keeping its Y position. The selected slot must contain a portrait."
+// in the language the app shows.
+func ScriptFe6WmMovePortraitHelp() string { return In(i18n.Locale()).ScriptFe6WmMovePortraitHelp() }
+
+// ScriptFe6WmMovePortraitHelp says "Move an existing portrait horizontally, keeping its Y position. The selected slot must contain a portrait."
+// in the language of msgs.
+func (msgs Messages) ScriptFe6WmMovePortraitHelp() string {
+	return Catalog.Format(msgs.locale, "script_fe6_wm_move_portrait_help", nil)
+}
+
+// ScriptFe6WmTextHelp says "Choose narration and wait for it to finish. Edit its content in the text editor."
+// in the language the app shows.
+func ScriptFe6WmTextHelp() string { return In(i18n.Locale()).ScriptFe6WmTextHelp() }
+
+// ScriptFe6WmTextHelp says "Choose narration and wait for it to finish. Edit its content in the text editor."
+// in the language of msgs.
+func (msgs Messages) ScriptFe6WmTextHelp() string {
+	return Catalog.Format(msgs.locale, "script_fe6_wm_text_help", nil)
+}
+
+// ScriptFe6WmArrowHelp says "Choose a preset arrow path (0–46), keeping its palette. The preview does not animate arrows."
+// in the language the app shows.
+func ScriptFe6WmArrowHelp() string { return In(i18n.Locale()).ScriptFe6WmArrowHelp() }
+
+// ScriptFe6WmArrowHelp says "Choose a preset arrow path (0–46), keeping its palette. The preview does not animate arrows."
+// in the language of msgs.
+func (msgs Messages) ScriptFe6WmArrowHelp() string {
+	return Catalog.Format(msgs.locale, "script_fe6_wm_arrow_help", nil)
+}
+
+// ScriptFe6WmHighlightHelp says "Choose region graphic 0–6 for highlight slot 0 or 1."
+// in the language the app shows.
+func ScriptFe6WmHighlightHelp() string { return In(i18n.Locale()).ScriptFe6WmHighlightHelp() }
+
+// ScriptFe6WmHighlightHelp says "Choose region graphic 0–6 for highlight slot 0 or 1."
+// in the language of msgs.
+func (msgs Messages) ScriptFe6WmHighlightHelp() string {
+	return Catalog.Format(msgs.locale, "script_fe6_wm_highlight_help", nil)
+}
+
+// ScriptFe6WmClearHighlightHelp says "Fade out the selected highlight and wait for removal."
+// in the language the app shows.
+func ScriptFe6WmClearHighlightHelp() string { return In(i18n.Locale()).ScriptFe6WmClearHighlightHelp() }
+
+// ScriptFe6WmClearHighlightHelp says "Fade out the selected highlight and wait for removal."
+// in the language of msgs.
+func (msgs Messages) ScriptFe6WmClearHighlightHelp() string {
+	return Catalog.Format(msgs.locale, "script_fe6_wm_clear_highlight_help", nil)
+}
+
+// ScriptFe6WmClearHighlightsHelp says "Fade out highlight slots 0 and 1 and wait for removal."
+// in the language the app shows.
+func ScriptFe6WmClearHighlightsHelp() string {
+	return In(i18n.Locale()).ScriptFe6WmClearHighlightsHelp()
+}
+
+// ScriptFe6WmClearHighlightsHelp says "Fade out highlight slots 0 and 1 and wait for removal."
+// in the language of msgs.
+func (msgs Messages) ScriptFe6WmClearHighlightsHelp() string {
+	return Catalog.Format(msgs.locale, "script_fe6_wm_clear_highlights_help", nil)
+}
+
+// ScriptFe6WmDotHelp says "Dots use slots 0 and 1. The palette applies only to new dots; moving an existing dot keeps its palette."
+// in the language the app shows.
+func ScriptFe6WmDotHelp() string { return In(i18n.Locale()).ScriptFe6WmDotHelp() }
+
+// ScriptFe6WmDotHelp says "Dots use slots 0 and 1. The palette applies only to new dots; moving an existing dot keeps its palette."
+// in the language of msgs.
+func (msgs Messages) ScriptFe6WmDotHelp() string {
+	return Catalog.Format(msgs.locale, "script_fe6_wm_dot_help", nil)
+}
+
+// ScriptFe6WmClearDotHelp says "Remove the selected dot; an empty slot has no effect."
+// in the language the app shows.
+func ScriptFe6WmClearDotHelp() string { return In(i18n.Locale()).ScriptFe6WmClearDotHelp() }
+
+// ScriptFe6WmClearDotHelp says "Remove the selected dot; an empty slot has no effect."
+// in the language of msgs.
+func (msgs Messages) ScriptFe6WmClearDotHelp() string {
+	return Catalog.Format(msgs.locale, "script_fe6_wm_clear_dot_help", nil)
+}
+
+// ScriptFe6WmFlagHelp says "Flags use slots 0–3, with position and palette bank (0–15) settings."
+// in the language the app shows.
+func ScriptFe6WmFlagHelp() string { return In(i18n.Locale()).ScriptFe6WmFlagHelp() }
+
+// ScriptFe6WmFlagHelp says "Flags use slots 0–3, with position and palette bank (0–15) settings."
+// in the language of msgs.
+func (msgs Messages) ScriptFe6WmFlagHelp() string {
+	return Catalog.Format(msgs.locale, "script_fe6_wm_flag_help", nil)
+}
+
+// ScriptFe6WmClearFlagHelp says "Remove the selected flag; an empty slot has no effect."
+// in the language the app shows.
+func ScriptFe6WmClearFlagHelp() string { return In(i18n.Locale()).ScriptFe6WmClearFlagHelp() }
+
+// ScriptFe6WmClearFlagHelp says "Remove the selected flag; an empty slot has no effect."
+// in the language of msgs.
+func (msgs Messages) ScriptFe6WmClearFlagHelp() string {
+	return Catalog.Format(msgs.locale, "script_fe6_wm_clear_flag_help", nil)
+}
+
+// ScriptFe6WmMapLabelHelp says "Show a prerendered label graphic (0–34) in slot 0 or 1. Graphic numbers do not refer to text IDs."
+// in the language the app shows.
+func ScriptFe6WmMapLabelHelp() string { return In(i18n.Locale()).ScriptFe6WmMapLabelHelp() }
+
+// ScriptFe6WmMapLabelHelp says "Show a prerendered label graphic (0–34) in slot 0 or 1. Graphic numbers do not refer to text IDs."
+// in the language of msgs.
+func (msgs Messages) ScriptFe6WmMapLabelHelp() string {
+	return Catalog.Format(msgs.locale, "script_fe6_wm_map_label_help", nil)
+}
+
+// ScriptFe6WmClearMapLabelHelp says "Start removing the selected image label."
+// in the language the app shows.
+func ScriptFe6WmClearMapLabelHelp() string { return In(i18n.Locale()).ScriptFe6WmClearMapLabelHelp() }
+
+// ScriptFe6WmClearMapLabelHelp says "Start removing the selected image label."
+// in the language of msgs.
+func (msgs Messages) ScriptFe6WmClearMapLabelHelp() string {
+	return Catalog.Format(msgs.locale, "script_fe6_wm_clear_map_label_help", nil)
+}
+
 // Worldmap says "World map"
 // in the language the app shows.
 func Worldmap() string { return In(i18n.Locale()).Worldmap() }
@@ -3236,6 +3730,16 @@ func ScriptNewCommand() string { return In(i18n.Locale()).ScriptNewCommand() }
 // in the language of msgs.
 func (msgs Messages) ScriptNewCommand() string {
 	return Catalog.Format(msgs.locale, "script_new_command", nil)
+}
+
+// ScriptStructure says "Add, remove and reorder"
+// in the language the app shows.
+func ScriptStructure() string { return In(i18n.Locale()).ScriptStructure() }
+
+// ScriptStructure says "Add, remove and reorder"
+// in the language of msgs.
+func (msgs Messages) ScriptStructure() string {
+	return Catalog.Format(msgs.locale, "script_structure", nil)
 }
 
 // ScriptInsert says "Insert above"
@@ -15622,6 +16126,196 @@ func ScriptWorldmapIntro() string { return In(i18n.Locale()).ScriptWorldmapIntro
 // in the language of msgs.
 func (msgs Messages) ScriptWorldmapIntro() string {
 	return Catalog.Format(msgs.locale, "script_worldmap_intro", nil)
+}
+
+// ScriptWorldmapEndingEliwood says "Eliwood ending"
+// in the language the app shows.
+func ScriptWorldmapEndingEliwood() string { return In(i18n.Locale()).ScriptWorldmapEndingEliwood() }
+
+// ScriptWorldmapEndingEliwood says "Eliwood ending"
+// in the language of msgs.
+func (msgs Messages) ScriptWorldmapEndingEliwood() string {
+	return Catalog.Format(msgs.locale, "script_worldmap_ending_eliwood", nil)
+}
+
+// ScriptWorldmapEndingHector says "Hector ending"
+// in the language the app shows.
+func ScriptWorldmapEndingHector() string { return In(i18n.Locale()).ScriptWorldmapEndingHector() }
+
+// ScriptWorldmapEndingHector says "Hector ending"
+// in the language of msgs.
+func (msgs Messages) ScriptWorldmapEndingHector() string {
+	return Catalog.Format(msgs.locale, "script_worldmap_ending_hector", nil)
+}
+
+// ScriptWmMapMode says "Map display mode"
+// in the language the app shows.
+func ScriptWmMapMode() string { return In(i18n.Locale()).ScriptWmMapMode() }
+
+// ScriptWmMapMode says "Map display mode"
+// in the language of msgs.
+func (msgs Messages) ScriptWmMapMode() string {
+	return Catalog.Format(msgs.locale, "script_wm_map_mode", nil)
+}
+
+// ScriptWmPutSprite says "Place or move world-map sprite"
+// in the language the app shows.
+func ScriptWmPutSprite() string { return In(i18n.Locale()).ScriptWmPutSprite() }
+
+// ScriptWmPutSprite says "Place or move world-map sprite"
+// in the language of msgs.
+func (msgs Messages) ScriptWmPutSprite() string {
+	return Catalog.Format(msgs.locale, "script_wm_put_sprite", nil)
+}
+
+// ScriptFe7WmCoordinateHelp says "World-map pixel coordinates; enter -1 or 0–32767."
+// in the language the app shows.
+func ScriptFe7WmCoordinateHelp() string { return In(i18n.Locale()).ScriptFe7WmCoordinateHelp() }
+
+// ScriptFe7WmCoordinateHelp says "World-map pixel coordinates; enter -1 or 0–32767."
+// in the language of msgs.
+func (msgs Messages) ScriptFe7WmCoordinateHelp() string {
+	return Catalog.Format(msgs.locale, "script_fe7_wm_coordinate_help", nil)
+}
+
+// ScriptFe7WmDelayHelp says "Zero executes immediately; nonzero values enter the delay queue. Positive values count down in frames; negative value…"
+// in the language the app shows.
+func ScriptFe7WmDelayHelp() string { return In(i18n.Locale()).ScriptFe7WmDelayHelp() }
+
+// ScriptFe7WmDelayHelp says "Zero executes immediately; nonzero values enter the delay queue. Positive values count down in frames; negative value…"
+// in the language of msgs.
+func (msgs Messages) ScriptFe7WmDelayHelp() string {
+	return Catalog.Format(msgs.locale, "script_fe7_wm_delay_help", nil)
+}
+
+// ScriptFe7WmFaceSlotHelp says "FE7 world maps provide four portrait slots, 0–3."
+// in the language the app shows.
+func ScriptFe7WmFaceSlotHelp() string { return In(i18n.Locale()).ScriptFe7WmFaceSlotHelp() }
+
+// ScriptFe7WmFaceSlotHelp says "FE7 world maps provide four portrait slots, 0–3."
+// in the language of msgs.
+func (msgs Messages) ScriptFe7WmFaceSlotHelp() string {
+	return Catalog.Format(msgs.locale, "script_fe7_wm_face_slot_help", nil)
+}
+
+// ScriptFe7WmClearSlideHelp says "0 leaves the direction unset, 1 slides left, 2 right, and 3 sets both direction flags."
+// in the language the app shows.
+func ScriptFe7WmClearSlideHelp() string { return In(i18n.Locale()).ScriptFe7WmClearSlideHelp() }
+
+// ScriptFe7WmClearSlideHelp says "0 leaves the direction unset, 1 slides left, 2 right, and 3 sets both direction flags."
+// in the language of msgs.
+func (msgs Messages) ScriptFe7WmClearSlideHelp() string {
+	return Catalog.Format(msgs.locale, "script_fe7_wm_clear_slide_help", nil)
+}
+
+// ScriptFe7WmTextHelp says "References an existing text and waits for narration. Top/bottom commands select its position; edit the text body in t…"
+// in the language the app shows.
+func ScriptFe7WmTextHelp() string { return In(i18n.Locale()).ScriptFe7WmTextHelp() }
+
+// ScriptFe7WmTextHelp says "References an existing text and waits for narration. Top/bottom commands select its position; edit the text body in t…"
+// in the language of msgs.
+func (msgs Messages) ScriptFe7WmTextHelp() string {
+	return Catalog.Format(msgs.locale, "script_fe7_wm_text_help", nil)
+}
+
+// ScriptFe7WmInitHelp says "Show the FE7 world map. Mode 0 is the overview; mode 1 is enlarged and uses the coordinates. New commands fade in by …"
+// in the language the app shows.
+func ScriptFe7WmInitHelp() string { return In(i18n.Locale()).ScriptFe7WmInitHelp() }
+
+// ScriptFe7WmInitHelp says "Show the FE7 world map. Mode 0 is the overview; mode 1 is enlarged and uses the coordinates. New commands fade in by …"
+// in the language of msgs.
+func (msgs Messages) ScriptFe7WmInitHelp() string {
+	return Catalog.Format(msgs.locale, "script_fe7_wm_init_help", nil)
+}
+
+// ScriptFe7WmShowPortraitHelp says "Show a portrait in slot 0–3. An occupied slot does not create another portrait. The preview shows only the source p…"
+// in the language the app shows.
+func ScriptFe7WmShowPortraitHelp() string { return In(i18n.Locale()).ScriptFe7WmShowPortraitHelp() }
+
+// ScriptFe7WmShowPortraitHelp says "Show a portrait in slot 0–3. An occupied slot does not create another portrait. The preview shows only the source p…"
+// in the language of msgs.
+func (msgs Messages) ScriptFe7WmShowPortraitHelp() string {
+	return Catalog.Format(msgs.locale, "script_fe7_wm_show_portrait_help", nil)
+}
+
+// ScriptFe7WmClearPortraitHelp says "Clears the selected FE7 world-map portrait with exit direction and delay options; event skipping clears it directly."
+// in the language the app shows.
+func ScriptFe7WmClearPortraitHelp() string { return In(i18n.Locale()).ScriptFe7WmClearPortraitHelp() }
+
+// ScriptFe7WmClearPortraitHelp says "Clears the selected FE7 world-map portrait with exit direction and delay options; event skipping clears it directly."
+// in the language of msgs.
+func (msgs Messages) ScriptFe7WmClearPortraitHelp() string {
+	return Catalog.Format(msgs.locale, "script_fe7_wm_clear_portrait_help", nil)
+}
+
+// ScriptFe7WmUnitHelp says "World-map sprite slot 0–4, separate from chapter deployment IDs. Available display objects depend on game state."
+// in the language the app shows.
+func ScriptFe7WmUnitHelp() string { return In(i18n.Locale()).ScriptFe7WmUnitHelp() }
+
+// ScriptFe7WmUnitHelp says "World-map sprite slot 0–4, separate from chapter deployment IDs. Available display objects depend on game state."
+// in the language of msgs.
+func (msgs Messages) ScriptFe7WmUnitHelp() string {
+	return Catalog.Format(msgs.locale, "script_fe7_wm_unit_help", nil)
+}
+
+// ScriptFe7WmClassHelp says "The class is used when creating a sprite; existing sprites retain their class. Use 0 only with an existing sprite."
+// in the language the app shows.
+func ScriptFe7WmClassHelp() string { return In(i18n.Locale()).ScriptFe7WmClassHelp() }
+
+// ScriptFe7WmClassHelp says "The class is used when creating a sprite; existing sprites retain their class. Use 0 only with an existing sprite."
+// in the language of msgs.
+func (msgs Messages) ScriptFe7WmClassHelp() string {
+	return Catalog.Format(msgs.locale, "script_fe7_wm_class_help", nil)
+}
+
+// ScriptFe7WmFactionHelp says "Selects one of four native sprite palette slots, 0–3; this does not change a chapter unit's faction."
+// in the language the app shows.
+func ScriptFe7WmFactionHelp() string { return In(i18n.Locale()).ScriptFe7WmFactionHelp() }
+
+// ScriptFe7WmFactionHelp says "Selects one of four native sprite palette slots, 0–3; this does not change a chapter unit's faction."
+// in the language of msgs.
+func (msgs Messages) ScriptFe7WmFactionHelp() string {
+	return Catalog.Format(msgs.locale, "script_fe7_wm_faction_help", nil)
+}
+
+// ScriptFe7WmPutSpriteHelp says "Create or move a world-map sprite in the selected slot. Class applies only to new sprites."
+// in the language the app shows.
+func ScriptFe7WmPutSpriteHelp() string { return In(i18n.Locale()).ScriptFe7WmPutSpriteHelp() }
+
+// ScriptFe7WmPutSpriteHelp says "Create or move a world-map sprite in the selected slot. Class applies only to new sprites."
+// in the language of msgs.
+func (msgs Messages) ScriptFe7WmPutSpriteHelp() string {
+	return Catalog.Format(msgs.locale, "script_fe7_wm_put_sprite_help", nil)
+}
+
+// ScriptFe7WmRemoveUnitHelp says "Removes the world-map sprite in the selected slot, with an optional delay."
+// in the language the app shows.
+func ScriptFe7WmRemoveUnitHelp() string { return In(i18n.Locale()).ScriptFe7WmRemoveUnitHelp() }
+
+// ScriptFe7WmRemoveUnitHelp says "Removes the world-map sprite in the selected slot, with an optional delay."
+// in the language of msgs.
+func (msgs Messages) ScriptFe7WmRemoveUnitHelp() string {
+	return Catalog.Format(msgs.locale, "script_fe7_wm_remove_unit_help", nil)
+}
+
+// ScriptFe7WmDurationHelp says "Camera scroll duration; enter 1–32767 frames."
+// in the language the app shows.
+func ScriptFe7WmDurationHelp() string { return In(i18n.Locale()).ScriptFe7WmDurationHelp() }
+
+// ScriptFe7WmDurationHelp says "Camera scroll duration; enter 1–32767 frames."
+// in the language of msgs.
+func (msgs Messages) ScriptFe7WmDurationHelp() string {
+	return Catalog.Format(msgs.locale, "script_fe7_wm_duration_help", nil)
+}
+
+// ScriptFe7WmScrollHelp says "Scrolls from the current camera position to the target pixel coordinates, with duration and start delay. The editor d…"
+// in the language the app shows.
+func ScriptFe7WmScrollHelp() string { return In(i18n.Locale()).ScriptFe7WmScrollHelp() }
+
+// ScriptFe7WmScrollHelp says "Scrolls from the current camera position to the target pixel coordinates, with duration and start delay. The editor d…"
+// in the language of msgs.
+func (msgs Messages) ScriptFe7WmScrollHelp() string {
+	return Catalog.Format(msgs.locale, "script_fe7_wm_scroll_help", nil)
 }
 
 // ScriptWorldmapEndingEirika says "Eirika route ending"

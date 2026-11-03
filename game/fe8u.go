@@ -133,10 +133,22 @@ func fe8uFormat() format {
 		},
 		events: event.Format{
 			WorldMapEvents: event.WorldMapEventsFormat{
-				Beginning:     0xBA3D0,
-				Intro:         0xBA41C,
-				EirikaEnding:  0x9EC0,
-				EphraimEnding: 0x9ED8,
+				Tables: []event.WorldMapEventTable{
+					{
+						Pointer: 0xBA3D0,
+						Count:   59,
+						Source:  "script_worldmap_beginning",
+					},
+					{
+						Pointer: 0xBA41C,
+						Count:   59,
+						Source:  "script_worldmap_intro",
+					},
+				},
+				Endings: []event.WorldMapEventEnding{
+					{Pointer: 0x9EC0, Source: "script_worldmap_ending_eirika"},
+					{Pointer: 0x9ED8, Source: "script_worldmap_ending_ephraim"},
+				},
 			},
 			Layout:     event.FE8Layout(),
 			Root:       0x346DC,
@@ -162,14 +174,13 @@ func fe8uFormat() format {
 			},
 		},
 		maps: maps.Format{
-			Graphics:    0x19968,
-			Palette:     0x1999C,
-			Config:      0x19900,
-			Layout:      0x34680,
-			Animation:   0x30134,
-			Animation2:  0x30C78,
-			Changes:     0x346AC,
-			WorldEvents: 0,
+			Graphics:   0x19968,
+			Palette:    0x1999C,
+			Config:     0x19900,
+			Layout:     0x34680,
+			Animation:  0x30134,
+			Animation2: 0x30C78,
+			Changes:    0x346AC,
 		},
 		text: text.Format{
 			Pointer:     0xA2A0,

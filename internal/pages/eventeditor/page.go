@@ -31,14 +31,15 @@ type (
 		field       string
 	}
 	draftState struct {
-		data       *event.ScriptDraft
-		selected   int
-		list       ui.ListState
-		inputs     map[operandKey]*numberDraft
-		preview    *event.ScriptPlan
-		command    string
-		references map[operandKey]*referenceDraft
-		movements  map[operandKey]*movementDraft
+		data          *event.ScriptDraft
+		selected      int
+		list          ui.ListState
+		inputs        map[operandKey]*numberDraft
+		preview       *event.ScriptPlan
+		command       string
+		references    map[operandKey]*referenceDraft
+		movements     map[operandKey]*movementDraft
+		structureOpen bool
 	}
 )
 
@@ -274,21 +275,34 @@ func (page *Page) navigation(c *ui.Context) {
 			}
 			columns := []ui.TableColumn{
 				{ID: "source", Title: locales.ScriptSource()},
-				{
+			}
+			if page.sidebar.Width() >= 270 {
+				columns = append(columns, ui.TableColumn{
 					ID:    "address",
 					Title: locales.ScriptAddress(),
 					Width: 104,
 					Fixed: true,
-				},
+				})
 			}
 			ui.Table(c.Key("script-entries"), &page.list, columns, len(page.rows), func(index, column int) {
 				entry := page.rows[index]
 				if column == 0 {
-					ui.Text(c, entryCaption(entry)).
-						SingleLine().
-						Tooltip(fmt.Sprintf("0x%08X", entry.Pointer))
+					ui.Row(c).Grow(1).Gap(4).AlignItems(ui.Center).
+						Tooltip(fmt.Sprintf("%s · 0x%08X → 0x%08X", entryCaption(entry), entry.Pointer, entry.Address)).
+						Children(func() {
+							ui.Text(c, locales.Label(entry.Source)).
+								SingleLine().
+								Width(0).
+								Grow(1).
+								MinWidth(0)
+							if entry.WorldMap && entry.EventID >= 0 {
+								ui.Textf(c, "%02X", entry.EventID).
+									Font("monospace").
+									Shrink(0)
+							}
+						})
 				} else {
-					ui.Textf(c, "%08X", entry.Address).FontFeatures("tnum")
+					ui.Textf(c, "%08X", entry.Address).Font("monospace")
 				}
 			}).
 				Grow(1).
@@ -349,12 +363,13 @@ func (page *Page) editor(c *ui.Context) {
 		Gap(12).
 		Children(func() {
 			ui.Row(c).Wrap().Gap(12).AlignItems(ui.Center).Children(func() {
-				ui.Text(c, locales.ScriptEditor()).FontSize(20).Grow(1)
+				ui.Text(c, entryCaption(entry)).FontSize(20).Grow(1)
 				ui.Checkbox(c, &page.showRaw, locales.Advanced())
 			})
-			ui.Textf(c, "%s · 0x%08X → 0x%08X", entryCaption(entry), entry.Pointer, entry.Address).
+			ui.Textf(c, "0x%08X → 0x%08X", entry.Pointer, entry.Address).
 				Selectable().
-				FontFeatures("tnum").
+				Font("monospace").
+				FontSize(12).
 				Tooltip(locales.ScriptScope())
 			if !draft.data.Current(page.state.Session.Events) {
 				ui.Text(c, locales.DeployStale()).TextColor(c.Theme().Danger)
@@ -382,9 +397,22 @@ func (page *Page) editor(c *ui.Context) {
 					})
 			} else {
 				page.instructionTable(c, draft, rows)
-				page.commands(c, draft)
-				page.operands(c, draft, rows[draft.selected])
+				ui.Collapsible(
+					c.Key("script-structure"),
+					locales.ScriptStructure(),
+					&draft.structureOpen,
+					func() {
+						page.commands(c, draft)
+					},
+				)
+				ui.Column(c.Key("script-operands")).Gap(8).Children(func() {
+					ui.Text(c, locales.Label(string(rows[draft.selected].Op))).
+						Bold()
+					page.operands(c, draft, rows[draft.selected])
+				})
 			}
-			page.actions(c, draft)
+			ui.Column(c.Key("script-actions")).Gap(8).Children(func() {
+				page.actions(c, draft)
+			})
 		})
 }
