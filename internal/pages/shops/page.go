@@ -367,9 +367,11 @@ func (page *Page) actions(c *ui.Context, entry *entryState) {
 			OnClick(func() {
 				entry.changed()
 				if entry.chapter != nil {
-					entry.chapterPreview, state.Err = s.Events.PlanConditions(
+					chapterPreview, err := s.Events.PlanConditions(
 						entry.chapter,
 					)
+					entry.chapterPreview = chapterPreview
+					state.SetErr(err)
 					if state.Err == nil {
 						for _, known := range page.all {
 							if entry.entry.Address != 0 &&
@@ -390,7 +392,9 @@ func (page *Page) actions(c *ui.Context, entry *entryState) {
 						}
 					}
 				} else {
-					entry.preview, state.Err = s.Shops.Plan(entry.native)
+					preview, err := s.Shops.Plan(entry.native)
+					entry.preview = preview
+					state.SetErr(err)
 				}
 			})
 		ui.Button(c, locales.DeployReload()).
@@ -441,9 +445,17 @@ func (page *Page) actions(c *ui.Context, entry *entryState) {
 			Disabled(state.Busy || stale || entry.view.Invalid()).
 			OnClick(func() {
 				if entry.chapterPreview != nil {
-					state.Err = s.Events.ApplyConditions(entry.chapterPreview)
+					state.SetErr(
+						state.Edit(
+							func() error { return s.Events.ApplyConditions(entry.chapterPreview) },
+						),
+					)
 				} else {
-					state.Err = s.Shops.Apply(entry.preview)
+					state.SetErr(
+						state.Edit(
+							func() error { return s.Shops.Apply(entry.preview) },
+						),
+					)
 				}
 				if state.Err == nil {
 					delete(page.drafts, entry.entry.Key)

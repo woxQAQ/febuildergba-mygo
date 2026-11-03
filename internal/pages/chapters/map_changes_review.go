@@ -52,7 +52,11 @@ func (v *Page) changeReview(
 				ui.Button(c, locales.MapChangesApply()).
 					Disabled(state.Busy || !entry.data.Current(state.Session.Maps) || !plan.Applicable()).
 					OnClick(func() {
-						state.Err = state.Session.Maps.ApplyChanges(plan)
+						state.SetErr(
+							state.Edit(
+								func() error { return state.Session.Maps.ApplyChanges(plan) },
+							),
+						)
 						if state.Err == nil {
 							delete(v.changeDrafts, row.ID)
 							state.HistoryEpoch++

@@ -1,7 +1,13 @@
 // Package editor owns window editing state shared by pages and controls.
 package editor
 
-import "github.com/woxQAQ/febuildergba-mygo/game"
+import (
+	"log/slog"
+
+	"github.com/woxQAQ/febuildergba-mygo/fault"
+	"github.com/woxQAQ/febuildergba-mygo/game"
+	"github.com/woxQAQ/febuildergba-mygo/internal/applog"
+)
 
 // History contains the commands available for one editing target. A nil command
 // is unavailable; an empty draft history never falls through to ROM history.
@@ -16,6 +22,8 @@ type State struct {
 	Busy, External bool
 	Err            error
 	HistoryEpoch   uint64
+	loggedCode     fault.Code
+	loggedText     string
 	// Focus and draft commands are recomputed by the visible page each build.
 	TextFocused  bool
 	DraftHistory *History
@@ -23,11 +31,55 @@ type State struct {
 
 func (s *State) SetSession(session *game.Session) {
 	s.Session = session
-	s.Err = nil
+	s.SetErr(nil)
 	s.External = false
 	s.TextFocused = false
 	s.DraftHistory = nil
 	s.HistoryEpoch++
+}
+
+// Report records a changed diagnostic without changing the page's presentation.
+// Callers retain local draft errors; SetErr also updates the window banner.
+func (s *State) Report(operation string, err error) {
+	if err == nil {
+		return
+	}
+	code, diagnostic := fault.CodeOf(err), err.Error()
+	if code != s.loggedCode || diagnostic != s.loggedText {
+		applog.RecordError(operation, err)
+		s.loggedCode, s.loggedText = code, diagnostic
+	}
+}
+
+func (s *State) SetErr(err error) {
+	s.Err = err
+	if err == nil {
+		s.loggedCode, s.loggedText = fault.Code{}, ""
+	}
+	s.Report("editor.operation", err)
+}
+
+// Edit observes a synchronous domain commit without moving logging into the
+// domain. No-op writes and failed plans produce no history event.
+func (s *State) Edit(work func() error) error {
+	before := s.Session.Document.State()
+	err := work()
+	after := s.Session.Document.State()
+	if err == nil && after.Revision != before.Revision {
+		slog.Debug(
+			"document history",
+			"action",
+			"apply",
+			"label",
+			after.UndoLabel,
+			"revision",
+			after.Revision,
+			"size",
+			after.Size,
+		)
+	}
+	s.Report("editor.operation", err)
+	return err
 }
 
 // History selects the same target for menus and keyboard commands. Native text
@@ -44,23 +96,33 @@ func (s *State) History() History {
 	var history History
 	if document.CanUndo {
 		history.Undo = func() {
+			label := s.Session.Document.State().UndoLabel
 			if s.Session.Document.Undo() {
 				s.HistoryEpoch++
+				s.historyEvent("undo", label)
 			}
 			s.Session.Refresh()
-			s.Err = nil
+			s.SetErr(nil)
 		}
 	}
 	if document.CanRedo {
 		history.Redo = func() {
+			label := s.Session.Document.State().RedoLabel
 			if s.Session.Document.Redo() {
 				s.HistoryEpoch++
+				s.historyEvent("redo", label)
 			}
 			s.Session.Refresh()
-			s.Err = nil
+			s.SetErr(nil)
 		}
 	}
 	return history
+}
+
+func (s *State) historyEvent(action, label string) {
+	document := s.Session.Document.State()
+	slog.Debug("document history", "action", action, "label", label,
+		"revision", document.Revision, "size", document.Size)
 }
 
 func (s *State) Undo() {

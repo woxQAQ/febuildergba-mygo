@@ -102,11 +102,11 @@ func (page *Page) mapChangeChoice(
 		Disabled(page.state.Busy || !draft.data.Current(page.state.Session.Events)).
 		OnChange(func() {
 			if index := slices.Index(captions, reference.choice); index >= 0 {
-				page.state.Err = draft.data.Set(
+				page.state.SetErr(draft.data.Set(
 					draft.selected,
 					field.ID,
 					int64(values[index]),
-				)
+				))
 				draft.preview = nil
 				if page.state.Err == nil {
 					delete(draft.inputs, key)

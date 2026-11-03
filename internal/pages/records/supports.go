@@ -114,7 +114,7 @@ func (a *form) profileSupports(
 			ui.Row(c).Wrap().Gap(8).Children(func() {
 				ui.Button(c, locales.SupportPreview()).
 					Disabled(disabled || v.invalid() || !v.draft.Modified()).
-					OnClick(func() { v.plan, v.err = editor.Plan(v.draft, v.synchronize) })
+					OnClick(func() { v.plan, v.err = editor.Plan(v.draft, v.synchronize); a.state.Report("editor.operation", v.err) })
 				label := locales.QuoteReload()
 				if v.draft.Modified() || v.invalid() {
 					label = locales.DeployReload()
@@ -389,7 +389,9 @@ func (a *form) supportPreview(
 				AlignSelf(ui.Start).
 				Disabled(disabled || v.invalid() || !v.plan.Current(a.state.Session.Supports)).
 				OnClick(func() {
-					v.err = a.state.Session.Supports.Apply(v.plan)
+					v.err = a.state.Edit(
+						func() error { return a.state.Session.Supports.Apply(v.plan) },
+					)
 					if v.err == nil {
 						a.state.Session.Refresh()
 						a.state.HistoryEpoch++

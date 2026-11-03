@@ -178,6 +178,7 @@ func (v *Page) paletteEditor(
 							replacement.plan, replacement.err = e.PlanPalette(
 								draft,
 							)
+							state.Report("editor.operation", replacement.err)
 							if errors.Is(replacement.err, edit.ErrValue) {
 								replacement.draft, replacement.plan, replacement.err = nil, nil, nil
 								replacement.unchanged = true
@@ -271,9 +272,11 @@ func (v *Page) paletteReview(
 				ui.PrimaryButton(c.Key("apply"), locales.MapPaletteApply()).
 					Disabled(state.Busy || !replacement.plan.Current(state.Session.Maps)).
 					OnClick(func() {
-						replacement.err = state.Session.Maps.ApplyPalette(
-							replacement.plan,
-						)
+						replacement.err = state.Edit(func() error {
+							return state.Session.Maps.ApplyPalette(
+								replacement.plan,
+							)
+						})
 						if replacement.err == nil {
 							state.HistoryEpoch++
 							*replacement = paletteReplacement{}

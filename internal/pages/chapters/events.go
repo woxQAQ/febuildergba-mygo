@@ -255,7 +255,7 @@ func (v *Page) eventEditor(
 					Tooltip(labels.scope).
 					Disabled(disabled).
 					OnClick(func() {
-						state.Err = entry.data.Add(state.Session.Events)
+						state.SetErr(entry.data.Add(state.Session.Events))
 						entry.selected = len(entry.data.Events()) - 1
 						entry.preview = nil
 					})
@@ -263,7 +263,7 @@ func (v *Page) eventEditor(
 			ui.Button(c, labels.remove).
 				Disabled(disabled || len(events) == 0).
 				OnClick(func() {
-					state.Err = entry.removeSelected()
+					state.SetErr(entry.removeSelected())
 				})
 		})
 		if stale {
@@ -435,9 +435,11 @@ func (v *Page) eventActions(
 		previewButton(c.Key("preview"), labels.preview).
 			Disabled(state.Busy || stale || entry.invalid() || !entry.data.Modified()).
 			OnClick(func() {
-				entry.preview, state.Err = state.Session.Events.PlanConditions(
+				preview, err := state.Session.Events.PlanConditions(
 					entry.data,
 				)
+				entry.preview = preview
+				state.SetErr(err)
 				entry.generations = make(map[*deployment.Draft]uint64)
 				for data := range entry.units {
 					entry.generations[data] = data.Generation()
@@ -492,13 +494,15 @@ func (v *Page) eventActions(
 		applyButton(c.Key("apply"), labels.apply).
 			Disabled(state.Busy || stale || entry.invalid()).
 			OnClick(func() {
-				if state.Err = state.Session.Events.ApplyConditions(
-					preview,
-				); state.Err != nil {
+				if state.SetErr(state.Edit(func() error {
+					return state.Session.Events.ApplyConditions(
+						preview,
+					)
+				})); state.Err != nil {
 					return
 				}
 				fresh, err := state.Session.Events.NewConditions(row.ID, table)
-				state.Err = err
+				state.SetErr(err)
 				if err == nil {
 					v.events[key] = &eventState{
 						data:         fresh,

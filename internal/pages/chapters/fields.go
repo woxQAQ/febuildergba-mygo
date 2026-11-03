@@ -158,7 +158,7 @@ func deploymentNumber(
 					return
 				}
 				if err := set(value); err != nil {
-					state.Err = err
+					state.SetErr(err)
 					draft.invalid = true
 					return
 				}
@@ -233,11 +233,11 @@ func (v *Page) eventNumber(
 					draft.invalid = true
 					return
 				}
-				if state.Err = entry.data.Set(
+				if state.SetErr(entry.data.Set(
 					entry.selected,
 					field.ID,
 					parsed,
-				); state.Err != nil {
+				)); state.Err != nil {
 					draft.invalid = true
 					return
 				}
@@ -314,11 +314,11 @@ func (v *Page) eventChoice(
 		Disabled(state.Busy || !entry.data.Current(state.Session.Events)).
 		OnChange(func() {
 			if index := slices.Index(labels, draft.text); index >= 0 {
-				state.Err = entry.data.Set(
+				state.SetErr(entry.data.Set(
 					entry.selected,
 					field.ID,
 					values[index],
-				)
+				))
 				entry.preview = nil
 			}
 		})

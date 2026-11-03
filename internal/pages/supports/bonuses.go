@@ -93,7 +93,10 @@ func (p *Page) bonusView(c *ui.Context) {
 			ui.Row(c).Wrap().Gap(8).Children(func() {
 				ui.Button(c, locales.SupportPreview()).
 					Disabled(p.state.Busy || stale || entry.invalid() || !entry.draft.Modified()).
-					OnClick(func() { entry.plan, entry.err = e.PlanBonuses(entry.draft) })
+					OnClick(func() {
+						entry.plan, entry.err = e.PlanBonuses(entry.draft)
+						p.state.Report("editor.operation", entry.err)
+					})
 				ui.Button(c, locales.DeployReload()).
 					Disabled(p.state.Busy).
 					OnClick(reload)
@@ -259,9 +262,11 @@ func (p *Page) bonusPreview(c *ui.Context, entry *bonusState, reload func()) {
 			ui.Button(c, locales.SupportApply()).AlignSelf(ui.Start).
 				Disabled(p.state.Busy || entry.invalid() || !entry.plan.Current(p.state.Session.Supports)).
 				OnClick(func() {
-					entry.err = p.state.Session.Supports.ApplyBonuses(
-						entry.plan,
-					)
+					entry.err = p.state.Edit(func() error {
+						return p.state.Session.Supports.ApplyBonuses(
+							entry.plan,
+						)
+					})
 					if entry.err == nil {
 						reload()
 						p.state.HistoryEpoch++

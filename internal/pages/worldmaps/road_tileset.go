@@ -73,6 +73,7 @@ func (p *Page) roadTilesetFiles(c *ui.Context) {
 							s.draft, s.image, s.preview = draft, draft.Image(), true
 							s.route, s.road, s.roadInput = nil, nil, nil
 							s.plan, s.err = e.PlanRoadTileset(draft)
+							p.state.Report("editor.operation", s.err)
 							p.imagesOpen = false
 							p.imageFiles.Focus()
 							if p.routes.active != nil {
@@ -112,7 +113,9 @@ func (p *Page) roadTilesetPreview(c *ui.Context) {
 			ui.PrimaryButton(c.Key("apply-road-tileset"), locales.WorldmapApplyRoadTileset()).
 				Disabled(p.state.Busy || stale || !s.plan.Current(e)).
 				OnClick(func() {
-					s.err = e.ApplyRoadTileset(s.plan)
+					s.err = p.state.Edit(
+						func() error { return e.ApplyRoadTileset(s.plan) },
+					)
 					if s.err == nil {
 						p.state.Session.Refresh()
 						p.state.HistoryEpoch++

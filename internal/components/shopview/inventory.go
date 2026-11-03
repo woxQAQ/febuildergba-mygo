@@ -104,7 +104,7 @@ func (view *View) Render(
 		ui.Button(c, locales.ShopAdd()).
 			Disabled(disabled || len(items) >= shop.MaxItems).
 			OnClick(func() {
-				if state.Err = inventory.Add(1); state.Err == nil {
+				if state.SetErr(inventory.Add(1)); state.Err == nil {
 					view.rows = append(
 						view.rows,
 						newInput(state, shop.Item{ID: 1}),
@@ -117,9 +117,9 @@ func (view *View) Render(
 		ui.Button(c, locales.ShopRemove()).
 			Disabled(disabled || len(items) == 0).
 			OnClick(func() {
-				if state.Err = inventory.Remove(
+				if state.SetErr(inventory.Remove(
 					view.selected,
-				); state.Err == nil {
+				)); state.Err == nil {
 					view.rows = slices.Delete(
 						view.rows,
 						view.selected,
@@ -141,7 +141,9 @@ func (view *View) Render(
 				Disabled(disabled || view.selected+direction < 0 || view.selected+direction >= len(items)).
 				OnClick(func() {
 					from, to := view.selected, view.selected+direction
-					if state.Err = inventory.Move(from, to); state.Err == nil {
+					if state.SetErr(
+						inventory.Move(from, to),
+					); state.Err == nil {
 						row := view.rows[from]
 						view.rows = slices.Delete(view.rows, from, from+1)
 						view.rows = slices.Insert(view.rows, to, row)
@@ -172,7 +174,7 @@ func (view *View) Render(
 				Tooltip(locales.ShopItemHelp()).Disabled(disabled).
 				OnChange(func() {
 					if choice := slices.Index(choices, row.item); choice >= 0 {
-						state.Err = inventory.SetItem(index, choice+1)
+						state.SetErr(inventory.SetItem(index, choice+1))
 						changed()
 					}
 				}))
@@ -193,7 +195,7 @@ func (view *View) Render(
 							row.extra.invalid = true
 							return
 						}
-						state.Err = inventory.SetExtra(index, int(value))
+						state.SetErr(inventory.SetExtra(index, int(value)))
 						row.extra.invalid = state.Err != nil
 					}),
 			)

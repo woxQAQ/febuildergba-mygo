@@ -310,13 +310,15 @@ func (page *Page) canvas(c *ui.Context, p *portrait.Portrait, v *viewState) {
 			if d.part == 1 {
 				name, position = eyePart, eyesAt
 			}
-			page.state.Err = page.state.Session.Portraits.Set(
-				d.portrait,
-				map[string]int64{
-					name + "_x": int64(position.X),
-					name + "_y": int64(position.Y),
-				},
-			)
+			page.state.SetErr(page.state.Edit(func() error {
+				return page.state.Session.Portraits.Set(
+					d.portrait,
+					map[string]int64{
+						name + "_x": int64(position.X),
+						name + "_y": int64(position.Y),
+					},
+				)
+			}))
 		}
 		page.drag = nil
 	}

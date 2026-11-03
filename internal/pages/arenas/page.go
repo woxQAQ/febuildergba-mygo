@@ -169,6 +169,10 @@ func (p *Page) View(c *ui.Context) {
 								Disabled(p.state.Busy || stale || entry.invalid() || !entry.draft.Modified()).
 								OnClick(func() {
 									entry.plan, entry.err = e.Plan(entry.draft)
+									p.state.Report(
+										"editor.operation",
+										entry.err,
+									)
 									if entry.plan != nil {
 										entry.editAction.Focus(c)
 									}
@@ -521,7 +525,9 @@ func (p *Page) preview(c *ui.Context, entry *draftState, reload func()) {
 				AlignSelf(ui.Start).
 				Disabled(p.state.Busy || entry.invalid() || !entry.plan.Current(p.state.Session.Arena)).
 				OnClick(func() {
-					entry.err = p.state.Session.Arena.Apply(entry.plan)
+					entry.err = p.state.Edit(
+						func() error { return p.state.Session.Arena.Apply(entry.plan) },
+					)
 					if entry.err == nil {
 						reload()
 						p.state.HistoryEpoch++

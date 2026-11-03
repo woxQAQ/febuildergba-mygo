@@ -85,12 +85,14 @@ func (a *form) profileClass(
 				Disabled(a.state.Busy).
 				OnChange(func() {
 					if index := slices.Index(labels, draft.text); index >= 0 {
-						a.state.Err = a.state.Session.Records.Set(
-							kind,
-							[]int{row.ID},
-							id,
-							int64(ids[index]),
-						)
+						a.state.SetErr(a.state.Edit(func() error {
+							return a.state.Session.Records.Set(
+								kind,
+								[]int{row.ID},
+								id,
+								int64(ids[index]),
+							)
+						}))
 					}
 				}),
 		)
@@ -143,12 +145,14 @@ func (a *form) profileEnum(
 					draft.text,
 				); index >= 0 &&
 					index < len(keys) {
-					a.state.Err = a.state.Session.Records.Set(
-						kind,
-						[]int{row.ID},
-						id,
-						int64(index),
-					)
+					a.state.SetErr(a.state.Edit(func() error {
+						return a.state.Session.Records.Set(
+							kind,
+							[]int{row.ID},
+							id,
+							int64(index),
+						)
+					}))
 				}
 			})
 	})
@@ -260,9 +264,11 @@ func (a *form) profileRank(
 				label = locales.RecordInherit() + " " + inherited
 			}
 			if menu.Item(label).Radio(option == weapon.Rank).Chosen() {
-				a.state.Err = a.state.Session.Records.SetWeaponRank(
-					kind, row.ID, weapon.Field, option,
-				)
+				a.state.SetErr(a.state.Edit(func() error {
+					return a.state.Session.Records.SetWeaponRank(
+						kind, row.ID, weapon.Field, option,
+					)
+				}))
 			}
 		}
 	})
@@ -329,7 +335,13 @@ func (a *form) profileTraits(
 							Label(locales.RecordTraits() + " / " + label).
 							Tooltip(locales.Label(trait.Help)).
 							Disabled(a.state.Busy || !trait.Known).
-							OnClick(func() { a.state.Err = a.state.Session.Records.SetRecordTrait(kind, row.ID, trait.Bit, on) })
+							OnClick(func() {
+								a.state.SetErr(
+									a.state.Edit(
+										func() error { return a.state.Session.Records.SetRecordTrait(kind, row.ID, trait.Bit, on) },
+									),
+								)
+							})
 					}
 				})
 			}

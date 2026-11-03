@@ -92,13 +92,15 @@ func (a *form) numberField(
 		)
 	}
 	commit := func(next int64) {
-		if err := a.state.Session.Records.Set(
-			kind,
-			[]int{row.ID},
-			f.ID,
-			next,
-		); err != nil {
-			a.state.Err = err
+		if err := a.state.Edit(func() error {
+			return a.state.Session.Records.Set(
+				kind,
+				[]int{row.ID},
+				f.ID,
+				next,
+			)
+		}); err != nil {
+			a.state.SetErr(err)
 			return
 		}
 		draft.value = next
@@ -181,15 +183,17 @@ func (a *form) nudgeField(key fieldKey, f records.Field, delta int64) {
 		return
 	}
 	if err == nil {
-		err = a.state.Session.Records.Set(
-			key.Kind,
-			[]int{key.Record},
-			key.Field,
-			value+delta,
-		)
+		err = a.state.Edit(func() error {
+			return a.state.Session.Records.Set(
+				key.Kind,
+				[]int{key.Record},
+				key.Field,
+				value+delta,
+			)
+		})
 	}
 	if err != nil {
-		a.state.Err = err
+		a.state.SetErr(err)
 		return
 	}
 	if draft := a.drafts[key]; draft != nil {

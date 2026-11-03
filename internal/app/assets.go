@@ -47,9 +47,9 @@ func importPNG(
 			content, err = readPNG(paths[0])
 		}
 		err = fault.Wrap(err, "app.import_png", fault.Context{})
-		logError(err)
 		win.Update(func() {
 			workspace.Editor.Busy = false
+			workspace.Editor.Report("app.import_png", err)
 			done(content, err)
 		})
 	}()
@@ -70,7 +70,7 @@ func (m *application) exportPNG(
 	}
 	content, err := workspace.Editor.Session.Images.PNG(ref)
 	if err != nil {
-		workspace.Editor.Err = err
+		workspace.Editor.SetErr(err)
 		return
 	}
 	m.exportPNGContent(

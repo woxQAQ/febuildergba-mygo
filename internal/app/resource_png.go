@@ -39,7 +39,10 @@ func importResourcePNG[T any](
 			}
 		}
 		err = fault.Wrap(err, "app.import_resource_png", fault.Context{})
-		logError(err)
-		win.Update(func() { workspace.Editor.Busy = false; done(result, err) })
+		win.Update(func() {
+			workspace.Editor.Busy = false
+			workspace.Editor.Report("app.import_resource_png", err)
+			done(result, err)
+		})
 	}()
 }

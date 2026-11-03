@@ -118,10 +118,10 @@ func (v *Page) objectiveAdd(
 		ui.Button(c.Key(item.template), item.label).Tooltip(item.help).
 			Disabled(state.Busy || !entry.data.Current(state.Session.Events) || !available).
 			OnClick(func() {
-				state.Err = entry.data.AddObjective(
+				state.SetErr(entry.data.AddObjective(
 					state.Session.Events,
 					item.template,
-				)
+				))
 				if state.Err == nil {
 					entry.selected = len(entry.data.Events()) - 1
 				}
@@ -234,11 +234,11 @@ func (v *Page) conditionScript(
 						input.text,
 					); index >= 0 &&
 						index < len(refs) {
-						state.Err = entry.data.SetEventScript(
+						state.SetErr(entry.data.SetEventScript(
 							state.Session.Events,
 							entry.selected,
 							refs[index].Address,
-						)
+						))
 						entry.preview = nil
 					}
 				}),

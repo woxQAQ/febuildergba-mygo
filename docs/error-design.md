@@ -71,13 +71,42 @@ flowchart TD
 - `space` 的追加、搬迁、分配与引用校验带范围或引用地址。容量上限与失效引用有不同类别。
 - 地图、头像、职业卡和 PNG 解码不再丢弃底层原因。文本规划保留未知控制码、缺少参数和编码失败各自的错误码；截断 PNG 属于图像解码失败，尺寸限制仍单独报告。
 - `ErrorText` 将 `Code.ID` 映射到指定的 catalog 函数，切换语言后重新生成文案。未知错误显示通用提示和诊断文本，不通过字符串匹配查找 catalog key。
-- 桌面文件操作在应用边界记录结构化日志，核心包不记录日志。全局错误横幅的悬停提示提供诊断详情；字段级提示继续显示本地化文案。没有新增独立诊断面板。
+- 桌面文件操作在应用边界记录结构化日志，核心包不记录日志。全局错误横幅的悬停提示提供诊断详情；字段级提示继续显示本地化文案。独立诊断面板的状态见[覆盖矩阵](coverage.md)。
+
+## 日志采集
+
+`internal/applog.RecordError(operation, err)` 是应用与编辑状态的统一记录入口，输出 `"operation failed"`，保留顶层 `operation` 和 `fault.LogValue(err)` 的完整原因树。日志不保存 ROM 原始字节、PNG 载荷或文本草稿正文；文件路径、版本、修订等已知事实可以记录。输出目标和环境变量见[开发说明](development.md#日志与诊断)。
+
+| 主错误类别                                                           | 日志行为                                |
+| -------------------------------------------------------------------- | --------------------------------------- |
+| nil、`Canceled`                                                      | 不记录                                  |
+| `InvalidInput`                                                       | `DEBUG`，生产默认级别下过滤输入校验噪音 |
+| `Conflict`、`Unsupported`                                            | `WARN`                                  |
+| `InvalidData`、`IO`、`Capacity`、`Permission`、`NotFound`、`Unknown` | `ERROR`                                 |
+
+`editor.State.SetErr` 收敛横幅写入。局部草稿继续保留自己的错误，并通过 `State.Report` 进入相同分流；`State.Edit` 在实际领域提交后记录错误与成功历史。窗口按最近记录的错误码和诊断文本去重，清除横幅或切换会话会重置去重状态。文件 worker 的错误通过 `Window.Update` 带显式应用操作名回传，随后页面接收同一错误不会重复记录。该文本比较只用于诊断去重，不参与业务判断。
+
+| 消息                   | 级别         | 字段                                                                                     |
+| ---------------------- | ------------ | ---------------------------------------------------------------------------------------- |
+| `app started`          | `INFO`       | `dev`、`log_dir`（启动时文件降级则为空）                                                 |
+| `app exited`           | `ERROR`      | `error`；在关闭日志文件前记录启动致命失败                                                |
+| `rom opened`           | `INFO`       | `path`、`version`、`size`、`revision`、`reloaded`                                        |
+| `rom saved`            | `INFO`       | `path`、`size`、`revision`、`save_as`；只在实际保存成功后记录                            |
+| `external change`      | `WARN`       | `path`、`revision`；仅在窗口外部修改状态从 false 转为 true 时记录                        |
+| `emulator launched`    | `INFO`       | `path`                                                                                   |
+| `document history`     | `DEBUG`      | `action`（`apply`／`undo`／`redo`）、`label`、`revision`、`size`；不包含空写入和草稿历史 |
+| `operation failed`     | 按主错误分类 | `operation`、`error`                                                                     |
+| `log file unavailable` | `WARN`       | `error`；直接进入标准错误流与内存，不受配置级别过滤                                      |
+
+近期记录由 `Sink.Buffer.Snapshot()` 返回，包含时间、级别、消息、顶层操作与独立属性副本；修改返回结果不会影响后续读取。它与文件可用性解耦，可供后续诊断展示使用。
 
 ## 验证与扩展
 
 `game/session_test.go` 通过五版实际会话验证批量失败的字段上下文、字节／历史／保存状态不变、过期草稿及重新读取后的恢复。`game/open_test.go` 通过临时文件的打开失败与恢复验证 OS 原因和操作上下文；在报告边界注入次要失败，检查主次错误优先级与结构化日志中的原因树。地图、文本和素材现有场景验证具体错误分类及原因保留。
 
 `rom/errors_workflow_test.go` 用真实临时文件验证备份阶段失败不发布保存点、不改变磁盘文件、清除临时文件，修复目录后能保存；删除原路径后必须报告冲突，另存后能重开同一快照。测试不运行 UI 或模拟器。
+
+`internal/applog/logging_workflow_test.go` 使用临时目录与合成错误验证三路输出、级别过滤、原因树、重启后的文件轮转、超长单条记录、目录与运行期轮转失效降级、属性分组及并发快照隔离。标准库 `testing/slogtest` 校验组合 Handler 的结构化行为；日志包纳入 `just test-race`，UI 状态不在该 recipe 的覆盖范围内。
 
 新增错误时，在发现问题的包中定义 `fault.Code` 和调用方可处理的 `Kind`。转换语义时保留原因，并为该 ID 添加文案映射。
 

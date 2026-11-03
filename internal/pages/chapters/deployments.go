@@ -33,7 +33,7 @@ type chapterSelection struct {
 func (v *Page) OpenDeployment(state *editor.State, chapter, site int) {
 	table := state.Session.Records.Table(records.Chapters)
 	if table == nil || table.Err != nil {
-		state.Err = edit.ErrLayout
+		state.SetErr(edit.ErrLayout)
 		return
 	}
 	for _, row := range table.Rows {
@@ -44,7 +44,7 @@ func (v *Page) OpenDeployment(state *editor.State, chapter, site int) {
 			return
 		}
 	}
-	state.Err = edit.ErrField
+	state.SetErr(edit.ErrField)
 }
 
 func (v *Page) draft(
@@ -63,7 +63,7 @@ func (v *Page) draft(
 			group.Pointer,
 		)
 		if err != nil {
-			state.Err = err
+			state.SetErr(err)
 			return nil
 		}
 		entry = &entryDraft{data: data, lastSelected: -1}
@@ -167,9 +167,11 @@ func (v *Page) actions(
 			ui.Button(c, locales.DeployPreview()).
 				Disabled(disabled || entry.invalid() || !entry.data.Modified()).
 				OnClick(func() {
-					entry.preview, state.Err = state.Session.Deployments.Plan(
+					preview, err := state.Session.Deployments.Plan(
 						entry.data,
 					)
+					entry.preview = preview
+					state.SetErr(err)
 				})
 			ui.Button(c, locales.DeployReload()).
 				Disabled(state.Busy).
@@ -213,9 +215,11 @@ func (v *Page) preview(
 		ui.Button(c, locales.DeployApply()).
 			Disabled(state.Busy || !entry.data.Current(state.Session.Deployments) || entry.invalid()).
 			OnClick(func() {
-				if state.Err = state.Session.Deployments.Apply(
-					preview,
-				); state.Err == nil {
+				if state.SetErr(state.Edit(func() error {
+					return state.Session.Deployments.Apply(
+						preview,
+					)
+				})); state.Err == nil {
 					delete(v.entries, group.Pointer)
 					state.HistoryEpoch++
 				}

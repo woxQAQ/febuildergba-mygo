@@ -18,7 +18,7 @@ import (
 func (v *Page) OpenShop(state *editor.State, chapter, location int) {
 	table := state.Session.Records.Table(records.Chapters)
 	if table == nil || table.Err != nil {
-		state.Err = edit.ErrLayout
+		state.SetErr(edit.ErrLayout)
 		return
 	}
 	for _, row := range table.Rows {
@@ -31,11 +31,11 @@ func (v *Page) OpenShop(state *editor.State, chapter, location int) {
 			eventKey{chapter: chapter, table: event.LocationEvents},
 		)
 		if err != nil {
-			state.Err = err
+			state.SetErr(err)
 			return
 		}
 		if location < 0 || location >= len(entry.data.Events()) {
-			state.Err = edit.ErrField
+			state.SetErr(edit.ErrField)
 			return
 		}
 		v.mode = 8
@@ -43,7 +43,7 @@ func (v *Page) OpenShop(state *editor.State, chapter, location int) {
 		entry.list.ScrollTo(location, ui.Center)
 		return
 	}
-	state.Err = edit.ErrField
+	state.SetErr(edit.ErrField)
 }
 
 func (v *Page) shopKind(
@@ -75,7 +75,9 @@ func (v *Page) shopKind(
 		Disabled(state.Busy || !entry.data.Current(state.Session.Events)).
 		OnChange(func() {
 			if index := slices.Index(labels, value.text); index >= 0 {
-				state.Err = entry.data.SetShopKind(entry.selected, kinds[index])
+				state.SetErr(
+					entry.data.SetShopKind(entry.selected, kinds[index]),
+				)
 				entry.preview = nil
 			}
 		})

@@ -119,10 +119,10 @@ func (v *Page) place(
 		x, y = "deploy_end_x", "deploy_end_y"
 	}
 	if err := entry.data.Set(entry.selected, x, int64(point.X)); err != nil {
-		state.Err = err
+		state.SetErr(err)
 		return
 	}
-	state.Err = entry.data.Set(entry.selected, y, int64(point.Y))
+	state.SetErr(entry.data.Set(entry.selected, y, int64(point.Y)))
 	entry.preview, entry.inputs = nil, nil
 }
 
@@ -181,7 +181,7 @@ func (v *Page) unitActions(
 	disabled := state.Busy || !entry.data.Current(state.Session.Deployments)
 	ui.Row(c).Wrap().Gap(8).Children(func() {
 		ui.Button(c, locales.DeployAdd()).Disabled(disabled).OnClick(func() {
-			state.Err = entry.data.Add()
+			state.SetErr(entry.data.Add())
 			entry.selected = max(0, entry.data.Count()-1)
 			entry.paths = nil
 			entry.preview, entry.inputs = nil, nil
@@ -189,7 +189,7 @@ func (v *Page) unitActions(
 		ui.Button(c, locales.DeployDuplicate()).
 			Disabled(disabled || entry.data.Count() == 0).
 			OnClick(func() {
-				state.Err = entry.data.Duplicate(entry.selected)
+				state.SetErr(entry.data.Duplicate(entry.selected))
 				entry.selected = max(0, entry.data.Count()-1)
 				entry.paths = nil
 				entry.preview, entry.inputs = nil, nil
@@ -197,7 +197,7 @@ func (v *Page) unitActions(
 		ui.Button(c, locales.DeployRemove()).
 			Disabled(disabled || entry.data.Count() == 0).
 			OnClick(func() {
-				state.Err = entry.data.Remove(entry.selected)
+				state.SetErr(entry.data.Remove(entry.selected))
 				entry.selected = min(
 					entry.selected,
 					max(0, entry.data.Count()-1),

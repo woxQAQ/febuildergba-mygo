@@ -210,7 +210,7 @@ func (entry *mapState) drawing(
 				} else {
 					err = entry.data.Stroke(points, entry.tile.Tile)
 				}
-				state.Err = err
+				state.SetErr(err)
 				if err == nil {
 					entry.refresh()
 				}
@@ -307,7 +307,9 @@ func (v *Page) mapActions(
 		ui.Button(c, locales.MapPreviewEdit()).
 			Disabled(disabled || !entry.data.Modified() || entry.resizePending()).
 			OnClick(func() {
-				entry.preview, state.Err = state.Session.Maps.Plan(entry.data)
+				preview, err := state.Session.Maps.Plan(entry.data)
+				entry.preview = preview
+				state.SetErr(err)
 				entry.details = false
 				if state.Err == nil {
 					entry.reviewFocus.Focus(c)
@@ -375,9 +377,11 @@ func (v *Page) mapPreview(
 				ui.Button(c, locales.MapApply()).
 					Disabled(state.Busy || !entry.data.Current(state.Session.Maps) || entry.resizePending()).
 					OnClick(func() {
-						if state.Err = state.Session.Maps.Apply(
-							preview,
-						); state.Err == nil {
+						if state.SetErr(state.Edit(func() error {
+							return state.Session.Maps.Apply(
+								preview,
+							)
+						})); state.Err == nil {
 							delete(v.mapDrafts, row.ID)
 							state.HistoryEpoch++
 						}

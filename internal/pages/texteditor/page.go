@@ -103,7 +103,7 @@ func (p *Page) Open(id uint16) {
 		}
 	}
 	p.selected = -1
-	p.state.Err = text.ErrText
+	p.state.SetErr(text.ErrText)
 }
 
 func (p *Page) View(c *ui.Context) {
@@ -237,6 +237,7 @@ func (p *Page) editor(c *ui.Context) {
 							id,
 							d.text,
 						)
+						p.state.Report("editor.operation", d.err)
 					})
 				ui.Button(c, locales.ReloadText()).
 					Disabled(p.state.Busy).
@@ -265,7 +266,9 @@ func (p *Page) preview(c *ui.Context, id uint16, d *draft, unavailable bool) {
 		}
 	})
 	ui.Button(c, locales.ApplyText()).Disabled(unavailable).OnClick(func() {
-		if err := p.state.Session.Texts.Apply(edit); err != nil {
+		if err := p.state.Edit(
+			func() error { return p.state.Session.Texts.Apply(edit) },
+		); err != nil {
 			d.err, d.preview = err, nil
 			return
 		}

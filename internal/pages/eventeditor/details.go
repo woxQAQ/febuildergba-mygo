@@ -33,7 +33,7 @@ func (page *Page) commands(c *ui.Context, draft *draftState) {
 			Disabled(disabled)
 		ui.Button(c, locales.ScriptInsert()).Disabled(disabled).OnClick(func() {
 			if index := slices.Index(labels, draft.command); index >= 0 {
-				page.state.Err = draft.data.Insert(draft.selected, ops[index])
+				page.state.SetErr(draft.data.Insert(draft.selected, ops[index]))
 				if page.state.Err == nil {
 					draft.structuralChanged(draft.selected)
 				}
@@ -53,7 +53,7 @@ func (page *Page) commands(c *ui.Context, draft *draftState) {
 			ui.Button(c, action.label).
 				Disabled(disabled || !action.enabled).
 				OnClick(func() {
-					page.state.Err = action.run()
+					page.state.SetErr(action.run())
 					if page.state.Err == nil {
 						draft.structuralChanged(action.selected)
 					}
@@ -159,7 +159,7 @@ func (page *Page) textOperand(
 				!draft.data.Current(page.state.Session.Events),
 			func(id uint16) {
 				draft.preview = nil
-				page.state.Err = draft.data.Set(index, field.ID, int64(id))
+				page.state.SetErr(draft.data.Set(index, field.ID, int64(id)))
 				current.invalid = page.state.Err != nil
 			},
 			page.openText,
@@ -276,7 +276,7 @@ func (page *Page) number(
 					numberInput.invalid = true
 					return
 				}
-				page.state.Err = draft.data.Set(index, field.ID, parsed)
+				page.state.SetErr(draft.data.Set(index, field.ID, parsed))
 				numberInput.invalid = page.state.Err != nil
 				if !numberInput.invalid {
 					numberInput.value = parsed
@@ -392,11 +392,11 @@ func (page *Page) referenceChoice(
 		Disabled(page.state.Busy || !draft.data.Current(page.state.Session.Events)).
 		OnChange(func() {
 			if index := slices.Index(captions, reference.choice); index >= 0 {
-				page.state.Err = draft.data.Set(
+				page.state.SetErr(draft.data.Set(
 					draft.selected,
 					field.ID,
 					values[index],
-				)
+				))
 				draft.preview = nil
 			}
 		})
@@ -410,7 +410,13 @@ func (page *Page) actions(c *ui.Context, draft *draftState) {
 	ui.Row(c).Wrap().Gap(8).Children(func() {
 		ui.Button(c, locales.ScriptPreview()).
 			Disabled(page.state.Busy || stale || draft.invalid() || !draft.data.Modified()).
-			OnClick(func() { draft.preview, page.state.Err = page.state.Session.Events.PlanScriptEdit(draft.data) })
+			OnClick(func() {
+				preview, err := page.state.Session.Events.PlanScriptEdit(
+					draft.data,
+				)
+				draft.preview = preview
+				page.state.SetErr(err)
+			})
 		ui.Button(c, locales.ScriptReload()).
 			Disabled(page.state.Busy).
 			OnClick(func() { delete(page.drafts, draft.data.Entry().Pointer) })
@@ -453,7 +459,11 @@ func (page *Page) actions(c *ui.Context, draft *draftState) {
 	ui.Button(c, locales.ScriptApply()).
 		Disabled(page.state.Busy || stale || draft.invalid()).
 		OnClick(func() {
-			page.state.Err = page.state.Session.Events.ApplyScriptEdit(preview)
+			page.state.SetErr(
+				page.state.Edit(
+					func() error { return page.state.Session.Events.ApplyScriptEdit(preview) },
+				),
+			)
 			if page.state.Err == nil {
 				delete(page.drafts, draft.data.Entry().Pointer)
 				page.state.HistoryEpoch++

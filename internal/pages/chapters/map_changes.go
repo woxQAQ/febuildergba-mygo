@@ -143,7 +143,7 @@ func (entry *mapChangesState) pending() bool {
 func (v *Page) OpenMapChange(state *editor.State, chapter, id int) {
 	table := state.Session.Records.Table(records.Chapters)
 	if table == nil || table.Err != nil {
-		state.Err = edit.ErrLayout
+		state.SetErr(edit.ErrLayout)
 		return
 	}
 	for _, row := range table.Rows {
@@ -152,13 +152,13 @@ func (v *Page) OpenMapChange(state *editor.State, chapter, id int) {
 			v.mode = 7
 			entry := v.changeDraft(state, chapter)
 			if entry.err != nil {
-				state.Err = entry.err
+				state.SetErr(entry.err)
 				return
 			}
 			for index, change := range entry.data.Entries() {
 				if change.ID == id {
 					if entry.pending() {
-						state.Err = edit.ErrValue
+						state.SetErr(edit.ErrValue)
 						return
 					}
 					entry.selected = index
@@ -166,11 +166,11 @@ func (v *Page) OpenMapChange(state *editor.State, chapter, id int) {
 					return
 				}
 			}
-			state.Err = edit.ErrField
+			state.SetErr(edit.ErrField)
 			return
 		}
 	}
-	state.Err = edit.ErrField
+	state.SetErr(edit.ErrField)
 }
 
 func (v *Page) mapChangesEditor(
@@ -239,9 +239,11 @@ func (v *Page) mapChangesEditor(
 				ui.Button(c, locales.MapChangesReview()).
 					Disabled(disabled || entry.pending() || !entry.data.Modified()).
 					OnClick(func() {
-						entry.preview, state.Err = state.Session.Maps.PlanChanges(
+						preview, err := state.Session.Maps.PlanChanges(
 							entry.data,
 						)
+						entry.preview = preview
+						state.SetErr(err)
 						entry.details = false
 						if state.Err == nil {
 							entry.reviewFocus.Focus(c)
@@ -301,9 +303,11 @@ func (v *Page) mapChangesEditor(
 				Disabled(disabled || entry.pending()).
 				OnChange(func() {
 					if entry.showReferences {
-						entry.references, state.Err = state.Session.Maps.References(
+						references, err := state.Session.Maps.References(
 							entry.data,
 						)
+						entry.references = references
+						state.SetErr(err)
 					}
 				})
 			if entry.showReferences {
@@ -366,7 +370,7 @@ func (v *Page) changeRows(
 				if err == nil {
 					err = entry.data.Add(id, image.Rect(0, 0, 1, 1))
 				}
-				state.Err = err
+				state.SetErr(err)
 				if err == nil {
 					entry.selected = len(entry.data.Entries()) - 1
 					entry.refresh()
@@ -379,7 +383,7 @@ func (v *Page) changeRows(
 				if err == nil {
 					err = entry.data.Copy(entry.selected, id)
 				}
-				state.Err = err
+				state.SetErr(err)
 				if err == nil {
 					entry.selected = len(entry.data.Entries()) - 1
 					entry.refresh()
@@ -388,7 +392,7 @@ func (v *Page) changeRows(
 		ui.Button(c, locales.MapChangeDelete()).
 			Disabled(disabled || entry.pending() || len(rows) == 0).
 			OnClick(func() {
-				state.Err = entry.data.Delete(entry.selected)
+				state.SetErr(entry.data.Delete(entry.selected))
 				if state.Err == nil {
 					entry.refresh()
 				}
@@ -431,7 +435,7 @@ func (entry *mapChangesState) properties(
 		ui.Button(c, locales.MapChangeUpdate()).
 			Disabled(disabled || !valid || !entry.pending()).
 			OnClick(func() {
-				state.Err = entry.data.Set(entry.selected, id, bounds)
+				state.SetErr(entry.data.Set(entry.selected, id, bounds))
 				if state.Err == nil {
 					entry.refresh()
 					entry.editFocus.Focus(c)
@@ -495,7 +499,7 @@ func (entry *mapChangesState) drawing(
 			}
 			if mapview.Tool(entry.tool) == mapview.Rectangle {
 				a, b := points[0], points[len(points)-1]
-				state.Err = entry.data.Fill(
+				state.SetErr(entry.data.Fill(
 					entry.selected,
 					image.Rect(
 						min(a.X, b.X),
@@ -504,13 +508,13 @@ func (entry *mapChangesState) drawing(
 						max(a.Y, b.Y)+1,
 					),
 					entry.tile.Tile,
-				)
+				))
 			} else {
-				state.Err = entry.data.Stroke(
+				state.SetErr(entry.data.Stroke(
 					entry.selected,
 					points,
 					entry.tile.Tile,
-				)
+				))
 			}
 			if state.Err == nil {
 				entry.refresh()

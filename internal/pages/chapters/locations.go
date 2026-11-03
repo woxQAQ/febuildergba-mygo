@@ -114,9 +114,9 @@ func (v *Page) locationEditor(
 								ui.Button(c, locales.LocationCopy()).
 									Disabled(state.Busy || stale || len(entry.data.Events()) == 0).
 									OnClick(func() {
-										state.Err = entry.data.CopyLocation(
+										state.SetErr(entry.data.CopyLocation(
 											entry.selected,
-										)
+										))
 										if state.Err == nil {
 											entry.selected = len(
 												entry.data.Events(),
@@ -127,7 +127,7 @@ func (v *Page) locationEditor(
 									})
 								ui.Button(c, locales.LocationRemove()).
 									Disabled(state.Busy || stale || len(entry.data.Events()) == 0).
-									OnClick(func() { state.Err = entry.removeSelected() })
+									OnClick(func() { state.SetErr(entry.removeSelected()) })
 							})
 						v.eventTable(
 							c,
@@ -236,17 +236,17 @@ func (v *Page) placeLocation(
 			event.Shop,
 		}
 		index = len(entry.data.Events())
-		if state.Err = entry.data.AddLocation(
+		if state.SetErr(entry.data.AddLocation(
 			state.Session.Events,
 			kinds[entry.location.kind],
-		); state.Err != nil {
+		)); state.Err != nil {
 			return
 		}
 	}
-	if state.Err = entry.data.SetLocationPosition(
+	if state.SetErr(entry.data.SetLocationPosition(
 		index,
 		point,
-	); state.Err != nil {
+	)); state.Err != nil {
 		if entry.location.adding {
 			_ = entry.data.Remove(index)
 		}
@@ -452,11 +452,11 @@ func (v *Page) locationReward(
 		ui.Button(c, locales.ChestUseGold()).
 			Disabled(state.Busy || !entry.data.Current(state.Session.Events) || location.Item == location.GoldItem).
 			OnClick(func() {
-				state.Err = entry.data.SetChestReward(
+				state.SetErr(entry.data.SetChestReward(
 					entry.selected,
 					location.GoldItem,
 					max(location.GoldMinimum, location.Money),
-				)
+				))
 				if state.Err == nil {
 					entry.preview = nil
 					delete(

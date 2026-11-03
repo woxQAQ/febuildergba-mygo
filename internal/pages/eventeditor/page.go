@@ -389,10 +389,10 @@ func (page *Page) editor(c *ui.Context) {
 				ui.Button(c, locales.ScriptCreate()).
 					Disabled(page.state.Busy || !draft.data.Current(page.state.Session.Events) || !draft.data.Relocatable()).
 					OnClick(func() {
-						page.state.Err = draft.data.Insert(
+						page.state.SetErr(draft.data.Insert(
 							0,
 							event.ScriptEnd,
-						)
+						))
 						if page.state.Err == nil {
 							draft.structuralChanged(0)
 						}

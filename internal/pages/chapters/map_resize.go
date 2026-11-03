@@ -92,15 +92,15 @@ func (entry *mapState) resizeControls(
 				OnClick(func() {
 					w, h, ok := entry.resizeDimensions()
 					if !ok {
-						state.Err = edit.ErrValue
+						state.SetErr(edit.ErrValue)
 						return
 					}
-					if state.Err = entry.data.Resize(
+					if state.SetErr(entry.data.Resize(
 						w,
 						h,
 						entry.anchor,
 						entry.tile.Tile,
-					); state.Err == nil {
+					)); state.Err == nil {
 						entry.refresh()
 						entry.resizing = false
 						entry.editFocus.Focus(c)

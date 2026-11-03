@@ -273,7 +273,10 @@ func (p *Page) routeDetail(c *ui.Context) {
 			ui.Row(c.Key("route-actions")).Wrap().Gap(8).Children(func() {
 				ui.Button(c.Key("preview-route"), locales.WorldmapPreviewRoute()).
 					Disabled(disabled || entry.invalid() || !entry.draft.Modified()).
-					OnClick(func() { entry.plan, entry.err = e.PlanRoute(entry.draft) })
+					OnClick(func() {
+						entry.plan, entry.err = e.PlanRoute(entry.draft)
+						p.state.Report("editor.operation", entry.err)
+					})
 				ui.Button(c, locales.DeployReload()).
 					Disabled(p.state.Busy).
 					OnClick(reload)
@@ -580,7 +583,9 @@ func (p *Page) routePreview(c *ui.Context, s *routeState, reload func()) {
 			ui.PrimaryButton(c.Key("apply-route"), locales.WorldmapApplyRoute()).
 				Disabled(p.state.Busy || s.invalid() || !plan.Current(p.state.Session.WorldMap)).
 				OnClick(func() {
-					s.err = p.state.Session.WorldMap.ApplyRoute(plan)
+					s.err = p.state.Edit(
+						func() error { return p.state.Session.WorldMap.ApplyRoute(plan) },
+					)
 					s.plan = nil
 					if s.err == nil {
 						p.state.HistoryEpoch++

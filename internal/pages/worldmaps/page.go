@@ -274,7 +274,7 @@ func (p *Page) detail(c *ui.Context) {
 					ui.Row(c).Wrap().Gap(8).Children(func() {
 						ui.Button(c.Key("preview"), locales.WorldmapPreview()).
 							Disabled(disabled || entry.invalid() || !entry.draft.Modified()).
-							OnClick(func() { entry.plan, entry.err = e.Plan(entry.draft) })
+							OnClick(func() { entry.plan, entry.err = e.Plan(entry.draft); p.state.Report("editor.operation", entry.err) })
 						ui.Button(c, locales.DeployReload()).
 							Disabled(p.state.Busy).
 							OnClick(reload)
@@ -577,7 +577,9 @@ func (p *Page) preview(c *ui.Context, entry *nodeState, reload func()) {
 			ui.PrimaryButton(c, locales.WorldmapApply()).
 				Disabled(p.state.Busy || entry.invalid() || !plan.Current(p.state.Session.WorldMap)).
 				OnClick(func() {
-					entry.err = p.state.Session.WorldMap.Apply(plan)
+					entry.err = p.state.Edit(
+						func() error { return p.state.Session.WorldMap.Apply(plan) },
+					)
 					entry.plan = nil
 					if entry.err == nil {
 						p.state.HistoryEpoch++

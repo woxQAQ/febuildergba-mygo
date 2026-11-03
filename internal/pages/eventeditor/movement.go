@@ -65,11 +65,11 @@ func (page *Page) movement(
 			ui.Button(c, locales.Label("script_movement_create")).
 				Disabled(disabled).
 				OnClick(func() {
-					page.state.Err = draft.data.SetMovement(
+					page.state.SetErr(draft.data.SetMovement(
 						draft.selected,
 						field.ID,
 						[]event.ScriptMovementStep{{Command: 4}},
-					)
+					))
 					draft.preview = nil
 				})
 			return
@@ -91,11 +91,11 @@ func (page *Page) movement(
 			state.invalid = false
 		}
 		update := func(next []event.ScriptMovementStep, selected int) {
-			page.state.Err = draft.data.SetMovement(
+			page.state.SetErr(draft.data.SetMovement(
 				draft.selected,
 				field.ID,
 				next,
-			)
+			))
 			draft.preview = nil
 			if page.state.Err == nil {
 				state.selected = ""
@@ -132,11 +132,11 @@ func (page *Page) movement(
 							}
 							next := slices.Clone(steps)
 							next[index].Value = value
-							page.state.Err = draft.data.SetMovement(
+							page.state.SetErr(draft.data.SetMovement(
 								draft.selected,
 								field.ID,
 								next,
-							)
+							))
 							state.invalid = page.state.Err != nil
 						}),
 				)

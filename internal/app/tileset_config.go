@@ -55,9 +55,9 @@ func importTilesetConfig(
 			}
 		}
 		err = fault.Wrap(err, "app.import_tileset_config", fault.Context{})
-		logError(err)
 		win.Update(func() {
 			workspace.Editor.Busy = false
+			workspace.Editor.Report("app.import_tileset_config", err)
 			done(draft, err)
 		})
 	}()

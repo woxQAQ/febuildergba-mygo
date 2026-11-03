@@ -77,7 +77,7 @@ func (v *Page) talkCharacter(
 				encoded, _, _ := strings.Cut(input.text, " · ")
 				id, err := strconv.ParseInt(encoded, 16, 16)
 				if err == nil {
-					state.Err = entry.data.Set(entry.selected, field.ID, id)
+					state.SetErr(entry.data.Set(entry.selected, field.ID, id))
 				}
 				entry.preview = nil
 			}),
@@ -222,10 +222,10 @@ func (v *Page) dialoguePicker(
 		if chosen, ok := picker.Chosen(); ok {
 			for _, choice := range entry.textChoices {
 				if choice.caption == chosen {
-					state.Err = entry.data.SetDialogue(
+					state.SetErr(entry.data.SetDialogue(
 						entry.selected,
 						choice.id,
-					)
+					))
 					input.text, input.value = choice.caption, int64(choice.id)
 					entry.preview = nil
 					break

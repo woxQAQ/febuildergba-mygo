@@ -189,6 +189,7 @@ func (v *Page) graphicsEditor(
 								}
 								entry.draft, entry.preview, entry.unchanged = draft, true, false
 								entry.plan, entry.err = e.PlanGraphics(draft)
+								state.Report("editor.operation", entry.err)
 								if errors.Is(entry.err, edit.ErrValue) {
 									entry.draft, entry.plan, entry.err = nil, nil, nil
 									entry.unchanged = true
@@ -318,7 +319,9 @@ func (v *Page) graphicsReview(
 				ui.PrimaryButton(c.Key("apply"), locales.MapGraphicsApply()).
 					Disabled(state.Busy || !entry.plan.Current(state.Session.Maps)).
 					OnClick(func() {
-						entry.err = state.Session.Maps.ApplyGraphics(entry.plan)
+						entry.err = state.Edit(
+							func() error { return state.Session.Maps.ApplyGraphics(entry.plan) },
+						)
 						if entry.err == nil {
 							state.HistoryEpoch++
 							v.reloadGraphics(c, state, row, group, entry)

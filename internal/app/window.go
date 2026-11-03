@@ -1,6 +1,7 @@
 package app
 
 import (
+	"log/slog"
 	"path/filepath"
 	"runtime"
 
@@ -149,7 +150,7 @@ func (m *application) newWindow(session *game.Session) *mygo.Window {
 			return
 		}
 		if a.Editor.Session.Document.State().Dirty {
-			a.Editor.Err = errRunSaved
+			a.Editor.SetErr(errRunSaved)
 			return
 		}
 		path := a.Editor.Session.Document.State().Path
@@ -157,7 +158,13 @@ func (m *application) newWindow(session *game.Session) *mygo.Window {
 			win,
 			a,
 			"app.launch_emulator",
-			func() error { return launchEmulator(path) },
+			func() error {
+				if err := launchEmulator(path); err != nil {
+					return err
+				}
+				slog.Info("emulator launched", "path", path)
+				return nil
+			},
 			nil,
 		)
 	}
@@ -189,6 +196,9 @@ func (m *application) newWindow(session *game.Session) *mygo.Window {
 				case 0:
 					err = doc.Save()
 					closeWindow = err == nil
+					if err == nil {
+						logROMSaved(doc.State(), false)
+					}
 				case 1:
 					closeWindow = true
 				}
@@ -198,10 +208,10 @@ func (m *application) newWindow(session *game.Session) *mygo.Window {
 				"app.close_window",
 				fault.Context{Path: doc.State().Path},
 			)
-			logError(err)
 			win.Update(func() {
 				a.Editor.Busy = false
-				a.Editor.Err = err
+				a.Editor.Report("app.close_window", err)
+				a.Editor.SetErr(err)
 				if closeWindow {
 					win.Destroy()
 				}
@@ -215,14 +225,18 @@ func (m *application) newWindow(session *game.Session) *mygo.Window {
 			return
 		}
 		doc := a.Editor.Session.Document
+		revision := doc.State().Revision
 		go func() {
 			changed, err := doc.ExternalChanged()
-			logError(err)
 			win.Update(func() {
-				if a.Editor.Session != nil && a.Editor.Session.Document == doc {
-					a.Editor.External = changed
+				a.Editor.Report("app.external_change", err)
+				if a.Editor.Session != nil &&
+					a.Editor.Session.Document == doc &&
+					doc.State().Revision == revision {
 					if err != nil {
-						a.Editor.Err = err
+						a.Editor.SetErr(err)
+					} else {
+						setExternal(a, changed)
 					}
 				}
 			})
@@ -256,20 +270,30 @@ func background(
 	}
 	a.Editor.Busy = true
 	doc := a.Editor.Session.Document
+	revision := doc.State().Revision
 	go func() {
 		err := fault.Wrap(
 			work(),
 			operation,
 			fault.Context{Path: doc.State().Path},
 		)
-		logError(err)
 		changed, checkErr := doc.ExternalChanged()
-		logError(checkErr)
 		win.Update(
 			func() {
 				a.Editor.Busy = false
-				a.Editor.Err = err
-				a.Editor.External = changed
+				a.Editor.Report(operation, err)
+				if a.Editor.Session == nil ||
+					a.Editor.Session.Document != doc ||
+					doc.State().Revision != revision {
+					a.Editor.Report("app.external_change", checkErr)
+					return
+				}
+				a.Editor.SetErr(err)
+				if checkErr != nil {
+					a.Editor.Report("app.external_change", checkErr)
+				} else {
+					setExternal(a, changed)
+				}
 				updateTitle(win, a)
 				if err == nil && completed != nil {
 					completed()

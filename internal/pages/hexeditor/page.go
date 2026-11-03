@@ -135,7 +135,9 @@ func (a *Page) applyRaw() {
 		a.raw.err = err
 		return
 	}
-	if err := a.state.Session.Bytes.Apply(a.raw.region, data); err != nil {
+	if err := a.state.Edit(
+		func() error { return a.state.Session.Bytes.Apply(a.raw.region, data) },
+	); err != nil {
 		a.raw.err = err
 		return
 	}

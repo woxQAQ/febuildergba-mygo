@@ -8,6 +8,7 @@ import (
 	"slices"
 
 	"github.com/woxQAQ/febuildergba-mygo/fault"
+	"github.com/woxQAQ/febuildergba-mygo/internal/applog"
 )
 
 // developmentSession keeps ROM paths across developer rebuilds. Only path
@@ -30,7 +31,7 @@ func newDevelopmentSession(path string, enabled bool) *developmentSession {
 	go func() {
 		defer close(session.done)
 		for paths := range session.updates {
-			logError(session.write(paths))
+			applog.RecordError("app.remember_dev_session", session.write(paths))
 		}
 	}()
 	return session

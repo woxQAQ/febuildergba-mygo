@@ -227,6 +227,7 @@ func (v *Page) tilesetEditor(
 						entry.preview, entry.err = state.Session.Maps.PlanTileset(
 							entry.data,
 						)
+						state.Report("editor.operation", entry.err)
 						if entry.err == nil {
 							entry.reviewFocus.Focus(c)
 						}
@@ -369,6 +370,7 @@ func (v *Page) tilesetFiles(
 						}
 						next.refresh()
 						next.preview, next.err = session.Maps.PlanTileset(draft)
+						state.Report("editor.operation", next.err)
 						entry.imported = next
 						next.reviewFocus.Focus()
 					},
@@ -655,7 +657,9 @@ func (v *Page) tilesetReview(
 			ui.PrimaryButton(c.Key("apply"), locales.MapTilesetApply()).
 				Disabled(state.Busy || entry.invalid() || !plan.Current(state.Session.Maps)).
 				OnClick(func() {
-					entry.err = state.Session.Maps.ApplyTileset(plan)
+					entry.err = state.Edit(
+						func() error { return state.Session.Maps.ApplyTileset(plan) },
+					)
 					if entry.err == nil {
 						state.HistoryEpoch++
 						reload()

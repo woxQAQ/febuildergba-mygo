@@ -52,16 +52,18 @@ func (page *Page) number(
 		draft.invalid = false
 	}
 	commit := func(next int64) {
-		if err := page.state.Session.Portraits.Set(
-			p,
-			map[string]int64{name: next},
-		); err != nil {
-			page.state.Err = err
+		if err := page.state.Edit(func() error {
+			return page.state.Session.Portraits.Set(
+				p,
+				map[string]int64{name: next},
+			)
+		}); err != nil {
+			page.state.SetErr(err)
 			return
 		}
 		draft.value = next
 		draft.invalid = false
-		page.state.Err = nil
+		page.state.SetErr(nil)
 		if name == mouthXField || name == mouthYField {
 			v.part = 0
 		} else if name != blinkField {
@@ -196,10 +198,12 @@ func (page *Page) blinkInput(
 				} else if v.blink == locales.Label("portrait_blink_closed") {
 					value = 6
 				}
-				page.state.Err = page.state.Session.Portraits.Set(
-					p,
-					map[string]int64{blinkField: value},
-				)
+				page.state.SetErr(page.state.Edit(func() error {
+					return page.state.Session.Portraits.Set(
+						p,
+						map[string]int64{blinkField: value},
+					)
+				}))
 			})
 	})
 }

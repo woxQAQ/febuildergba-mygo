@@ -329,7 +329,12 @@ func (p *Page) actions(c *ui.Context, entry *dialogueState, stale bool) {
 	ui.Row(c).Wrap().Gap(8).Children(func() {
 		ui.Button(c, locales.SupportPreview()).
 			Disabled(p.state.Busy || stale || !entry.draft.Modified() || entry.invalid()).
-			OnClick(func() { entry.plan, entry.err = p.state.Session.Supports.PlanTalks(entry.draft) })
+			OnClick(func() {
+				entry.plan, entry.err = p.state.Session.Supports.PlanTalks(
+					entry.draft,
+				)
+				p.state.Report("editor.operation", entry.err)
+			})
 		label := locales.QuoteReload()
 		if entry.draft.Modified() || entry.invalid() {
 			label = locales.DeployReload()
@@ -387,7 +392,9 @@ func (p *Page) actions(c *ui.Context, entry *dialogueState, stale bool) {
 				AlignSelf(ui.Start).
 				Disabled(p.state.Busy || stale || entry.invalid() || !entry.plan.Current(p.state.Session.Supports)).
 				OnClick(func() {
-					entry.err = p.state.Session.Supports.Apply(entry.plan)
+					entry.err = p.state.Edit(
+						func() error { return p.state.Session.Supports.Apply(entry.plan) },
+					)
 					if entry.err == nil {
 						p.entry = nil
 						p.state.HistoryEpoch++

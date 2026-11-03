@@ -99,7 +99,7 @@ func (a *form) profileTerrain(
 					Children(func() {
 						ui.Button(c, locales.TerrainPreview()).
 							Disabled(a.state.Busy || !current || v.invalid() || !v.draft.Modified()).
-							OnClick(func() { v.plan, v.err = editor.Plan(v.draft) })
+							OnClick(func() { v.plan, v.err = editor.Plan(v.draft); a.state.Report("editor.operation", v.err) })
 						ui.Button(c, locales.TerrainReload()).
 							Disabled(a.state.Busy).
 							OnClick(reload)
@@ -312,7 +312,9 @@ func (a *form) terrainPreview(c *ui.Context, v *terrainState, reload func()) {
 			ui.Button(c, locales.TerrainApply()).
 				Disabled(a.state.Busy || v.invalid() || !v.plan.Current(a.state.Session.Terrain)).
 				OnClick(func() {
-					v.err = a.state.Session.Terrain.Apply(v.plan)
+					v.err = a.state.Edit(
+						func() error { return a.state.Session.Terrain.Apply(v.plan) },
+					)
 					if v.err == nil {
 						a.state.Session.Refresh()
 						reload()

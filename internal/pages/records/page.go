@@ -257,7 +257,7 @@ func (a *Page) Open(kind records.Kind, id int) {
 		}
 		table := a.state.Session.Records.Table(kind)
 		if table == nil || table.Err != nil {
-			a.state.Err = edit.ErrLayout
+			a.state.SetErr(edit.ErrLayout)
 			return
 		}
 		for index, row := range table.Rows {
@@ -273,5 +273,5 @@ func (a *Page) Open(kind records.Kind, id int) {
 			}
 		}
 	}
-	a.state.Err = edit.ErrField
+	a.state.SetErr(edit.ErrField)
 }

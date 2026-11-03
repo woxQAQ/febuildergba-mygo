@@ -56,6 +56,21 @@ git submodule update --init FEBuilderGBA
 
 记录由 `internal/app/dev_session.go` 原子写入 `os.UserCacheDir()/febuildergba-mygo/dev-session.json`，macOS 通常位于用户 Library 的 Caches 目录。生产构建及 `MYGO_ENV=production` 不读写此记录。恢复仅涉及文件路径，未保存的内存修改不会自动写入 ROM。
 
+## 日志与诊断
+
+应用启动后同时向标准错误流（文本）、磁盘文件（JSON Lines）与内存缓冲写入日志。默认路径为 `os.UserCacheDir()/febuildergba-mygo/logs/febuildergba.jsonl`；与开发恢复的 `dev-session.json` 共享父级缓存目录。环境变量控制配置，不新增 CLI 参数：
+
+| 环境变量              | 取值与默认行为                                                                          |
+| --------------------- | --------------------------------------------------------------------------------------- |
+| `FEBUILDER_LOG_LEVEL` | `debug`、`info`、`warn`、`error`；未设置或非法时，开发模式为 `debug`，生产构建为 `info` |
+| `FEBUILDER_LOG_DIR`   | 日志目录路径；未设置时使用上述缓存路径                                                  |
+
+文件默认在下一条记录将超过 1 MiB 时轮转，保留当前文件与 `.1`、`.2`、`.3` 三个历史世代，`.1` 最新；重新启动会继续已有文件并按当前大小轮转。单条记录超过上限时完整保存，下一条记录再轮转，避免截断错误原因树。新建目录与文件权限分别为 `0700` 和 `0600`。
+
+缓存路径解析、目录创建、文件打开或运行期写入／轮转失败时，应用继续运行，向标准错误流和内存记录一次警告；本次会话停用失败的文件输出。内存默认保留最近 200 条已通过级别过滤的结构化记录，文件降级警告始终保留。`Sink.Buffer.Snapshot()` 提供与内部数据隔离的只读快照，当前不提供日志导出或独立诊断面板；功能状态见[覆盖矩阵](coverage.md)。
+
+日志包含文件路径、识别版本、大小、修订与结构化错误原因，不包含完整 ROM、PNG 或正文草稿。错误分级、去重和事件字段见[错误设计](error-design.md#日志采集)，包和线程边界见[架构](architecture.md#应用诊断)。
+
 ## 国际化
 
 `mygo.json` 将 `internal/locales` 配置为翻译目录：`en.json` 是源语言，`zh-Hans.json` 是简体中文。静态文案使用生成的类型化函数；`internal/locales/labels.go` 将动态字段 ID 映射到 catalog key，`internal/components/errtext.go` 将结构化错误码映射为文案。

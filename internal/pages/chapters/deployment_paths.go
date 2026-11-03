@@ -203,7 +203,7 @@ func (v *Page) pathEditor(
 			ui.Button(c, action.label).
 				Disabled(disabled || !action.enabled).
 				OnClick(func() {
-					state.Err = action.run()
+					state.SetErr(action.run())
 					if state.Err == nil {
 						path.selected = action.selection
 						entry.pathChanged()
@@ -214,18 +214,18 @@ func (v *Page) pathEditor(
 		ui.Button(c, locales.MovePlace()).
 			Disabled(disabled || !selected || len(steps) == 0).
 			OnClick(func() {
-				if state.Err = entry.data.SetPathField(
+				if state.SetErr(entry.data.SetPathField(
 					entry.selected,
 					path.selected,
 					deployment.MoveX,
 					int64(point.X),
-				); state.Err == nil {
-					state.Err = entry.data.SetPathField(
+				)); state.Err == nil {
+					state.SetErr(entry.data.SetPathField(
 						entry.selected,
 						path.selected,
 						deployment.MoveY,
 						int64(point.Y),
-					)
+					))
 				}
 				entry.pathChanged()
 			})

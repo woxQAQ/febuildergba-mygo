@@ -88,7 +88,8 @@ func ErrorBanner(c *ui.Context, state *editor.State) {
 				Grow(1).
 				Selectable().
 				Tooltip(state.Err.Error())
-			ui.Button(c, locales.Dismiss()).OnClick(func() { state.Err = nil })
+			ui.Button(c, locales.Dismiss()).
+				OnClick(func() { state.SetErr(nil) })
 		})
 }
 

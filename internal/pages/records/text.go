@@ -75,7 +75,9 @@ func (a *form) textPreview(
 		}
 	}
 	ui.Button(c, label).Disabled(a.state.Busy).OnClick(func() {
-		if err := a.state.Session.Texts.Apply(edit); err != nil {
+		if err := a.state.Edit(
+			func() error { return a.state.Session.Texts.Apply(edit) },
+		); err != nil {
 			draft.err, draft.preview = err, nil
 			return
 		}
@@ -113,12 +115,14 @@ func (a *form) textReferenceField(
 			return
 		}
 		components.TextReference(c, a.state, &draft.reference, uint32(value), a.fieldLabel(kind, field), a.showRaw, false, func(id uint16) {
-			a.state.Err = a.state.Session.Records.Set(
-				kind,
-				[]int{row.ID},
-				field.ID,
-				int64(id),
-			)
+			a.state.SetErr(a.state.Edit(func() error {
+				return a.state.Session.Records.Set(
+					kind,
+					[]int{row.ID},
+					field.ID,
+					int64(id),
+				)
+			}))
 		}, a.openText).
 			Bind(&draft.input)
 	})
@@ -194,6 +198,7 @@ func (a *form) descriptions(
 								field.ID,
 								draft.text,
 							)
+							a.state.Report("editor.operation", draft.err)
 						})
 					ui.Button(c, locales.Cancel()).
 						Disabled(a.state.Busy).
@@ -254,6 +259,7 @@ func (a *form) nameEditor(
 							key.Field,
 							draft.text,
 						)
+						a.state.Report("editor.operation", draft.err)
 					})
 				ui.Button(c, locales.Cancel()).
 					Disabled(a.state.Busy).

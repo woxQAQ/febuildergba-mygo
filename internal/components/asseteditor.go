@@ -94,13 +94,15 @@ func (editor *AssetEditor) RenderPreview(c *ui.Context, state *editor.State) {
 				ui.Button(c, locales.ApplyImage()).
 					Disabled(state.Busy).
 					OnClick(func() {
-						if err := state.Session.Images.Apply(
-							editor.edit,
-						); err != nil {
-							state.Err = err
+						if err := state.Edit(func() error {
+							return state.Session.Images.Apply(
+								editor.edit,
+							)
+						}); err != nil {
+							state.SetErr(err)
 							return
 						}
-						state.Err = nil
+						state.SetErr(nil)
 						editor.edit, editor.imported = nil, nil
 					})
 				ui.Button(c, locales.Cancel()).
@@ -118,7 +120,7 @@ func (editor *AssetEditor) importPNG(
 	session, ref, revision := editor.session, editor.ref, editor.revision
 	actions.Import(func(content []byte, err error) {
 		if err != nil {
-			state.Err = err
+			state.SetErr(err)
 			return
 		}
 		if len(content) == 0 {
@@ -126,7 +128,7 @@ func (editor *AssetEditor) importPNG(
 		}
 		if state.Session != session ||
 			session.Document.State().Revision != revision {
-			state.Err = rom.ErrStale
+			state.SetErr(rom.ErrStale)
 			return
 		}
 		if editor.session != session || editor.ref != ref {
@@ -134,15 +136,15 @@ func (editor *AssetEditor) importPNG(
 		}
 		plan, err := session.Images.Plan(ref, content)
 		if errors.Is(err, edit.ErrValue) {
-			state.Err = nil
+			state.SetErr(nil)
 			editor.edit, editor.imported = nil, nil
 			return
 		}
 		if err != nil {
-			state.Err = err
+			state.SetErr(err)
 			return
 		}
-		state.Err = nil
+		state.SetErr(nil)
 		editor.edit = plan
 		editor.imported = ui.NewBitmap(plan.Image())
 		editor.imported.Pixelated()

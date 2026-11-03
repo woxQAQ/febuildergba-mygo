@@ -32,10 +32,13 @@ func (m *application) openDialog(win *mygo.Window, a *pages.Workspace) {
 			session, err = game.Open(paths[0])
 		}
 		err = fault.Wrap(err, "app.open", fault.Context{})
-		logError(err)
+		if session != nil {
+			logROMOpened(session, false)
+		}
 		win.Update(func() {
 			a.Editor.Busy = false
-			a.Editor.Err = err
+			a.Editor.Report("app.open", err)
+			a.Editor.SetErr(err)
 			if session == nil {
 				return
 			}
@@ -69,7 +72,11 @@ func (m *application) saveDocument(
 	title, replaceQuestion, replace, cancel := locales.SaveAs(), locales.ReplaceQuestion(), locales.Replace(), locales.Cancel()
 	background(win, a, "app.save", func() error {
 		if !as {
-			return doc.Save()
+			if err := doc.Save(); err != nil {
+				return err
+			}
+			logROMSaved(doc.State(), false)
+			return nil
 		}
 		path, err := mygo.Dialog.Save(
 			mygo.SaveDialogOptions{
@@ -104,7 +111,11 @@ func (m *application) saveDocument(
 			}
 			overwrite = true
 		}
-		return doc.SaveAs(path, overwrite)
+		if err := doc.SaveAs(path, overwrite); err != nil {
+			return err
+		}
+		logROMSaved(doc.State(), true)
+		return nil
 	}, m.rememberROMs)
 }
 
@@ -136,10 +147,13 @@ func reloadDocument(win *mygo.Window, a *pages.Workspace) {
 			session, err = game.Open(state.Path)
 		}
 		err = fault.Wrap(err, "app.reload", fault.Context{Path: state.Path})
-		logError(err)
+		if session != nil {
+			logROMOpened(session, true)
+		}
 		win.Update(func() {
 			a.Editor.Busy = false
-			a.Editor.Err = err
+			a.Editor.Report("app.reload", err)
+			a.Editor.SetErr(err)
 			if session != nil {
 				a.SetSession(session)
 			}

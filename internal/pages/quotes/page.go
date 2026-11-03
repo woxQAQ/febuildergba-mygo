@@ -371,13 +371,13 @@ func (p *Page) addButton(
 	return ui.Button(c, locales.QuoteAdd()).
 		Disabled(disabled || len(entry.rows) >= quote.MaxEntries || p.unit == 0 || p.unit > 255).
 		OnClick(func() {
-			p.state.Err = p.addRecord(entry)
+			p.state.SetErr(p.addRecord(entry))
 			if p.state.Err == nil && p.unit >= 0 {
-				p.state.Err = entry.draft.Set(
+				p.state.SetErr(entry.draft.Set(
 					len(entry.draft.Entries())-1,
 					quote.Unit,
 					uint32(p.unit),
-				) // #nosec G115 -- Character IDs are bounded by the enabled action.
+				)) // #nosec G115 -- Character IDs are bounded by the enabled action.
 			}
 			if p.state.Err == nil {
 				entry.preview = nil
@@ -394,7 +394,7 @@ func (p *Page) structure(c *ui.Context, entry *tableState, disabled bool) {
 		ui.Button(c, locales.QuoteCopy()).
 			Disabled(disabled || index < 0 || entry.invalid() || len(entry.rows) >= quote.MaxEntries).
 			OnClick(func() {
-				p.state.Err = entry.draft.Duplicate(index)
+				p.state.SetErr(entry.draft.Duplicate(index))
 				if p.state.Err == nil {
 					entry.preview = nil
 					p.query = ""
@@ -404,7 +404,7 @@ func (p *Page) structure(c *ui.Context, entry *tableState, disabled bool) {
 		ui.Button(c, locales.QuoteDelete()).
 			Disabled(disabled || index < 0).
 			OnClick(func() {
-				p.state.Err = entry.draft.Remove(index)
+				p.state.SetErr(entry.draft.Remove(index))
 				if p.state.Err == nil {
 					entry.preview = nil
 					entry.filtered = nil
@@ -430,7 +430,7 @@ func (p *Page) structure(c *ui.Context, entry *tableState, disabled bool) {
 				Tooltip(caption + "\n" + locales.QuoteOrderHelp()).
 				Disabled(disabled || index < 0 || destination < 0).
 				OnClick(func() {
-					p.state.Err = entry.draft.Move(index, destination)
+					p.state.SetErr(entry.draft.Move(index, destination))
 					if p.state.Err == nil {
 						entry.preview = nil
 					}
@@ -592,7 +592,7 @@ func (p *Page) field(
 				disabled,
 				func(id uint16) {
 					entry.preview = nil
-					p.state.Err = entry.draft.Set(index, field.ID, uint32(id))
+					p.state.SetErr(entry.draft.Set(index, field.ID, uint32(id)))
 					current.invalid = p.state.Err != nil
 				},
 				p.openText,
@@ -633,11 +633,11 @@ func (p *Page) field(
 						OnChange(func() {
 							entry.preview = nil
 							if chosen, ok := values[current.text]; ok {
-								p.state.Err = entry.draft.Set(
+								p.state.SetErr(entry.draft.Set(
 									index,
 									field.ID,
 									chosen,
-								)
+								))
 								current.invalid = p.state.Err != nil
 							} else {
 								current.invalid = true
@@ -677,11 +677,11 @@ func (p *Page) field(
 							current.invalid = err != nil || number < 0 ||
 								number > int64(field.Max)
 							if !current.invalid {
-								p.state.Err = entry.draft.Set(
+								p.state.SetErr(entry.draft.Set(
 									index,
 									field.ID,
 									uint32(number),
-								)
+								))
 								current.invalid = p.state.Err != nil
 							} // #nosec G115 -- Field bounds are checked above.
 						}),
@@ -763,7 +763,11 @@ func (p *Page) actions(c *ui.Context, entry *tableState, stale bool) {
 		if entry.draft != nil {
 			ui.Button(c, locales.QuotePreview()).
 				Disabled(p.state.Busy || stale || !modified || invalid).
-				OnClick(func() { entry.preview, p.state.Err = p.state.Session.Quotes.Plan(entry.draft) })
+				OnClick(func() {
+					preview, err := p.state.Session.Quotes.Plan(entry.draft)
+					entry.preview = preview
+					p.state.SetErr(err)
+				})
 		}
 		reload := locales.QuoteReload()
 		if modified || invalid {
@@ -795,7 +799,11 @@ func (p *Page) actions(c *ui.Context, entry *tableState, stale bool) {
 				ui.PrimaryButton(c, locales.QuoteApply()).
 					Disabled(p.state.Busy || stale || entry.invalid() || !plan.Current(p.state.Session.Quotes)).
 					OnClick(func() {
-						p.state.Err = p.state.Session.Quotes.Apply(plan)
+						p.state.SetErr(
+							p.state.Edit(
+								func() error { return p.state.Session.Quotes.Apply(plan) },
+							),
+						)
 						if p.state.Err == nil {
 							delete(p.drafts, entry.draft.Kind())
 							p.state.HistoryEpoch++

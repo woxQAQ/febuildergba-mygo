@@ -67,6 +67,7 @@ func (p *Page) backgroundFiles(c *ui.Context) {
 							}
 							b.draft, b.image, b.preview = draft, draft.Image(), true
 							b.plan, b.err = e.PlanBackground(draft)
+							p.state.Report("editor.operation", b.err)
 							p.imagesOpen = false
 							p.imageFiles.Focus()
 						},
@@ -111,7 +112,9 @@ func (p *Page) backgroundPreview(c *ui.Context) {
 			ui.PrimaryButton(c.Key("apply-background"), applyLabel).
 				Disabled(p.state.Busy || stale || !b.plan.Current(e)).
 				OnClick(func() {
-					b.err = e.ApplyBackground(b.plan)
+					b.err = p.state.Edit(
+						func() error { return e.ApplyBackground(b.plan) },
+					)
 					if b.err == nil {
 						p.state.Session.Refresh()
 						p.state.HistoryEpoch++

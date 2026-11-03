@@ -16,6 +16,21 @@ linters:
     depguard:
       # Absolute-path globs use **.go to include direct files and descendants.
       rules:
+        applog:
+          files:
+            - "${config-path}/internal/applog/**.go"
+          list-mode: strict
+          allow:
+            - $gostd
+            - github.com/woxQAQ/febuildergba-mygo/fault$
+            - github.com/woxQAQ/febuildergba-mygo/internal/applog$
+        no-applog:
+          files:
+            - "${config-path}/{game,rom,space,gba,fault}/**.go"
+            - "${config-path}/internal/{input,locales}/**.go"
+          deny:
+            - pkg: github.com/woxQAQ/febuildergba-mygo/internal/applog
+              desc: Application logging belongs at app and editor boundaries.
         domain:
           files:
             - "${config-path}/{game,rom,space,gba,fault}/**.go"

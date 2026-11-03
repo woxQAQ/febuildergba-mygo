@@ -28,6 +28,7 @@
 | 世界地图       | `game/worldmap`                                                 | 原生节点、路线、移动控制点和道路草稿、独立追加与原子写入；底图／道路预览及所属资源声明。                           |
 | 页面与组件     | `internal/pages`、`internal/components`                         | 页面拥有选择、导航与草稿；组件提供复用的显示和交互。                                                               |
 | 窗口编辑状态   | `internal/editor`                                               | 当前会话、忙碌与错误状态、历史命令目标和文本焦点，由 UI 线程修改。                                                 |
+| 应用诊断       | `internal/applog`                                               | `slog` 多路输出、有界 JSONL 轮转、并发安全的近期日志快照与错误分级。                                               |
 | 系统接口       | `internal/app`                                                  | 窗口、文件对话框、关闭确认、菜单、外部修改检测和模拟器启动。                                                       |
 | 显示语言       | `internal/locales`                                              | MyGo catalogs、系统语言匹配、英文回退与语言偏好保存。                                                              |
 | 开发工具       | `cmd/ui-probe`、`cmd/legacy-inventory`                          | 原生控件试验与旧版来源索引；索引生成到 `.cache/`。                                                                 |
@@ -61,6 +62,9 @@
 ```mermaid
 flowchart TD
     App[app] --> Pages[pages]
+    App --> AppLog[internal/applog: 应用诊断]
+    State --> AppLog
+    AppLog --> Fault[fault: 错误上下文]
     Pages --> Components[components]
     Pages --> State[internal/editor]
     Components --> State
@@ -103,6 +107,7 @@ flowchart TD
 - `app` 只经 `pages` 根包组合界面，不导入组件或页面子包。
 - 组件不反向导入页面或 app，页面不导入 app；文本、头像、脚本、商店、支援、斗技场、战斗／死亡对话及世界地图页面不直接导入记录页。
 - `locales` 不导入领域包；错误到文案的映射由组件承接。
+- `internal/applog` 只依赖标准库与 `fault`；`game`、`rom`、`space`、`gba`、`fault`、`internal/input`、`internal/locales` 不导入它。
 - `internal/input` 不导入 MyGo；该包独立承载纯数值和地址解析。
 
 ### 人工审查的设计约束
@@ -180,6 +185,14 @@ flowchart TD
 ```
 
 纯数值和地址解析位于 `internal/input`。窗口状态及异步结果遵循 [AGENTS 的线程约束](../AGENTS.md#实现边界)，验证方法见其[命令与验证](../AGENTS.md#命令与验证)。
+
+## 应用诊断
+
+`internal/applog` 中的 `Sink` 是日志运行期句柄，持有组合后的 `slog.Logger`、可用日志目录和 `RingBuffer`（固定容量的近期记录缓冲）。`app.Run` 安装默认 logger，退出时先等待开发路径记录完成，再记录致命错误并关闭日志文件；`main.go` 据返回值设置非零退出码。标准错误流使用文本格式，轮转文件使用 JSONL；文件初始化或写入失败时，警告直接进入标准错误流与内存，避免再次经过失败的文件处理器。配置与保留策略见[开发说明](development.md#日志与诊断)。
+
+领域核心只返回结果与 `fault.Error`。窗口错误通过 `editor.State.SetErr` 更新横幅；保留局部草稿错误的页面通过 `State.Report` 记录诊断，不改变提示位置。两者按错误码和诊断文本去重。`State.Edit` 包围同步领域提交，只在成功且文档修订变化时记录 `apply`；文档撤销重做使用同一状态入口记录 `undo`／`redo`。草稿历史和空写入不产生文档历史事件。
+
+文件操作的错误在 `Window.Update` 回传中带显式顶层操作名记录，再交给页面，因此同一错误不会同时以应用和编辑器操作重复输出。打开、保存、重载与模拟器启动记录成功上下文；外部修改只在窗口状态从未变更转为已变更时记录。错误分类与字段见[错误设计](error-design.md#日志采集)。日志接收器可并发使用，`editor.State` 仍只在 UI 线程修改。
 
 ## 未决问题
 

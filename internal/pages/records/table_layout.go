@@ -92,6 +92,7 @@ func (a *Page) tableLayout(c *ui.Context) {
 						Count:   int(count),
 					},
 				)
+				a.state.Report("editor.operation", p.layout.err)
 				if p.layout.err == nil {
 					p.layout.move = nil
 					p.chosen.Clear()
@@ -132,6 +133,7 @@ func (a *Page) tableMove(c *ui.Context, table *records.Table, p *pane) {
 				table.Kind,
 				nil,
 			)
+			a.state.Report("editor.operation", p.layout.err)
 		})
 	move := p.layout.move
 	if move == nil {
@@ -155,7 +157,9 @@ func (a *Page) tableMove(c *ui.Context, table *records.Table, p *pane) {
 	ui.Button(c, locales.ApplyMove()).
 		Disabled(a.state.Busy || table.Manual || stale).
 		OnClick(func() {
-			p.layout.err = a.state.Session.Records.ApplyTableMove(move)
+			p.layout.err = a.state.Edit(
+				func() error { return a.state.Session.Records.ApplyTableMove(move) },
+			)
 			if p.layout.err == nil {
 				p.layout.move = nil
 				p.layout.initialized = false

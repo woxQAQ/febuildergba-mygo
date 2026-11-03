@@ -26,7 +26,7 @@
 
 命令以根目录 `justfile` 为准，直接使用 PATH 上由 Nix 提供的 Go、`just`、`golangci-lint` 和 `oxfmt`。`justfile` 为所有 recipe 设置 `GOTOOLCHAIN=local`；直接调用 Go 或启动语言服务器时也须设置该值，不通过 Go 自动下载补齐版本。环境与工具要求见[开发说明](docs/development.md)。
 
-- 修改行为、算法或数据结构后运行相关测试和 `just check`；涉及 ROM 文档（`rom.Document`）历史或 `just test-race` 所覆盖包的并发时运行该 recipe。其范围为 `rom`、`game/...`、`space`，不覆盖 `internal/app`、`internal/editor` 的 UI 线程与异步回传；这些改动通过 `just vet` 加有界的临时复核验证，不能报告为 race 已覆盖。纯布局、间距或样式调整无需专门测试。
+- 修改行为、算法或数据结构后运行相关测试和 `just check`；涉及 ROM 文档（`rom.Document`）历史或 `just test-race` 所覆盖包的并发时运行该 recipe。其范围为 `rom`、`game/...`、`space`、`internal/applog`，不覆盖 `internal/app`、`internal/editor` 的 UI 线程与异步回传；这些改动通过 `just vet` 加有界的临时复核验证，不能报告为 race 已覆盖。纯布局、间距或样式调整无需专门测试。
 - 导入边界由 `.golangci.yml` 的 `depguard` 随 `just lint`／`just check` 检查；修改规则时，在隔离副本验证允许依赖通过、违规导入失败，包含子包及测试文件。
 - 纯文档修改检查 diff 即可，无需启动 UI、模拟器或执行 ROM 回归。
 - 测试调用实际领域操作，检查结果、未知字节保留、冲突和失败原子性；不按函数逐一写测试，不复制一份实现充当预期。编解码使用独立构造的固定数据和期望，不能只靠往返测试。测试组织和证据解释见[测试说明](tests/README.md)。

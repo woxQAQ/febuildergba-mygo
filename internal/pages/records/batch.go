@@ -146,14 +146,16 @@ func (a *Page) applyBatch() {
 		p.batch.err = edit.ErrValue
 		return
 	}
-	p.batch.err = a.state.Session.Records.Set(
-		records.Kinds[a.tab],
-		ids,
-		p.batch.field,
-		value,
-	)
+	p.batch.err = a.state.Edit(func() error {
+		return a.state.Session.Records.Set(
+			records.Kinds[a.tab],
+			ids,
+			p.batch.field,
+			value,
+		)
+	})
 	if p.batch.err == nil {
 		a.state.HistoryEpoch++
-		a.state.Err = nil
+		a.state.SetErr(nil)
 	}
 }

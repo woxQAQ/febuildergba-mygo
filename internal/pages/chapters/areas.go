@@ -101,11 +101,11 @@ func (v *Page) placeArea(
 		x, y = event.AreaX2, event.AreaY2
 	}
 	for field, value := range map[string]int64{x: int64(point.X), y: int64(point.Y)} {
-		if state.Err = entry.data.Set(
+		if state.SetErr(entry.data.Set(
 			entry.selected,
 			field,
 			value,
-		); state.Err != nil {
+		)); state.Err != nil {
 			return
 		}
 		delete(entry.inputs, inputKey{entry.selected, field})
