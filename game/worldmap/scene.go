@@ -180,7 +180,20 @@ type sceneCache struct {
 	routes           map[int]Scene
 }
 
-func (e *Editor) Scene(id int) Scene {
+// BackgroundImage returns a cached background independently of the route table.
+func (e *Editor) BackgroundImage(tone BackgroundTone) (*image.RGBA, error) {
+	e.refreshScene()
+	switch tone {
+	case Daytime:
+		return e.scenery.background, e.scenery.err
+	case Darkened:
+		return e.scenery.dark, e.scenery.darkErr
+	default:
+		return nil, ErrScene
+	}
+}
+
+func (e *Editor) refreshScene() {
 	if !e.scenery.stamp.Current(e.context) {
 		image := e.context.Capture()
 		e.scenery = sceneCache{
@@ -201,6 +214,10 @@ func (e *Editor) Scene(id int) Scene {
 			e.scenery.darkErr = e.scenery.err
 		}
 	}
+}
+
+func (e *Editor) Scene(id int) Scene {
+	e.refreshScene()
 	if result, ok := e.scenery.routes[id]; ok {
 		return result
 	}

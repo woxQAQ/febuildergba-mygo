@@ -56,6 +56,7 @@ type Page struct {
 	drafts            map[int]*nodeState
 	advanced, more    bool
 	tab               int
+	nodeCanvas        nodeCanvas
 	routes            routePage
 	imagesOpen        bool
 	imageFiles        ui.Handle
@@ -101,6 +102,11 @@ func (p *Page) Reset() {
 	p.sidebar, p.openScript = sidebar, openScript
 	p.importBackground, p.exportBackground = importBackground, exportBackground
 	p.importRoadTileset, p.exportRoadTileset = importRoadTileset, exportRoadTileset
+}
+
+// Deactivate ends map positioning when another workspace page is shown.
+func (p *Page) Deactivate() {
+	p.nodeCanvas.placing = false
 }
 
 func (p *Page) Open(id int) {
@@ -162,6 +168,7 @@ func (p *Page) View(c *ui.Context) {
 			Shrink(0).
 			Disabled(p.state.Busy)
 		if p.tab == 1 {
+			p.Deactivate()
 			p.viewRoutes(c)
 		} else {
 			p.activateRoute(nil)
@@ -232,7 +239,7 @@ func (p *Page) detail(c *ui.Context) {
 	node := p.rows[p.selected]
 	entry := p.draft(node.ID)
 	reload := func() { delete(p.drafts, node.ID) }
-	ui.Scroll(c.Key(entry)).
+	ui.Scroll(c.Key("node-detail")).
 		Fill().
 		MinWidth(0).
 		Padding(16).
@@ -245,135 +252,143 @@ func (p *Page) detail(c *ui.Context) {
 					Tooltip(locales.WorldmapScope())
 				ui.Checkbox(c, &p.advanced, locales.Advanced())
 			})
-			if entry.draft == nil {
-				ui.Text(c, components.ErrorText(entry.err)).
-					TextColor(c.Theme().Danger)
-				ui.Button(c, locales.QuoteReload()).
-					Disabled(p.state.Busy).
-					OnClick(reload)
-				return
-			}
-			e := p.state.Session.WorldMap
-			stale := !entry.draft.Current(e)
-			disabled := p.state.Busy || stale
-			if stale {
-				entry.plan = nil
-				ui.Text(c, locales.WorldmapStale()).TextColor(c.Theme().Danger)
-			}
-			if entry.draft.Modified() || entry.invalid() || stale {
-				ui.Row(c).Wrap().Gap(8).Children(func() {
-					ui.Button(c.Key("preview"), locales.WorldmapPreview()).
-						Disabled(disabled || entry.invalid() || !entry.draft.Modified()).
-						OnClick(func() { entry.plan, entry.err = e.Plan(entry.draft) })
-					ui.Button(c, locales.DeployReload()).
+			p.nodeMap(c, entry)
+			ui.Column(c.Key(entry)).Gap(12).Children(func() {
+				if entry.draft == nil {
+					ui.Text(c, components.ErrorText(entry.err)).
+						TextColor(c.Theme().Danger)
+					ui.Button(c, locales.QuoteReload()).
 						Disabled(p.state.Busy).
 						OnClick(reload)
+					return
+				}
+				e := p.state.Session.WorldMap
+				stale := !entry.draft.Current(e)
+				disabled := p.state.Busy || stale
+				if stale {
+					entry.plan = nil
+					ui.Text(c, locales.WorldmapStale()).
+						TextColor(c.Theme().Danger)
+				}
+				if entry.draft.Modified() || entry.invalid() || stale {
+					ui.Row(c).Wrap().Gap(8).Children(func() {
+						ui.Button(c.Key("preview"), locales.WorldmapPreview()).
+							Disabled(disabled || entry.invalid() || !entry.draft.Modified()).
+							OnClick(func() { entry.plan, entry.err = e.Plan(entry.draft) })
+						ui.Button(c, locales.DeployReload()).
+							Disabled(p.state.Busy).
+							OnClick(reload)
+					})
+				}
+				if entry.invalid() {
+					ui.Text(c, locales.SupportInvalidInput()).
+						FontSize(12).
+						TextColor(c.Theme().Danger)
+				}
+				if entry.err != nil {
+					ui.Text(c, components.ErrorText(entry.err)).
+						TextColor(c.Theme().Danger)
+				}
+				if entry.plan != nil {
+					p.preview(c, entry, reload)
+				}
+				p.fields(c, entry, disabled, worldmap.X, worldmap.Y)
+				value := entry.draft.Node()
+				ui.Column(c.Key("name")).Gap(4).Children(func() {
+					ui.Text(c, locales.WorldmapName()).FontSize(13).Bold()
+					components.TextReference(
+						c,
+						p.state,
+						&entry.name,
+						uint32(value.Name),
+						locales.WorldmapName(),
+						p.advanced,
+						disabled,
+						func(id uint16) {
+							entry.plan = nil
+							entry.err = entry.draft.Set(worldmap.Name, int(id))
+						},
+						p.openText,
+					)
 				})
-			}
-			if entry.invalid() {
-				ui.Text(c, locales.SupportInvalidInput()).
-					FontSize(12).
-					TextColor(c.Theme().Danger)
-			}
-			if entry.err != nil {
-				ui.Text(c, components.ErrorText(entry.err)).
-					TextColor(c.Theme().Danger)
-			}
-			if entry.plan != nil {
-				p.preview(c, entry, reload)
-			}
-			value := entry.draft.Node()
-			ui.Column(c.Key("name")).Gap(4).Children(func() {
-				ui.Text(c, locales.WorldmapName()).FontSize(13).Bold()
-				components.TextReference(
+				p.connectedRoutes(c, node.ID)
+				p.relatedEvents(
 					c,
-					p.state,
-					&entry.name,
-					uint32(value.Name),
-					locales.WorldmapName(),
-					p.advanced,
-					disabled,
-					func(id uint16) {
-						entry.plan = nil
-						entry.err = entry.draft.Set(worldmap.Name, int(id))
-					},
-					p.openText,
+					event.ScriptWorldMapNodeTarget,
+					node.ID,
+					&entry.eventsOpen,
 				)
-			})
-			p.fields(c, entry, disabled, worldmap.X, worldmap.Y)
-			p.connectedRoutes(c, node.ID)
-			p.relatedEvents(
-				c,
-				event.ScriptWorldMapNodeTarget,
-				node.ID,
-				&entry.eventsOpen,
-			)
-			ui.Text(c, locales.WorldmapChapters()).FontSize(13).Bold()
-			p.fields(
-				c,
-				entry,
-				disabled,
-				worldmap.EirikaChapter,
-				worldmap.EphraimChapter,
-			)
-			ui.Text(c, locales.WorldmapDestinations()).
-				FontSize(13).
-				Bold().
-				Tooltip(locales.WorldmapNextHelp())
-			p.fields(
-				c,
-				entry,
-				disabled,
-				worldmap.EirikaNext,
-				worldmap.EphraimNext,
-			)
-			p.fields(c, entry, disabled, worldmap.BranchFlag)
-			p.fields(
-				c,
-				entry,
-				disabled,
-				worldmap.EirikaAlternate,
-				worldmap.EphraimAlternate,
-			)
-			ui.Collapsible(
-				c.Key("rules"),
-				locales.WorldmapOtherRules(),
-				&p.more,
-				func() {
-					p.fields(
-						c,
-						entry,
-						disabled,
-						worldmap.UnclearedIcon,
-						worldmap.ClearedIcon,
-					)
-					p.fields(
-						c,
-						entry,
-						disabled,
-						worldmap.Placement,
-						worldmap.Encounters,
-						worldmap.ShipTravel,
-					)
-				},
-			)
-			ui.Row(c.Key("shops")).Wrap().Gap(8).Children(func() {
-				for slot, label := range []string{locales.ShopArmory(), locales.ShopVendor(), locales.ShopSecret()} {
-					ui.Button(c.Key(slot), label).
-						Disabled(p.state.Busy || p.openShop == nil).
-						OnClick(func() { p.openShop(shop.Key{Origin: shop.WorldMap, ID: node.ID, Slot: slot}) })
+				ui.Text(c, locales.WorldmapChapters()).FontSize(13).Bold()
+				p.fields(
+					c,
+					entry,
+					disabled,
+					worldmap.EirikaChapter,
+					worldmap.EphraimChapter,
+				)
+				ui.Text(c, locales.WorldmapDestinations()).
+					FontSize(13).
+					Bold().
+					Tooltip(locales.WorldmapNextHelp())
+				p.fields(
+					c,
+					entry,
+					disabled,
+					worldmap.EirikaNext,
+					worldmap.EphraimNext,
+				)
+				p.fields(c, entry, disabled, worldmap.BranchFlag)
+				p.fields(
+					c,
+					entry,
+					disabled,
+					worldmap.EirikaAlternate,
+					worldmap.EphraimAlternate,
+				)
+				ui.Collapsible(
+					c.Key("rules"),
+					locales.WorldmapOtherRules(),
+					&p.more,
+					func() {
+						p.fields(
+							c,
+							entry,
+							disabled,
+							worldmap.UnclearedIcon,
+							worldmap.ClearedIcon,
+						)
+						p.fields(
+							c,
+							entry,
+							disabled,
+							worldmap.Placement,
+							worldmap.Encounters,
+							worldmap.ShipTravel,
+						)
+					},
+				)
+				ui.Row(c.Key("shops")).Wrap().Gap(8).Children(func() {
+					for slot, label := range []string{locales.ShopArmory(), locales.ShopVendor(), locales.ShopSecret()} {
+						ui.Button(c.Key(slot), label).
+							Disabled(p.state.Busy || p.openShop == nil).
+							OnClick(func() { p.openShop(shop.Key{Origin: shop.WorldMap, ID: node.ID, Slot: slot}) })
+					}
+				})
+				if p.advanced {
+					ui.Row(c).
+						Wrap().
+						Gap(8).
+						AlignItems(ui.Center).
+						Children(func() {
+							ui.Textf(c, "0x%08X", value.Address).
+								Font("monospace").
+								FontSize(12)
+							ui.Button(c, locales.EditBytes()).
+								Disabled(disabled || p.openHex == nil).
+								OnClick(func() { p.openHex(value.Address, worldmap.NodeSize) })
+						})
 				}
 			})
-			if p.advanced {
-				ui.Row(c).Wrap().Gap(8).AlignItems(ui.Center).Children(func() {
-					ui.Textf(c, "0x%08X", value.Address).
-						Font("monospace").
-						FontSize(12)
-					ui.Button(c, locales.EditBytes()).
-						Disabled(disabled || p.openHex == nil).
-						OnClick(func() { p.openHex(value.Address, worldmap.NodeSize) })
-				})
-			}
 		})
 }
 

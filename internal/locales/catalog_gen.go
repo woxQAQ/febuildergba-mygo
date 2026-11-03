@@ -1322,6 +1322,46 @@ func (msgs Messages) WorldmapPositionHelp() string {
 	return Catalog.Format(msgs.locale, "worldmap_position_help", nil)
 }
 
+// WorldmapPlaceNode says "Click map to position this node"
+// in the language the app shows.
+func WorldmapPlaceNode() string { return In(i18n.Locale()).WorldmapPlaceNode() }
+
+// WorldmapPlaceNode says "Click map to position this node"
+// in the language of msgs.
+func (msgs Messages) WorldmapPlaceNode() string {
+	return Catalog.Format(msgs.locale, "worldmap_place_node", nil)
+}
+
+// WorldmapNodeCanvas says "World-map nodes"
+// in the language the app shows.
+func WorldmapNodeCanvas() string { return In(i18n.Locale()).WorldmapNodeCanvas() }
+
+// WorldmapNodeCanvas says "World-map nodes"
+// in the language of msgs.
+func (msgs Messages) WorldmapNodeCanvas() string {
+	return Catalog.Format(msgs.locale, "worldmap_node_canvas", nil)
+}
+
+// WorldmapNodeMapHelp says "Click a marker to select a node; click overlapping markers again to cycle. Enable positioning to change coordinates. …"
+// in the language the app shows.
+func WorldmapNodeMapHelp() string { return In(i18n.Locale()).WorldmapNodeMapHelp() }
+
+// WorldmapNodeMapHelp says "Click a marker to select a node; click overlapping markers again to cycle. Enable positioning to change coordinates. …"
+// in the language of msgs.
+func (msgs Messages) WorldmapNodeMapHelp() string {
+	return Catalog.Format(msgs.locale, "worldmap_node_map_help", nil)
+}
+
+// WorldmapNodeOffMap says "This node is outside the background. Use the coordinate fields or map positioning to bring it into view."
+// in the language the app shows.
+func WorldmapNodeOffMap() string { return In(i18n.Locale()).WorldmapNodeOffMap() }
+
+// WorldmapNodeOffMap says "This node is outside the background. Use the coordinate fields or map positioning to bring it into view."
+// in the language of msgs.
+func (msgs Messages) WorldmapNodeOffMap() string {
+	return Catalog.Format(msgs.locale, "worldmap_node_off_map", nil)
+}
+
 // WorldmapOpenChapter says "Open chapter"
 // in the language the app shows.
 func WorldmapOpenChapter() string { return In(i18n.Locale()).WorldmapOpenChapter() }

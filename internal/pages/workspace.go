@@ -317,6 +317,9 @@ func (w *Workspace) View(c *ui.Context) {
 		if w.tab >= len(records.Kinds) {
 			w.records.Deactivate()
 		}
+		if w.tab != len(records.Kinds)+8 {
+			w.worldmap.Deactivate()
+		}
 		switch w.tab {
 		case len(records.Kinds):
 			w.texts.View(c)

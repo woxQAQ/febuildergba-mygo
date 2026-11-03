@@ -126,6 +126,105 @@ func TestNativeNodeEditingAndHistory(t *testing.T) {
 	}
 }
 
+func TestNodePositionEditingWithIndependentGraphics(t *testing.T) {
+	for _, version := range []string{"FE8U", "FE8J"} {
+		t.Run(version, func(t *testing.T) {
+			f := testutil.NewWorldMapBackgroundFixture(version)
+			// The node map must not depend on a readable route table.
+			f.WriteU32(f.GetPosition("worldmap_routes_pointer"), 0)
+			s := testutil.Open(t, f)
+			background, err := s.WorldMap.BackgroundImage(worldmap.Daytime)
+			if err != nil || background == nil {
+				t.Fatal("background with unavailable routes", err)
+			}
+			if cached, err := s.WorldMap.BackgroundImage(
+				worldmap.Daytime,
+			); err != nil ||
+				cached != background {
+				t.Fatal("background cache", err)
+			}
+			if dark, err := s.WorldMap.BackgroundImage(
+				worldmap.Darkened,
+			); err != nil ||
+				dark == nil {
+				t.Fatal("dark background", err)
+			}
+			before := s.Document.Snapshot()
+			draft, err := s.WorldMap.NewDraft(0)
+			if err != nil {
+				t.Fatal(err)
+			}
+			if err := draft.Set(worldmap.X, 479); err != nil {
+				t.Fatal(err)
+			}
+			if err := draft.Set(worldmap.Y, 319); err != nil {
+				t.Fatal(err)
+			}
+			plan, err := s.WorldMap.Plan(draft)
+			if err != nil || len(plan.Changes()) != 2 {
+				t.Fatal("position preview", err)
+			}
+			if !bytes.Equal(before.Data, s.Document.Snapshot().Data) {
+				t.Fatal("preview changed the document")
+			}
+			if err := s.WorldMap.Apply(plan); err != nil {
+				t.Fatal(err)
+			}
+			want := bytes.Clone(before.Data)
+			at := f.GetPosition("worldmap_nodes") + 24
+			copy(want[at:at+4], []byte{0xDF, 1, 0x3F, 1})
+			if !bytes.Equal(want, s.Document.Snapshot().Data) {
+				t.Fatal("position changed other node fields, shops or graphics")
+			}
+			if refreshed, err := s.WorldMap.BackgroundImage(
+				worldmap.Daytime,
+			); err != nil ||
+				refreshed == background {
+				t.Fatal("background outlived revision", err)
+			}
+			if !s.Document.Undo() ||
+				!bytes.Equal(before.Data, s.Document.Snapshot().Data) ||
+				s.Document.State().CanUndo {
+				t.Fatal("position undo was not one operation")
+			}
+			if !s.Document.Redo() ||
+				!bytes.Equal(want, s.Document.Snapshot().Data) {
+				t.Fatal("position redo")
+			}
+			if err := s.Document.Save(); err != nil {
+				t.Fatal(err)
+			}
+			reopened, err := game.Open(s.Document.State().Path)
+			if err != nil ||
+				!bytes.Equal(want, reopened.Document.Snapshot().Data) {
+				t.Fatal("position save/reopen", err)
+			}
+			// A broken background also leaves coordinate editing independent.
+			f.WriteU8(f.GetPosition("worldmap_palette_map"), 0)
+			s = testutil.Open(t, f)
+			if _, err := s.WorldMap.BackgroundImage(
+				worldmap.Daytime,
+			); err == nil {
+				t.Fatal("broken background accepted")
+			}
+			draft, err = s.WorldMap.NewDraft(0)
+			if err != nil {
+				t.Fatal(err)
+			}
+			if err := draft.Set(worldmap.X, -32768); err != nil {
+				t.Fatal(err)
+			}
+			plan, err = s.WorldMap.Plan(draft)
+			if err != nil {
+				t.Fatal("graphics blocked coordinate editing", err)
+			}
+			if err := s.WorldMap.Apply(plan); err != nil {
+				t.Fatal(err)
+			}
+		})
+	}
+}
+
 func TestNodeConflictAndReferenceFailuresAreAtomic(t *testing.T) {
 	for _, scenario := range []string{"chapter", "text", "revision", "layout", "document", "record-overlap", "inventory-overlap", "root-overlap"} {
 		t.Run(scenario, func(t *testing.T) {
