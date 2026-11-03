@@ -8240,6 +8240,196 @@ func (msgs Messages) MapPan() string {
 	return Catalog.Format(msgs.locale, "map_pan", nil)
 }
 
+// MapTilesetEditor says "Tile definitions"
+// in the language the app shows.
+func MapTilesetEditor() string { return In(i18n.Locale()).MapTilesetEditor() }
+
+// MapTilesetEditor says "Tile definitions"
+// in the language of msgs.
+func (msgs Messages) MapTilesetEditor() string {
+	return Catalog.Format(msgs.locale, "map_tileset_editor", nil)
+}
+
+// MapEditTileDefinition says "Edit selected tile definition"
+// in the language the app shows.
+func MapEditTileDefinition() string { return In(i18n.Locale()).MapEditTileDefinition() }
+
+// MapEditTileDefinition says "Edit selected tile definition"
+// in the language of msgs.
+func (msgs Messages) MapEditTileDefinition() string {
+	return Catalog.Format(msgs.locale, "map_edit_tile_definition", nil)
+}
+
+// MapDefinitionId says "Definition ID"
+// in the language the app shows.
+func MapDefinitionId() string { return In(i18n.Locale()).MapDefinitionId() }
+
+// MapDefinitionId says "Definition ID"
+// in the language of msgs.
+func (msgs Messages) MapDefinitionId() string {
+	return Catalog.Format(msgs.locale, "map_definition_id", nil)
+}
+
+// MapTerrainId says "Terrain ID"
+// in the language the app shows.
+func MapTerrainId() string { return In(i18n.Locale()).MapTerrainId() }
+
+// MapTerrainId says "Terrain ID"
+// in the language of msgs.
+func (msgs Messages) MapTerrainId() string {
+	return Catalog.Format(msgs.locale, "map_terrain_id", nil)
+}
+
+// MapTilesetPart says "Part"
+// in the language the app shows.
+func MapTilesetPart() string { return In(i18n.Locale()).MapTilesetPart() }
+
+// MapTilesetPart says "Part"
+// in the language of msgs.
+func (msgs Messages) MapTilesetPart() string {
+	return Catalog.Format(msgs.locale, "map_tileset_part", nil)
+}
+
+// MapPartTile says "8×8 tile"
+// in the language the app shows.
+func MapPartTile() string { return In(i18n.Locale()).MapPartTile() }
+
+// MapPartTile says "8×8 tile"
+// in the language of msgs.
+func (msgs Messages) MapPartTile() string {
+	return Catalog.Format(msgs.locale, "map_part_tile", nil)
+}
+
+// MapPartPalette says "Palette bank"
+// in the language the app shows.
+func MapPartPalette() string { return In(i18n.Locale()).MapPartPalette() }
+
+// MapPartPalette says "Palette bank"
+// in the language of msgs.
+func (msgs Messages) MapPartPalette() string {
+	return Catalog.Format(msgs.locale, "map_part_palette", nil)
+}
+
+// MapPartFlipX says "Flip horizontally"
+// in the language the app shows.
+func MapPartFlipX() string { return In(i18n.Locale()).MapPartFlipX() }
+
+// MapPartFlipX says "Flip horizontally"
+// in the language of msgs.
+func (msgs Messages) MapPartFlipX() string {
+	return Catalog.Format(msgs.locale, "map_part_flip_x", nil)
+}
+
+// MapPartFlipY says "Flip vertically"
+// in the language the app shows.
+func MapPartFlipY() string { return In(i18n.Locale()).MapPartFlipY() }
+
+// MapPartFlipY says "Flip vertically"
+// in the language of msgs.
+func (msgs Messages) MapPartFlipY() string {
+	return Catalog.Format(msgs.locale, "map_part_flip_y", nil)
+}
+
+// MapPartTopLeft says "Top left"
+// in the language the app shows.
+func MapPartTopLeft() string { return In(i18n.Locale()).MapPartTopLeft() }
+
+// MapPartTopLeft says "Top left"
+// in the language of msgs.
+func (msgs Messages) MapPartTopLeft() string {
+	return Catalog.Format(msgs.locale, "map_part_top_left", nil)
+}
+
+// MapPartTopRight says "Top right"
+// in the language the app shows.
+func MapPartTopRight() string { return In(i18n.Locale()).MapPartTopRight() }
+
+// MapPartTopRight says "Top right"
+// in the language of msgs.
+func (msgs Messages) MapPartTopRight() string {
+	return Catalog.Format(msgs.locale, "map_part_top_right", nil)
+}
+
+// MapPartBottomLeft says "Bottom left"
+// in the language the app shows.
+func MapPartBottomLeft() string { return In(i18n.Locale()).MapPartBottomLeft() }
+
+// MapPartBottomLeft says "Bottom left"
+// in the language of msgs.
+func (msgs Messages) MapPartBottomLeft() string {
+	return Catalog.Format(msgs.locale, "map_part_bottom_left", nil)
+}
+
+// MapPartBottomRight says "Bottom right"
+// in the language the app shows.
+func MapPartBottomRight() string { return In(i18n.Locale()).MapPartBottomRight() }
+
+// MapPartBottomRight says "Bottom right"
+// in the language of msgs.
+func (msgs Messages) MapPartBottomRight() string {
+	return Catalog.Format(msgs.locale, "map_part_bottom_right", nil)
+}
+
+// MapTilesetPreview says "Review tile definition edits"
+// in the language the app shows.
+func MapTilesetPreview() string { return In(i18n.Locale()).MapTilesetPreview() }
+
+// MapTilesetPreview says "Review tile definition edits"
+// in the language of msgs.
+func (msgs Messages) MapTilesetPreview() string {
+	return Catalog.Format(msgs.locale, "map_tileset_preview", nil)
+}
+
+// MapTilesetApply says "Apply tile definitions"
+// in the language the app shows.
+func MapTilesetApply() string { return In(i18n.Locale()).MapTilesetApply() }
+
+// MapTilesetApply says "Apply tile definitions"
+// in the language of msgs.
+func (msgs Messages) MapTilesetApply() string {
+	return Catalog.Format(msgs.locale, "map_tileset_apply", nil)
+}
+
+// MapTilesetHelp says "A 16×16 map tile combines four 8×8 tiles. Select a definition from the tileset or map, then edit its parts and terr…"
+// in the language the app shows.
+func MapTilesetHelp() string { return In(i18n.Locale()).MapTilesetHelp() }
+
+// MapTilesetHelp says "A 16×16 map tile combines four 8×8 tiles. Select a definition from the tileset or map, then edit its parts and terr…"
+// in the language of msgs.
+func (msgs Messages) MapTilesetHelp() string {
+	return Catalog.Format(msgs.locale, "map_tileset_help", nil)
+}
+
+// GameMapTilesetReference says "A changed tile is unavailable in a chapter sharing this configuration entry. Check the shared chapters’ graphics re…"
+// in the language the app shows.
+func GameMapTilesetReference() string { return In(i18n.Locale()).GameMapTilesetReference() }
+
+// GameMapTilesetReference says "A changed tile is unavailable in a chapter sharing this configuration entry. Check the shared chapters’ graphics re…"
+// in the language of msgs.
+func (msgs Messages) GameMapTilesetReference() string {
+	return Catalog.Format(msgs.locale, "game_map_tileset_reference", nil)
+}
+
+// MapTilesetScope says "Chapters sharing the selected configuration entry update together. Independent entries keep the old configuration. Gr…"
+// in the language the app shows.
+func MapTilesetScope() string { return In(i18n.Locale()).MapTilesetScope() }
+
+// MapTilesetScope says "Chapters sharing the selected configuration entry update together. Independent entries keep the old configuration. Gr…"
+// in the language of msgs.
+func (msgs Messages) MapTilesetScope() string {
+	return Catalog.Format(msgs.locale, "map_tileset_scope", nil)
+}
+
+// MapTilesetDrafts says "Tile definitions and map layouts keep separate drafts. Applying either makes the other’s pending draft stale."
+// in the language the app shows.
+func MapTilesetDrafts() string { return In(i18n.Locale()).MapTilesetDrafts() }
+
+// MapTilesetDrafts says "Tile definitions and map layouts keep separate drafts. Applying either makes the other’s pending draft stale."
+// in the language of msgs.
+func (msgs Messages) MapTilesetDrafts() string {
+	return Catalog.Format(msgs.locale, "map_tileset_drafts", nil)
+}
+
 // MapTileset says "Tileset"
 // in the language the app shows.
 func MapTileset() string { return In(i18n.Locale()).MapTileset() }

@@ -73,6 +73,7 @@ var errorMessages = map[string]func() string{
 	"game.unsupported_text_control":        locales.GameUnsupportedTextControl,
 	"game.invalid_text_argument":           locales.GameInvalidTextArgument,
 	"game.invalid_map":                     locales.GameInvalidMap,
+	"game.map_tileset_reference":           locales.GameMapTilesetReference,
 	"game.map_impact_limit":                locales.GameMapImpactLimit,
 	"game.map_impact_context":              locales.GameMapImpactContext,
 	"game.invalid_map_changes":             locales.GameInvalidMapChanges,

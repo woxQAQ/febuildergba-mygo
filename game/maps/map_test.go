@@ -117,7 +117,7 @@ func TestChapterMapWorkflow(t *testing.T) {
 			}
 			if err := s.Records.Set(
 				records.Chapters,
-				[]int{0},
+				[]int{0, 1},
 				"map_object_id",
 				5,
 			); err != nil {
@@ -128,10 +128,33 @@ func TestChapterMapWorkflow(t *testing.T) {
 			}
 			if err := s.Records.Set(
 				records.Chapters,
-				[]int{0},
+				[]int{0, 1},
 				"map_object_alt_id",
 				8,
 			); err != nil {
+				t.Fatal(err)
+			}
+			if _, err := s.Maps.Read(0); !errors.Is(err, maps.ErrMap) {
+				t.Fatal("second graphics filled an unloaded gap")
+			}
+			definitions, err := s.Maps.NewTilesetDraft(0)
+			if err != nil {
+				t.Fatal(err)
+			}
+			for part := range 4 {
+				if err := definitions.SetPart(
+					1,
+					part,
+					maps.TilePart{Tile: 512},
+				); err != nil {
+					t.Fatal(err)
+				}
+			}
+			configuration, err := s.Maps.PlanTileset(definitions)
+			if err != nil {
+				t.Fatal(err)
+			}
+			if err := s.Maps.ApplyTileset(configuration); err != nil {
 				t.Fatal(err)
 			}
 			combined, err := s.Maps.Read(0)

@@ -52,6 +52,18 @@ FE8 路径使用同一固定提交的 [muctrl.h](https://github.com/FireEmblemUn
 
 坐标影响复用下述部署、REDA、条件事件及脚本来源。锚点和奇数差额的分配是编辑器的明确操作契约；不据此自动改变原生事件坐标或推断运行时状态。
 
+## 图块定义
+
+固定旧版基线的 [MapStyleEditorForm.cs](../FEBuilderGBA/FEBuilderGBA/MapStyleEditorForm.cs) 中 `ToConfigData`、`Config_W0/2/4/6_ValueChanged`、`ConfigTerrain_SelectedIndexChanged` 和 `WriteMapConfig` 确认四个半字组成项、地形段、LZ77 配置写入及选定 CONFIG PLIST 更新。`PARTS_MAP_PALETTE_COUNT = 5` 与常规／迷雾配色的切换区分五组原生配色及另一套迷雾色；本次只编辑定义，不迁移 PNG 或 `.mapchip_config` 导入导出。
+
+原生图像放置与显示另核对固定来源：
+
+- `StanHash/fe6@f9ea5f67f3f1048ca9836d7350077231ba54b589`：[src/map.c](https://github.com/StanHash/fe6/blob/f9ea5f67f3f1048ca9836d7350077231ba54b589/src/map.c) 的 `ApplyChapterMapGraphics`／`PutMapMetatile` 及 [include/constants/videoalloc_global.h](https://github.com/StanHash/fe6/blob/f9ea5f67f3f1048ca9836d7350077231ba54b589/include/constants/videoalloc_global.h)，图块根为 `0x400`／`0x600`，配色起点为 6。
+- `StanHash/fe7_us@5c8b3c5e254e00f0f3458b9772c27e1a5a326e3b`：[asm/code.s](https://github.com/StanHash/fe7_us/blob/5c8b3c5e254e00f0f3458b9772c27e1a5a326e3b/asm/code.s) 的 `ApplyChapterMapGraphics`（`080191D4`）分别解压到 VRAM `06008000`／`0600C000`，复制 320 字节配色；`PutMapMetatile`（`080193E0`）按迷雾状态加上 `6000`／`B000` 后写入四个半字。
+- `FireEmblemUniverse/fireemblem8u@04d1edb163d14bd10777a065697e1a9f17be65f2`：[src/bmmap.c](https://github.com/FireEmblemUniverse/fireemblem8u/blob/04d1edb163d14bd10777a065697e1a9f17be65f2/src/bmmap.c) 的 `UnpackChapterMapGraphics`／`DisplayBmTile` 同样固定两份图像的加载地址，并按四个连续半字及两套五组配色绘制；`RefreshTerrainBmMap` 消费配置的地形字节。
+
+两份图像相差 `0x4000` 字节，即 512 个 8×8 图块，第二份覆盖同一加载区的旧内容，不能把短资源直接拼接。未加载间隙保留为不可确认图块；定义的新图块引用在全部共用配置入口的章节中检查。日版入口沿用固定旧版版本配置，五版独立合成流程核对字节与资源操作；本次未执行真实 ROM 或游戏内显示验证。
+
 ## 地图变化与事件引用
 
 变化表与图块编辑依据旧版基线的 [MapChangeForm.cs](../FEBuilderGBA/FEBuilderGBA/MapChangeForm.cs) 及上述三套原生资源消费者。FE6 的 `GetMapChange`／`ApplyMapChange`、FE7 的对应汇编和 FE8 的 `GetMapChange`／`GetMapChangeIdAt`／`ApplyMapChangesById` 确认逐行 uint16 载荷、零格不替换、ID 首条匹配及坐标最后覆盖 ID 再查首项的顺序。

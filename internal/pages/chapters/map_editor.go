@@ -139,6 +139,17 @@ func (v *Page) mapEditor(
 				ui.Image(c, entry.brush).Size(32, 32).Shrink(0)
 				ui.Textf(c, "%s 0x%04X · %s 0x%02X", locales.MapTile(), entry.tile.Tile, locales.MapTerrain(), entry.tile.Terrain).
 					FontFeatures("tnum")
+				ui.Button(c.Key("tile-definition"), locales.MapEditTileDefinition()).
+					Disabled(state.Busy).
+					OnClick(func() {
+						definition := v.tilesetDraft(state, row)
+						if definition.data != nil {
+							definition.selectDefinition(
+								int(entry.tile.Tile >> 2),
+							)
+						}
+						v.mode = 9
+					})
 			})
 			ui.Row(c.Key("map-workspace")).
 				Wrap().

@@ -113,7 +113,7 @@ func (r mapResources) tile(word uint16) ([4]uint16, byte, bool) {
 	}
 	for i := range parts {
 		parts[i] = gba.Uint16(r.config, at+i*2)
-		if int(parts[i]&0x3FF)*32+32 > len(r.graphics) {
+		if !r.hasGraphic(int(parts[i] & 0x3FF)) {
 			return parts, 0, false
 		}
 	}
@@ -122,11 +122,13 @@ func (r mapResources) tile(word uint16) ([4]uint16, byte, bool) {
 
 // Tileset packs the readable 16-pixel definitions in native ID order. Cells
 // retain native IDs even when unreadable definitions are omitted.
-func (d *Draft) Tileset() (Preview, error) {
+func (d *Draft) Tileset() (Preview, error) { return d.resources.tileset() }
+
+func (r mapResources) tileset() (Preview, error) {
 	result := Preview{Width: 16}
 	var definitions [][4]uint16
 	for word := 0; word < 4096; word += 4 {
-		parts, terrain, valid := d.resources.tile(uint16(word))
+		parts, terrain, valid := r.tile(uint16(word))
 		if valid {
 			result.Cells = append(
 				result.Cells,
@@ -148,8 +150,8 @@ func (d *Draft) Tileset() (Preview, error) {
 	}
 	var err error
 	result.Image, err = gba.Background4BPP(
-		d.resources.graphics,
-		d.resources.palette,
+		r.graphics,
+		r.palette,
 		tiles,
 		result.Width*2,
 		result.Height*2,

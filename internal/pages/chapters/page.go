@@ -34,6 +34,7 @@ type Page struct {
 	openScript             func(int, int)
 	mapDrafts              map[int]*mapState
 	changeDrafts           map[int]*mapChangesState
+	tilesetDrafts          map[int]*tilesetState
 }
 
 // Deactivate cancels pending placement while keeping the chapter drafts.
@@ -49,12 +50,13 @@ func (v *Page) load(state *editor.State, row records.Row) {
 	s := state.Session
 	if v.session != s {
 		*v = Page{
-			session:      s,
-			entries:      make(map[int]*entryDraft),
-			selections:   make(map[int]*chapterSelection),
-			events:       make(map[eventKey]*eventState),
-			mapDrafts:    make(map[int]*mapState),
-			changeDrafts: make(map[int]*mapChangesState),
+			session:       s,
+			entries:       make(map[int]*entryDraft),
+			selections:    make(map[int]*chapterSelection),
+			events:        make(map[eventKey]*eventState),
+			mapDrafts:     make(map[int]*mapState),
+			changeDrafts:  make(map[int]*mapChangesState),
+			tilesetDrafts: make(map[int]*tilesetState),
 		}
 	}
 	s.Refresh()
@@ -79,7 +81,7 @@ func (v *Page) Render(
 ) {
 	v.load(state, row)
 	v.openScript = openScript
-	ui.Tabs(c.Key("chapter-mode"), &v.mode, locales.DeployConfiguration(), locales.Deployments(), locales.TurnEvents(), locales.AreaEvents(), locales.TalkEvents(), locales.Objectives(), locales.MapEditor(), locales.MapChangesEditor(), locales.LocationEvents()).
+	ui.Tabs(c.Key("chapter-mode"), &v.mode, locales.DeployConfiguration(), locales.Deployments(), locales.TurnEvents(), locales.AreaEvents(), locales.TalkEvents(), locales.Objectives(), locales.MapEditor(), locales.MapChangesEditor(), locales.LocationEvents(), locales.MapTilesetEditor()).
 		Label(locales.Chapters()).
 		Wrap()
 	for key, entry := range v.events {
@@ -93,6 +95,10 @@ func (v *Page) Render(
 	}
 	if v.mode == 7 {
 		v.mapChangesEditor(c, state, row, jump, openHex)
+		return
+	}
+	if v.mode == 9 {
+		v.tilesetEditor(c, state, row, jump)
 		return
 	}
 	if v.mode == 8 {

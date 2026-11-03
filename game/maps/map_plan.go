@@ -131,7 +131,7 @@ func (f Format) bindings(extra []Binding) []Binding {
 		{
 			Field:           "map_object_alt_id",
 			Root:            f.Graphics,
-			CompressedLimit: 0x8000,
+			CompressedLimit: 0x4000,
 			Optional:        true,
 		},
 		{Field: "map_palette_id", Root: f.Palette, Length: 512},

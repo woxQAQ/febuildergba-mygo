@@ -18,6 +18,7 @@ const (
 
 	LayoutField   = "map_id"
 	GraphicsField = "map_object_id"
+	ConfigField   = "map_tileset_id"
 )
 
 var ErrMap = fault.Code{ID: "game.invalid_map", Kind: fault.InvalidData}
@@ -152,7 +153,13 @@ func mapCompressed(
 
 type mapResources struct {
 	graphics, palette, config, layout []byte
+	graphicsPresent                   [1024]bool
 	objectID, configID, layoutID      int
+}
+
+func (r mapResources) hasGraphic(index int) bool {
+	return index >= 0 && index < len(r.graphicsPresent) &&
+		r.graphicsPresent[index]
 }
 
 func (f Format) read(data []byte, address int) (Preview, error) {
@@ -164,6 +171,25 @@ func (f Format) read(data []byte, address int) (Preview, error) {
 }
 
 func (f Format) resources(data []byte, address int) (mapResources, error) {
+	resources, err := f.tilesetResources(data, address)
+	if err != nil {
+		return mapResources{}, err
+	}
+	resources.layout, err = mapCompressed(
+		data,
+		f.Layout,
+		data[address+8],
+		LayoutField,
+		maxMapBytes,
+	)
+	resources.layoutID = int(data[address+8])
+	return resources, err
+}
+
+func (f Format) tilesetResources(
+	data []byte,
+	address int,
+) (mapResources, error) {
 	if !gba.Within(data, address, 9) {
 		return mapResources{}, edit.ErrLayout
 	}
@@ -188,13 +214,17 @@ func (f Format) resources(data []byte, address int) (mapResources, error) {
 			nil,
 		)
 	}
+	var present [1024]bool
+	for index := range len(graphics) / 32 {
+		present[index] = true
+	}
 	if data[address+5] != 0 {
 		second, secondErr := mapCompressed(
 			data,
 			f.Graphics,
 			data[address+5],
 			"map_object_alt_id",
-			0x8000-len(graphics),
+			0x4000,
 		)
 		if secondErr != nil {
 			return mapResources{}, secondErr
@@ -210,7 +240,15 @@ func (f Format) resources(data []byte, address int) (mapResources, error) {
 				nil,
 			)
 		}
-		graphics = append(graphics, second...)
+		// The second consumer starts at tile 512, even when the first
+		// resource is shorter. Unloaded gaps are not known blank tiles.
+		graphics = append(
+			graphics,
+			make([]byte, max(0, 0x4000+len(second)-len(graphics)))...)
+		copy(graphics[0x4000:], second)
+		for index := range len(second) / 32 {
+			present[512+index] = true
+		}
 	}
 	paletteAt, err := mapResource(
 		data,
@@ -241,30 +279,19 @@ func (f Format) resources(data []byte, address int) (mapResources, error) {
 		data,
 		f.Config,
 		data[address+7],
-		"map_tileset_id",
+		ConfigField,
 		0x2400,
 	)
 	if err != nil {
 		return mapResources{}, err
 	}
-	layout, err := mapCompressed(
-		data,
-		f.Layout,
-		data[address+8],
-		LayoutField,
-		maxMapBytes,
-	)
-	if err != nil {
-		return mapResources{}, err
-	}
 	return mapResources{
-		graphics: graphics,
-		palette:  data[paletteAt : paletteAt+512],
-		config:   config,
-		layout:   layout,
-		objectID: int(data[address+4]),
-		configID: int(data[address+7]),
-		layoutID: int(data[address+8]),
+		graphics:        graphics,
+		graphicsPresent: present,
+		palette:         data[paletteAt : paletteAt+512],
+		config:          config,
+		objectID:        int(data[address+4]),
+		configID:        int(data[address+7]),
 	}, nil
 }
 
@@ -327,7 +354,19 @@ func (r mapResources) preview(layout []byte) (Preview, error) {
 		result.Cells[i] = Cell{Tile: tile, Terrain: r.config[terrain]}
 		for part := range 4 {
 			x, y := (i%width)*2+part%2, (i/width)*2+part/2
-			tiles[y*width*2+x] = gba.Uint16(r.config, at+part*2)
+			word := gba.Uint16(r.config, at+part*2)
+			if !r.hasGraphic(int(word & 0x3FF)) {
+				return Preview{}, fault.New(
+					ErrMap,
+					"game.map_graphics",
+					fault.Context{
+						Resource:   GraphicsField,
+						ResourceID: new(r.objectID),
+					},
+					nil,
+				)
+			}
+			tiles[y*width*2+x] = word
 		}
 	}
 	var err error
