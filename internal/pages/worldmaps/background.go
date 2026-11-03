@@ -73,7 +73,9 @@ func (p *Page) backgroundFiles(c *ui.Context) {
 					)
 				})
 		})
-		ui.Text(c, format).FontSize(12).TextColor(c.Theme().TextMuted)
+		ui.Text(c, format).
+			FontSize(components.FontCaption).
+			TextColor(c.Theme().TextMuted)
 	})
 }
 
@@ -98,7 +100,7 @@ func (p *Page) backgroundPreview(c *ui.Context) {
 		if tone == worldmap.Darkened {
 			scope = locales.WorldmapDarkBackgroundScope()
 		}
-		ui.Text(c, scope).FontSize(12)
+		ui.Text(c, scope).FontSize(components.FontCaption)
 		previewLabel, applyLabel := locales.WorldmapPreviewBackground(), locales.WorldmapApplyBackground()
 		if tone == worldmap.Darkened {
 			previewLabel, applyLabel = locales.WorldmapPreviewDarkBackground(), locales.WorldmapApplyDarkBackground()
@@ -123,7 +125,7 @@ func (p *Page) backgroundPreview(c *ui.Context) {
 			if b.plan != nil {
 				added := b.plan.Appended()
 				ui.Text(c, fmt.Sprintf("+%d B", added.End-added.Start)).
-					FontSize(12).
+					FontSize(components.FontCaption).
 					Font("monospace").
 					TextColor(c.Theme().TextMuted)
 			}

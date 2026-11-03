@@ -203,7 +203,7 @@ func (p *Page) viewNodes(c *ui.Context) {
 					(draft.draft.Modified() || draft.invalid()) {
 					caption += " *"
 				}
-				ui.Text(c, caption).SingleLine().FontSize(13).Tooltip(caption)
+				ui.Text(c, caption).SingleLine().Tooltip(caption)
 			}).
 				Grow(1).
 				Label(locales.WorldmapNodes()).
@@ -247,7 +247,7 @@ func (p *Page) detail(c *ui.Context) {
 		Children(func() {
 			ui.Row(c).Wrap().Gap(8).AlignItems(ui.Center).Children(func() {
 				ui.Text(c, p.caption(node)).
-					FontSize(20).
+					FontSize(components.FontTitle).
 					Bold().
 					Tooltip(locales.WorldmapScope())
 				ui.Checkbox(c, &p.advanced, locales.Advanced())
@@ -282,7 +282,7 @@ func (p *Page) detail(c *ui.Context) {
 				}
 				if entry.invalid() {
 					ui.Text(c, locales.SupportInvalidInput()).
-						FontSize(12).
+						FontSize(components.FontCaption).
 						TextColor(c.Theme().Danger)
 				}
 				if entry.err != nil {
@@ -295,7 +295,7 @@ func (p *Page) detail(c *ui.Context) {
 				p.fields(c, entry, disabled, worldmap.X, worldmap.Y)
 				value := entry.draft.Node()
 				ui.Column(c.Key("name")).Gap(4).Children(func() {
-					ui.Text(c, locales.WorldmapName()).FontSize(13).Bold()
+					ui.Text(c, locales.WorldmapName()).Bold()
 					components.TextReference(
 						c,
 						p.state,
@@ -318,7 +318,7 @@ func (p *Page) detail(c *ui.Context) {
 					node.ID,
 					&entry.eventsOpen,
 				)
-				ui.Text(c, locales.WorldmapChapters()).FontSize(13).Bold()
+				ui.Text(c, locales.WorldmapChapters()).Bold()
 				p.fields(
 					c,
 					entry,
@@ -327,7 +327,6 @@ func (p *Page) detail(c *ui.Context) {
 					worldmap.EphraimChapter,
 				)
 				ui.Text(c, locales.WorldmapDestinations()).
-					FontSize(13).
 					Bold().
 					Tooltip(locales.WorldmapNextHelp())
 				p.fields(
@@ -382,7 +381,7 @@ func (p *Page) detail(c *ui.Context) {
 						Children(func() {
 							ui.Textf(c, "0x%08X", value.Address).
 								Font("monospace").
-								FontSize(12)
+								FontSize(components.FontCaption)
 							ui.Button(c, locales.EditBytes()).
 								Disabled(disabled || p.openHex == nil).
 								OnClick(func() { p.openHex(value.Address, worldmap.NodeSize) })
@@ -451,7 +450,7 @@ func (p *Page) fields(
 				Gap(4).
 				Children(func() {
 					label := fieldLabel(field)
-					ui.Text(c, label).FontSize(13)
+					ui.Text(c, label)
 					value := entry.draft.Node().Value(field)
 					inputState := entry.inputs[field]
 					if inputState == nil {
@@ -564,10 +563,16 @@ func (p *Page) preview(c *ui.Context, entry *nodeState, reload func()) {
 		BorderWidth(1, 0).
 		BorderColor(c.Theme().Border).
 		Children(func() {
-			ui.Text(c, locales.WorldmapApplyHelp()).FontSize(12)
+			ui.Text(c, locales.WorldmapApplyHelp()).
+				FontSize(components.FontCaption)
 			for _, change := range plan.Changes() {
-				ui.Textf(c, "%s: %d → %d", fieldLabel(change.Field), change.Before, change.After).
-					FontSize(13)
+				ui.Textf(
+					c,
+					"%s: %d → %d",
+					fieldLabel(change.Field),
+					change.Before,
+					change.After,
+				)
 			}
 			ui.PrimaryButton(c, locales.WorldmapApply()).
 				Disabled(p.state.Busy || entry.invalid() || !plan.Current(p.state.Session.WorldMap)).

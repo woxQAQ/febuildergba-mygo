@@ -385,7 +385,7 @@ func (v *Page) eventLinks(
 ) {
 	if len(condition.Warnings) > 0 {
 		ui.Text(c, locales.GameIncompleteDeploymentScript()).
-			FontSize(12).
+			FontSize(components.FontCaption).
 			TextColor(c.Theme().TextMuted).
 			Tooltip(condition.Warnings[0].Error())
 	}
@@ -464,24 +464,24 @@ func (v *Page) eventActions(
 			Selectable().
 			FontFeatures("tnum")
 		ui.Text(c, labels.previewScope).
-			FontSize(12).
+			FontSize(components.FontCaption).
 			TextColor(c.Theme().TextMuted)
 		for _, chapter := range preview.Uses() {
 			ui.Textf(c, "%02X %s", chapter, nameOf(state.Session, records.Chapters, chapter)).
-				FontSize(12)
+				FontSize(components.FontCaption)
 		}
 		for _, change := range preview.Inventories() {
 			ui.Textf(c, "%s %02X · %d/%d · 0x%08X → 0x%08X", locales.ShopInventory(), change.Location, change.Count, shop.MaxItems, change.Before, change.After).
-				FontSize(13).
 				Selectable()
 			ui.Text(c, locales.ShopPreviewScope()).
-				FontSize(12).
+				FontSize(components.FontCaption).
 				TextColor(c.Theme().TextMuted)
 			if len(change.Uses) > 0 {
-				ui.Text(c, locales.ShopKnownUses()).FontSize(12)
+				ui.Text(c, locales.ShopKnownUses()).
+					FontSize(components.FontCaption)
 				for _, use := range change.Uses {
 					ui.Text(c, shopview.Caption(use)).
-						FontSize(12)
+						FontSize(components.FontCaption)
 				}
 			}
 		}

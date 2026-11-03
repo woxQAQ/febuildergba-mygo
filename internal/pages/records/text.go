@@ -58,7 +58,7 @@ func (a *form) textPreview(
 	}
 	uses := edit.Uses()
 	ui.Text(c, locales.TextEditSummary(fmt.Sprintf("0x%04X", edit.TextID()), len(uses))).
-		FontSize(12)
+		FontSize(components.FontCaption)
 	for _, kind := range records.Kinds {
 		var fields []string
 		for _, use := range uses {
@@ -71,7 +71,7 @@ func (a *form) textPreview(
 		}
 		if len(fields) > 0 {
 			ui.Text(c, locales.Label(string(kind))+": "+strings.Join(fields, ", ")).
-				FontSize(12)
+				FontSize(components.FontCaption)
 		}
 	}
 	ui.Button(c, label).Disabled(a.state.Busy).OnClick(func() {
@@ -106,7 +106,7 @@ func (a *form) textReferenceField(
 			(field.ID == "objective_text_id" || field.ID == "objective_detail_text_id") {
 			help += "\n" + locales.ChapterObjectiveHelp()
 		}
-		ui.Text(c, label).FontSize(13).Tooltip(help).
+		ui.Text(c, label).Tooltip(help).
 			OnClick(func() { a.focusField(key) })
 		if err != nil {
 			ui.Text(c, components.ErrorText(err)).TextColor(c.Theme().Danger)
@@ -205,11 +205,11 @@ func (a *form) descriptions(
 			switch {
 			case err != nil:
 				ui.Text(c, components.ErrorText(err)).
-					FontSize(12).
+					FontSize(components.FontCaption).
 					TextColor(c.Theme().Danger)
 			case !value.Editable:
 				ui.Text(c, components.ErrorText(value.ReadOnlyReason)).
-					FontSize(12).
+					FontSize(components.FontCaption).
 					TextColor(c.Theme().TextMuted)
 			}
 			if draft.err != nil {
@@ -236,7 +236,7 @@ func (a *form) nameEditor(
 				ui.TextInput(c, &draft.text).
 					Label(locales.Label(string(kind))+" / "+locales.Name()).
 					Tooltip(locales.NameEditScope()).
-					FontSize(20).
+					FontSize(components.FontTitle).
 					Height(34).
 					Grow(1).
 					Disabled(a.state.Busy || unavailable).
@@ -264,7 +264,7 @@ func (a *form) nameEditor(
 		})
 		if row.NameID == 0 {
 			ui.Text(c, locales.NameNeedsId()).
-				FontSize(12).
+				FontSize(components.FontCaption).
 				TextColor(c.Theme().TextMuted)
 		}
 		if draft.err != nil {

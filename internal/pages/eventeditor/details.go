@@ -70,12 +70,12 @@ func (page *Page) operands(
 	fields := draft.data.Fields(draft.selected)
 	if row.Help != "" {
 		ui.Text(c, locales.Label(row.Help)).
-			FontSize(12).
+			FontSize(components.FontCaption).
 			TextColor(c.Theme().TextMuted)
 	}
 	if !row.Editable {
 		ui.Text(c, locales.ScriptReadonlyInstruction()).
-			FontSize(12).
+			FontSize(components.FontCaption).
 			TextColor(c.Theme().TextMuted)
 	}
 	ui.Row(c).Wrap().Gap(8).Children(func() {
@@ -147,7 +147,7 @@ func (page *Page) textOperand(
 	value, _ := draft.data.Value(index, field.ID)
 	ui.Column(c.Key(key)).Gap(4).Children(func() {
 		label := locales.Label(field.ID)
-		ui.Text(c, label).FontSize(13).Tooltip(locales.Label(field.Help))
+		ui.Text(c, label).Tooltip(locales.Label(field.Help))
 		components.TextReference(
 			c,
 			page.state,
@@ -183,7 +183,7 @@ func (page *Page) operandLinks(
 				reference, err := draft.data.Reference(draft.selected, field.ID)
 				if err == nil && reference.Indirect {
 					ui.Textf(c, locales.ScriptIndirectUnitsReference(), 0x08000000+reference.Address, reference.Pointer).
-						FontSize(12).
+						FontSize(components.FontCaption).
 						TextColor(c.Theme().TextMuted)
 				}
 				label := locales.ScriptOpenCall()
@@ -425,12 +425,14 @@ func (page *Page) actions(c *ui.Context, draft *draftState) {
 	scope := locales.ScriptPatchScope()
 	if preview.MovementCount() > 0 {
 		ui.Textf(c, locales.Label("script_movement_preview"), preview.MovementCount()).
-			FontSize(12)
+			FontSize(components.FontCaption)
 	}
 	if preview.Relocated() {
 		scope = locales.ScriptRelocateScope()
 	}
-	ui.Text(c, scope).FontSize(12).TextColor(c.Theme().TextMuted)
+	ui.Text(c, scope).
+		FontSize(components.FontCaption).
+		TextColor(c.Theme().TextMuted)
 	ui.Scroll(c).MaxHeight(120).Children(func() {
 		for _, use := range preview.Uses() {
 			caption := entryCaption(
@@ -444,7 +446,7 @@ func (page *Page) actions(c *ui.Context, draft *draftState) {
 				caption = fmt.Sprintf("%02X · %s", use.Chapter, caption)
 			}
 			ui.Textf(c, "%s · 0x%08X", caption, use.Pointer).
-				FontSize(12).
+				FontSize(components.FontCaption).
 				FontFeatures("tnum")
 		}
 	})

@@ -19,6 +19,7 @@ const HeaderHeight = 48
 func ApplyTheme(c *ui.Context) {
 	t := *c.Theme()
 	t.Spacing, t.Radius = 3, 4
+	t.FontSize = FontBody
 	t.Accent = ui.Hex("#C44B2C")
 	t.AccentHover = t.Accent.Mix(ui.RGB(0, 0, 0), 0.1)
 	t.AccentPressed = t.Accent.Mix(ui.RGB(0, 0, 0), 0.2)
@@ -41,7 +42,7 @@ func Header(c *ui.Context, state *editor.State, controls func()) {
 			title = filepath.Base(state.Session.Document.State().Path)
 		}
 		ui.Text(c, title).
-			FontSize(14).
+			FontSize(FontWindowTitle).
 			Bold().
 			SingleLine().
 			Width(0).
@@ -52,7 +53,7 @@ func Header(c *ui.Context, state *editor.State, controls func()) {
 				ui.Row(c).Gap(6).AlignItems(ui.Center).Children(func() {
 					ui.Box(c).Width(6).Height(6).Radius(3).Background(t.Warning)
 					ui.Text(c, locales.Dirty()).
-						FontSize(12).
+						FontSize(FontCaption).
 						TextColor(t.Warning)
 				})
 				ui.Box(c).Width(1).Height(16).Background(t.Border)
@@ -62,7 +63,8 @@ func Header(c *ui.Context, state *editor.State, controls func()) {
 			if i18n.Base(i18n.Locale()) != "zh" {
 				language, tag = "中文", "zh-Hans"
 			}
-			ui.Button(c.Key("interface-language"), language).FontSize(12).
+			ui.Button(c.Key("interface-language"), language).
+				FontSize(FontCaption).
 				OnClick(func() { mygo.App.SetLocale(tag) })
 		})
 	})

@@ -54,7 +54,9 @@ func (a *Page) batchEditor(c *ui.Context, table *records.Table, ids []int) {
 		valid = valid && value >= low && value <= high
 	}
 	ui.Column(c.Key("batch")).Fill().Padding(20).Gap(12).Children(func() {
-		ui.Text(c, locales.BatchTitle(len(ids))).FontSize(20).Bold()
+		ui.Text(c, locales.BatchTitle(len(ids))).
+			FontSize(components.FontTitle).
+			Bold()
 		ui.Text(c, locales.BatchScope()).TextColor(c.Theme().TextMuted)
 		ui.Field(c, locales.BatchField(), func() {
 			ui.Select(c, &b.choice, labels).

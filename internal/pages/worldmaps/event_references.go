@@ -60,12 +60,11 @@ func (p *Page) relatedEvents(
 		}
 		if !complete {
 			ui.Text(c, locales.Label("worldmap_event_partial")).
-				FontSize(12).
+				FontSize(components.FontCaption).
 				TextColor(c.Theme().TextMuted)
 		}
 		if len(rows) == 0 {
-			ui.Text(c, locales.Label("worldmap_no_event_references")).
-				FontSize(13)
+			ui.Text(c, locales.Label("worldmap_no_event_references"))
 			return
 		}
 		ui.Scroll(c.Key("event-references")).
@@ -92,13 +91,12 @@ func (p *Page) relatedEvents(
 									); chapters != "" {
 										ui.Text(c, chapters).
 											SingleLine().
-											Tooltip(chapters).
-											FontSize(13)
+											Tooltip(chapters)
 									}
 									ui.Text(c, worldMapEventCaption(entry)).
 										SingleLine().
 										Tooltip(worldMapEventCaption(entry)).
-										FontSize(12).
+										FontSize(components.FontCaption).
 										TextColor(c.Theme().TextMuted)
 								})
 							ui.Button(c, locales.Label("worldmap_open_event")).

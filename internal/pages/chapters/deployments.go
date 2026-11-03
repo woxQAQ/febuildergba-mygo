@@ -176,7 +176,7 @@ func (v *Page) actions(
 				OnClick(func() { delete(v.entries, group.Pointer) })
 			if entry.data.Modified() {
 				ui.Text(c, locales.DeployDraft()).
-					FontSize(12).
+					FontSize(components.FontCaption).
 					TextColor(c.Theme().TextMuted)
 			}
 		})
@@ -200,7 +200,7 @@ func (v *Page) preview(
 			FontFeatures("tnum").
 			Selectable()
 		ui.Text(c, locales.DeployPreviewScope()).
-			FontSize(12).
+			FontSize(components.FontCaption).
 			TextColor(c.Theme().TextMuted)
 		ui.Text(c, locales.DeployUses()).Bold()
 		ui.Row(c).Wrap().Gap(8).Children(func() {

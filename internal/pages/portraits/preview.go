@@ -92,7 +92,7 @@ func (page *Page) workspace(c *ui.Context, p *portrait.Portrait, v *viewState) {
 	}
 	if len(p.Palette) > 0 {
 		ui.Column(c).Gap(8).Children(func() {
-			ui.Text(c, locales.Label("portrait_palette")).Bold().FontSize(13)
+			ui.Text(c, locales.Label("portrait_palette")).Bold()
 			ui.Row(c).Wrap().Gap(4).Children(func() {
 				for index, value := range p.Palette {
 					box := ui.Box(c.Key(index)).
@@ -114,10 +114,10 @@ func (page *Page) workspace(c *ui.Context, p *portrait.Portrait, v *viewState) {
 		page.editor.RenderPreview(c, page.state)
 	}
 	ui.Column(c).Gap(8).Children(func() {
-		ui.Text(c, locales.PortraitUses()).Bold().FontSize(13)
+		ui.Text(c, locales.PortraitUses()).Bold()
 		if len(p.Entry.Uses) == 0 {
 			ui.Text(c, locales.PortraitNoKnownUses()).
-				FontSize(12).
+				FontSize(components.FontCaption).
 				TextColor(c.Theme().TextMuted)
 		}
 		ui.Row(c).Wrap().Gap(8).Children(func() {
@@ -166,7 +166,7 @@ func (page *Page) effectView(
 ) {
 	ui.Row(c).Wrap().Gap(20).AlignItems(ui.Start).Children(func() {
 		ui.Column(c).Gap(8).Children(func() {
-			ui.Text(c, locales.Label("portrait_main")).Bold().FontSize(13)
+			ui.Text(c, locales.Label("portrait_main")).Bold()
 			if page.main != nil {
 				page.canvas(c, p, v)
 			} else {
@@ -207,8 +207,7 @@ func (page *Page) expressionControls(
 		if p.HasEyes {
 			ui.Row(c).Gap(12).AlignItems(ui.Center).Children(func() {
 				ui.Text(c, locales.Label("portrait_eye_label")).
-					Width(40).
-					FontSize(13)
+					Width(40)
 				ui.Segmented(c.Key("eye"), &v.eye, locales.Label("portrait_default"), locales.Label("portrait_open"), locales.Label("portrait_half"), locales.Label("portrait_closed")).
 					Label(locales.Label("portrait_eye_frame"))
 			})
@@ -220,8 +219,7 @@ func (page *Page) expressionControls(
 			}
 			ui.Row(c).Wrap().Gap(12).AlignItems(ui.Center).Children(func() {
 				ui.Text(c, locales.Label("portrait_mouth_label")).
-					Width(40).
-					FontSize(13)
+					Width(40)
 				ui.Segmented(c.Key("mouth"), &v.mouth, labels...).
 					Label(locales.Label("portrait_mouth_frame"))
 			})
@@ -233,8 +231,7 @@ func (page *Page) secondaryPreview(c *ui.Context, p *portrait.Portrait) {
 	ui.Column(c).Gap(16).Children(func() {
 		ui.Column(c).Gap(8).Children(func() {
 			ui.Text(c, locales.Label("portrait_mini")).
-				Bold().
-				FontSize(13)
+				Bold()
 			if page.mini != nil {
 				ui.Image(c, page.mini).
 					Size(64, 64).
@@ -250,7 +247,7 @@ func (page *Page) secondaryPreview(c *ui.Context, p *portrait.Portrait) {
 				label = "portrait_closed_mouth"
 			}
 			ui.Column(c).Gap(8).Children(func() {
-				ui.Text(c, locales.Label(label)).Bold().FontSize(13)
+				ui.Text(c, locales.Label(label)).Bold()
 				ui.Image(c, page.check).
 					Size(192, 160).
 					Background(c.Theme().Surface).
@@ -263,11 +260,11 @@ func (page *Page) secondaryPreview(c *ui.Context, p *portrait.Portrait) {
 func (page *Page) imageError(c *ui.Context, err error) {
 	if err != nil {
 		ui.Text(c, components.ErrorText(err)).
-			FontSize(12).
+			FontSize(components.FontCaption).
 			TextColor(c.Theme().Danger)
 	} else {
 		ui.Text(c, locales.PortraitEmpty()).
-			FontSize(12).
+			FontSize(components.FontCaption).
 			TextColor(c.Theme().TextMuted)
 	}
 }

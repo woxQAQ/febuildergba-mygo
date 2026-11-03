@@ -186,7 +186,7 @@ func (p *Page) editor(c *ui.Context) {
 	ui.Column(c.Key(id)).Fill().Padding(16).Gap(10).Children(func() {
 		ui.Row(c).Gap(12).AlignItems(ui.Center).Children(func() {
 			ui.Textf(c, "%s · %04X", locales.TextEditor(), id).
-				FontSize(20).
+				FontSize(components.FontTitle).
 				Bold().
 				Grow(1)
 			ui.Checkbox(c, &p.showRaw, locales.RawText())
@@ -198,11 +198,11 @@ func (p *Page) editor(c *ui.Context) {
 			Gap(6).
 			Children(func() {
 				ui.Text(c, locales.TextControlHelp()).
-					FontSize(12).
+					FontSize(components.FontCaption).
 					TextColor(c.Theme().TextMuted).
 					Selectable()
 				ui.Text(c, strings.Join(p.state.Session.Texts.Commands(), " ")).
-					FontSize(12).
+					FontSize(components.FontCaption).
 					Selectable()
 			})
 		components.TextDraft(
@@ -256,7 +256,7 @@ func (p *Page) preview(c *ui.Context, id uint16, d *draft, unavailable bool) {
 	}
 	edit := d.preview
 	ui.Text(c, locales.TextEditSummary(fmt.Sprintf("0x%04X", id), len(edit.Uses()))).
-		FontSize(12)
+		FontSize(components.FontCaption)
 	ui.Scroll(c.Key("text-uses")).MaxHeight(140).Gap(4).Children(func() {
 		for _, use := range edit.Uses() {
 			ui.Button(c.Key(use), fmt.Sprintf("%s %02X · %s", locales.Label(use.Kind), use.ID, locales.Label(use.Field))).

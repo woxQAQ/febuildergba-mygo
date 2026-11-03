@@ -8,6 +8,7 @@ import (
 
 	"github.com/woxQAQ/febuildergba-mygo/game/deployment"
 	"github.com/woxQAQ/febuildergba-mygo/game/records"
+	"github.com/woxQAQ/febuildergba-mygo/internal/components"
 	"github.com/woxQAQ/febuildergba-mygo/internal/components/mapview"
 	"github.com/woxQAQ/febuildergba-mygo/internal/editor"
 	"github.com/woxQAQ/febuildergba-mygo/internal/locales"
@@ -103,7 +104,7 @@ func (v *Page) unitList(
 		Label(locales.Deployments() + " · " + locales.Name()).
 		Tooltip(locales.DeployPickHelp())
 	ui.Text(c, locales.RecordSummary(len(units))).
-		FontSize(12).
+		FontSize(components.FontCaption).
 		TextColor(c.Theme().TextMuted)
 }
 

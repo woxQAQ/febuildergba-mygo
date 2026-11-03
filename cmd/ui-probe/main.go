@@ -11,6 +11,8 @@ import (
 	"github.com/egoist/mygo"
 	"github.com/egoist/mygo/ui"
 	"github.com/egoist/mygo/ui/editor"
+
+	"github.com/woxQAQ/febuildergba-mygo/internal/components"
 )
 
 type probe struct {
@@ -44,7 +46,9 @@ func newProbe() *probe {
 
 func (p *probe) view(c *ui.Context) {
 	ui.Column(c).Fill().Padding(16).Gap(12).Children(func() {
-		ui.Text(c, "原生交互验证 / Native interaction probe").FontSize(20).Bold()
+		ui.Text(c, "原生交互验证 / Native interaction probe").
+			FontSize(components.FontTitle).
+			Bold()
 		ui.Text(c, "此窗口使用合成图块和 10,000 行文本，不读写 ROM。")
 		ui.Row(c).Gap(12).Children(func() {
 			ui.Column(c).Width(300).Gap(10).Children(func() {

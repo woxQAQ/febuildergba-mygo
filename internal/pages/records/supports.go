@@ -77,8 +77,13 @@ func (a *form) profileSupports(
 				ui.Text(c, locales.SupportStale()).TextColor(c.Theme().Danger)
 			}
 			ui.Row(c).Wrap().Gap(12).AlignItems(ui.Center).Children(func() {
-				ui.Textf(c, "%s: %d / %d", locales.SupportRelationships(), len(v.draft.Relationships()), v.draft.Capacity()).
-					FontSize(13)
+				ui.Textf(
+					c,
+					"%s: %d / %d",
+					locales.SupportRelationships(),
+					len(v.draft.Relationships()),
+					v.draft.Capacity(),
+				)
 				if a.openSupportTalk != nil {
 					ui.Button(c, locales.SupportViewDialogues()).
 						Disabled(a.state.Busy).
@@ -86,10 +91,11 @@ func (a *form) profileSupports(
 				}
 			})
 			ui.Text(c, locales.SupportRelationshipHelp()).
-				FontSize(12).
+				FontSize(components.FontCaption).
 				TextColor(c.Theme().TextMuted)
 			if v.draft.Address() == 0 {
-				ui.Text(c, locales.SupportInitialize()).FontSize(12)
+				ui.Text(c, locales.SupportInitialize()).
+					FontSize(components.FontCaption)
 			}
 			a.supportRelations(c, v, disabled)
 			ui.Checkbox(c, &v.synchronize, locales.SupportSynchronize()).
@@ -99,7 +105,7 @@ func (a *form) profileSupports(
 			if a.showRaw {
 				ui.Textf(c, "0x%08X · % X", v.draft.Address(), v.draft.Raw()).
 					Font("monospace").
-					FontSize(12).
+					FontSize(components.FontCaption).
 					Selectable()
 				ui.Button(c, locales.EditBytes()).
 					Disabled(disabled || v.draft.Address() == 0 || a.openHex == nil).
@@ -165,7 +171,7 @@ func (a *form) supportRelations(c *ui.Context, v *supportState, disabled bool) {
 				AlignItems(ui.Center).
 				Children(func() {
 					for _, label := range []string{locales.SupportPartner(), locales.SupportInitial(), locales.SupportGrowth(), ""} {
-						ui.Text(c, label).FontSize(12)
+						ui.Text(c, label).FontSize(components.FontCaption)
 					}
 					for i, relation := range v.draft.Relationships() {
 						a.supportField(
@@ -294,7 +300,6 @@ func (a *form) supportField(
 	components.TextDraft(
 		a.state,
 		control.Height(26).
-			FontSize(13).
 			Label(fmt.Sprintf("%s / %d / %s", locales.SupportEditor(), index+1, label)).
 			Disabled(disabled).
 			OnChange(func() {
@@ -334,37 +339,51 @@ func (a *form) supportPreview(
 				if slices.Contains(v.original, r) {
 					continue
 				}
-				ui.Textf(c, "%02X %s · %s %d · %s %d", r.Unit, a.supportName(int(r.Unit)), locales.SupportInitial(), r.Initial, locales.SupportGrowth(), r.Growth).
-					FontSize(13)
+				ui.Textf(
+					c,
+					"%02X %s · %s %d · %s %d",
+					r.Unit,
+					a.supportName(int(r.Unit)),
+					locales.SupportInitial(),
+					r.Initial,
+					locales.SupportGrowth(),
+					r.Growth,
+				)
 			}
 			for _, r := range v.original {
 				if !slices.ContainsFunc(
 					current,
 					func(next support.Relationship) bool { return next.Unit == r.Unit },
 				) {
-					ui.Textf(c, "%s: %02X %s", locales.SupportRemove(), r.Unit, a.supportName(int(r.Unit))).
-						FontSize(13)
+					ui.Textf(
+						c,
+						"%s: %02X %s",
+						locales.SupportRemove(),
+						r.Unit,
+						a.supportName(int(r.Unit)),
+					)
 				}
 			}
-			ui.Text(c, locales.SupportPreviewHelp()).FontSize(12)
+			ui.Text(c, locales.SupportPreviewHelp()).
+				FontSize(components.FontCaption)
 			for _, move := range v.plan.Moves() {
 				if move.Unit != v.draft.Unit().ID {
 					ui.Textf(c, "%s: %02X %s", locales.SupportSynchronize(), move.Unit, a.supportName(move.Unit)).
-						FontSize(12)
+						FontSize(components.FontCaption)
 				}
 				for _, other := range move.Shared {
 					ui.Textf(c, "%s: %02X %s", locales.SupportShared(), other.ID, other.Name).
-						FontSize(12)
+						FontSize(components.FontCaption)
 				}
 				if a.showRaw {
 					ui.Textf(c, "0x%08X → 0x%08X", move.Before, move.After).
 						Font("monospace").
-						FontSize(12)
+						FontSize(components.FontCaption)
 				}
 			}
 			for _, unit := range v.plan.Missing() {
 				ui.Textf(c, "%s: %02X %s", locales.SupportMissingReverse(), unit.ID, unit.Name).
-					FontSize(12)
+					FontSize(components.FontCaption)
 			}
 			ui.Button(c, locales.SupportApply()).
 				AlignSelf(ui.Start).

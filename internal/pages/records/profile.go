@@ -98,7 +98,7 @@ func (a *form) profile(
 								Label(locales.RecordSections())
 							ui.Box(c).Grow(1)
 							ui.Checkbox(c.Key("raw"), &a.showRaw, locales.Advanced()).
-								FontSize(12)
+								FontSize(components.FontCaption)
 						})
 					if entry.section == 0 {
 						a.profileAbilities(c, kind, row, table, entry)
@@ -166,7 +166,7 @@ func (a *form) profileIdentity(
 					if preview != nil && preview.source != nil &&
 						preview.source.Inherited {
 						ui.Textf(c, "%s %04X", locales.Label("portrait_inherit"), preview.ref.ID).
-							FontSize(12).
+							FontSize(components.FontCaption).
 							TextColor(c.Theme().TextMuted)
 					}
 				})
@@ -182,7 +182,7 @@ func (a *form) profileIdentity(
 						AlignItems(ui.Center).
 						Children(func() {
 							ui.Textf(c, "%02X", row.ID).
-								FontSize(12).
+								FontSize(components.FontCaption).
 								FontFeatures("tnum").
 								TextColor(c.Theme().TextMuted)
 							a.nameEditor(c, kind, row).Grow(1).MinWidth(0)
@@ -204,7 +204,7 @@ func (a *form) profileIdentity(
 									AlignItems(ui.Center).
 									Children(func() {
 										ui.Text(c, locales.Label("level")).
-											FontSize(12)
+											FontSize(components.FontCaption)
 										a.profileNumber(
 											c,
 											kind,
@@ -262,12 +262,14 @@ func (a *form) profilePortraitReference(
 		Gap(6).
 		AlignItems(ui.Center).
 		Children(func() {
-			ui.Text(c, locales.Label("portrait_id")).Width(76).FontSize(12)
+			ui.Text(c, locales.Label("portrait_id")).
+				Width(76).
+				FontSize(components.FontCaption)
 			a.profileNumber(c, kind, row, table, "portrait_id", 64)
 			if a.openPortrait != nil {
 				ui.Button(c, locales.OpenPortraitTable()).
 					Height(26).
-					FontSize(12).
+					FontSize(components.FontCaption).
 					Disabled(a.state.Busy || preview == nil || preview.ref.ID == 0).
 					OnClick(func() { a.openPortrait(preview.ref.ID) })
 			}
@@ -282,7 +284,7 @@ func (a *form) profilePortraitReference(
 		Children(func() {
 			ui.Row(c).Gap(6).AlignItems(ui.Center).Children(func() {
 				ui.Text(c, locales.Label("portrait_mini_source")).
-					FontSize(12)
+					FontSize(components.FontCaption)
 				a.profileNumber(c, kind, row, table, "mini_portrait", 48)
 			})
 			if preview == nil || preview.source == nil {
@@ -297,10 +299,12 @@ func (a *form) profilePortraitReference(
 					source.GenericMini,
 				)
 			}
-			ui.Text(c, label).FontSize(12).TextColor(c.Theme().TextMuted)
+			ui.Text(c, label).
+				FontSize(components.FontCaption).
+				TextColor(c.Theme().TextMuted)
 			if source.MiniErr != nil {
 				ui.Text(c, components.ErrorText(source.MiniErr)).
-					FontSize(12).
+					FontSize(components.FontCaption).
 					TextColor(c.Theme().Danger)
 			}
 			if source.GenericMini != 0 && len(source.MiniResources) > 0 {
@@ -308,7 +312,7 @@ func (a *form) profilePortraitReference(
 				if !resource.Empty && resource.Err == nil {
 					ui.Button(c, locales.Label("portrait_generic_bytes")).
 						Height(26).
-						FontSize(12).
+						FontSize(components.FontCaption).
 						Disabled(a.state.Busy).
 						OnClick(func() { a.openHex(resource.Address, resource.Length) })
 				}
@@ -374,7 +378,7 @@ func (a *form) profileRelated(
 		return
 	}
 	ui.Column(c).Gap(6).Children(func() {
-		ui.Text(c, locales.RecordResourceLinks()).Bold().FontSize(13)
+		ui.Text(c, locales.RecordResourceLinks()).Bold()
 		for _, link := range links {
 			ui.Row(c.Key(link.Label)).
 				Wrap().
@@ -382,23 +386,21 @@ func (a *form) profileRelated(
 				AlignItems(ui.Center).
 				Children(func() {
 					ui.Text(c, locales.Label(link.Label)).
-						Width(160).
-						FontSize(13)
+						Width(160)
 					switch {
 					case link.Empty:
 						ui.Text(c, locales.RecordNoResource()).
 							Grow(1).
-							FontSize(12).
+							FontSize(components.FontCaption).
 							TextColor(c.Theme().TextMuted)
 					case link.Err != nil:
 						ui.Text(c, components.ErrorText(link.Err)).
 							Grow(1).
-							FontSize(12).
+							FontSize(components.FontCaption).
 							TextColor(c.Theme().Danger)
 					default:
 						ui.Textf(c, "0x%08X", link.Address).
 							Font("monospace").
-							FontSize(13).
 							Grow(1)
 						ui.Button(c, locales.EditBytes()).
 							Height(26).
@@ -429,7 +431,7 @@ func (a *form) profileRaw(
 	}
 	ui.Textf(c, "0x%08X · %d B\n% X", row.Address, table.Stride, data).
 		Font("monospace").
-		FontSize(12).
+		FontSize(components.FontCaption).
 		Selectable()
 	ui.Button(c, locales.EditBytes()).
 		Disabled(a.state.Busy).

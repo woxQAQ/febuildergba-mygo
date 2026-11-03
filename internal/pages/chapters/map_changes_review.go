@@ -22,7 +22,9 @@ func (v *Page) changeReview(
 	plan := entry.preview
 	ui.Column(c.Key("changes-review")).Gap(16).Children(func() {
 		ui.Column(c.Key("summary")).Gap(6).Children(func() {
-			ui.Text(c, locales.MapChangesReview()).FontSize(16).Bold()
+			ui.Text(c, locales.MapChangesReview()).
+				FontSize(components.FontPanelTitle).
+				Bold()
 			ui.Textf(c, locales.MapChangesCount(), plan.Before(), plan.After()).
 				FontFeatures("tnum")
 		})
@@ -62,7 +64,7 @@ func (v *Page) changeReview(
 					OnClick(func() { entry.preview = nil; entry.editFocus.Focus(c) })
 			})
 			ui.Text(c, locales.MapEditScope()).
-				FontSize(12).
+				FontSize(components.FontCaption).
 				TextColor(c.Theme().TextMuted)
 		})
 	})

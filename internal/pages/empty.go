@@ -4,6 +4,7 @@ package pages
 import (
 	"github.com/egoist/mygo/ui"
 
+	"github.com/woxQAQ/febuildergba-mygo/internal/components"
 	"github.com/woxQAQ/febuildergba-mygo/internal/locales"
 )
 
@@ -19,7 +20,9 @@ func (w *Workspace) empty(c *ui.Context) {
 				Gap(12).
 				AlignItems(ui.Start).
 				Children(func() {
-					ui.Text(c, locales.EmptyTitle()).FontSize(20).Bold()
+					ui.Text(c, locales.EmptyTitle()).
+						FontSize(components.FontTitle).
+						Bold()
 					ui.Text(c, locales.EmptyDetail()).
 						TextColor(c.Theme().TextMuted)
 					ui.PrimaryButton(c.Key("open-rom"), locales.Open()).

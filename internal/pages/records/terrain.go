@@ -74,8 +74,7 @@ func (a *form) profileTerrain(
 			if !current {
 				v.plan = nil
 				ui.Text(c, locales.TerrainStale()).
-					TextColor(c.Theme().Danger).
-					FontSize(13)
+					TextColor(c.Theme().Danger)
 			}
 			ui.Row(c).Wrap().Gap(8).AlignItems(ui.Center).Children(func() {
 				components.TextDraft(
@@ -83,13 +82,12 @@ func (a *form) profileTerrain(
 					ui.TextInput(c.Key("search"), &v.query).
 						Width(190).
 						Height(26).
-						FontSize(13).
 						Label(locales.TerrainSearch()).
 						Placeholder(locales.TerrainSearch()).
 						Tooltip(locales.TerrainNamesHelp()),
 				)
 				ui.Text(c, locales.TerrainHelp()).
-					FontSize(12).
+					FontSize(components.FontCaption).
 					TextColor(c.Theme().TextMuted).
 					Tooltip(locales.TerrainScope())
 			})
@@ -107,7 +105,7 @@ func (a *form) profileTerrain(
 							OnClick(reload)
 						if v.invalid() {
 							ui.Text(c, locales.TerrainRange()).
-								FontSize(12).
+								FontSize(components.FontCaption).
 								TextColor(c.Theme().Danger)
 						}
 					})
@@ -127,7 +125,7 @@ func (a *form) profileTerrain(
 						message = components.ErrorText(table.Err)
 					}
 					ui.Text(c, terrainColumn(table.Kind)+": "+message).
-						FontSize(12).
+						FontSize(components.FontCaption).
 						TextColor(c.Theme().TextMuted)
 				}
 			}
@@ -150,7 +148,6 @@ func (a *form) profileTerrain(
 						AlignItems(ui.Center).
 						Children(func() {
 							ui.Text(c, locales.TerrainName()).
-								FontSize(13).
 								Bold()
 							for _, table := range tables {
 								help := locales.TerrainBonusHelp()
@@ -158,7 +155,7 @@ func (a *form) profileTerrain(
 									help = locales.TerrainMovementHelp()
 								}
 								ui.Text(c, terrainColumn(table.Kind)).
-									FontSize(12).
+									FontSize(components.FontCaption).
 									TextAlign(ui.End).
 									PaddingX(6).
 									Tooltip(help)
@@ -182,15 +179,13 @@ func (a *form) profileTerrain(
 									continue
 								}
 								ui.Textf(c, "%02X  %s", id, name).
-									FontSize(13).
 									SingleLine().
 									Tooltip(name)
 								for _, table := range tables {
 									if table.Empty || table.Err != nil {
 										ui.Text(c, "—").
 											TextAlign(ui.End).
-											PaddingX(6).
-											FontSize(13)
+											PaddingX(6)
 										continue
 									}
 									a.terrainField(
@@ -215,7 +210,7 @@ func (a *form) profileTerrain(
 							Children(func() {
 								ui.Textf(c, "%s  0x%08X → 0x%08X", terrainColumn(table.Kind), table.Pointer, table.Address).
 									Font("monospace").
-									FontSize(12)
+									FontSize(components.FontCaption)
 								ui.Button(c, locales.EditBytes()).
 									Height(26).
 									Disabled(a.state.Busy || table.Err != nil || table.Empty || a.openHex == nil).
@@ -259,7 +254,7 @@ func (a *form) terrainField(
 		a.state,
 		ui.TextInput(c.Key(key), &field.text).
 			Height(26).
-			Padding(3, 6).FontSize(13).FontFeatures("tnum").TextAlign(ui.End).
+			Padding(3, 6).FontFeatures("tnum").TextAlign(ui.End).
 			Label(fmt.Sprintf("%02X %s / %s", id, name, terrainColumn(table.Kind))).
 			Tooltip(help).
 			Disabled(a.state.Busy || stale).
@@ -285,16 +280,16 @@ func (a *form) terrainPreview(c *ui.Context, v *terrainState, reload func()) {
 		BorderColor(c.Theme().Border).
 		Children(func() {
 			for _, move := range v.plan.Moves() {
-				ui.Text(c, terrainColumn(move.Kind)).FontSize(13).Bold()
+				ui.Text(c, terrainColumn(move.Kind)).Bold()
 				ui.Row(c).Wrap().Gap(12).Children(func() {
 					for _, change := range move.Changes {
 						ui.Textf(c, "%02X %s: %d → %d", change.Terrain, locales.Label(a.state.Session.Terrain.Format().NameKey(change.Terrain)), change.Before, change.After).
-							FontSize(12)
+							FontSize(components.FontCaption)
 					}
 				})
 				if len(move.Shared) > 0 {
 					ui.Text(c, locales.TerrainShared()).
-						FontSize(12).
+						FontSize(components.FontCaption).
 						Tooltip(locales.TerrainSharedHelp())
 					ui.Scroll(c.Key(move.Kind)).
 						MaxHeight(100).
@@ -302,17 +297,18 @@ func (a *form) terrainPreview(c *ui.Context, v *terrainState, reload func()) {
 						Children(func() {
 							for _, ref := range move.Shared {
 								ui.Textf(c, "%02X %s / %s", ref.Class.ID, ref.Class.Name, terrainColumn(ref.Kind)).
-									FontSize(12)
+									FontSize(components.FontCaption)
 							}
 						})
 				}
 				if a.showRaw {
 					ui.Textf(c, "0x%08X → 0x%08X", move.Address, move.Destination).
 						Font("monospace").
-						FontSize(12)
+						FontSize(components.FontCaption)
 				}
 			}
-			ui.Text(c, locales.TerrainApplyHelp()).FontSize(12)
+			ui.Text(c, locales.TerrainApplyHelp()).
+				FontSize(components.FontCaption)
 			ui.Button(c, locales.TerrainApply()).
 				Disabled(a.state.Busy || v.invalid() || !v.plan.Current(a.state.Session.Terrain)).
 				OnClick(func() {

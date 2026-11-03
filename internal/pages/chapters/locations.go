@@ -311,7 +311,7 @@ func (v *Page) locationInspector(
 	condition := entry.data.Events()[entry.selected]
 	disabled := state.Busy || !entry.data.Current(state.Session.Events)
 	ui.Textf(c, "%02X  %s", entry.selected, locationCaption(condition)).
-		FontSize(18).
+		FontSize(components.FontSectionTitle).
 		Bold()
 	fields := entry.data.Fields(entry.selected)
 	ui.Column(c.Key(fmt.Sprintf("location-%d", entry.selected))).
@@ -319,7 +319,6 @@ func (v *Page) locationInspector(
 		Children(func() {
 			if len(fields) == 0 {
 				ui.Text(c, locales.TurnOpaque()).
-					FontSize(13).
 					TextColor(c.Theme().TextMuted)
 			} else {
 				ui.Row(c).Gap(8).AlignItems(ui.Center).Children(func() {
@@ -353,7 +352,7 @@ func (v *Page) locationInspector(
 				if condition.Flag == 0 {
 					ui.Text(c, locales.LocationRepeat()).
 						Tooltip(locales.LocationRepeatHelp()).
-						FontSize(12).
+						FontSize(components.FontCaption).
 						TextColor(c.Theme().TextMuted)
 				}
 			}
@@ -384,8 +383,7 @@ func (v *Page) locationInspector(
 						v.dialoguePicker(c, state, entry, id, openText)
 					} else {
 						if condition.Script == 1 {
-							ui.Text(c, locales.LocationNativeAction()).
-								FontSize(13)
+							ui.Text(c, locales.LocationNativeAction())
 						}
 						v.locationTexts(c, state, entry, condition, openText)
 					}
@@ -409,15 +407,15 @@ func (v *Page) locationInspector(
 				case event.ShopTarget:
 					v.shopInventory(c, state, entry, condition, advanced)
 				case event.RandomRewardTarget:
-					ui.Text(c, locales.LocationResourceReadonly()).FontSize(13)
+					ui.Text(c, locales.LocationResourceReadonly())
 				case event.NoTarget:
-					ui.Text(c, locales.LocationNativeAction()).FontSize(13)
+					ui.Text(c, locales.LocationNativeAction())
 				}
 			})
 			if advanced && condition.Address > 0 {
 				ui.Row(c).Wrap().Gap(8).Children(func() {
 					ui.Textf(c, "0x%08X → 0x%08X", condition.Address, condition.Operand).
-						FontSize(12).
+						FontSize(components.FontCaption).
 						Selectable()
 					ui.Button(c, locales.EditBytes()).Disabled(state.Busy).
 						OnClick(func() { openHex(condition.Address, len(condition.Raw)) })
@@ -473,7 +471,7 @@ func (v *Page) locationReward(
 			})
 	})
 	ui.Textf(c, "%s: %d–65535 · %s: 1–%d", locales.ChestGold(), location.GoldMinimum, locales.Label(event.ChestItem), location.ItemMaximum).
-		FontSize(12).
+		FontSize(components.FontCaption).
 		TextColor(c.Theme().TextMuted).
 		Tooltip(locales.ChestRewardHelp())
 }

@@ -252,7 +252,7 @@ func (v *Page) mapChangesEditor(
 					OnClick(func() { delete(v.changeDrafts, row.ID) })
 				if entry.data.Modified() {
 					ui.Text(c, locales.MapChangesDraft()).
-						FontSize(12).
+						FontSize(components.FontCaption).
 						TextColor(c.Theme().TextMuted)
 				}
 			})
@@ -278,7 +278,7 @@ func (v *Page) mapChangesEditor(
 			})
 			if entry.tile.Tile == 0 {
 				ui.Text(c, locales.MapChangeZero()).
-					FontSize(12).
+					FontSize(components.FontCaption).
 					TextColor(c.Theme().TextMuted)
 			}
 			ui.Row(c.Key("change-workspace")).

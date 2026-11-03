@@ -8,6 +8,7 @@ import (
 
 	"github.com/woxQAQ/febuildergba-mygo/game/quote"
 	"github.com/woxQAQ/febuildergba-mygo/game/records"
+	"github.com/woxQAQ/febuildergba-mygo/internal/components"
 	"github.com/woxQAQ/febuildergba-mygo/internal/locales"
 )
 
@@ -68,7 +69,7 @@ func (p *Page) conditions(entry *tableState, index int) string {
 
 func (p *Page) listRow(c *ui.Context, entry *tableState, index int) {
 	if p.unit >= 0 {
-		ui.Text(c, p.conditions(entry, index)).SingleLine().FontSize(13)
+		ui.Text(c, p.conditions(entry, index)).SingleLine()
 		return
 	}
 	ui.Column(c).FillWidth().Gap(2).Children(func() {
@@ -80,15 +81,17 @@ func (p *Page) listRow(c *ui.Context, entry *tableState, index int) {
 				switch condition.Participants {
 				case quote.Attacker:
 					p.person(c.Key("unit"), unit)
-					ui.Text(c, locales.QuoteAttackerOnly()).FontSize(12)
+					ui.Text(c, locales.QuoteAttackerOnly()).
+						FontSize(components.FontCaption)
 					return
 				case quote.Defender:
 					other, _ := entry.draft.Value(index, quote.Opponent)
 					p.person(c.Key("opponent"), other)
-					ui.Text(c, locales.QuoteDefenderOnly()).FontSize(12)
+					ui.Text(c, locales.QuoteDefenderOnly()).
+						FontSize(components.FontCaption)
 					return
 				case quote.Neither:
-					ui.Text(c, locales.QuoteInactive()).FontSize(13)
+					ui.Text(c, locales.QuoteInactive())
 					return
 				}
 			}
@@ -102,7 +105,7 @@ func (p *Page) listRow(c *ui.Context, entry *tableState, index int) {
 			}
 		})
 		ui.Text(c, p.conditions(entry, index)).
-			FontSize(11).
+			FontSize(components.FontAnnotation).
 			SingleLine()
 	})
 }
@@ -117,7 +120,6 @@ func (p *Page) person(c *ui.Context, id uint32) {
 		AlignItems(ui.Center).
 		Children(func() {
 			ui.Text(c, name).
-				FontSize(13).
 				SingleLine().
 				Grow(1).
 				MinWidth(0).

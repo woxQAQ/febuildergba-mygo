@@ -196,17 +196,19 @@ func (v *Page) paletteEditor(
 				})
 		})
 		ui.Text(c, locales.MapPaletteFormat()).
-			FontSize(12).
+			FontSize(components.FontCaption).
 			TextColor(c.Theme().TextMuted)
 		if replacement.err != nil {
 			ui.Text(c, components.ErrorText(replacement.err)).
 				TextColor(c.Theme().Danger)
 		}
 		if replacement.unchanged {
-			ui.Text(c, locales.MapPaletteUnchanged()).FontSize(12)
+			ui.Text(c, locales.MapPaletteUnchanged()).
+				FontSize(components.FontCaption)
 		}
 		if entry.pending() {
-			ui.Text(c, locales.MapPaletteDrafts()).FontSize(12)
+			ui.Text(c, locales.MapPaletteDrafts()).
+				FontSize(components.FontCaption)
 		}
 		if replacement.draft != nil {
 			v.paletteReview(c, state, row, entry, replacement, jump)
@@ -293,8 +295,13 @@ func (v *Page) paletteReview(
 			return
 		}
 		changes := replacement.plan.Changes()
-		ui.Textf(c, "%s: %d · +%d B", locales.MapPaletteChanges(), len(changes), replacement.plan.Length()).
-			FontSize(13)
+		ui.Textf(
+			c,
+			"%s: %d · +%d B",
+			locales.MapPaletteChanges(),
+			len(changes),
+			replacement.plan.Length(),
+		)
 		ui.Table(c.Key("colors"), &replacement.changes, []ui.TableColumn{
 			{ID: "slot", Title: locales.MapPaletteSlot(), Width: 80},
 			{ID: "before", Title: locales.Before(), MinWidth: 140},
@@ -315,7 +322,7 @@ func (v *Page) paletteReview(
 					Background(ui.RGB(value.R, value.G, value.B))
 				ui.Text(c, paletteColorText(value)).
 					Font("monospace").
-					FontSize(12)
+					FontSize(components.FontCaption)
 			})
 		}).Height(float32(min(240, max(70, (len(changes)+1)*28)))).MaxWidthPercent(100)
 		mapUses(
@@ -325,6 +332,6 @@ func (v *Page) paletteReview(
 			locales.MapPaletteScope(),
 			jump,
 		)
-		ui.Text(c, locales.MapPaletteScope()).FontSize(12)
+		ui.Text(c, locales.MapPaletteScope()).FontSize(components.FontCaption)
 	})
 }

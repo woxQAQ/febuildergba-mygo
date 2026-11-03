@@ -100,7 +100,7 @@ func (p *Page) nodeMap(c *ui.Context, entry *nodeState) {
 					})
 			})
 		ui.Text(c, locales.WorldmapNodeMapHelp()).
-			FontSize(12).
+			FontSize(components.FontCaption).
 			TextColor(c.Theme().TextMuted)
 		scale := float32(1)
 		switch v.zoom {
@@ -220,12 +220,13 @@ func (p *Page) nodeMap(c *ui.Context, entry *nodeState) {
 			node := entry.draft.Node()
 			if !image.Pt(node.Value(worldmap.X), node.Value(worldmap.Y)).
 				In(mapBounds) {
-				ui.Text(c, locales.WorldmapNodeOffMap()).FontSize(12)
+				ui.Text(c, locales.WorldmapNodeOffMap()).
+					FontSize(components.FontCaption)
 			}
 		}
 		if err != nil {
 			ui.Text(c, components.ErrorText(err)).
-				FontSize(12).
+				FontSize(components.FontCaption).
 				TextColor(c.Theme().Danger)
 		}
 	})

@@ -151,7 +151,7 @@ func (a *Page) Open(address, length int) {
 
 func (a *Page) View(c *ui.Context) {
 	ui.Column(c.Key("hex-editor")).Grow(1).Padding(20).Gap(12).Children(func() {
-		ui.Text(c, locales.HexEditor()).FontSize(20).Bold()
+		ui.Text(c, locales.HexEditor()).FontSize(components.FontTitle).Bold()
 		ui.Text(c, locales.HexScope()).TextColor(c.Theme().TextMuted)
 		ui.Row(c).Gap(12).AlignItems(ui.End).Children(func() {
 			ui.Field(c, locales.RomAddress(), func() {

@@ -105,7 +105,6 @@ func (a *form) numberField(
 		draft.invalid = false
 	}
 	input := ui.TextInput(c.Key(f.ID), &draft.text).Height(26).Padding(3, 6).
-		FontSize(13).
 		FontFeatures("tnum").TextAlign(ui.End).Disabled(a.state.Busy).
 		Bind(&draft.input).
 		Label(a.fieldLabel(kind, f)).
@@ -275,7 +274,7 @@ func (a *form) inlineSection(
 		columns = 1
 	}
 	return ui.Column(c.Key(group)).Gap(8).Children(func() {
-		ui.Text(c, locales.Label(group)).Bold().FontSize(13)
+		ui.Text(c, locales.Label(group)).Bold()
 		ui.Grid(c).Columns(columns).GapX(16).GapY(4).Children(func() {
 			for _, f := range fields {
 				a.inlineField(c, kind, row, f, inputWidth, actionWidth)
@@ -304,7 +303,6 @@ func (a *form) inlineField(
 			help += "\n" + locales.ChapterObjectiveHelp()
 		}
 		ui.Text(c, label).
-			FontSize(13).
 			SingleLine().
 			MaxWidth(140).
 			MinWidth(0).

@@ -86,7 +86,6 @@ func (p *Page) bonusView(c *ui.Context) {
 		}
 		ui.Row(c).Wrap().Gap(12).AlignItems(ui.Center).Children(func() {
 			ui.Text(c, locales.SupportBonusHelp()).
-				FontSize(13).
 				Tooltip(locales.SupportBonusScope())
 			ui.Checkbox(c, &p.advanced, locales.Advanced())
 		})
@@ -100,7 +99,7 @@ func (p *Page) bonusView(c *ui.Context) {
 					OnClick(reload)
 				if entry.invalid() {
 					ui.Text(c, locales.SupportBonusRange()).
-						FontSize(12).
+						FontSize(components.FontCaption).
 						TextColor(c.Theme().Danger)
 				}
 			})
@@ -130,17 +129,16 @@ func (p *Page) bonusView(c *ui.Context) {
 					Padding(0, 0, 8, 0).
 					AlignItems(ui.Center).
 					Children(func() {
-						ui.Text(c, locales.Affinity()).FontSize(13).Bold()
+						ui.Text(c, locales.Affinity()).Bold()
 						for _, label := range bonusLabels() {
 							ui.Text(c, label).
-								FontSize(12).
+								FontSize(components.FontCaption).
 								TextAlign(ui.End).
 								PaddingX(6)
 						}
 						for _, row := range rows {
 							caption := affinityCaption(row.Affinity)
 							label := ui.Text(c, caption).
-								FontSize(13).
 								SingleLine()
 							if !row.Effective {
 								label.TextColor(c.Theme().TextMuted).
@@ -164,7 +162,7 @@ func (p *Page) bonusView(c *ui.Context) {
 			ui.Row(c).Wrap().Gap(8).AlignItems(ui.Center).Children(func() {
 				ui.Textf(c, "0x%08X", entry.draft.Address()).
 					Font("monospace").
-					FontSize(12)
+					FontSize(components.FontCaption)
 				ui.Button(c, locales.EditBytes()).
 					Disabled(p.state.Busy || stale || p.openHex == nil).
 					OnClick(func() { p.openHex(entry.draft.Address(), len(entry.draft.Raw())) })
@@ -196,7 +194,7 @@ func (p *Page) bonusField(
 		p.state,
 		ui.TextInput(c.Key(key), &field.text).
 			Height(26).
-			Padding(3, 6).FontSize(13).FontFeatures("tnum").TextAlign(ui.End).
+			Padding(3, 6).FontFeatures("tnum").TextAlign(ui.End).
 			Label(caption+" / "+bonusLabels()[kind]).Tooltip(help).
 			Disabled(p.state.Busy || stale).OnChange(func() {
 			entry.plan = nil
@@ -219,26 +217,27 @@ func (p *Page) bonusPreview(c *ui.Context, entry *bonusState, reload func()) {
 		BorderWidth(1, 0).
 		BorderColor(c.Theme().Border).
 		Children(func() {
-			ui.Text(c, locales.SupportBonusApplyHelp()).FontSize(12)
+			ui.Text(c, locales.SupportBonusApplyHelp()).
+				FontSize(components.FontCaption)
 			if entry.plan.UsesError() != nil {
 				ui.Text(c, locales.SupportBonusUsersIncomplete()+" "+components.ErrorText(entry.plan.UsesError())).
-					FontSize(12)
+					FontSize(components.FontCaption)
 			}
 			for _, change := range entry.plan.Changes() {
 				ui.Column(c.Key(change.Index)).Gap(4).Children(func() {
 					ui.Text(c, affinityCaption(change.Affinity)).
-						FontSize(13).
 						Bold()
 					ui.Row(c).Wrap().Gap(12).Children(func() {
 						for kind, value := range change.After {
 							if value != change.Before[kind] {
 								ui.Textf(c, "%s: %d → %d", bonusLabels()[kind], change.Before[kind], value).
-									FontSize(12)
+									FontSize(components.FontCaption)
 							}
 						}
 					})
 					if !change.Effective {
-						ui.Text(c, locales.SupportBonusShadowed()).FontSize(12)
+						ui.Text(c, locales.SupportBonusShadowed()).
+							FontSize(components.FontCaption)
 					}
 					if len(change.Units) > 0 {
 						ui.Scroll(c).MaxHeight(100).Gap(2).Children(func() {
@@ -255,7 +254,7 @@ func (p *Page) bonusPreview(c *ui.Context, entry *bonusState, reload func()) {
 			if p.advanced {
 				ui.Textf(c, "0x%08X → 0x%08X", entry.plan.Before(), entry.plan.Destination()).
 					Font("monospace").
-					FontSize(12)
+					FontSize(components.FontCaption)
 			}
 			ui.Button(c, locales.SupportApply()).AlignSelf(ui.Start).
 				Disabled(p.state.Busy || entry.invalid() || !entry.plan.Current(p.state.Session.Supports)).

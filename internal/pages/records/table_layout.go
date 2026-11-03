@@ -41,8 +41,10 @@ func (a *Page) tableLayout(c *ui.Context) {
 	if table.Manual {
 		mode = "manual_layout"
 	}
-	ui.Text(c, locales.Label(mode)).FontSize(12).TextColor(c.Theme().TextMuted)
-	ui.Text(c, locales.LayoutScope()).FontSize(12)
+	ui.Text(c, locales.Label(mode)).
+		FontSize(components.FontCaption).
+		TextColor(c.Theme().TextMuted)
+	ui.Text(c, locales.LayoutScope()).FontSize(components.FontCaption)
 	ui.Field(c, locales.RomAddress(), func() {
 		components.TextDraft(
 			a.state,
@@ -112,15 +114,16 @@ func (a *Page) tableLayout(c *ui.Context) {
 			})
 	})
 	if p.layout.err != nil {
-		ui.Text(c, components.ErrorText(p.layout.err)).FontSize(12)
+		ui.Text(c, components.ErrorText(p.layout.err)).
+			FontSize(components.FontCaption)
 	}
 	a.tableMove(c, table, p)
 }
 
 func (a *Page) tableMove(c *ui.Context, table *records.Table, p *pane) {
-	ui.Text(c, locales.MoveTable()).FontSize(13)
+	ui.Text(c, locales.MoveTable())
 	ui.Text(c, locales.MoveTableScope()).
-		FontSize(12).
+		FontSize(components.FontCaption).
 		TextColor(c.Theme().TextMuted)
 	ui.Button(c, locales.PreviewMove()).
 		Disabled(a.state.Busy || table.Manual || table.Err != nil).
@@ -143,10 +146,11 @@ func (a *Page) tableMove(c *ui.Context, table *records.Table, p *pane) {
 		move.Length(),
 		move.ReferenceCount(),
 		move.Size(),
-	)).FontSize(12)
+	)).FontSize(components.FontCaption)
 	stale := move.Revision() != a.state.Session.Document.State().Revision
 	if stale {
-		ui.Text(c, components.ErrorText(rom.ErrStale)).FontSize(12)
+		ui.Text(c, components.ErrorText(rom.ErrStale)).
+			FontSize(components.FontCaption)
 	}
 	ui.Button(c, locales.ApplyMove()).
 		Disabled(a.state.Busy || table.Manual || stale).

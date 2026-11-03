@@ -205,7 +205,7 @@ func (p *Page) viewRoutes(c *ui.Context) {
 					Disabled(p.state.Busy),
 			)
 			if r.nodeFilter >= 0 {
-				ui.Text(c, p.nodeCaption(r.nodeFilter)).FontSize(13)
+				ui.Text(c, p.nodeCaption(r.nodeFilter))
 				ui.Button(c, locales.WorldmapAllRoutes()).
 					Disabled(p.state.Busy).
 					OnClick(func() { r.nodeFilter = -1; r.list = ui.ListState{} })
@@ -220,7 +220,7 @@ func (p *Page) viewRoutes(c *ui.Context) {
 					(entry.draft.Modified() || entry.invalid()) {
 					caption += " *"
 				}
-				ui.Text(c, caption).SingleLine().FontSize(13).Tooltip(caption)
+				ui.Text(c, caption).SingleLine().Tooltip(caption)
 			}).
 				Grow(1).
 				Label(locales.WorldmapRoutes()).
@@ -249,7 +249,9 @@ func (p *Page) routeDetail(c *ui.Context) {
 		Padding(16).
 		Gap(12).
 		Children(func() {
-			ui.Text(c, p.routeCaption(current)).FontSize(20).Bold()
+			ui.Text(c, p.routeCaption(current)).
+				FontSize(components.FontTitle).
+				Bold()
 			if entry.draft == nil {
 				ui.Text(c, components.ErrorText(entry.err)).
 					TextColor(c.Theme().Danger)
@@ -266,7 +268,7 @@ func (p *Page) routeDetail(c *ui.Context) {
 				ui.Text(c, locales.WorldmapStale()).TextColor(c.Theme().Danger)
 			}
 			ui.Text(c, locales.WorldmapRouteScope()).
-				FontSize(12).
+				FontSize(components.FontCaption).
 				TextColor(c.Theme().TextMuted)
 			ui.Row(c.Key("route-actions")).Wrap().Gap(8).Children(func() {
 				ui.Button(c.Key("preview-route"), locales.WorldmapPreviewRoute()).
@@ -310,7 +312,7 @@ func (p *Page) routeDetail(c *ui.Context) {
 				ui.Row(c.Key("route-address")).Wrap().Gap(8).Children(func() {
 					ui.Textf(c, "0x%08X", current.Address).
 						Font("monospace").
-						FontSize(12)
+						FontSize(components.FontCaption)
 					ui.Button(c, locales.EditBytes()).
 						Disabled(disabled || p.openHex == nil).
 						OnClick(func() { p.openHex(current.Address, worldmap.RouteSize) })
@@ -327,7 +329,7 @@ func (p *Page) routeEndpoints(c *ui.Context, s *routeState, disabled bool) {
 				MaxWidthPercent(100).
 				Gap(4).
 				Children(func() {
-					ui.Text(c, label).FontSize(13)
+					ui.Text(c, label)
 					options := p.options(worldmap.EirikaNext)[1:]
 					control := ui.Autocomplete(c.Key("node"), &s.nodes[i].text, options).
 						Label(label).
@@ -363,7 +365,7 @@ func (p *Page) movementPoints(c *ui.Context, s *routeState, disabled bool) {
 			return
 		}
 		ui.Text(c, locales.WorldmapProgressHelp()).
-			FontSize(12).
+			FontSize(components.FontCaption).
 			TextColor(c.Theme().TextMuted)
 		ui.Row(c.Key("point-tools")).Wrap().Gap(8).Children(func() {
 			ui.Button(c, locales.WorldmapAddPoint()).
@@ -455,7 +457,7 @@ func (p *Page) movementPoints(c *ui.Context, s *routeState, disabled bool) {
 									ui.Box(c)
 									for _, label := range []string{locales.WorldmapProgress(), locales.WorldmapX(), locales.WorldmapY()} {
 										ui.Text(c, label).
-											FontSize(12).
+											FontSize(components.FontCaption).
 											TextAlign(ui.End).
 											PaddingX(6)
 									}
@@ -536,31 +538,43 @@ func (p *Page) routePreview(c *ui.Context, s *routeState, reload func()) {
 		BorderWidth(1, 0).
 		BorderColor(c.Theme().Border).
 		Children(func() {
-			ui.Text(c, locales.WorldmapApplyRouteHelp()).FontSize(12)
-			ui.Textf(c, "%s: %02X ↔ %02X → %02X ↔ %02X", locales.WorldmapRoutes(), before.Nodes[0], before.Nodes[1], after.Nodes[0], after.Nodes[1]).
-				FontSize(13)
+			ui.Text(c, locales.WorldmapApplyRouteHelp()).
+				FontSize(components.FontCaption)
+			ui.Textf(
+				c,
+				"%s: %02X ↔ %02X → %02X ↔ %02X",
+				locales.WorldmapRoutes(),
+				before.Nodes[0],
+				before.Nodes[1],
+				after.Nodes[0],
+				after.Nodes[1],
+			)
 			for i, point := range before.Points() {
 				ui.Textf(c, "− %d: %d · (%d, %d)", i+1, point.Progress, point.X, point.Y).
-					FontSize(12)
+					FontSize(components.FontCaption)
 			}
 			for i, point := range after.Points() {
 				ui.Textf(c, "+ %d: %d · (%d, %d)", i+1, point.Progress, point.X, point.Y).
-					FontSize(12)
+					FontSize(components.FontCaption)
 			}
 			if appended := plan.Appended(); appended.End > appended.Start {
 				ui.Textf(c, "%s: 0x%08X · %d B", locales.WorldmapNewRouteData(), appended.Start, appended.End-appended.Start).
-					FontSize(12)
+					FontSize(components.FontCaption)
 			}
 			if shared := plan.Shared(); len(shared) > 0 {
 				ui.Textf(c, "%s: %X", locales.WorldmapSharedMovement(), shared).
-					FontSize(12)
+					FontSize(components.FontCaption)
 			}
 			if changes := plan.RoadChanges(); len(changes) > 0 {
-				ui.Textf(c, "%s: %d", locales.WorldmapRoadChangedCells(), len(changes)).
-					FontSize(13)
+				ui.Textf(
+					c,
+					"%s: %d",
+					locales.WorldmapRoadChangedCells(),
+					len(changes),
+				)
 				if shared := plan.RoadShared(); len(shared) > 0 {
 					ui.Textf(c, "%s: %X", locales.WorldmapSharedRoad(), shared).
-						FontSize(12)
+						FontSize(components.FontCaption)
 				}
 			}
 			ui.PrimaryButton(c.Key("apply-route"), locales.WorldmapApplyRoute()).

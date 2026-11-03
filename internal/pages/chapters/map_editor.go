@@ -321,7 +321,7 @@ func (v *Page) mapActions(
 			OnClick(func() { delete(v.mapDrafts, row.ID) })
 		if entry.data.Modified() {
 			ui.Text(c, locales.MapDraft()).
-				FontSize(12).
+				FontSize(components.FontCaption).
 				TextColor(c.Theme().TextMuted)
 		}
 	})
@@ -338,7 +338,9 @@ func (v *Page) mapPreview(
 	preview := entry.preview
 	ui.Column(c.Key("map-edit-preview")).Gap(16).Children(func() {
 		ui.Column(c.Key("summary")).Gap(6).Children(func() {
-			ui.Text(c, locales.MapPreviewEdit()).FontSize(16).Bold()
+			ui.Text(c, locales.MapPreviewEdit()).
+				FontSize(components.FontPanelTitle).
+				Bold()
 			ui.Row(c).Wrap().Gap(12).Children(func() {
 				if preview.Resized() {
 					before, after := preview.BeforeSize(), preview.AfterSize()
@@ -388,7 +390,7 @@ func (v *Page) mapPreview(
 					})
 			})
 			ui.Text(c, locales.MapEditScope()).
-				FontSize(12).
+				FontSize(components.FontCaption).
 				TextColor(c.Theme().TextMuted)
 		})
 	})

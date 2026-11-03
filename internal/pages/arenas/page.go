@@ -197,7 +197,7 @@ func (p *Page) View(c *ui.Context) {
 			if entry.invalid() {
 				ui.Text(c, locales.SupportInvalidInput()).
 					TextColor(c.Theme().Danger).
-					FontSize(12)
+					FontSize(components.FontCaption)
 			}
 			if entry.err != nil {
 				ui.Text(c, components.ErrorText(entry.err)).
@@ -224,7 +224,7 @@ func (p *Page) View(c *ui.Context) {
 					if group == arena.LinkUnits {
 						help = locales.ArenaLinkHelp()
 					}
-					ui.Text(c, help).FontSize(12)
+					ui.Text(c, help).FontSize(components.FontCaption)
 				},
 			)
 		})
@@ -248,14 +248,14 @@ func (p *Page) table(
 		if kind.ClassList() || kind == arena.LinkUnits {
 			title = locales.Label(string(recordKind(kind)))
 		}
-		ui.Textf(c, "%s · %d", title, len(rows)).FontSize(13).Bold()
+		ui.Textf(c, "%s · %d", title, len(rows)).Bold()
 		if kind == entry.draft.Kinds()[0] {
 			ui.Checkbox(c.Key("advanced"), &p.advanced, locales.Advanced())
 		}
 		if p.advanced {
 			ui.Textf(c, "0x%08X", entry.draft.Address(kind)).
 				Font("monospace").
-				FontSize(12)
+				FontSize(components.FontCaption)
 			ui.Button(c, locales.EditBytes()).
 				Disabled(disabled || p.openHex == nil).
 				OnClick(func() { p.openHex(entry.draft.Address(kind), len(entry.draft.Raw(kind))) })
@@ -280,7 +280,9 @@ func (p *Page) table(
 				if row.WeaponType >= 0 {
 					label = locales.Label(records.WeaponNames[row.WeaponType])
 				}
-				ui.Text(c, label).FontSize(12).FontFeatures("tnum")
+				ui.Text(c, label).
+					FontSize(components.FontCaption).
+					FontFeatures("tnum")
 				return
 			}
 			label := p.name(kind, row.Value)
@@ -291,7 +293,7 @@ func (p *Page) table(
 					locales.ArenaReserved(),
 				)
 			}
-			ui.Text(c, label).FontSize(13).SingleLine()
+			ui.Text(c, label).SingleLine()
 		}).
 			Height(min(float32(240), float32(len(rows)*28+32)))
 	}
@@ -370,7 +372,7 @@ func (p *Page) field(
 			OnClick(func() { p.openRecord(recordKind(kind), int(row.Value)) })
 	})
 	if kind == arena.LinkUnits {
-		ui.Text(c, locales.ArenaLinkSlotHelp()).FontSize(12)
+		ui.Text(c, locales.ArenaLinkSlotHelp()).FontSize(components.FontCaption)
 	}
 }
 
@@ -450,10 +452,10 @@ func (p *Page) preview(c *ui.Context, entry *draftState, reload func()) {
 			if entry.draft.Kinds()[0] == arena.BaseWeapons {
 				help = locales.ArenaWeaponApplyHelp()
 			}
-			ui.Text(c, help).FontSize(13)
+			ui.Text(c, help)
 			for _, change := range entry.plan.Changes() {
 				ui.Column(c.Key(change.Kind)).Gap(4).Children(func() {
-					ui.Text(c, caption(change.Kind)).Bold().FontSize(13)
+					ui.Text(c, caption(change.Kind)).Bold()
 					var changed []int
 					for i := range max(len(change.BeforeValues), len(change.AfterValues)) {
 						if i < len(change.BeforeValues) &&
@@ -471,7 +473,7 @@ func (p *Page) preview(c *ui.Context, entry *draftState, reload func()) {
 						row := changed[index]
 						if column == 0 {
 							ui.Textf(c, "%d", row+1).
-								FontSize(12).
+								FontSize(components.FontCaption).
 								FontFeatures("tnum")
 							return
 						}
@@ -484,7 +486,6 @@ func (p *Page) preview(c *ui.Context, entry *draftState, reload func()) {
 							value = p.name(change.Kind, values[row])
 						}
 						ui.Text(c, value).
-							FontSize(13).
 							SingleLine().
 							Tooltip(value)
 					}).Height(min(float32(240), float32(len(changed)*28+32)))
@@ -494,23 +495,23 @@ func (p *Page) preview(c *ui.Context, entry *draftState, reload func()) {
 							labels[i] = caption(kind)
 						}
 						ui.Text(c, locales.ArenaShared()+strings.Join(labels, "、")).
-							FontSize(12)
+							FontSize(components.FontCaption)
 					}
 					if p.advanced {
 						ui.Textf(c, "0x%08X → 0x%08X", change.Before, change.Destination).
 							Font("monospace").
-							FontSize(12)
+							FontSize(components.FontCaption)
 						ui.Row(c).
 							Wrap().
 							Gap(8).
 							AlignItems(ui.Center).
 							Children(func() {
 								ui.Text(c, locales.ArenaPointerSites()).
-									FontSize(12)
+									FontSize(components.FontCaption)
 								for _, site := range change.Pointers {
 									ui.Textf(c, "0x%08X", site).
 										Font("monospace").
-										FontSize(12)
+										FontSize(components.FontCaption)
 								}
 							})
 					}

@@ -76,13 +76,13 @@ func (a *form) profileAbilities(
 	available := max(float32(300), width-a.sidebar-40)
 	ui.Column(c.Key("profile-abilities")).Gap(6).Children(func() {
 		ui.Row(c).Wrap().Gap(12).AlignItems(ui.Center).Children(func() {
-			ui.Text(c, locales.Abilities()).Bold().FontSize(13).Grow(1)
+			ui.Text(c, locales.Abilities()).Bold().Grow(1)
 			if kind == records.Units {
 				ui.Checkbox(c, &entry.source, locales.RecordClassSource()).
-					FontSize(12)
+					FontSize(components.FontCaption)
 			}
 			ui.Checkbox(c, &entry.estimate, locales.RecordEstimate()).
-				FontSize(12).
+				FontSize(components.FontCaption).
 				Tooltip(locales.RecordEstimateHelp())
 			if entry.estimate {
 				a.profileTarget(c, kind, entry, referenceErr)
@@ -90,7 +90,7 @@ func (a *form) profileAbilities(
 		})
 		if referenceErr != nil && (kind == records.Units || entry.estimate) {
 			ui.Text(c, locales.RecordReferenceUnavailable()+": "+components.ErrorText(referenceErr)).
-				FontSize(12).
+				FontSize(components.FontCaption).
 				TextColor(c.Theme().TextMuted)
 		}
 		ui.ScrollHorizontal(c).
@@ -109,11 +109,11 @@ func (a *form) profileAbilities(
 					AlignItems(ui.Center).
 					Children(func() {
 						ui.Text(c, locales.RecordAbilityRow()).
-							FontSize(12).
+							FontSize(components.FontCaption).
 							TextColor(c.Theme().TextMuted)
 						for _, stat := range matrix.stats {
 							ui.Text(c, locales.Label(stat)).
-								FontSize(12).
+								FontSize(components.FontCaption).
 								TextAlign(ui.End).
 								PaddingX(6)
 						}
@@ -123,7 +123,7 @@ func (a *form) profileAbilities(
 								kind == records.Units {
 								label = locales.PersonalBase()
 							}
-							ui.Text(c, label).FontSize(13)
+							ui.Text(c, label)
 							for _, stat := range matrix.stats {
 								field, exists := matrix.fields[group+"."+stat]
 								if !exists {
@@ -185,7 +185,7 @@ func (a *form) profileTarget(
 	}
 	ui.Row(c).Gap(6).AlignItems(ui.Center).Children(func() {
 		ui.Text(c, label).
-			FontSize(12).
+			FontSize(components.FontCaption).
 			OnClick(func() { entry.targetInput.Focus() })
 		input := components.TextDraft(
 			a.state,
@@ -194,7 +194,6 @@ func (a *form) profileTarget(
 				Height(26).
 				Padding(3, 6).
 				TextAlign(ui.End).
-				FontSize(13).
 				FontFeatures("tnum").
 				Label(label).Bind(&entry.targetInput).
 				Disabled(a.state.Busy),
@@ -212,7 +211,7 @@ func (a *form) profileReferenceRow(
 	values []records.AbilityValue,
 	decimal bool,
 ) {
-	ui.Text(c, label).FontSize(13).Tooltip(locales.RecordEstimateHelp())
+	ui.Text(c, label).Tooltip(locales.RecordEstimateHelp())
 	for _, stat := range matrix.stats {
 		found := false
 		for _, value := range values {
@@ -229,7 +228,6 @@ func (a *form) profileReferenceRow(
 				), "0"), ".")
 			}
 			ui.Text(c, text).
-				FontSize(13).
 				FontFeatures("tnum").
 				TextAlign(ui.End).
 				PaddingX(6).
@@ -245,7 +243,6 @@ func (a *form) profileReferenceRow(
 
 func profileMissing(c *ui.Context) {
 	ui.Text(c, "—").
-		FontSize(13).
 		TextAlign(ui.End).
 		PaddingX(6).
 		TextColor(c.Theme().TextMuted).

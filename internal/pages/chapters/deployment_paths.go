@@ -10,6 +10,7 @@ import (
 
 	"github.com/woxQAQ/febuildergba-mygo/game/deployment"
 	"github.com/woxQAQ/febuildergba-mygo/game/records"
+	"github.com/woxQAQ/febuildergba-mygo/internal/components"
 	"github.com/woxQAQ/febuildergba-mygo/internal/components/mapview"
 	"github.com/woxQAQ/febuildergba-mygo/internal/editor"
 	"github.com/woxQAQ/febuildergba-mygo/internal/locales"
@@ -230,7 +231,9 @@ func (v *Page) pathEditor(
 			})
 	})
 	if len(steps) > deployment.MaxMovementSteps {
-		ui.Text(c, locales.MoveLimit()).FontSize(12).TextColor(c.Theme().Danger)
+		ui.Text(c, locales.MoveLimit()).
+			FontSize(components.FontCaption).
+			TextColor(c.Theme().Danger)
 	}
 	if len(steps) == 0 {
 		return
@@ -254,7 +257,6 @@ func (v *Page) pathEditor(
 					}
 					ui.Text(c, locales.Label(field.ID)).
 						Grow(1).
-						FontSize(13).
 						Tooltip(help)
 					unit, node := entry.selected, path.selected
 					value, _ := entry.data.PathValue(unit, node, field.ID)
@@ -286,7 +288,7 @@ func (v *Page) pathEditor(
 	})
 	ui.Textf(c, "% X", steps[path.selected].Raw).
 		Font("monospace").
-		FontSize(12).
+		FontSize(components.FontCaption).
 		Selectable().
 		Tooltip(locales.MoveScope())
 }

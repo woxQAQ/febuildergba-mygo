@@ -284,7 +284,7 @@ func (p *Page) navigation(c *ui.Context, entry *tableState) {
 		entry.selected = min(max(0, entry.selected), len(entry.filtered)-1)
 		if len(entry.filtered) == 0 {
 			ui.Text(c, locales.QuoteNoMatches()).
-				FontSize(12).
+				FontSize(components.FontCaption).
 				TextColor(c.Theme().TextMuted)
 		}
 	})
@@ -295,7 +295,9 @@ func (p *Page) detail(c *ui.Context, table quote.Table, entry *tableState) {
 	stale := entry.draft == nil || !entry.draft.Current(s.Quotes)
 	ui.Scroll(c.Key(entry)).Fill().Children(func() {
 		ui.Column(c).Padding(16).Gap(12).Children(func() {
-			ui.Text(c, p.tableLabel(table.Kind)).FontSize(18).Bold()
+			ui.Text(c, p.tableLabel(table.Kind)).
+				FontSize(components.FontSectionTitle).
+				Bold()
 			if entry.err != nil {
 				ui.Text(c, components.ErrorText(entry.err)).
 					TextColor(c.Theme().Danger).
@@ -317,7 +319,8 @@ func (p *Page) detail(c *ui.Context, table quote.Table, entry *tableState) {
 				}
 			})
 			if p.showHelp {
-				ui.Text(c, p.tableHelp(table.Kind)).FontSize(12)
+				ui.Text(c, p.tableHelp(table.Kind)).
+					FontSize(components.FontCaption)
 			}
 			if entry.draft == nil {
 				p.actions(c, entry, stale)
@@ -349,7 +352,10 @@ func (p *Page) detail(c *ui.Context, table quote.Table, entry *tableState) {
 }
 
 func (p *Page) rawRecord(c *ui.Context, row quote.Entry) {
-	ui.Textf(c, "% X", row.Raw).Selectable().Font("monospace").FontSize(12)
+	ui.Textf(c, "% X", row.Raw).
+		Selectable().
+		Font("monospace").
+		FontSize(components.FontCaption)
 	ui.Row(c).Children(func() {
 		ui.Button(c, locales.QuoteRaw()).
 			Disabled(p.state.Busy || row.Address < 0).
@@ -573,7 +579,7 @@ func (p *Page) field(
 		label := fieldLabel(entry.draft.Kind(), field.ID)
 		ui.Column(c).Gap(4).Children(func() {
 			ui.Text(c, label).
-				FontSize(12).
+				FontSize(components.FontCaption).
 				Bold().
 				Tooltip(p.fieldHelp(entry.draft.Kind(), field.ID))
 			components.TextReference(
@@ -608,10 +614,10 @@ func (p *Page) field(
 	label := fieldLabel(entry.draft.Kind(), field.ID)
 	help := p.fieldHelp(entry.draft.Kind(), field.ID)
 	ui.Column(c).Gap(4).Children(func() {
-		ui.Text(c, label).FontSize(12).Bold().Tooltip(help)
+		ui.Text(c, label).FontSize(components.FontCaption).Bold().Tooltip(help)
 		if extended {
 			ui.Text(c, locales.QuoteExtendedUnit()).
-				FontSize(12).
+				FontSize(components.FontCaption).
 				TextColor(c.Theme().TextMuted)
 		}
 		ui.Row(c).Wrap().Gap(8).Children(func() {
@@ -707,12 +713,13 @@ func (p *Page) field(
 		})
 		if current.invalid {
 			ui.Text(c, locales.QuoteInvalidInput()).
-				FontSize(12).
+				FontSize(components.FontCaption).
 				TextColor(c.Theme().Danger)
 		}
 		if defeatTable(entry.draft.Kind()) {
 			if field.ID == quote.Flag && value == 0x65 {
-				ui.Text(c, locales.QuoteDeathHelp()).FontSize(12)
+				ui.Text(c, locales.QuoteDeathHelp()).
+					FontSize(components.FontCaption)
 			}
 			if field.ID == quote.Script && value == 0 &&
 				p.state.Session.Quotes.SilentDeath() {
@@ -721,7 +728,8 @@ func (p *Page) field(
 					quote.Text,
 				); err == nil &&
 					text == 0 {
-					ui.Text(c, locales.QuoteSilentDeath()).FontSize(12)
+					ui.Text(c, locales.QuoteSilentDeath()).
+						FontSize(components.FontCaption)
 				}
 			}
 		}
@@ -769,18 +777,19 @@ func (p *Page) actions(c *ui.Context, entry *tableState, stale bool) {
 		ui.Column(c.Key("preview")).Gap(6).Children(func() {
 			ui.Textf(c, "%s · %d · 0x%08X → 0x%08X", locales.QuoteRecords(), plan.Count(), plan.Before(), plan.After()).
 				Selectable()
-			ui.Text(c, locales.QuotePreviewHelp()).FontSize(12)
+			ui.Text(c, locales.QuotePreviewHelp()).
+				FontSize(components.FontCaption)
 			for _, site := range plan.Pointers() {
 				ui.Textf(c, "0x%08X → 0x%08X", site, 0x08000000+plan.After()).
 					Selectable().
-					FontSize(12)
+					FontSize(components.FontCaption)
 			}
 			for _, kind := range plan.Shared() {
 				ui.Textf(c, "%s · %s", locales.QuoteShared(), locales.Label(string(kind))).
-					FontSize(12)
+					FontSize(components.FontCaption)
 			}
 			ui.Text(c, locales.QuoteReferenceLimit()).
-				FontSize(12).
+				FontSize(components.FontCaption).
 				TextColor(c.Theme().TextMuted)
 			ui.Row(c).Children(func() {
 				ui.PrimaryButton(c, locales.QuoteApply()).

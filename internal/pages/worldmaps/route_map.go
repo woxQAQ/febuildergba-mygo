@@ -73,7 +73,7 @@ func (p *Page) routeMap(c *ui.Context, s *routeState, disabled bool) {
 		p.roadTools(c, s, disabled)
 		if scene.BackgroundErr != nil || scene.RoadErr != nil {
 			ui.Text(c, locales.WorldmapSceneIncomplete()).
-				FontSize(12).
+				FontSize(components.FontCaption).
 				TextColor(c.Theme().TextMuted)
 		}
 		if v.zoom == "" {
@@ -88,7 +88,7 @@ func (p *Page) routeMap(c *ui.Context, s *routeState, disabled bool) {
 					Label(locales.MapZoom()).
 					Width(115)
 				ui.Text(c, locales.WorldmapControlLines()).
-					FontSize(12).
+					FontSize(components.FontCaption).
 					TextColor(c.Theme().TextMuted)
 			})
 		scale := float32(1)
@@ -243,10 +243,12 @@ func (p *Page) routeMap(c *ui.Context, s *routeState, disabled bool) {
 				})
 			})
 		if scene.BackgroundErr != nil {
-			ui.Text(c, components.ErrorText(scene.BackgroundErr)).FontSize(12)
+			ui.Text(c, components.ErrorText(scene.BackgroundErr)).
+				FontSize(components.FontCaption)
 		}
 		if scene.RoadErr != nil {
-			ui.Text(c, components.ErrorText(scene.RoadErr)).FontSize(12)
+			ui.Text(c, components.ErrorText(scene.RoadErr)).
+				FontSize(components.FontCaption)
 		}
 	})
 }

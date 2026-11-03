@@ -92,7 +92,9 @@ func TextReference(
 			// #nosec G115 -- Enabled only for bounded IDs.
 		})
 		if err != nil {
-			ui.Text(c, ErrorText(err)).FontSize(12).TextColor(c.Theme().Danger)
+			ui.Text(c, ErrorText(err)).
+				FontSize(FontCaption).
+				TextColor(c.Theme().Danger)
 		}
 		TextPreview(c, state.Session.Texts, id, raw)
 	})
@@ -146,7 +148,9 @@ func TextPreview(c *ui.Context, texts *text.Editor, id uint32, raw bool) {
 	}
 	value, err := texts.Value(uint16(id)) // #nosec G115 -- ID is bounded above.
 	if err != nil {
-		ui.Text(c, ErrorText(err)).FontSize(12).TextColor(c.Theme().Danger)
+		ui.Text(c, ErrorText(err)).
+			FontSize(FontCaption).
+			TextColor(c.Theme().Danger)
 		return
 	}
 	body := value.Plain
@@ -169,6 +173,6 @@ func TextPreview(c *ui.Context, texts *text.Editor, id uint32, raw bool) {
 		Height(height).Padding(8).Background(c.Theme().Surface).
 		Border(1, c.Theme().Border).Radius(c.Theme().Radius).
 		Label(locales.QuoteReadingPreview()).Children(func() {
-		ui.Text(c, body).FontSize(13).Selectable()
+		ui.Text(c, body).Selectable()
 	})
 }

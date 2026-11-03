@@ -47,7 +47,7 @@ func (p *Page) ViewDefeat(c *ui.Context, available float32, raw bool) {
 			}
 			if table.Kind != quote.Death {
 				ui.Text(c, p.tableLabel(table.Kind)).
-					FontSize(12).
+					FontSize(components.FontCaption).
 					TextColor(c.Theme().TextMuted)
 			}
 			p.defeatRecordChoice(c, entry)
@@ -61,7 +61,7 @@ func (p *Page) ViewDefeat(c *ui.Context, available float32, raw bool) {
 					if len(entry.filtered) == 1 {
 						if scope := p.defeatScope(entry, index); scope != "" {
 							ui.Text(c, scope).
-								FontSize(12).
+								FontSize(components.FontCaption).
 								TextColor(c.Theme().TextMuted)
 						}
 					}
@@ -173,7 +173,7 @@ func (p *Page) ViewDefeat(c *ui.Context, available float32, raw bool) {
 							})
 						}
 						ui.Text(c, p.tableHelp(table.Kind)).
-							FontSize(12).
+							FontSize(components.FontCaption).
 							TextColor(c.Theme().TextMuted)
 						if p.advanced {
 							ui.Row(c).Wrap().Gap(8).Children(func() {

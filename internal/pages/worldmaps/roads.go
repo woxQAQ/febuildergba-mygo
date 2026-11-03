@@ -8,6 +8,7 @@ import (
 	"github.com/egoist/mygo/ui"
 
 	"github.com/woxQAQ/febuildergba-mygo/game/worldmap"
+	"github.com/woxQAQ/febuildergba-mygo/internal/components"
 	"github.com/woxQAQ/febuildergba-mygo/internal/editor"
 	"github.com/woxQAQ/febuildergba-mygo/internal/locales"
 )
@@ -142,7 +143,7 @@ func (p *Page) roadTools(c *ui.Context, s *routeState, disabled bool) {
 		return
 	}
 	ui.Text(c, locales.WorldmapRoadHelp()).
-		FontSize(12).
+		FontSize(components.FontCaption).
 		TextColor(c.Theme().TextMuted)
 	if roadTool(r.tool) != roadErase {
 		ui.Row(c.Key("brush-properties")).

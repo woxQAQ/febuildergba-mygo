@@ -199,17 +199,19 @@ func (page *Page) navigation(c *ui.Context) {
 					ui.Box(c).Size(28, 28)
 				}
 			case 1:
-				ui.Textf(c, "%04X", entry.ID).FontFeatures("tnum").FontSize(12)
+				ui.Textf(c, "%04X", entry.ID).
+					FontFeatures("tnum").
+					FontSize(components.FontCaption)
 			case 2:
 				name := entry.Name
 				if name == "" {
 					name = portraitKind(entry)
 				}
-				ui.Text(c, name).SingleLine().FontSize(13)
+				ui.Text(c, name).SingleLine()
 			}
 		}).Grow(1).Label(locales.PortraitTable()).Disabled(page.state.Busy)
 		ui.Text(c, locales.RecordSummary(len(page.rows))).
-			FontSize(12).
+			FontSize(components.FontCaption).
 			TextColor(c.Theme().TextMuted)
 	})
 }
@@ -279,12 +281,14 @@ func (page *Page) detail(c *ui.Context) {
 			Gap(10).
 			AlignItems(ui.Center).
 			Children(func() {
-				ui.Textf(c, "%04X", entry.ID).FontSize(20).FontFeatures("tnum")
+				ui.Textf(c, "%04X", entry.ID).
+					FontSize(components.FontTitle).
+					FontFeatures("tnum")
 				name := entry.Name
 				if name == "" {
 					name = portraitKind(entry)
 				}
-				ui.Text(c, name).FontSize(20).Grow(1)
+				ui.Text(c, name).FontSize(components.FontTitle).Grow(1)
 				if page.sheet != nil {
 					page.editor.RenderButtons(
 						c,

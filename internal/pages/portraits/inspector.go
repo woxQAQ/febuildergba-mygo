@@ -72,7 +72,6 @@ func (page *Page) number(
 		Width(64).
 		Height(26).
 		Padding(3, 6).
-		FontSize(13).
 		FontFeatures("tnum").
 		TextAlign(ui.End).
 		Label(locales.Label(name)).
@@ -131,7 +130,7 @@ func (page *Page) positionInputs(
 	v *viewState,
 ) {
 	ui.Column(c).Gap(8).Children(func() {
-		ui.Text(c, locales.Label("portrait_position")).Bold().FontSize(13)
+		ui.Text(c, locales.Label("portrait_position")).Bold()
 		parts := []struct{ label, name string }{
 			{mouthPart, mouthPart},
 		}
@@ -150,16 +149,15 @@ func (page *Page) positionInputs(
 				AlignItems(ui.Center).
 				Children(func() {
 					ui.Text(c, locales.Label(part.label)).
-						Width(32).
-						FontSize(13)
-					ui.Text(c, "X").FontSize(12)
+						Width(32)
+					ui.Text(c, "X").FontSize(components.FontCaption)
 					page.number(c, p, v, part.name+"_x")
-					ui.Text(c, "Y").FontSize(12)
+					ui.Text(c, "Y").FontSize(components.FontCaption)
 					page.number(c, p, v, part.name+"_y")
 				})
 		}
 		ui.Text(c, locales.Label("portrait_grid_help")).
-			FontSize(12).
+			FontSize(components.FontCaption).
 			TextColor(c.Theme().TextMuted)
 	})
 }
@@ -170,7 +168,7 @@ func (page *Page) blinkInput(
 	v *viewState,
 ) {
 	ui.Column(c).Gap(8).Children(func() {
-		ui.Text(c, locales.Label(blinkField)).Bold().FontSize(13)
+		ui.Text(c, locales.Label(blinkField)).Bold()
 		label := fmt.Sprintf("%d", p.Blink)
 		switch p.Blink {
 		case 1:
@@ -230,7 +228,7 @@ func (page *Page) resourceAddress(
 		control.Background(c.Theme().SurfaceHover)
 	}
 	control.Children(
-		func() { ui.Text(c, address).Font("monospace").FontSize(12) },
+		func() { ui.Text(c, address).Font("monospace").FontSize(components.FontCaption) },
 	)
 }
 
@@ -242,7 +240,7 @@ func (page *Page) inspector(c *ui.Context, p *portrait.Portrait, v *viewState) {
 		}
 	}
 	ui.Column(c).Gap(8).Children(func() {
-		ui.Text(c, locales.Label("portrait_parts")).Bold().FontSize(13)
+		ui.Text(c, locales.Label("portrait_parts")).Bold()
 		for _, resource := range p.Resources {
 			ui.Row(c.Key(resource.Label)).
 				Wrap().
@@ -250,16 +248,15 @@ func (page *Page) inspector(c *ui.Context, p *portrait.Portrait, v *viewState) {
 				AlignItems(ui.Center).
 				Children(func() {
 					ui.Text(c, locales.Label(resource.Label)).
-						Width(64).
-						FontSize(13)
+						Width(64)
 					switch {
 					case resource.Empty:
 						ui.Text(c, locales.RecordNoResource()).
-							FontSize(12).
+							FontSize(components.FontCaption).
 							TextColor(c.Theme().TextMuted)
 					case resource.Err != nil:
 						ui.Text(c, components.ErrorText(resource.Err)).
-							FontSize(12).
+							FontSize(components.FontCaption).
 							TextColor(c.Theme().Danger)
 					default:
 						page.resourceAddress(c, resource)
@@ -272,7 +269,7 @@ func (page *Page) inspector(c *ui.Context, p *portrait.Portrait, v *viewState) {
 		if v.advanced {
 			ui.Textf(c, "0x%08X  %d B", p.Entry.Address, p.Entry.Stride).
 				Font("monospace").
-				FontSize(12).
+				FontSize(components.FontCaption).
 				Selectable()
 			ui.Button(c, locales.EditBytes()).
 				Disabled(page.state.Busy).
@@ -282,7 +279,7 @@ func (page *Page) inspector(c *ui.Context, p *portrait.Portrait, v *viewState) {
 			}
 			for _, resource := range p.Resources {
 				ui.Textf(c, "%s  0x%08X", locales.Label(resource.Label), resource.Pointer).
-					FontSize(12).
+					FontSize(components.FontCaption).
 					FontFeatures("tnum")
 			}
 		}

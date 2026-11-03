@@ -83,7 +83,7 @@ func (p *Page) roadTilesetFiles(c *ui.Context) {
 				})
 		})
 		ui.Text(c, locales.WorldmapRoadTilesetFormat()).
-			FontSize(12).
+			FontSize(components.FontCaption).
 			TextColor(c.Theme().TextMuted)
 	})
 }
@@ -104,7 +104,8 @@ func (p *Page) roadTilesetPreview(c *ui.Context) {
 		if stale {
 			ui.Text(c, locales.WorldmapStale()).TextColor(c.Theme().Danger)
 		}
-		ui.Text(c, locales.WorldmapRoadTilesetScope()).FontSize(12)
+		ui.Text(c, locales.WorldmapRoadTilesetScope()).
+			FontSize(components.FontCaption)
 		ui.Row(c).Wrap().Gap(8).AlignItems(ui.Center).Children(func() {
 			ui.Checkbox(c.Key("preview-road-tileset"), &s.preview, locales.WorldmapPreviewRoadTileset()).
 				Disabled(p.state.Busy || stale)
@@ -125,7 +126,7 @@ func (p *Page) roadTilesetPreview(c *ui.Context) {
 			if s.plan != nil {
 				added := s.plan.Appended()
 				ui.Text(c, fmt.Sprintf("+%d B", added.End-added.Start)).
-					FontSize(12).
+					FontSize(components.FontCaption).
 					Font("monospace").
 					TextColor(c.Theme().TextMuted)
 			}

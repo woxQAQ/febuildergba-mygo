@@ -147,11 +147,13 @@ func (v *Page) objectiveDetails(
 					message = locales.ObjectiveZeroAlways()
 				}
 			}
-			ui.Text(c, message).FontSize(12).TextColor(c.Theme().TextMuted)
+			ui.Text(c, message).
+				FontSize(components.FontCaption).
+				TextColor(c.Theme().TextMuted)
 		}
 		if condition.Rout {
 			ui.Text(c, locales.ObjectiveRoutHelp()).
-				FontSize(12).
+				FontSize(components.FontCaption).
 				TextColor(c.Theme().TextMuted)
 		}
 	}
@@ -168,7 +170,7 @@ func (v *Page) objectiveDetails(
 		}
 		if condition.Script == 1 {
 			ui.Text(c, locales.ObjectiveFlagOnly()).
-				FontSize(12).
+				FontSize(components.FontCaption).
 				TextColor(c.Theme().TextMuted)
 		}
 	})

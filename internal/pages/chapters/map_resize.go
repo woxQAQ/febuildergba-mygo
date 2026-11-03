@@ -108,14 +108,14 @@ func (entry *mapState) resizeControls(
 				})
 		})
 		ui.Text(c, fmt.Sprintf(locales.MapLimits(), maps.MaxMapWidth, maps.MaxMapHeight, maps.MaxMapCells)).
-			FontSize(12).
+			FontSize(components.FontCaption).
 			TextColor(c.Theme().TextMuted)
 		ui.Text(c, locales.MapResizeHelp()).
-			FontSize(12).
+			FontSize(components.FontCaption).
 			TextColor(c.Theme().TextMuted)
 		if entry.resizePending() {
 			ui.Text(c, locales.MapResizePending()).
-				FontSize(12).
+				FontSize(components.FontCaption).
 				TextColor(c.Theme().TextMuted)
 		}
 	})

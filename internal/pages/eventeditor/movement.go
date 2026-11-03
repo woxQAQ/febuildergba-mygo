@@ -58,7 +58,7 @@ func (page *Page) movement(
 	ui.Column(c.Key(key)).Gap(8).Children(func() {
 		ui.Text(c, locales.Label(field.ID))
 		ui.Text(c, locales.Label("script_movement_editor_help")).
-			FontSize(12).
+			FontSize(components.FontCaption).
 			TextColor(c.Theme().TextMuted)
 		if err != nil {
 			ui.Text(c, components.ErrorText(err)).TextColor(c.Theme().TextMuted)
@@ -104,7 +104,8 @@ func (page *Page) movement(
 				}
 			}
 		}
-		ui.Text(c, strings.Join(captions, "  →  ")).FontSize(12)
+		ui.Text(c, strings.Join(captions, "  →  ")).
+			FontSize(components.FontCaption)
 		ui.Row(c).Wrap().Gap(8).Children(func() {
 			ui.Select(c.Key("step"), &state.selected, captions).
 				Width(230).

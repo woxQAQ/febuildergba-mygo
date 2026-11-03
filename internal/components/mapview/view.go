@@ -212,13 +212,13 @@ func (v *View) render(c *ui.Context, overlay Overlay) {
 					}
 					if v.viewport.X > 0 {
 						ui.Textf(c, "%d × %d", v.resource.Width, v.resource.Height).
-							FontSize(12).
+							FontSize(components.FontCaption).
 							TextColor(c.Theme().TextMuted)
 					}
 				})
 		}
 		if overlay.Prompt != "" {
-			ui.Text(c.Key("map-prompt"), overlay.Prompt).FontSize(13)
+			ui.Text(c.Key("map-prompt"), overlay.Prompt)
 		}
 		if v.err != nil {
 			ui.Text(c, components.ErrorText(v.err)).
@@ -265,7 +265,8 @@ func (v *View) render(c *ui.Context, overlay Overlay) {
 		if v.selected && v.viewport.X > 0 {
 			ui.Textf(c, "X %d · Y %d", v.selection.X, v.selection.Y).
 				Label(locales.MapSelection()).
-				FontFeatures("tnum").FontSize(12).TextColor(c.Theme().TextMuted)
+				FontFeatures("tnum").
+				FontSize(components.FontCaption).TextColor(c.Theme().TextMuted)
 		} else if v.selected {
 			cell, _ := v.resource.Cell(v.selection.X, v.selection.Y)
 			ui.Textf(c, "X %d · Y %d · %s 0x%04X · %s 0x%02X", v.selection.X, v.selection.Y, locales.MapTile(), cell.Tile, locales.MapTerrain(), cell.Terrain).

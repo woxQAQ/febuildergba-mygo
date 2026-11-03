@@ -67,7 +67,6 @@ func (v *Page) fields(
 								Children(func() {
 									ui.Text(c, locales.Label(field.ID)).
 										Grow(1).
-										FontSize(13).
 										SingleLine().
 										Tooltip(locales.DeployPositionHelp())
 									v.number(c, state, entry, field)
@@ -147,7 +146,7 @@ func deploymentNumber(
 	control := components.TextDraft(
 		state,
 		ui.TextInput(c.Key("value"), &draft.text).
-			Width(58).Height(26).Padding(3, 6).FontSize(13).
+			Width(58).Height(26).Padding(3, 6).
 			FontFeatures("tnum").TextAlign(ui.End).
 			Label(locales.Deployments()+" / "+locales.Label(field.ID)).
 			Disabled(state.Busy || !entry.data.Current(state.Session.Deployments)).
@@ -223,7 +222,6 @@ func (v *Page) eventNumber(
 			Width(92).
 			Height(26).
 			Padding(3, 6).
-			FontSize(13).
 			FontFeatures("tnum").
 			TextAlign(ui.End).
 			Label(v.labelsFor(entry.data.Table()).title+" / "+locales.Label(field.ID)).

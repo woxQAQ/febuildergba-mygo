@@ -77,11 +77,10 @@ func (view *View) Render(
 	view.selected = max(0, min(view.selected, inventory.Count()-1))
 	items := inventory.Items()
 	ui.Textf(c, "%d / %d", len(items), shop.MaxItems).
-		FontSize(12).
+		FontSize(components.FontCaption).
 		Tooltip(locales.ShopCapacityHelp())
 	if len(items) == 0 {
 		ui.Text(c, locales.ShopEmpty()).
-			FontSize(13).
 			TextColor(c.Theme().TextMuted)
 	} else {
 		view.list.Selected = &view.selected
@@ -179,7 +178,7 @@ func (view *View) Render(
 				}))
 		if advanced || row.extra.invalid {
 			ui.Text(c, locales.ShopExtra()).
-				FontSize(12).
+				FontSize(components.FontCaption).
 				Tooltip(locales.ShopExtraHelp())
 			extra := components.TextDraft(
 				state,

@@ -71,13 +71,15 @@ func (a *form) profileClass(
 		if kind == records.Classes {
 			help = locales.RecordRelatedClassHelp()
 		}
-		ui.Text(c, locales.Label(id)).Width(76).FontSize(12).Tooltip(help)
+		ui.Text(c, locales.Label(id)).
+			Width(76).
+			FontSize(components.FontCaption).
+			Tooltip(help)
 		components.TextDraft(
 			a.state,
 			ui.Combobox(c, &draft.text, labels).
 				Width(140).
 				Height(26).
-				FontSize(13).
 				Label(a.fieldLabel(kind, field)).
 				Tooltip(help).
 				Disabled(a.state.Busy).
@@ -94,7 +96,7 @@ func (a *form) profileClass(
 		)
 		ui.Button(c, locales.Jump()).
 			Height(26).
-			FontSize(12).
+			FontSize(components.FontCaption).
 			Disabled(a.state.Busy || target < 0).
 			OnClick(func() { a.jump(records.Classes, target) })
 	})
@@ -129,11 +131,10 @@ func (a *form) profileEnum(
 	}
 	draft := entry.choice(id, value, caption)
 	ui.Row(c.Key(id)).Gap(6).AlignItems(ui.Center).Children(func() {
-		ui.Text(c, locales.Label(id)).FontSize(12)
+		ui.Text(c, locales.Label(id)).FontSize(components.FontCaption)
 		ui.Select(c, &draft.text, labels).
 			MinWidth(72).
 			Height(26).
-			FontSize(13).
 			Label(a.fieldLabel(kind, field)).
 			Disabled(a.state.Busy).
 			OnChange(func() {
@@ -169,7 +170,6 @@ func (a *form) profileWeapons(
 	ui.Column(c.Key("profile-weapons")).Gap(6).Children(func() {
 		ui.Text(c, locales.Label(records.GroupWeapon)).
 			Bold().
-			FontSize(13).
 			Tooltip(locales.RecordWeaponsHelp())
 		ui.ScrollHorizontal(c).
 			Width(available).
@@ -194,7 +194,7 @@ func (a *form) profileWeapons(
 						if kind == records.Classes {
 							label = locales.RecordClassRanks()
 						}
-						ui.Text(c, label).FontSize(13)
+						ui.Text(c, label)
 						for _, weapon := range weapons {
 							field, _ := profileField(table, weapon.Field)
 							a.numberField(c, kind, row, field, weapon.Value)
@@ -240,9 +240,13 @@ func (a *form) profileRank(
 			if icon.Available() {
 				icon.View(c, 16, locales.Label(weapon.Weapon))
 			} else {
-				ui.Text(c, locales.Label(weapon.Weapon)).FontSize(12)
+				ui.Text(c, locales.Label(weapon.Weapon)).
+					FontSize(components.FontCaption)
 			}
-			ui.Textf(c, "%s ▾", rank).FontSize(12).TextAlign(ui.End).Grow(1)
+			ui.Textf(c, "%s ▾", rank).
+				FontSize(components.FontCaption).
+				TextAlign(ui.End).
+				Grow(1)
 		})
 	})
 	control.PopoverMenuButton(func(menu *ui.Menu) {
@@ -289,7 +293,6 @@ func (a *form) profileTraits(
 	ui.Column(c.Key("profile-traits")).Gap(6).Children(func() {
 		ui.Text(c, locales.RecordTraits()).
 			Bold().
-			FontSize(13).
 			Tooltip(locales.RecordTraitsHelp())
 		ui.Grid(c).Columns(columns).GapX(16).GapY(12).Children(func() {
 			for bank := range 4 {
@@ -302,11 +305,11 @@ func (a *form) profileTraits(
 						BorderColor(c.Theme().Border).
 						Children(func() {
 							ui.Textf(c, "%s %d", locales.RecordTraits(), bank+1).
-								FontSize(12).
+								FontSize(components.FontCaption).
 								Grow(1)
 							ui.Textf(c, "0x%02X", (flags>>(bank*8))&0xFF).
 								Font("monospace").
-								FontSize(12).
+								FontSize(components.FontCaption).
 								TextColor(c.Theme().TextMuted)
 						})
 					for bit := range 8 {
@@ -322,7 +325,7 @@ func (a *form) profileTraits(
 						}
 						ui.Checkbox(c.Key(trait.Bit), &on, label).
 							Height(23).
-							FontSize(12).
+							FontSize(components.FontCaption).
 							Label(locales.RecordTraits() + " / " + label).
 							Tooltip(locales.Label(trait.Help)).
 							Disabled(a.state.Busy || !trait.Known).

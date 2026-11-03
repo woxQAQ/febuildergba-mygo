@@ -70,10 +70,11 @@ func (page *Page) portraitOperand(
 			}
 			ui.Column(c).Gap(4).Grow(1).AlignItems(ui.Start).Children(func() {
 				ui.Text(c, locales.Label("script_portrait_preview")).
-					FontSize(12).
+					FontSize(components.FontCaption).
 					TextColor(c.Theme().TextMuted)
 				if err != nil {
-					ui.Text(c, components.ErrorText(err)).FontSize(12)
+					ui.Text(c, components.ErrorText(err)).
+						FontSize(components.FontCaption)
 				}
 				ui.Button(c, locales.Label("script_open_portrait")).
 					Disabled(page.state.Busy || page.openPortrait == nil || preview.source == nil || !draft.data.Current(page.state.Session.Events)).

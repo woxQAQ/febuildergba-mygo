@@ -217,7 +217,7 @@ func (page *Page) navigation(c *ui.Context) {
 		ui.Table(c, &page.list, []ui.TableColumn{{ID: "shop", Title: locales.ShopEntries()}}, len(page.rows), func(row, _ int) {
 			entry := page.rows[row]
 			caption := page.caption(entry)
-			ui.Text(c, caption).SingleLine().FontSize(13).Tooltip(caption)
+			ui.Text(c, caption).SingleLine().Tooltip(caption)
 		}).
 			Grow(1).
 			Label(locales.ShopEntries()).
@@ -227,7 +227,7 @@ func (page *Page) navigation(c *ui.Context) {
 		}
 		if len(page.warnings) > 0 {
 			ui.Textf(c, "%s: %d", locales.ShopIncomplete(), len(page.warnings)).
-				FontSize(12).
+				FontSize(components.FontCaption).
 				TextColor(c.Theme().TextMuted).
 				Tooltip(page.warnings[0].Error())
 		}
@@ -270,16 +270,16 @@ func (page *Page) detail(c *ui.Context) {
 	ui.Scroll(c.Key(entry)).Fill().Children(func() {
 		ui.Column(c).Padding(16).Gap(12).Children(func() {
 			ui.Text(c, shopview.Caption(entry.entry.Reference)).
-				FontSize(18).
+				FontSize(components.FontSectionTitle).
 				Bold()
 			if entry.entry.UsesDefault {
-				ui.Text(c, locales.ShopUsesDefault()).FontSize(13)
+				ui.Text(c, locales.ShopUsesDefault())
 			}
 			if entry.entry.Key.Origin == shop.Default {
-				ui.Text(c, locales.ShopDefaultHelp()).FontSize(13)
+				ui.Text(c, locales.ShopDefaultHelp())
 			}
 			if entry.entry.Key.Origin == shop.WorldMap {
-				ui.Text(c, locales.ShopWorldmapHelp()).FontSize(13)
+				ui.Text(c, locales.ShopWorldmapHelp())
 				if entry.entry.Null && entry.inventory == nil {
 					ui.Text(c, locales.ShopNullHelp()).
 						TextColor(c.Theme().Danger)
@@ -291,7 +291,7 @@ func (page *Page) detail(c *ui.Context) {
 					}
 					ui.Text(c, message).TextColor(c.Theme().TextMuted)
 				} else if entry.inventory != nil && entry.inventory.Count() == 0 {
-					ui.Text(c, locales.ShopEmptyVisible()).FontSize(13)
+					ui.Text(c, locales.ShopEmptyVisible())
 				}
 			}
 			if entry.err != nil {
@@ -407,28 +407,35 @@ func (page *Page) actions(c *ui.Context, entry *entryState) {
 		if plan := entry.preview; plan != nil {
 			before, after, count = plan.Before(), plan.After(), plan.Count()
 			uses, affected = plan.Uses(), plan.Affected()
-			ui.Text(c, locales.ShopEntryScope()).FontSize(12)
+			ui.Text(c, locales.ShopEntryScope()).
+				FontSize(components.FontCaption)
 		} else {
 			for _, change := range entry.chapterPreview.Inventories() {
 				before, after, count = change.Before, change.After, change.Count
 			}
-			ui.Text(c, locales.ShopPreviewScope()).FontSize(12)
+			ui.Text(c, locales.ShopPreviewScope()).
+				FontSize(components.FontCaption)
 			affected = entry.affected
 		}
 		ui.Textf(c, "%s · %d/%d · 0x%08X → 0x%08X", locales.ShopInventory(), count, shop.MaxItems, before, after).
 			Selectable()
-		ui.Text(c, locales.ShopAffected()).FontSize(12).Bold()
+		ui.Text(c, locales.ShopAffected()).
+			FontSize(components.FontCaption).
+			Bold()
 		for _, ref := range affected {
-			ui.Text(c, shopview.Caption(ref)).FontSize(12)
+			ui.Text(c, shopview.Caption(ref)).FontSize(components.FontCaption)
 		}
 		if len(uses) > 0 {
-			ui.Text(c, locales.ShopKnownEntries()).FontSize(12).Bold()
+			ui.Text(c, locales.ShopKnownEntries()).
+				FontSize(components.FontCaption).
+				Bold()
 			for _, ref := range uses {
-				ui.Text(c, shopview.Caption(ref)).FontSize(12)
+				ui.Text(c, shopview.Caption(ref)).
+					FontSize(components.FontCaption)
 			}
 		}
 		ui.Text(c, locales.ShopReferenceLimit()).
-			FontSize(12).
+			FontSize(components.FontCaption).
 			TextColor(c.Theme().TextMuted)
 		ui.PrimaryButton(c, locales.ShopApply()).
 			Disabled(state.Busy || stale || entry.view.Invalid()).

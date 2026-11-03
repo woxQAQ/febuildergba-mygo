@@ -86,7 +86,7 @@ func (editor *AssetEditor) RenderPreview(c *ui.Context, state *editor.State) {
 			ui.Text(c, locales.ImportedImage()).Bold()
 			if ref.Kind == graphics.Portrait {
 				ui.Text(c, locales.PortraitColors()).
-					FontSize(12).
+					FontSize(FontCaption).
 					TextColor(c.Theme().TextMuted)
 			}
 			assetUses(c, editor.edit)
@@ -151,7 +151,7 @@ func (editor *AssetEditor) importPNG(
 
 func assetUses(c *ui.Context, plan *graphics.Plan) {
 	uses := plan.Uses()
-	ui.Text(c, locales.AssetEditSummary(len(uses))).FontSize(12)
+	ui.Text(c, locales.AssetEditSummary(len(uses))).FontSize(FontCaption)
 	for _, kind := range records.Kinds {
 		var fields []string
 		for _, use := range uses {
@@ -164,7 +164,7 @@ func assetUses(c *ui.Context, plan *graphics.Plan) {
 		}
 		if len(fields) > 0 {
 			ui.Text(c, locales.Label(string(kind))+": "+strings.Join(fields, ", ")).
-				FontSize(12)
+				FontSize(FontCaption)
 		}
 	}
 }

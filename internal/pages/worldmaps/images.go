@@ -3,6 +3,7 @@ package worldmaps
 import (
 	"github.com/egoist/mygo/ui"
 
+	"github.com/woxQAQ/febuildergba-mygo/internal/components"
 	"github.com/woxQAQ/febuildergba-mygo/internal/locales"
 )
 
@@ -33,7 +34,8 @@ func (p *Page) imageControls(c *ui.Context) {
 		}
 		if p.backgrounds[p.backgroundTone].draft != nil ||
 			p.roadTileset.draft != nil {
-			ui.Text(c, locales.WorldmapImageDrafts()).FontSize(12)
+			ui.Text(c, locales.WorldmapImageDrafts()).
+				FontSize(components.FontCaption)
 		}
 		p.backgroundPreview(c)
 		p.roadTilesetPreview(c)

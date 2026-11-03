@@ -206,14 +206,14 @@ func (v *Page) tilesetEditor(
 					OnClick(reload)
 			})
 		ui.Text(c, locales.MapTilesetHelp()).
-			FontSize(12).
+			FontSize(components.FontCaption).
 			TextColor(c.Theme().TextMuted)
 		ui.Row(c.Key("selection")).
 			Wrap().
 			Gap(12).
 			AlignItems(ui.Center).
 			Children(func() {
-				ui.Text(c, locales.MapDefinitionId()).FontSize(13)
+				ui.Text(c, locales.MapDefinitionId())
 				ui.Select(c.Key("definition"), &entry.choice, entry.choices).
 					Bind(&entry.editFocus).
 					Label(locales.MapDefinitionId()).Width(140).
@@ -283,7 +283,7 @@ func (v *Page) tilesetEditor(
 					})
 			})
 		ui.Text(c, locales.MapTilesetDrafts()).
-			FontSize(12).
+			FontSize(components.FontCaption).
 			TextColor(c.Theme().TextMuted)
 	})
 }
@@ -309,7 +309,7 @@ func (s *tilesetState) definitionFields(
 		s.inputs[index] = fields
 	}
 	ui.Row(c.Key("terrain")).Gap(8).AlignItems(ui.Center).Children(func() {
-		ui.Text(c, locales.MapTerrainId()).FontSize(13)
+		ui.Text(c, locales.MapTerrainId())
 		s.definitionNumber(
 			c,
 			state,
@@ -329,13 +329,12 @@ func (s *tilesetState) definitionFields(
 				Gap(4).
 				Children(func() {
 					name := tilePartName(i)
-					ui.Text(c, name).FontSize(13).Bold()
+					ui.Text(c, name).Bold()
 					ui.Row(c.Key("tile")).
 						Gap(8).
 						AlignItems(ui.Center).
 						Children(func() {
 							ui.Text(c, locales.MapPartTile()).
-								FontSize(13).
 								Grow(1)
 							s.definitionNumber(
 								c,
@@ -361,7 +360,6 @@ func (s *tilesetState) definitionFields(
 						AlignItems(ui.Center).
 						Children(func() {
 							ui.Text(c, locales.MapPartPalette()).
-								FontSize(13).
 								Grow(1)
 							s.definitionNumber(
 								c,
@@ -462,7 +460,9 @@ func (v *Page) tilesetReview(
 ) {
 	plan := entry.preview
 	ui.Column(c.Key("review")).Gap(12).Children(func() {
-		ui.Text(c, locales.MapTilesetPreview()).FontSize(16).Bold()
+		ui.Text(c, locales.MapTilesetPreview()).
+			FontSize(components.FontPanelTitle).
+			Bold()
 		type changeRow struct {
 			index                int
 			field, before, after string
@@ -519,13 +519,13 @@ func (v *Page) tilesetReview(
 				row.before,
 				row.after,
 			}
-			ui.Text(c, values[column]).FontSize(13).Tooltip(values[column])
+			ui.Text(c, values[column]).Tooltip(values[column])
 		}).Height(float32(min(270, max(72, (len(rows)+1)*32)))).MaxWidthPercent(100)
 		mapUses(c, state, plan.Uses(), locales.MapTilesetScope(), jump)
-		ui.Text(c, locales.MapTilesetScope()).FontSize(12)
+		ui.Text(c, locales.MapTilesetScope()).FontSize(components.FontCaption)
 		ui.Textf(c, "0x%08X → 0x%08X · %d B", plan.Source(), plan.Destination(), plan.Length()).
 			FontFeatures("tnum").
-			FontSize(12).
+			FontSize(components.FontCaption).
 			Selectable()
 		ui.Row(c.Key("actions")).Wrap().Gap(8).Children(func() {
 			ui.PrimaryButton(c.Key("apply"), locales.MapTilesetApply()).

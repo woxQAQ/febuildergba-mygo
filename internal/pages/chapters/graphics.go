@@ -202,19 +202,24 @@ func (v *Page) graphicsEditor(
 					OnClick(func() { v.reloadGraphics(c, state, row, group, entry) })
 			})
 			ui.Text(c, locales.MapGraphicsFormat()).
-				FontSize(12).
+				FontSize(components.FontCaption).
 				TextColor(c.Theme().TextMuted)
-			ui.Textf(c, "%s: %d", locales.MapGraphicsCount(), entry.source.Count()).
-				FontSize(13)
+			ui.Textf(
+				c,
+				"%s: %d",
+				locales.MapGraphicsCount(),
+				entry.source.Count(),
+			)
 			if entry.err != nil {
 				ui.Text(c, components.ErrorText(entry.err)).
 					TextColor(c.Theme().Danger)
 			}
 			if entry.unchanged {
-				ui.Text(c, locales.MapGraphicsUnchanged()).FontSize(12)
+				ui.Text(c, locales.MapGraphicsUnchanged()).
+					FontSize(components.FontCaption)
 			}
 			ui.Text(c, locales.MapGraphicsDrafts()).
-				FontSize(12).
+				FontSize(components.FontCaption).
 				TextColor(c.Theme().TextMuted)
 			if entry.draft != nil {
 				v.graphicsReview(c, state, row, group, entry, jump)
@@ -229,8 +234,7 @@ func (v *Page) graphicsEditor(
 					Gap(8).
 					AlignItems(ui.Center).
 					Children(func() {
-						ui.Text(c, locales.MapGraphicsDisplayBank()).
-							FontSize(13)
+						ui.Text(c, locales.MapGraphicsDisplayBank())
 						ui.Select(c.Key("display-bank"), &entry.bank, choices).
 							Label(locales.MapGraphicsDisplayBank()).Width(100).
 							Disabled(state.Busy)
@@ -327,8 +331,14 @@ func (v *Page) graphicsReview(
 		if entry.plan == nil {
 			return
 		}
-		ui.Textf(c, "%s: %d / %d · +%d B", locales.MapGraphicsChanges(), len(entry.plan.ChangedTiles()), entry.source.Count(), entry.plan.Length()).
-			FontSize(13)
+		ui.Textf(
+			c,
+			"%s: %d / %d · +%d B",
+			locales.MapGraphicsChanges(),
+			len(entry.plan.ChangedTiles()),
+			entry.source.Count(),
+			entry.plan.Length(),
+		)
 		uses := entry.plan.Uses()
 		for _, updated := range []bool{true, false} {
 			var selected []maps.GraphicsUse
@@ -359,6 +369,6 @@ func (v *Page) graphicsReview(
 				})
 			})
 		}
-		ui.Text(c, locales.MapGraphicsScope()).FontSize(12)
+		ui.Text(c, locales.MapGraphicsScope()).FontSize(components.FontCaption)
 	})
 }

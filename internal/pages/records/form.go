@@ -129,11 +129,11 @@ func (a *form) View(
 								Label(row.Name + " " + locales.ImagePreview())
 						}
 						ui.Textf(c, "%02X", row.ID).
-							FontSize(20).
+							FontSize(components.FontTitle).
 							TextColor(c.Theme().TextMuted)
 						if kind == records.Chapters {
 							ui.Text(c, row.Name).
-								FontSize(20).
+								FontSize(components.FontTitle).
 								Grow(1).
 								MinWidth(0).
 								SingleLine()

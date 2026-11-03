@@ -183,7 +183,7 @@ func (v *Page) Render(
 		v.unitScene(c, state, row, entry, nil)
 		if len(v.resource.Warnings) > 0 {
 			ui.Text(c, locales.GameIncompleteDeploymentScript()).
-				FontSize(12).
+				FontSize(components.FontCaption).
 				TextColor(c.Theme().TextMuted).
 				Tooltip(v.resource.Warnings[0].Error())
 		}

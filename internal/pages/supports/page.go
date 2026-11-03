@@ -217,7 +217,7 @@ func (p *Page) dialogView(c *ui.Context) {
 						p.name(p.partner),
 					)
 				}
-				ui.Text(c, caption).FontSize(12)
+				ui.Text(c, caption).FontSize(components.FontCaption)
 				ui.Button(c, locales.SupportAllDialogues()).
 					OnClick(func() { p.OpenPair(0, 0) })
 			}
@@ -275,7 +275,6 @@ func (p *Page) detail(
 ) {
 	ui.Row(c).Wrap().Gap(8).AlignItems(ui.Center).Children(func() {
 		ui.Textf(c, "%03X", row.Index).
-			FontSize(13).
 			TextColor(c.Theme().TextMuted)
 		for _, id := range []uint16{row.Unit, row.Partner} {
 			ui.Button(c, fmt.Sprintf("%02X %s", id, p.name(int(id)))).
@@ -286,7 +285,7 @@ func (p *Page) detail(
 		ui.Checkbox(c, &p.advanced, locales.Advanced())
 	})
 	ui.Text(c, locales.SupportDialogueHelp()).
-		FontSize(12).
+		FontSize(components.FontCaption).
 		TextColor(c.Theme().TextMuted)
 	for rank, id := range row.Texts {
 		ui.Column(c.Key(rank)).Gap(4).Children(func() {
@@ -297,7 +296,7 @@ func (p *Page) detail(
 				current = &valueInput{}
 				entry.inputs[key] = current
 			}
-			ui.Text(c, label).FontSize(13).Bold()
+			ui.Text(c, label).Bold()
 			components.TextReference(
 				c,
 				p.state,
@@ -318,7 +317,7 @@ func (p *Page) detail(
 	if p.advanced {
 		ui.Textf(c, "0x%08X · % X", row.Address, row.Raw).
 			Font("monospace").
-			FontSize(12).
+			FontSize(components.FontCaption).
 			Selectable()
 		ui.Button(c, locales.EditBytes()).
 			Disabled(p.state.Busy || stale).
@@ -366,21 +365,22 @@ func (p *Page) actions(c *ui.Context, entry *dialogueState, stale bool) {
 				if row.Texts == entry.original[row.Index].Texts {
 					continue
 				}
-				ui.Text(c, p.talkCaption(row)).FontSize(13).Bold()
+				ui.Text(c, p.talkCaption(row)).Bold()
 				for rank, id := range row.Texts {
 					before := entry.original[row.Index].Texts[rank]
 					if before != id {
 						ui.Textf(c, "%s: %04X → %04X", []string{locales.SupportC(), locales.SupportB(), locales.SupportA()}[rank], before, id).
-							FontSize(12)
+							FontSize(components.FontCaption)
 					}
 				}
 			}
-			ui.Text(c, locales.SupportTalkApplyHelp()).FontSize(12)
+			ui.Text(c, locales.SupportTalkApplyHelp()).
+				FontSize(components.FontCaption)
 			if p.advanced {
 				for _, move := range entry.plan.Moves() {
 					ui.Textf(c, "0x%08X → 0x%08X", move.Before, move.After).
 						Font("monospace").
-						FontSize(12)
+						FontSize(components.FontCaption)
 				}
 			}
 			ui.Button(c, locales.SupportApply()).

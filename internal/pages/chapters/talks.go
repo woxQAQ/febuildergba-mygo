@@ -107,13 +107,13 @@ func (v *Page) talkDetails(
 	})
 	if len(fields) > 0 && condition.Flag == 0 {
 		ui.Text(c, locales.TalkRepeat()).
-			FontSize(12).
+			FontSize(components.FontCaption).
 			TextColor(c.Theme().TextMuted)
 	}
 	if len(fields) == 5 && fields[3].Width == 2 &&
 		(condition.TalkMode == 1 || condition.TalkMode == 2) {
 		ui.Text(c, locales.TalkDisabledMode()).
-			FontSize(12).
+			FontSize(components.FontCaption).
 			TextColor(c.Theme().TextMuted)
 	}
 	if id, created := entry.data.Dialog(entry.selected); created {
@@ -241,6 +241,8 @@ func (v *Page) dialoguePicker(
 		if id == 0 {
 			message = locales.ChooseTextId()
 		}
-		ui.Text(c, message).FontSize(12).TextColor(c.Theme().TextMuted)
+		ui.Text(c, message).
+			FontSize(components.FontCaption).
+			TextColor(c.Theme().TextMuted)
 	}
 }

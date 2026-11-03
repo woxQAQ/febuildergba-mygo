@@ -313,7 +313,7 @@ func (page *Page) navigation(c *ui.Context) {
 					}
 				})
 			ui.Text(c, locales.RecordSummary(len(page.rows))).
-				FontSize(12).
+				FontSize(components.FontCaption).
 				TextColor(c.Theme().TextMuted)
 		})
 }
@@ -363,13 +363,15 @@ func (page *Page) editor(c *ui.Context) {
 		Gap(12).
 		Children(func() {
 			ui.Row(c).Wrap().Gap(12).AlignItems(ui.Center).Children(func() {
-				ui.Text(c, entryCaption(entry)).FontSize(20).Grow(1)
+				ui.Text(c, entryCaption(entry)).
+					FontSize(components.FontTitle).
+					Grow(1)
 				ui.Checkbox(c, &page.showRaw, locales.Advanced())
 			})
 			ui.Textf(c, "0x%08X → 0x%08X", entry.Pointer, entry.Address).
 				Selectable().
 				Font("monospace").
-				FontSize(12).
+				FontSize(components.FontCaption).
 				Tooltip(locales.ScriptScope())
 			if !draft.data.Current(page.state.Session.Events) {
 				ui.Text(c, locales.DeployStale()).TextColor(c.Theme().Danger)
@@ -378,7 +380,7 @@ func (page *Page) editor(c *ui.Context) {
 				ui.Text(c, locales.ScriptPartial()).TextColor(c.Theme().Warning)
 			} else if !draft.data.Relocatable() {
 				ui.Text(c, locales.ScriptOpaque()).
-					FontSize(12).
+					FontSize(components.FontCaption).
 					TextColor(c.Theme().TextMuted)
 			}
 			rows := draft.data.Instructions()
