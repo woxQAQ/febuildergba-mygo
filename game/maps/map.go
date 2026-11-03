@@ -19,6 +19,7 @@ const (
 	LayoutField   = "map_id"
 	GraphicsField = "map_object_id"
 	ConfigField   = "map_tileset_id"
+	PaletteField  = "map_palette_id"
 )
 
 var ErrMap = fault.Code{ID: "game.invalid_map", Kind: fault.InvalidData}
@@ -259,7 +260,7 @@ func (f Format) tilesetResources(
 	if err != nil {
 		return mapResources{}, err
 	}
-	if !gba.Within(data, paletteAt, 512) {
+	if !gba.Within(data, paletteAt, PaletteSize) {
 		return mapResources{}, fault.New(
 			ErrMap,
 			"game.map_palette",
@@ -268,7 +269,7 @@ func (f Format) tilesetResources(
 				ResourceID: new(int(data[address+6])),
 				Range: &fault.Range{
 					Offset: paletteAt,
-					Length: 512,
+					Length: PaletteSize,
 					Size:   len(data),
 				},
 			},
@@ -288,7 +289,7 @@ func (f Format) tilesetResources(
 	return mapResources{
 		graphics:        graphics,
 		graphicsPresent: present,
-		palette:         data[paletteAt : paletteAt+512],
+		palette:         data[paletteAt : paletteAt+PaletteSize],
 		config:          config,
 		objectID:        int(data[address+4]),
 		configID:        int(data[address+7]),
@@ -355,6 +356,14 @@ func (r mapResources) preview(layout []byte) (Preview, error) {
 		for part := range 4 {
 			x, y := (i%width)*2+part%2, (i/width)*2+part/2
 			word := gba.Uint16(r.config, at+part*2)
+			if int(word>>12)*32+32 > len(r.palette) {
+				return Preview{}, fault.New(
+					ErrMap,
+					"game.map_palette",
+					fault.Context{Resource: PaletteField},
+					nil,
+				)
+			}
 			if !r.hasGraphic(int(word & 0x3FF)) {
 				return Preview{}, fault.New(
 					ErrMap,

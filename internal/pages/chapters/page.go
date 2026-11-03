@@ -35,6 +35,9 @@ type Page struct {
 	mapDrafts              map[int]*mapState
 	changeDrafts           map[int]*mapChangesState
 	tilesetDrafts          map[int]*tilesetState
+	paletteDrafts          map[int]*paletteState
+	importPalette          func(*maps.Palette, maps.PaletteSection, func(*maps.PaletteDraft, error))
+	exportPalette          func(*maps.Palette, maps.PaletteSection)
 }
 
 // Deactivate cancels pending placement while keeping the chapter drafts.
@@ -45,6 +48,10 @@ func (v *Page) Deactivate() {
 }
 
 func (v *Page) Configuration() bool { return v.mode == 0 }
+
+func (v *Page) Reset() {
+	*v = Page{importPalette: v.importPalette, exportPalette: v.exportPalette}
+}
 
 func (v *Page) load(state *editor.State, row records.Row) {
 	s := state.Session
@@ -57,6 +64,9 @@ func (v *Page) load(state *editor.State, row records.Row) {
 			mapDrafts:     make(map[int]*mapState),
 			changeDrafts:  make(map[int]*mapChangesState),
 			tilesetDrafts: make(map[int]*tilesetState),
+			paletteDrafts: make(map[int]*paletteState),
+			importPalette: v.importPalette,
+			exportPalette: v.exportPalette,
 		}
 	}
 	s.Refresh()
@@ -81,7 +91,7 @@ func (v *Page) Render(
 ) {
 	v.load(state, row)
 	v.openScript = openScript
-	ui.Tabs(c.Key("chapter-mode"), &v.mode, locales.DeployConfiguration(), locales.Deployments(), locales.TurnEvents(), locales.AreaEvents(), locales.TalkEvents(), locales.Objectives(), locales.MapEditor(), locales.MapChangesEditor(), locales.LocationEvents(), locales.MapTilesetEditor()).
+	ui.Tabs(c.Key("chapter-mode"), &v.mode, locales.DeployConfiguration(), locales.Deployments(), locales.TurnEvents(), locales.AreaEvents(), locales.TalkEvents(), locales.Objectives(), locales.MapEditor(), locales.MapChangesEditor(), locales.LocationEvents(), locales.MapTilesetEditor(), locales.MapPaletteEditor()).
 		Label(locales.Chapters()).
 		Wrap()
 	for key, entry := range v.events {
@@ -95,6 +105,10 @@ func (v *Page) Render(
 	}
 	if v.mode == 7 {
 		v.mapChangesEditor(c, state, row, jump, openHex)
+		return
+	}
+	if v.mode == 10 {
+		v.paletteEditor(c, state, row, jump)
 		return
 	}
 	if v.mode == 9 {

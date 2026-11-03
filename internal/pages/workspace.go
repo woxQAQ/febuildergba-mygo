@@ -8,6 +8,7 @@ import (
 	"github.com/woxQAQ/febuildergba-mygo/game"
 	"github.com/woxQAQ/febuildergba-mygo/game/event"
 	"github.com/woxQAQ/febuildergba-mygo/game/graphics"
+	"github.com/woxQAQ/febuildergba-mygo/game/maps"
 	"github.com/woxQAQ/febuildergba-mygo/game/quote"
 	"github.com/woxQAQ/febuildergba-mygo/game/records"
 	"github.com/woxQAQ/febuildergba-mygo/game/shop"
@@ -43,6 +44,8 @@ type Actions struct {
 	ExportWorldMapBackground  func(*worldmap.Background)
 	ImportWorldMapRoadTileset func(*worldmap.RoadTileset, func(*worldmap.RoadTilesetDraft, error))
 	ExportWorldMapRoadTileset func(*worldmap.RoadTileset)
+	ImportMapPalette          func(*maps.Palette, maps.PaletteSection, func(*maps.PaletteDraft, error))
+	ExportMapPalette          func(*maps.Palette, maps.PaletteSection)
 	MenuStateChanged          func()
 }
 
@@ -111,6 +114,18 @@ func New() *Workspace {
 		w.openText,
 		func(kind records.Kind) { w.tab = slices.Index(records.Kinds, kind) },
 		assets,
+	)
+	w.records.SetMapPaletteActions(
+		func(source *maps.Palette, section maps.PaletteSection, done func(*maps.PaletteDraft, error)) {
+			if w.Actions.ImportMapPalette != nil {
+				w.Actions.ImportMapPalette(source, section, done)
+			}
+		},
+		func(source *maps.Palette, section maps.PaletteSection) {
+			if w.Actions.ExportMapPalette != nil {
+				w.Actions.ExportMapPalette(source, section)
+			}
+		},
 	)
 	w.portraits = portraits.New(w.Editor, assets, w.records.Open, w.openHex)
 	w.records.SetPortraitOpener(w.OpenPortrait)

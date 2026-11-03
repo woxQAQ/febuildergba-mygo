@@ -8,6 +8,7 @@ import (
 	"github.com/egoist/mygo/ui"
 
 	"github.com/woxQAQ/febuildergba-mygo/game/edit"
+	"github.com/woxQAQ/febuildergba-mygo/game/maps"
 	"github.com/woxQAQ/febuildergba-mygo/game/records"
 	"github.com/woxQAQ/febuildergba-mygo/internal/components"
 	"github.com/woxQAQ/febuildergba-mygo/internal/editor"
@@ -48,6 +49,13 @@ func New(
 	}
 	a.form = newForm(state, openHex, openText, a.Open, assets)
 	return a
+}
+
+func (a *Page) SetMapPaletteActions(
+	importPNG func(*maps.Palette, maps.PaletteSection, func(*maps.PaletteDraft, error)),
+	exportPNG func(*maps.Palette, maps.PaletteSection),
+) {
+	a.form.chapter.SetPaletteActions(importPNG, exportPNG)
 }
 
 func (a *Page) Reset() {

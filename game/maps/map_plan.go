@@ -134,7 +134,7 @@ func (f Format) bindings(extra []Binding) []Binding {
 			CompressedLimit: 0x4000,
 			Optional:        true,
 		},
-		{Field: "map_palette_id", Root: f.Palette, Length: 512},
+		{Field: PaletteField, Root: f.Palette, Length: PaletteSize},
 		{Field: "map_tileset_id", Root: f.Config, CompressedLimit: 0x2400},
 		{Field: LayoutField, Root: f.Layout, CompressedLimit: maxMapBytes},
 		{Field: "tile_animation_1_id", Root: f.Animation, Optional: true},

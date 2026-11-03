@@ -8240,6 +8240,226 @@ func (msgs Messages) MapPan() string {
 	return Catalog.Format(msgs.locale, "map_pan", nil)
 }
 
+// MapPaletteEditor says "Map palettes"
+// in the language the app shows.
+func MapPaletteEditor() string { return In(i18n.Locale()).MapPaletteEditor() }
+
+// MapPaletteEditor says "Map palettes"
+// in the language of msgs.
+func (msgs Messages) MapPaletteEditor() string {
+	return Catalog.Format(msgs.locale, "map_palette_editor", nil)
+}
+
+// MapPaletteNormal says "Normal colors"
+// in the language the app shows.
+func MapPaletteNormal() string { return In(i18n.Locale()).MapPaletteNormal() }
+
+// MapPaletteNormal says "Normal colors"
+// in the language of msgs.
+func (msgs Messages) MapPaletteNormal() string {
+	return Catalog.Format(msgs.locale, "map_palette_normal", nil)
+}
+
+// MapPaletteFog says "Fog colors"
+// in the language the app shows.
+func MapPaletteFog() string { return In(i18n.Locale()).MapPaletteFog() }
+
+// MapPaletteFog says "Fog colors"
+// in the language of msgs.
+func (msgs Messages) MapPaletteFog() string {
+	return Catalog.Format(msgs.locale, "map_palette_fog", nil)
+}
+
+// MapPaletteAll says "All ten banks"
+// in the language the app shows.
+func MapPaletteAll() string { return In(i18n.Locale()).MapPaletteAll() }
+
+// MapPaletteAll says "All ten banks"
+// in the language of msgs.
+func (msgs Messages) MapPaletteAll() string {
+	return Catalog.Format(msgs.locale, "map_palette_all", nil)
+}
+
+// MapPaletteSection says "Palette section"
+// in the language the app shows.
+func MapPaletteSection() string { return In(i18n.Locale()).MapPaletteSection() }
+
+// MapPaletteSection says "Palette section"
+// in the language of msgs.
+func (msgs Messages) MapPaletteSection() string {
+	return Catalog.Format(msgs.locale, "map_palette_section", nil)
+}
+
+// MapPaletteExport says "Export palette PNG"
+// in the language the app shows.
+func MapPaletteExport() string { return In(i18n.Locale()).MapPaletteExport() }
+
+// MapPaletteExport says "Export palette PNG"
+// in the language of msgs.
+func (msgs Messages) MapPaletteExport() string {
+	return Catalog.Format(msgs.locale, "map_palette_export", nil)
+}
+
+// MapPaletteImport says "Replace palette PNG"
+// in the language the app shows.
+func MapPaletteImport() string { return In(i18n.Locale()).MapPaletteImport() }
+
+// MapPaletteImport says "Replace palette PNG"
+// in the language of msgs.
+func (msgs Messages) MapPaletteImport() string {
+	return Catalog.Format(msgs.locale, "map_palette_import", nil)
+}
+
+// MapPaletteReload says "Discard palette drafts and reload"
+// in the language the app shows.
+func MapPaletteReload() string { return In(i18n.Locale()).MapPaletteReload() }
+
+// MapPaletteReload says "Discard palette drafts and reload"
+// in the language of msgs.
+func (msgs Messages) MapPaletteReload() string {
+	return Catalog.Format(msgs.locale, "map_palette_reload", nil)
+}
+
+// MapPaletteFormat says "Export first, then edit only the indexed PNG’s palette. Keep every pixel index and all colors opaque. Normal/fog: 1…"
+// in the language the app shows.
+func MapPaletteFormat() string { return In(i18n.Locale()).MapPaletteFormat() }
+
+// MapPaletteFormat says "Export first, then edit only the indexed PNG’s palette. Keep every pixel index and all colors opaque. Normal/fog: 1…"
+// in the language of msgs.
+func (msgs Messages) MapPaletteFormat() string {
+	return Catalog.Format(msgs.locale, "map_palette_format", nil)
+}
+
+// MapPaletteUnchanged says "The PNG contains no changes after conversion to GBA colors."
+// in the language the app shows.
+func MapPaletteUnchanged() string { return In(i18n.Locale()).MapPaletteUnchanged() }
+
+// MapPaletteUnchanged says "The PNG contains no changes after conversion to GBA colors."
+// in the language of msgs.
+func (msgs Messages) MapPaletteUnchanged() string {
+	return Catalog.Format(msgs.locale, "map_palette_unchanged", nil)
+}
+
+// MapPaletteDrafts says "Each chapter and palette section keeps its own import draft. Applying an edit makes other pending drafts stale."
+// in the language the app shows.
+func MapPaletteDrafts() string { return In(i18n.Locale()).MapPaletteDrafts() }
+
+// MapPaletteDrafts says "Each chapter and palette section keeps its own import draft. Applying an edit makes other pending drafts stale."
+// in the language of msgs.
+func (msgs Messages) MapPaletteDrafts() string {
+	return Catalog.Format(msgs.locale, "map_palette_drafts", nil)
+}
+
+// MapPaletteChart says "Palette color slots"
+// in the language the app shows.
+func MapPaletteChart() string { return In(i18n.Locale()).MapPaletteChart() }
+
+// MapPaletteChart says "Palette color slots"
+// in the language of msgs.
+func (msgs Messages) MapPaletteChart() string {
+	return Catalog.Format(msgs.locale, "map_palette_chart", nil)
+}
+
+// MapPalettePreviewTone says "Map preview colors"
+// in the language the app shows.
+func MapPalettePreviewTone() string { return In(i18n.Locale()).MapPalettePreviewTone() }
+
+// MapPalettePreviewTone says "Map preview colors"
+// in the language of msgs.
+func (msgs Messages) MapPalettePreviewTone() string {
+	return Catalog.Format(msgs.locale, "map_palette_preview_tone", nil)
+}
+
+// MapPaletteShowReplacement says "Preview replacement colors"
+// in the language the app shows.
+func MapPaletteShowReplacement() string { return In(i18n.Locale()).MapPaletteShowReplacement() }
+
+// MapPaletteShowReplacement says "Preview replacement colors"
+// in the language of msgs.
+func (msgs Messages) MapPaletteShowReplacement() string {
+	return Catalog.Format(msgs.locale, "map_palette_show_replacement", nil)
+}
+
+// MapPaletteApply says "Apply palette"
+// in the language the app shows.
+func MapPaletteApply() string { return In(i18n.Locale()).MapPaletteApply() }
+
+// MapPaletteApply says "Apply palette"
+// in the language of msgs.
+func (msgs Messages) MapPaletteApply() string {
+	return Catalog.Format(msgs.locale, "map_palette_apply", nil)
+}
+
+// MapPaletteChanges says "Changed colors"
+// in the language the app shows.
+func MapPaletteChanges() string { return In(i18n.Locale()).MapPaletteChanges() }
+
+// MapPaletteChanges says "Changed colors"
+// in the language of msgs.
+func (msgs Messages) MapPaletteChanges() string {
+	return Catalog.Format(msgs.locale, "map_palette_changes", nil)
+}
+
+// MapPaletteSlot says "Color slot"
+// in the language the app shows.
+func MapPaletteSlot() string { return In(i18n.Locale()).MapPaletteSlot() }
+
+// MapPaletteSlot says "Color slot"
+// in the language of msgs.
+func (msgs Messages) MapPaletteSlot() string {
+	return Catalog.Format(msgs.locale, "map_palette_slot", nil)
+}
+
+// MapPaletteScope says "Chapters sharing the selected palette entry change together. Independent entries retain their colors. Graphics, tile …"
+// in the language the app shows.
+func MapPaletteScope() string { return In(i18n.Locale()).MapPaletteScope() }
+
+// MapPaletteScope says "Chapters sharing the selected palette entry change together. Independent entries retain their colors. Graphics, tile …"
+// in the language of msgs.
+func (msgs Messages) MapPaletteScope() string {
+	return Catalog.Format(msgs.locale, "map_palette_scope", nil)
+}
+
+// GameMapPalettePng says "Use the exported indexed PNG and edit only its palette colors."
+// in the language the app shows.
+func GameMapPalettePng() string { return In(i18n.Locale()).GameMapPalettePng() }
+
+// GameMapPalettePng says "Use the exported indexed PNG and edit only its palette colors."
+// in the language of msgs.
+func (msgs Messages) GameMapPalettePng() string {
+	return Catalog.Format(msgs.locale, "game_map_palette_png", nil)
+}
+
+// GameMapPaletteSize says "Keep the exported dimensions: 128×40 for normal/fog, 128×80 for all colors. The PNG must not exceed 1 MiB."
+// in the language the app shows.
+func GameMapPaletteSize() string { return In(i18n.Locale()).GameMapPaletteSize() }
+
+// GameMapPaletteSize says "Keep the exported dimensions: 128×40 for normal/fog, 128×80 for all colors. The PNG must not exceed 1 MiB."
+// in the language of msgs.
+func (msgs Messages) GameMapPaletteSize() string {
+	return Catalog.Format(msgs.locale, "game_map_palette_size", nil)
+}
+
+// GameMapPalettePixels says "The PNG’s pixel indices changed. Export again and edit only the palette colors."
+// in the language the app shows.
+func GameMapPalettePixels() string { return In(i18n.Locale()).GameMapPalettePixels() }
+
+// GameMapPalettePixels says "The PNG’s pixel indices changed. Export again and edit only the palette colors."
+// in the language of msgs.
+func (msgs Messages) GameMapPalettePixels() string {
+	return Catalog.Format(msgs.locale, "game_map_palette_pixels", nil)
+}
+
+// GameMapPaletteColors says "Keep every exported color slot and use opaque colors, including color zero."
+// in the language the app shows.
+func GameMapPaletteColors() string { return In(i18n.Locale()).GameMapPaletteColors() }
+
+// GameMapPaletteColors says "Keep every exported color slot and use opaque colors, including color zero."
+// in the language of msgs.
+func (msgs Messages) GameMapPaletteColors() string {
+	return Catalog.Format(msgs.locale, "game_map_palette_colors", nil)
+}
+
 // MapTilesetEditor says "Tile definitions"
 // in the language the app shows.
 func MapTilesetEditor() string { return In(i18n.Locale()).MapTilesetEditor() }

@@ -64,6 +64,14 @@ FE8 路径使用同一固定提交的 [muctrl.h](https://github.com/FireEmblemUn
 
 两份图像相差 `0x4000` 字节，即 512 个 8×8 图块，第二份覆盖同一加载区的旧内容，不能把短资源直接拼接。未加载间隙保留为不可确认图块；定义的新图块引用在全部共用配置入口的章节中检查。日版入口沿用固定旧版版本配置，五版独立合成流程核对字节与资源操作；本次未执行真实 ROM 或游戏内显示验证。
 
+## 地图配色
+
+固定旧版基线的 [MapStyleEditorForm.cs](../FEBuilderGBA/FEBuilderGBA/MapStyleEditorForm.cs) 中 `PaletteExportButton_Click`、`PaletteImportButton_Click`、`MapPaletteImport`、`PaletteImportFull`／`PaletteImportOne` 确认常规五组、迷雾五组、完整十组以及 PALETTE PLIST 的更新。旧版还能从其他图像提取色表并按 `_swap_` 文件名交换色序；新版本次声明的是色格索引 PNG，只替换选定颜色，未声称兼容这些额外工作流。
+
+原生加载长度沿用前节固定提交，并核对 `StanHash/fe6@f9ea5f67f3f1048ca9836d7350077231ba54b589` 的 [src/map.c](https://github.com/StanHash/fe6/blob/f9ea5f67f3f1048ca9836d7350077231ba54b589/src/map.c) 中 `ApplyChapterMapGraphics`／`ApplyChapterMapPalettes`，`StanHash/fe7_us@5c8b3c5e254e00f0f3458b9772c27e1a5a326e3b` 的 [asm/code.s](https://github.com/StanHash/fe7_us/blob/5c8b3c5e254e00f0f3458b9772c27e1a5a326e3b/asm/code.s) 中同名函数，及 `FireEmblemUniverse/fireemblem8u@04d1edb163d14bd10777a065697e1a9f17be65f2` 的 [src/bmmap.c](https://github.com/FireEmblemUniverse/fireemblem8u/blob/04d1edb163d14bd10777a065697e1a9f17be65f2/src/bmmap.c) 中 `UnpackChapterMapGraphics`／`UnpackChapterMapPalette`：十组共 320 字节；绘制按常规／迷雾选择相差五组的基址。日版根指针仍由固定旧版版本定义提供，五版合成样本独立验证文件操作。
+
+读取和会话资源声明仅覆盖这 320 字节，后方 192 字节没有原生色表依据。PNG 的 128×40／128×80 色格尺寸、固定索引及仅替换颜色是新版明确的外部契约；不通过 PNG 内容猜测入口、资源共享或自定义引擎配色长度。未执行的真实 ROM、原生文件面板和游戏内验证不由这些来源替代。
+
 ## 地图变化与事件引用
 
 变化表与图块编辑依据旧版基线的 [MapChangeForm.cs](../FEBuilderGBA/FEBuilderGBA/MapChangeForm.cs) 及上述三套原生资源消费者。FE6 的 `GetMapChange`／`ApplyMapChange`、FE7 的对应汇编和 FE8 的 `GetMapChange`／`GetMapChangeIdAt`／`ApplyMapChangesById` 确认逐行 uint16 载荷、零格不替换、ID 首条匹配及坐标最后覆盖 ID 再查首项的顺序。

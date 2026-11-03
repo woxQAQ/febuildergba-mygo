@@ -10,6 +10,7 @@ import (
 	"github.com/woxQAQ/febuildergba-mygo/fault"
 	"github.com/woxQAQ/febuildergba-mygo/game"
 	"github.com/woxQAQ/febuildergba-mygo/game/graphics"
+	"github.com/woxQAQ/febuildergba-mygo/game/maps"
 	"github.com/woxQAQ/febuildergba-mygo/game/worldmap"
 	"github.com/woxQAQ/febuildergba-mygo/internal/locales"
 	"github.com/woxQAQ/febuildergba-mygo/internal/pages"
@@ -65,7 +66,7 @@ func (m *application) newWindow(session *game.Session) *mygo.Window {
 		if source.Tone() == worldmap.Darkened {
 			title = locales.WorldmapImportDarkBackground()
 		}
-		importWorldMapPNG(
+		importResourcePNG(
 			win,
 			a,
 			title,
@@ -81,7 +82,7 @@ func (m *application) newWindow(session *game.Session) *mygo.Window {
 		m.exportPNGContent(win, a, suffix, source.PNG)
 	}
 	a.Actions.ImportWorldMapRoadTileset = func(source *worldmap.RoadTileset, done func(*worldmap.RoadTilesetDraft, error)) {
-		importWorldMapPNG(
+		importResourcePNG(
 			win,
 			a,
 			locales.WorldmapImportRoadTileset(),
@@ -91,6 +92,30 @@ func (m *application) newWindow(session *game.Session) *mygo.Window {
 	}
 	a.Actions.ExportWorldMapRoadTileset = func(source *worldmap.RoadTileset) {
 		m.exportPNGContent(win, a, "worldmap-road-tileset", source.PNG)
+	}
+	a.Actions.ImportMapPalette = func(source *maps.Palette, section maps.PaletteSection, done func(*maps.PaletteDraft, error)) {
+		importResourcePNG(
+			win,
+			a,
+			locales.MapPaletteImport(),
+			func(content []byte) (*maps.PaletteDraft, error) { return source.ImportPNG(section, content) },
+			done,
+		)
+	}
+	a.Actions.ExportMapPalette = func(source *maps.Palette, section maps.PaletteSection) {
+		suffix := "map-palette-normal"
+		if section == maps.FogPalette {
+			suffix = "map-palette-fog"
+		}
+		if section == maps.AllPalettes {
+			suffix = "map-palette-all"
+		}
+		m.exportPNGContent(
+			win,
+			a,
+			suffix,
+			func() ([]byte, error) { return source.PNG(section) },
+		)
 	}
 	a.Actions.Run = func() {
 		if a.Editor.Session == nil {

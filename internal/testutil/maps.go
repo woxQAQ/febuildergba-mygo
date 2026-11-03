@@ -43,13 +43,17 @@ func NewMapFixture(version string) *FixtureBuilder {
 
 	// Color zero is cyan and remains opaque. Other entries distinguish the
 	// source corners, the palette bank and the second graphics resource.
-	for bank := range 16 {
+	for bank := range 10 {
 		for index, value := range []uint16{0x7FE0, 0x001F, 0x03E0, 0x7C00, 0x7FFF, 0x7C1F} {
 			f.WriteU16(0x231000+bank*32+index*2, value)
 		}
 		f.WriteU16(0x231000+bank*32+2, uint16(bank+1)*0x001F)
 	}
-	f.WriteAt(0x231200, f.data[0x231000:0x231200])
+	// The following 192 bytes are deliberately unrelated to the native palette.
+	for index := range 192 {
+		f.WriteU8(0x231140+index, byte(0xA5+index%2))
+	}
+	f.WriteAt(0x231200, f.data[0x231000:0x231140])
 	f.WriteU16(
 		0x231202,
 		0x03E0,

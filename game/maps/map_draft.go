@@ -113,7 +113,8 @@ func (r mapResources) tile(word uint16) ([4]uint16, byte, bool) {
 	}
 	for i := range parts {
 		parts[i] = gba.Uint16(r.config, at+i*2)
-		if !r.hasGraphic(int(parts[i] & 0x3FF)) {
+		if !r.hasGraphic(int(parts[i]&0x3FF)) ||
+			int(parts[i]>>12)*32+32 > len(r.palette) {
 			return parts, 0, false
 		}
 	}

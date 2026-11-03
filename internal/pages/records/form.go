@@ -74,7 +74,7 @@ func (a *form) Reset() {
 	a.preview = assetPreview{}
 	a.imageEditor = components.AssetEditor{}
 	a.thumbnails = components.Thumbnails{}
-	a.chapter = chapters.Page{}
+	a.chapter.Reset()
 }
 
 func (a *form) ClearDrafts() {

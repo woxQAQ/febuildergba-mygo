@@ -9,7 +9,7 @@ import (
 
 // Importers decode immutable resource snapshots on the worker; the callback
 // validates its document and page identity after returning to the UI thread.
-func importWorldMapPNG[T any](
+func importResourcePNG[T any](
 	win *mygo.Window,
 	workspace *pages.Workspace,
 	title string,
@@ -38,7 +38,7 @@ func importWorldMapPNG[T any](
 				result, err = decode(content)
 			}
 		}
-		err = fault.Wrap(err, "app.import_worldmap_png", fault.Context{})
+		err = fault.Wrap(err, "app.import_resource_png", fault.Context{})
 		logError(err)
 		win.Update(func() { workspace.Editor.Busy = false; done(result, err) })
 	}()

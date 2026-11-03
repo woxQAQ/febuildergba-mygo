@@ -6,9 +6,10 @@ import (
 	"image/color"
 )
 
-// Background4BPP renders a row-major background tilemap. Width and height count
-// 8x8 tiles. Each word selects a 10-bit tile index, two flip bits and one of 16
-// BGR555 palette banks. Background colors, including index zero, are opaque.
+// Background4BPP renders a row-major background tilemap of 8x8 tiles.
+// Each word selects a 10-bit tile index, two flip bits and a BGR555 bank.
+// Only supplied banks are readable; missing banks are never filled implicitly.
+// All background colors, including color zero, are opaque.
 func Background4BPP(
 	data, palette []byte,
 	tiles []uint16,
@@ -16,12 +17,12 @@ func Background4BPP(
 ) (*image.RGBA, error) {
 	if width < 1 || height < 1 || width > 256 || height > 256 ||
 		len(tiles) != width*height ||
-		len(palette) < 512 ||
+		len(palette) < 32 || len(palette) > 512 || len(palette)%32 != 0 ||
 		len(data)%32 != 0 {
 		return nil, ErrGraphics
 	}
 	var colors [256]color.RGBA
-	for i := range colors {
+	for i := range len(palette) / 2 {
 		v := binary.LittleEndian.Uint16(palette[i*2:])
 		expand := func(v uint16) uint8 { return uint8((v<<3 | v>>2) & 0xFF) }
 		colors[i] = color.RGBA{
@@ -34,7 +35,7 @@ func Background4BPP(
 	out := image.NewRGBA(image.Rect(0, 0, width*8, height*8))
 	for i, word := range tiles {
 		base, bank := int(word&0x3FF)*32, int(word>>12)*16
-		if base+32 > len(data) {
+		if base+32 > len(data) || (bank+16)*2 > len(palette) {
 			return nil, ErrGraphics
 		}
 		x, y := (i%width)*8, (i/width)*8
