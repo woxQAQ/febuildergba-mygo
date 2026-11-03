@@ -51,6 +51,13 @@ func New(
 	return a
 }
 
+func (a *Page) SetMapTilesetActions(
+	importConfig func(*maps.TilesetConfig, func(*maps.TilesetDraft, error)),
+	exportConfig func(*maps.TilesetConfig),
+) {
+	a.form.chapter.SetTilesetActions(importConfig, exportConfig)
+}
+
 func (a *Page) SetMapPaletteActions(
 	importPNG func(*maps.Palette, maps.PaletteSection, func(*maps.PaletteDraft, error)),
 	exportPNG func(*maps.Palette, maps.PaletteSection),

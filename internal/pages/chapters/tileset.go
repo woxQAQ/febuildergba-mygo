@@ -25,6 +25,9 @@ type tilesetState struct {
 	mapPainter
 
 	data                    *maps.TilesetDraft
+	imported                *tilesetState
+	unchanged               bool
+	filesFocus              ui.Handle
 	preview                 *maps.TilesetPlan
 	inputs                  map[int]*tileDefinitionInputs
 	selected                int
@@ -36,6 +39,13 @@ type tilesetState struct {
 	editFocus, reviewFocus  ui.Handle
 	historyFocus            ui.Handle
 	changes                 ui.ListState
+}
+
+func (v *Page) SetTilesetActions(
+	importConfig func(*maps.TilesetConfig, func(*maps.TilesetDraft, error)),
+	exportConfig func(*maps.TilesetConfig),
+) {
+	v.importTileset, v.exportTileset = importConfig, exportConfig
 }
 
 func (s *tileDefinitionInputs) invalid() bool {
@@ -70,7 +80,7 @@ func (v *Page) tilesetDraft(
 		if entry.data != nil {
 			stale = !entry.data.Current(state.Session.Maps)
 		}
-		if stale &&
+		if stale && entry.imported == nil &&
 			(entry.data == nil || (!entry.data.Modified() && !entry.invalid())) {
 			entry = nil
 		}
@@ -140,7 +150,11 @@ func (v *Page) tilesetEditor(
 		if next.data != nil {
 			next.selectDefinition(min(selected, next.data.Count()-1))
 		}
-		next.editFocus.Focus(c)
+		if entry.imported != nil {
+			next.filesFocus.Focus(c)
+		} else {
+			next.editFocus.Focus(c)
+		}
 	}
 	ui.Column(c.Key(entry)).Bind(&entry.historyFocus).Gap(12).Children(func() {
 		if entry.data == nil {
@@ -164,6 +178,11 @@ func (v *Page) tilesetEditor(
 			entry.preview = nil
 			ui.Text(c, locales.DeployStale()).TextColor(c.Theme().Danger)
 		}
+		if entry.imported != nil {
+			v.tilesetImportReview(c, state, entry, jump, reload)
+			return
+		}
+		v.tilesetFiles(c, state, row, entry, disabled)
 		if entry.invalid() {
 			ui.Text(c, locales.SupportInvalidInput()).
 				TextColor(c.Theme().Danger)
@@ -183,7 +202,18 @@ func (v *Page) tilesetEditor(
 				TextColor(c.Theme().Danger)
 		}
 		if entry.preview != nil {
-			v.tilesetReview(c, state, entry, jump, reload)
+			v.tilesetReview(
+				c,
+				state,
+				entry,
+				jump,
+				locales.MapBackToEdit(),
+				reload,
+				func() {
+					entry.preview = nil
+					entry.editFocus.Focus(c)
+				},
+			)
 			return
 		}
 		ui.Row(c.Key("actions")).
@@ -236,55 +266,145 @@ func (v *Page) tilesetEditor(
 		ui.Column(c.Key(entry.selected)).Gap(8).Children(func() {
 			entry.definitionFields(c, state, disabled)
 		})
-		ui.Row(c.Key("previews")).
-			Wrap().
-			Gap(16).
-			AlignItems(ui.Start).
-			Children(func() {
-				ui.Column(c.Key("tileset")).
-					Width(514).
-					MaxWidthPercent(100).
-					Gap(6).
-					Children(func() {
-						if entry.tilesetErr != nil {
-							ui.Text(c, components.ErrorText(entry.tilesetErr)).
-								TextColor(c.Theme().Danger)
-						} else {
-							entry.palette(c, state.Busy)
-							if index := int(
-								entry.tile.Tile >> 2,
-							); index != entry.selected {
-								entry.selectDefinition(index)
-							}
-						}
-					})
-				ui.Column(c.Key("map")).
-					Width(360).
-					Grow(1).
-					MaxWidthPercent(100).
-					Children(func() {
-						entry.view.Render(
-							c,
-							entry.image,
-							entry.mapErr,
-							mapview.Overlay{Choose: func(point image.Point) {
-								if !state.Busy {
-									if cell, ok := entry.image.Cell(
-										point.X,
-										point.Y,
-									); ok {
-										entry.selectDefinition(
-											int(cell.Tile >> 2),
-										)
-									}
-								}
-							}},
-						)
-					})
-			})
+		v.tilesetImages(c, state, entry)
 		ui.Text(c, locales.MapTilesetDrafts()).
 			FontSize(components.FontCaption).
 			TextColor(c.Theme().TextMuted)
+	})
+}
+
+func (v *Page) tilesetImages(
+	c *ui.Context,
+	state *editor.State,
+	entry *tilesetState,
+) {
+	ui.Row(c.Key("previews")).
+		Wrap().
+		Gap(16).
+		AlignItems(ui.Start).
+		Children(func() {
+			ui.Column(c.Key("tileset")).
+				Width(514).
+				MaxWidthPercent(100).
+				Gap(6).
+				Children(func() {
+					if entry.tilesetErr != nil {
+						ui.Text(c, components.ErrorText(entry.tilesetErr)).
+							TextColor(c.Theme().Danger)
+					} else {
+						entry.palette(c, state.Busy)
+						if index := int(
+							entry.tile.Tile >> 2,
+						); index != entry.selected {
+							entry.selectDefinition(index)
+						}
+					}
+				})
+			ui.Column(c.Key("map")).
+				Width(360).
+				Grow(1).
+				MaxWidthPercent(100).
+				Children(func() {
+					entry.view.Render(
+						c,
+						entry.image,
+						entry.mapErr,
+						mapview.Overlay{Choose: func(point image.Point) {
+							if !state.Busy {
+								if cell, ok := entry.image.Cell(
+									point.X,
+									point.Y,
+								); ok {
+									entry.selectDefinition(
+										int(cell.Tile >> 2),
+									)
+								}
+							}
+						}},
+					)
+				})
+		})
+}
+
+func (v *Page) tilesetFiles(
+	c *ui.Context,
+	state *editor.State,
+	row records.Row,
+	entry *tilesetState,
+	disabled bool,
+) {
+	ui.Row(c.Key("files")).Wrap().Gap(8).Children(func() {
+		ui.Button(c.Key("export"), locales.MapTilesetExport()).
+			Disabled(disabled || entry.invalid() || v.exportTileset == nil).
+			OnClick(func() { v.exportTileset(entry.data.Config()) })
+		ui.Button(c.Key("import"), locales.MapTilesetImport()).
+			Bind(&entry.filesFocus).
+			Disabled(disabled || v.importTileset == nil).
+			OnClick(func() {
+				source, session, epoch := entry.data.Config(), state.Session, v.resourceEpoch
+				v.importTileset(
+					source,
+					func(draft *maps.TilesetDraft, err error) {
+						if state.Session != session ||
+							v.tilesetDrafts[row.ID] != entry ||
+							v.chapter != row.ID ||
+							v.mode != 9 ||
+							v.resourceEpoch != epoch ||
+							!source.Current(session.Maps) {
+							return
+						}
+						entry.err = err
+						if err != nil || draft == nil {
+							entry.filesFocus.Focus()
+							return
+						}
+						entry.unchanged = !draft.Modified()
+						if entry.unchanged {
+							entry.filesFocus.Focus()
+							return
+						}
+						next := &tilesetState{
+							data:     draft,
+							selected: entry.selected,
+						}
+						next.refresh()
+						next.preview, next.err = session.Maps.PlanTileset(draft)
+						entry.imported = next
+						next.reviewFocus.Focus()
+					},
+				)
+			})
+	})
+	ui.Text(c, locales.MapTilesetFileFormat(entry.data.ConfigSize())).
+		FontSize(components.FontCaption).
+		TextColor(c.Theme().TextMuted)
+	if entry.unchanged {
+		ui.Text(c, locales.MapTilesetUnchanged()).
+			FontSize(components.FontCaption)
+	}
+}
+
+func (v *Page) tilesetImportReview(
+	c *ui.Context,
+	state *editor.State,
+	entry *tilesetState,
+	jump func(records.Kind, int),
+	reload func(),
+) {
+	next := entry.imported
+	ui.Column(c.Key(next)).Gap(12).Children(func() {
+		ui.Text(c, locales.MapTilesetImportDraft()).
+			FontSize(components.FontCaption).
+			TextColor(c.Theme().TextMuted)
+		if next.err != nil {
+			ui.Text(c, components.ErrorText(next.err)).
+				TextColor(c.Theme().Danger)
+		}
+		v.tilesetReview(c, state, next, jump, locales.Cancel(), reload, func() {
+			entry.imported, entry.err = nil, nil
+			entry.filesFocus.Focus(c)
+		})
+		v.tilesetImages(c, state, next)
 	})
 }
 
@@ -456,7 +576,8 @@ func (v *Page) tilesetReview(
 	state *editor.State,
 	entry *tilesetState,
 	jump func(records.Kind, int),
-	reload func(),
+	backLabel string,
+	reload, back func(),
 ) {
 	plan := entry.preview
 	ui.Column(c.Key("review")).Gap(12).Children(func() {
@@ -468,65 +589,68 @@ func (v *Page) tilesetReview(
 			field, before, after string
 		}
 		var rows []changeRow
-		for _, change := range plan.Changes() {
-			if change.Before.Terrain != change.After.Terrain {
-				rows = append(
-					rows,
-					changeRow{
-						change.Index,
-						locales.MapTerrainId(),
-						strconv.Itoa(change.Before.Terrain),
-						strconv.Itoa(change.After.Terrain),
-					},
-				)
-			}
-			for part, after := range change.After.Parts {
-				before := change.Before.Parts[part]
-				for _, field := range []struct{ label, before, after string }{
-					{locales.MapPartTile(), strconv.Itoa(before.Tile), strconv.Itoa(after.Tile)},
-					{locales.MapPartPalette(), strconv.Itoa(before.Palette), strconv.Itoa(after.Palette)},
-					{locales.MapPartFlipX(), tileFlipValue(before.FlipX), tileFlipValue(after.FlipX)},
-					{locales.MapPartFlipY(), tileFlipValue(before.FlipY), tileFlipValue(after.FlipY)},
-				} {
-					if field.before != field.after {
-						rows = append(
-							rows,
-							changeRow{
-								change.Index,
-								tilePartName(part) + " / " + field.label,
-								field.before,
-								field.after,
-							},
-						)
+		if plan != nil {
+			for _, change := range plan.Changes() {
+				if change.Before.Terrain != change.After.Terrain {
+					rows = append(
+						rows,
+						changeRow{
+							change.Index,
+							locales.MapTerrainId(),
+							strconv.Itoa(change.Before.Terrain),
+							strconv.Itoa(change.After.Terrain),
+						},
+					)
+				}
+				for part, after := range change.After.Parts {
+					before := change.Before.Parts[part]
+					for _, field := range []struct{ label, before, after string }{
+						{locales.MapPartTile(), strconv.Itoa(before.Tile), strconv.Itoa(after.Tile)},
+						{locales.MapPartPalette(), strconv.Itoa(before.Palette), strconv.Itoa(after.Palette)},
+						{locales.MapPartFlipX(), tileFlipValue(before.FlipX), tileFlipValue(after.FlipX)},
+						{locales.MapPartFlipY(), tileFlipValue(before.FlipY), tileFlipValue(after.FlipY)},
+					} {
+						if field.before != field.after {
+							rows = append(
+								rows,
+								changeRow{
+									change.Index,
+									tilePartName(part) + " / " + field.label,
+									field.before,
+									field.after,
+								},
+							)
+						}
 					}
 				}
 			}
+			ui.Table(c.Key("changes"), &entry.changes, []ui.TableColumn{
+				{
+					ID:    "id",
+					Title: locales.MapDefinitionId(),
+					Width: 100,
+				},
+				{ID: "part", Title: locales.MapTilesetPart(), MinWidth: 230},
+				{ID: "before", Title: locales.Before(), Width: 100},
+				{ID: "after", Title: locales.After(), Width: 100},
+			}, len(rows), func(index, column int) {
+				row := rows[index]
+				values := [4]string{
+					fmt.Sprintf("0x%03X", row.index),
+					row.field,
+					row.before,
+					row.after,
+				}
+				ui.Text(c, values[column]).Tooltip(values[column])
+			}).Height(float32(min(270, max(72, (len(rows)+1)*32)))).MaxWidthPercent(100)
+			mapUses(c, state, plan.Uses(), locales.MapTilesetScope(), jump)
+			ui.Text(c, locales.MapTilesetScope()).
+				FontSize(components.FontCaption)
+			ui.Textf(c, "0x%08X → 0x%08X · %d B", plan.Source(), plan.Destination(), plan.Length()).
+				FontFeatures("tnum").
+				FontSize(components.FontCaption).
+				Selectable()
 		}
-		ui.Table(c.Key("changes"), &entry.changes, []ui.TableColumn{
-			{
-				ID:    "id",
-				Title: locales.MapDefinitionId(),
-				Width: 100,
-			},
-			{ID: "part", Title: locales.MapTilesetPart(), MinWidth: 230},
-			{ID: "before", Title: locales.Before(), Width: 100},
-			{ID: "after", Title: locales.After(), Width: 100},
-		}, len(rows), func(index, column int) {
-			row := rows[index]
-			values := [4]string{
-				fmt.Sprintf("0x%03X", row.index),
-				row.field,
-				row.before,
-				row.after,
-			}
-			ui.Text(c, values[column]).Tooltip(values[column])
-		}).Height(float32(min(270, max(72, (len(rows)+1)*32)))).MaxWidthPercent(100)
-		mapUses(c, state, plan.Uses(), locales.MapTilesetScope(), jump)
-		ui.Text(c, locales.MapTilesetScope()).FontSize(components.FontCaption)
-		ui.Textf(c, "0x%08X → 0x%08X · %d B", plan.Source(), plan.Destination(), plan.Length()).
-			FontFeatures("tnum").
-			FontSize(components.FontCaption).
-			Selectable()
 		ui.Row(c.Key("actions")).Wrap().Gap(8).Children(func() {
 			ui.PrimaryButton(c.Key("apply"), locales.MapTilesetApply()).
 				Disabled(state.Busy || entry.invalid() || !plan.Current(state.Session.Maps)).
@@ -537,10 +661,10 @@ func (v *Page) tilesetReview(
 						reload()
 					}
 				})
-			ui.Button(c.Key("back"), locales.MapBackToEdit()).
+			ui.Button(c.Key("back"), backLabel).
 				Bind(&entry.reviewFocus).
 				Disabled(state.Busy).
-				OnClick(func() { entry.preview = nil; entry.editFocus.Focus(c) })
+				OnClick(back)
 		})
 	})
 }

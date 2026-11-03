@@ -133,7 +133,7 @@ func (v *Page) graphicsEditor(
 		ui.Tabs(c.Key("slot"), &group.slot, locales.MapGraphicsFirst(), locales.MapGraphicsSecond()).
 			Label(locales.MapGraphicsSource()).
 			Disabled(state.Busy).
-			OnChange(func() { v.graphicsEpoch++ })
+			OnChange(func() { v.resourceEpoch++ })
 		if group.entries[group.slot] != entry {
 			return
 		}
@@ -169,7 +169,7 @@ func (v *Page) graphicsEditor(
 					Bind(&entry.filesFocus).
 					Disabled(state.Busy || stale || v.importGraphics == nil).
 					OnClick(func() {
-						source, session, slot, epoch := entry.source, state.Session, group.slot, v.graphicsEpoch
+						source, session, slot, epoch := entry.source, state.Session, group.slot, v.resourceEpoch
 						v.importGraphics(
 							source,
 							func(draft *maps.GraphicsDraft, err error) {
@@ -179,7 +179,7 @@ func (v *Page) graphicsEditor(
 									group.slot != slot ||
 									v.chapter != row.ID ||
 									v.mode != 11 ||
-									v.graphicsEpoch != epoch ||
+									v.resourceEpoch != epoch ||
 									!source.Current(e) {
 									return
 								}

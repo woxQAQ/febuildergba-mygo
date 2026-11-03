@@ -256,6 +256,11 @@ func TestTilesetSharedGraphicsAndWriteFailuresAreAtomic(t *testing.T) {
 			if err := draft.SetPart(0, 0, maps.TilePart{Tile: 1}); err != nil {
 				t.Fatal(err)
 			}
+			sourceFile := draft.Config()
+			draft, err = sourceFile.Import(sourceFile.Bytes())
+			if err != nil {
+				t.Fatal("configuration file import", err)
+			}
 			var plan *maps.TilesetPlan
 			if scenario == "revision" || scenario == "layout" ||
 				scenario == "document" {

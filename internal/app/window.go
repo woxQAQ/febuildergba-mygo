@@ -93,6 +93,12 @@ func (m *application) newWindow(session *game.Session) *mygo.Window {
 	a.Actions.ExportWorldMapRoadTileset = func(source *worldmap.RoadTileset) {
 		m.exportPNGContent(win, a, "worldmap-road-tileset", source.PNG)
 	}
+	a.Actions.ImportMapTileset = func(source *maps.TilesetConfig, done func(*maps.TilesetDraft, error)) {
+		importTilesetConfig(win, a, source, done)
+	}
+	a.Actions.ExportMapTileset = func(source *maps.TilesetConfig) {
+		m.exportTilesetConfig(win, a, source)
+	}
 	a.Actions.ImportMapPalette = func(source *maps.Palette, section maps.PaletteSection, done func(*maps.PaletteDraft, error)) {
 		importResourcePNG(
 			win,

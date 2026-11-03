@@ -8820,6 +8820,96 @@ func (msgs Messages) MapPartBottomRight() string {
 	return Catalog.Format(msgs.locale, "map_part_bottom_right", nil)
 }
 
+// MapTilesetExport says "Export .mapchip_config"
+// in the language the app shows.
+func MapTilesetExport() string { return In(i18n.Locale()).MapTilesetExport() }
+
+// MapTilesetExport says "Export .mapchip_config"
+// in the language of msgs.
+func (msgs Messages) MapTilesetExport() string {
+	return Catalog.Format(msgs.locale, "map_tileset_export", nil)
+}
+
+// MapTilesetImport says "Import .mapchip_config"
+// in the language the app shows.
+func MapTilesetImport() string { return In(i18n.Locale()).MapTilesetImport() }
+
+// MapTilesetImport says "Import .mapchip_config"
+// in the language of msgs.
+func (msgs Messages) MapTilesetImport() string {
+	return Catalog.Format(msgs.locale, "map_tileset_import", nil)
+}
+
+// MapTilesetFileFormat says "Raw configuration, {size} bytes. Import keeps the current length and tile count. Export includes valid manual edits; …"
+// in the language the app shows.
+func MapTilesetFileFormat(size int) string { return In(i18n.Locale()).MapTilesetFileFormat(size) }
+
+// MapTilesetFileFormat says "Raw configuration, {size} bytes. Import keeps the current length and tile count. Export includes valid manual edits; …"
+// in the language of msgs.
+func (msgs Messages) MapTilesetFileFormat(size int) string {
+	return Catalog.Format(msgs.locale, "map_tileset_file_format", map[string]any{"size": size})
+}
+
+// MapTilesetImportDraft says "Review the imported configuration below. Cancel returns to the previous manual draft, including unfinished input."
+// in the language the app shows.
+func MapTilesetImportDraft() string { return In(i18n.Locale()).MapTilesetImportDraft() }
+
+// MapTilesetImportDraft says "Review the imported configuration below. Cancel returns to the previous manual draft, including unfinished input."
+// in the language of msgs.
+func (msgs Messages) MapTilesetImportDraft() string {
+	return Catalog.Format(msgs.locale, "map_tileset_import_draft", nil)
+}
+
+// MapTilesetUnchanged says "The file matches the ROM configuration. The manual draft is unchanged."
+// in the language the app shows.
+func MapTilesetUnchanged() string { return In(i18n.Locale()).MapTilesetUnchanged() }
+
+// MapTilesetUnchanged says "The file matches the ROM configuration. The manual draft is unchanged."
+// in the language of msgs.
+func (msgs Messages) MapTilesetUnchanged() string {
+	return Catalog.Format(msgs.locale, "map_tileset_unchanged", nil)
+}
+
+// GameMapTilesetConfigSize says "The file must match the current uncompressed configuration length. A full native configuration is 9216 bytes; expansi…"
+// in the language the app shows.
+func GameMapTilesetConfigSize() string { return In(i18n.Locale()).GameMapTilesetConfigSize() }
+
+// GameMapTilesetConfigSize says "The file must match the current uncompressed configuration length. A full native configuration is 9216 bytes; expansi…"
+// in the language of msgs.
+func (msgs Messages) GameMapTilesetConfigSize() string {
+	return Catalog.Format(msgs.locale, "game_map_tileset_config_size", nil)
+}
+
+// GameMapTilesetConfigData says "The configuration changes an unsupported tile, palette bank or an unknown area without terrain entries. Check it agai…"
+// in the language the app shows.
+func GameMapTilesetConfigData() string { return In(i18n.Locale()).GameMapTilesetConfigData() }
+
+// GameMapTilesetConfigData says "The configuration changes an unsupported tile, palette bank or an unknown area without terrain entries. Check it agai…"
+// in the language of msgs.
+func (msgs Messages) GameMapTilesetConfigData() string {
+	return Catalog.Format(msgs.locale, "game_map_tileset_config_data", nil)
+}
+
+// AppTilesetExportPath says "Save the configuration with the .mapchip_config extension."
+// in the language the app shows.
+func AppTilesetExportPath() string { return In(i18n.Locale()).AppTilesetExportPath() }
+
+// AppTilesetExportPath says "Save the configuration with the .mapchip_config extension."
+// in the language of msgs.
+func (msgs Messages) AppTilesetExportPath() string {
+	return Catalog.Format(msgs.locale, "app_tileset_export_path", nil)
+}
+
+// AppTilesetExportRom says "The export target is an open ROM file. Choose a separate configuration file."
+// in the language the app shows.
+func AppTilesetExportRom() string { return In(i18n.Locale()).AppTilesetExportRom() }
+
+// AppTilesetExportRom says "The export target is an open ROM file. Choose a separate configuration file."
+// in the language of msgs.
+func (msgs Messages) AppTilesetExportRom() string {
+	return Catalog.Format(msgs.locale, "app_tileset_export_rom", nil)
+}
+
 // MapTilesetPreview says "Review tile definition edits"
 // in the language the app shows.
 func MapTilesetPreview() string { return In(i18n.Locale()).MapTilesetPreview() }

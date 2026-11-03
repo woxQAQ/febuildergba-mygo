@@ -1,12 +1,7 @@
 package app
 
 import (
-	"errors"
 	"fmt"
-	"io"
-	"os"
-	"path/filepath"
-	"strings"
 
 	"github.com/egoist/mygo"
 
@@ -62,21 +57,7 @@ func importPNG(
 
 func readPNG(path string) (result []byte, err error) {
 	defer func() { err = fault.Wrap(err, "app.read_png", fault.Context{Path: path}) }()
-	file, err := os.Open(
-		path,
-	) // #nosec G304 -- path is selected in the native import dialog.
-	if err != nil {
-		return nil, err
-	}
-	defer func() { err = errors.Join(err, file.Close()) }()
-	content, err := io.ReadAll(io.LimitReader(file, graphics.MaxPNG+1))
-	if err != nil {
-		return nil, err
-	}
-	if len(content) > graphics.MaxPNG {
-		return nil, graphics.ErrSize
-	}
-	return content, nil
+	return readResourceFile(path, graphics.MaxPNG, graphics.ErrSize)
 }
 
 func (m *application) exportPNG(
@@ -100,82 +81,14 @@ func (m *application) exportPNG(
 	)
 }
 
-// exportPNGContent captures window paths before starting the worker. Encoders
-// receive immutable inputs and do not access the live editing session.
 func (m *application) exportPNGContent(
 	win *mygo.Window,
 	workspace *pages.Workspace,
 	suffix string,
 	encode func() ([]byte, error),
 ) {
-	if workspace.Editor.Session == nil || workspace.Editor.Busy {
-		return
-	}
-	path := workspace.Editor.Session.Document.State().Path
-	stem := strings.TrimSuffix(filepath.Base(path), filepath.Ext(path))
-	defaultPath := filepath.Join(
-		filepath.Dir(path),
-		stem+"-"+suffix+".png",
-	)
-	var romPaths []string
-	for _, workspace := range m.windows {
-		if workspace.Editor.Session != nil {
-			romPaths = append(
-				romPaths,
-				workspace.Editor.Session.Document.State().Path,
-			)
-		}
-	}
-	title, question, replace, cancel := locales.ExportPng(), locales.ReplaceQuestion(), locales.Replace(), locales.Cancel()
-	background(win, workspace, "app.export_png", func() error {
-		content, err := encode()
-		if err != nil {
-			return err
-		}
-		path, err := mygo.Dialog.Save(
-			mygo.SaveDialogOptions{
-				Parent:      win,
-				Title:       title,
-				DefaultPath: defaultPath,
-				Filters: []mygo.FileFilter{
-					{Name: "PNG", Extensions: []string{"png"}},
-				},
-			},
-		)
-		if err != nil || path == "" {
-			return err
-		}
-		if !strings.EqualFold(filepath.Ext(path), ".png") {
-			return errPngExportPath
-		}
-		existing, err := os.Stat(path)
-		if err == nil {
-			for _, romPath := range romPaths {
-				romInfo, statErr := os.Stat(romPath)
-				if statErr == nil && os.SameFile(existing, romInfo) {
-					return errPngExportRom
-				}
-			}
-			answer, dialogErr := mygo.Dialog.Message(
-				mygo.MessageOptions{
-					Parent:       win,
-					Type:         mygo.MessageQuestion,
-					Message:      question,
-					Detail:       path,
-					Buttons:      []string{replace, cancel},
-					CancelButton: 1,
-				},
-			)
-			if dialogErr != nil || answer.Button != 0 {
-				return dialogErr
-			}
-		} else if !errors.Is(err, os.ErrNotExist) {
-			return err
-		}
-		return fault.Wrap(
-			os.WriteFile(path, content, 0o600),
-			"app.write_png",
-			fault.Context{Path: path},
-		)
-	}, nil)
+	m.exportResourceContent(win, workspace, resourceExport{
+		title: locales.ExportPng(), suffix: suffix, extension: "png",
+		pathError: errPngExportPath, romError: errPngExportRom,
+	}, encode)
 }

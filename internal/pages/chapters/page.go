@@ -35,18 +35,20 @@ type Page struct {
 	mapDrafts              map[int]*mapState
 	changeDrafts           map[int]*mapChangesState
 	tilesetDrafts          map[int]*tilesetState
+	importTileset          func(*maps.TilesetConfig, func(*maps.TilesetDraft, error))
+	exportTileset          func(*maps.TilesetConfig)
+	resourceEpoch          uint64
 	paletteDrafts          map[int]*paletteState
 	importPalette          func(*maps.Palette, maps.PaletteSection, func(*maps.PaletteDraft, error))
 	exportPalette          func(*maps.Palette, maps.PaletteSection)
 	graphicsDrafts         map[int]*graphicsState
-	graphicsEpoch          uint64
 	importGraphics         func(*maps.Graphics, func(*maps.GraphicsDraft, error))
 	exportGraphics         func(*maps.Graphics, int)
 }
 
 // Deactivate cancels pending placement while keeping the chapter drafts.
 func (v *Page) Deactivate() {
-	v.graphicsEpoch++
+	v.resourceEpoch++
 	for _, entry := range v.events {
 		entry.location = locationInteraction{}
 	}
@@ -56,6 +58,8 @@ func (v *Page) Configuration() bool { return v.mode == 0 }
 
 func (v *Page) Reset() {
 	*v = Page{
+		importTileset:  v.importTileset,
+		exportTileset:  v.exportTileset,
 		importPalette:  v.importPalette,
 		exportPalette:  v.exportPalette,
 		importGraphics: v.importGraphics,
@@ -76,6 +80,8 @@ func (v *Page) load(state *editor.State, row records.Row) {
 			tilesetDrafts:  make(map[int]*tilesetState),
 			paletteDrafts:  make(map[int]*paletteState),
 			graphicsDrafts: make(map[int]*graphicsState),
+			importTileset:  v.importTileset,
+			exportTileset:  v.exportTileset,
 			importGraphics: v.importGraphics,
 			exportGraphics: v.exportGraphics,
 			importPalette:  v.importPalette,
@@ -83,7 +89,7 @@ func (v *Page) load(state *editor.State, row records.Row) {
 		}
 	}
 	if v.loaded && row.ID != v.chapter {
-		v.graphicsEpoch++
+		v.resourceEpoch++
 	}
 	s.Refresh()
 	revision := s.Document.State().Revision
@@ -110,7 +116,7 @@ func (v *Page) Render(
 	ui.Tabs(c.Key("chapter-mode"), &v.mode, locales.DeployConfiguration(), locales.Deployments(), locales.TurnEvents(), locales.AreaEvents(), locales.TalkEvents(), locales.Objectives(), locales.MapEditor(), locales.MapChangesEditor(), locales.LocationEvents(), locales.MapTilesetEditor(), locales.MapPaletteEditor(), locales.MapGraphicsEditor()).
 		Label(locales.Chapters()).
 		Wrap().
-		OnChange(func() { v.graphicsEpoch++ })
+		OnChange(func() { v.resourceEpoch++ })
 	for key, entry := range v.events {
 		if v.mode != 8 || key.chapter != row.ID {
 			entry.location = locationInteraction{}

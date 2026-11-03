@@ -44,6 +44,8 @@ type Actions struct {
 	ExportWorldMapBackground  func(*worldmap.Background)
 	ImportWorldMapRoadTileset func(*worldmap.RoadTileset, func(*worldmap.RoadTilesetDraft, error))
 	ExportWorldMapRoadTileset func(*worldmap.RoadTileset)
+	ImportMapTileset          func(*maps.TilesetConfig, func(*maps.TilesetDraft, error))
+	ExportMapTileset          func(*maps.TilesetConfig)
 	ImportMapPalette          func(*maps.Palette, maps.PaletteSection, func(*maps.PaletteDraft, error))
 	ExportMapPalette          func(*maps.Palette, maps.PaletteSection)
 	ImportMapGraphics         func(*maps.Graphics, func(*maps.GraphicsDraft, error))
@@ -116,6 +118,18 @@ func New() *Workspace {
 		w.openText,
 		func(kind records.Kind) { w.tab = slices.Index(records.Kinds, kind) },
 		assets,
+	)
+	w.records.SetMapTilesetActions(
+		func(source *maps.TilesetConfig, done func(*maps.TilesetDraft, error)) {
+			if w.Actions.ImportMapTileset != nil {
+				w.Actions.ImportMapTileset(source, done)
+			}
+		},
+		func(source *maps.TilesetConfig) {
+			if w.Actions.ExportMapTileset != nil {
+				w.Actions.ExportMapTileset(source)
+			}
+		},
 	)
 	w.records.SetMapPaletteActions(
 		func(source *maps.Palette, section maps.PaletteSection, done func(*maps.PaletteDraft, error)) {

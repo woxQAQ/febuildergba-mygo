@@ -15,10 +15,20 @@ import (
 
 const tilesetTerrainOffset = 0x2000
 
-var ErrTilesetReference = fault.Code{
-	ID:   "game.map_tileset_reference",
-	Kind: fault.Conflict,
-}
+var (
+	ErrTilesetReference = fault.Code{
+		ID:   "game.map_tileset_reference",
+		Kind: fault.Conflict,
+	}
+	ErrTilesetConfigSize = fault.Code{
+		ID:   "game.map_tileset_config_size",
+		Kind: fault.InvalidInput,
+	}
+	ErrTilesetConfigData = fault.Code{
+		ID:   "game.map_tileset_config_data",
+		Kind: fault.InvalidInput,
+	}
+)
 
 // TilePart describes one 8x8 background tile in a 16x16 map definition.
 // The native halfword uses ten tile bits, two flips and four palette bits.
@@ -106,6 +116,94 @@ func (s *Editor) NewTilesetDraft(chapter int) (*TilesetDraft, error) {
 		content:   bytes.Clone(resources.config),
 		layoutErr: err,
 	}, nil
+}
+
+// TilesetConfig is an immutable .mapchip_config file snapshot. Its private
+// draft shares only immutable source resources; file workers never read the
+// live editing draft or document.
+type TilesetConfig struct {
+	source TilesetDraft
+}
+
+func (d *TilesetDraft) ConfigSize() int { return len(d.content) }
+
+func (d *TilesetDraft) Config() *TilesetConfig {
+	source := *d
+	source.content = bytes.Clone(d.content)
+	return &TilesetConfig{source: source}
+}
+
+func (f *TilesetConfig) Current(
+	s *Editor,
+) bool {
+	return f != nil && f.source.Current(s)
+}
+
+func (f *TilesetConfig) Size() int { return len(f.source.content) }
+
+// Bytes exports the complete uncompressed stream, including unchanged words
+// whose terrain entries are absent from a short native configuration.
+func (f *TilesetConfig) Bytes() []byte { return bytes.Clone(f.source.content) }
+
+// Import replaces existing definitions in a detached draft. The native count
+// stays fixed, and bytes outside the known definitions must match the ROM.
+// Validation compares with the ROM source, so unchanged custom words survive.
+func (f *TilesetConfig) Import(
+	content []byte,
+) (result *TilesetDraft, err error) {
+	defer func() { err = fault.Wrap(err, "game.import_map_tileset_config", fault.Context{Resource: ConfigField}) }()
+	if len(content) != f.Size() {
+		return nil, fault.New(
+			ErrTilesetConfigSize,
+			"game.map_tileset_config_size",
+			fault.Context{
+				Range: &fault.Range{Length: len(content), Size: f.Size()},
+			},
+			nil,
+		)
+	}
+	draft := f.source
+	draft.content = bytes.Clone(draft.resources.config)
+	known := draft.Count() * 8
+	if !bytes.Equal(
+		content[known:tilesetTerrainOffset],
+		draft.content[known:tilesetTerrainOffset],
+	) {
+		return nil, fault.New(
+			ErrTilesetConfigData,
+			"game.map_tileset_config_unknown",
+			fault.Context{
+				Range: &fault.Range{
+					Offset: known,
+					Length: tilesetTerrainOffset - known,
+					Size:   len(content),
+				},
+			},
+			nil,
+		)
+	}
+	for index := range draft.Count() {
+		definition := tileDefinition(content, index)
+		for part, value := range definition.Parts {
+			if err := draft.SetPart(index, part, value); err != nil {
+				return nil, fault.New(
+					ErrTilesetConfigData,
+					"game.map_tileset_config_part",
+					fault.Context{
+						ResourceID: new(index),
+						Range: &fault.Range{
+							Offset: index*8 + part*2,
+							Length: 2,
+							Size:   len(content),
+						},
+					},
+					err,
+				)
+			}
+		}
+		draft.content[tilesetTerrainOffset+index] = byte(definition.Terrain)
+	}
+	return &draft, nil
 }
 
 func (d *TilesetDraft) Current(

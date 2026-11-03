@@ -54,7 +54,7 @@ FE8 路径使用同一固定提交的 [muctrl.h](https://github.com/FireEmblemUn
 
 ## 图块定义
 
-固定旧版基线的 [MapStyleEditorForm.cs](../FEBuilderGBA/FEBuilderGBA/MapStyleEditorForm.cs) 中 `ToConfigData`、`Config_W0/2/4/6_ValueChanged`、`ConfigTerrain_SelectedIndexChanged` 和 `WriteMapConfig` 确认四个半字组成项、地形段、LZ77 配置写入及选定 CONFIG PLIST 更新。`PARTS_MAP_PALETTE_COUNT = 5` 与常规／迷雾配色的切换区分五组原生配色及另一套迷雾色；图块定义流程只编辑配置，图像与配色 PNG 见后续两节，`.mapchip_config` 另行接入。
+固定旧版基线的 [MapStyleEditorForm.cs](../FEBuilderGBA/FEBuilderGBA/MapStyleEditorForm.cs) 中 `ToConfigData`、`Config_W0/2/4/6_ValueChanged`、`ConfigTerrain_SelectedIndexChanged` 和 `WriteMapConfig` 确认四个半字组成项、地形段、LZ77 配置写入及选定 CONFIG PLIST 更新。`PARTS_MAP_PALETTE_COUNT = 5` 与常规／迷雾配色的切换区分五组原生配色及另一套迷雾色；图块定义流程只编辑配置，图像与配色 PNG 见后续两节。`MapChipExportButton_Click` 将 `ConfigUZ` 原样写为 `.mapchip_config`；`MapChipImportButton_Click` 读取完整文件并检查至少 9216 字节，`OverraideMapConfig`／`WriteMapConfig` 重新压缩并更新 CONFIG PLIST。新版兼容原生完整文件的原始字节格式，导入保持当前长度与已有项数；短配置按原长处理，未解释区须与原 ROM 一致，额外尾部与扩容不在本次范围，边界见[配置文件参考](reference/chapters-and-events.md#图块配置文件)。
 
 原生图像放置与显示另核对固定来源：
 
@@ -62,7 +62,7 @@ FE8 路径使用同一固定提交的 [muctrl.h](https://github.com/FireEmblemUn
 - `StanHash/fe7_us@5c8b3c5e254e00f0f3458b9772c27e1a5a326e3b`：[asm/code.s](https://github.com/StanHash/fe7_us/blob/5c8b3c5e254e00f0f3458b9772c27e1a5a326e3b/asm/code.s) 的 `ApplyChapterMapGraphics`（`080191D4`）分别解压到 VRAM `06008000`／`0600C000`，复制 320 字节配色；`PutMapMetatile`（`080193E0`）按迷雾状态加上 `6000`／`B000` 后写入四个半字。
 - `FireEmblemUniverse/fireemblem8u@04d1edb163d14bd10777a065697e1a9f17be65f2`：[src/bmmap.c](https://github.com/FireEmblemUniverse/fireemblem8u/blob/04d1edb163d14bd10777a065697e1a9f17be65f2/src/bmmap.c) 的 `UnpackChapterMapGraphics`／`DisplayBmTile` 同样固定两份图像的加载地址，并按四个连续半字及两套五组配色绘制；`RefreshTerrainBmMap` 消费配置的地形字节。
 
-两份图像相差 `0x4000` 字节，即 512 个 8×8 图块，第二份覆盖同一加载区的旧内容，不能把短资源直接拼接。未加载间隙保留为不可确认图块；定义的新图块引用在全部共用配置入口的章节中检查。日版入口沿用固定旧版版本配置，五版独立合成流程核对字节与资源操作；本次未执行真实 ROM 或游戏内显示验证。
+两份图像相差 `0x4000` 字节，即 512 个 8×8 图块，第二份覆盖同一加载区的旧内容，不能把短资源直接拼接。未加载间隙保留为不可确认图块；定义的新图块引用在全部共用配置入口的章节中检查。日版入口沿用固定旧版版本配置，五版独立合成流程核对字节与资源操作；配置文件另通过动态真实 ROM 流程核对导入、原子历史及保存重开，游戏内显示未由这些检查证明。
 
 ## 地图配色
 
