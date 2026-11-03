@@ -477,9 +477,7 @@ func TestScriptGuards(t *testing.T) {
 		raw := s.Document.Snapshot().Data
 		if binary.LittleEndian.Uint32(
 			raw[f.GetPosition("script_call")+4:],
-		) != uint32(
-			0x08000000+f.GetPosition("script_root"),
-		) {
+		) != testutil.PointerWord(f.GetPosition("script_root")) {
 			t.Fatal("discovery changed bytes")
 		}
 	})

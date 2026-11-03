@@ -207,8 +207,11 @@ func (e *Editor) PlanBonuses(d *BonusDraft) (result *BonusPlan, err error) {
 		space.Protection{Pointer: e.source.ProtectPointer},
 	)
 	destination, err := builder.Replace(d.raw, space.PointerSite{
-		Owner: space.Owner{Resource: bonusResource}, Address: site,
-		ExpectedWord: uint32(0x08000000 + d.address),
+		Owner:   space.Owner{Resource: bonusResource},
+		Address: site,
+		ExpectedWord: uint32( // #nosec G115 -- The bonus address was read from a valid GBA ROM pointer.
+			0x08000000 + d.address,
+		),
 	})
 	if err != nil {
 		return nil, err

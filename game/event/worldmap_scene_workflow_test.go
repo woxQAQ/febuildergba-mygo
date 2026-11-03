@@ -199,7 +199,7 @@ func TestWorldMapSceneRelocationKeepsAliases(t *testing.T) {
 			want := bytes.Clone(before.Data)
 			binary.LittleEndian.PutUint32(
 				want[site:],
-				uint32(len(want))+0x08000000,
+				testutil.PointerWord(len(want)),
 			)
 			want = append(want, body[:40]...)
 			want = append(want, 0x40, 0x91, 0, 0, 7, 0, 0, 0)
@@ -261,7 +261,7 @@ func TestWorldMapSceneCreation(t *testing.T) {
 		t.Fatal(err)
 	}
 	want := bytes.Clone(before.Data)
-	binary.LittleEndian.PutUint32(want[site:], uint32(len(want))+0x08000000)
+	binary.LittleEndian.PutUint32(want[site:], testutil.PointerWord(len(want)))
 	want = append(want, []byte{
 		0x20, 0xC0, 0, 0,
 		0x20, 0xC8, 0, 0,

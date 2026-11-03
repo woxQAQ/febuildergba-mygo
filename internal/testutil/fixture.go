@@ -49,11 +49,17 @@ func (f *FixtureBuilder) WriteU32(offset int, value uint32) {
 	binary.LittleEndian.PutUint32(f.data[offset:], value)
 }
 
+// PointerWord encodes a file offset in the GBA ROM address window. Invalid
+// offsets indicate a malformed fixture or an out-of-range edit result.
+func PointerWord(offset int) uint32 {
+	if offset < 0 || offset >= 0x02000000 {
+		panic("fixture pointer outside GBA ROM")
+	}
+	return 0x08000000 + uint32(offset)
+}
+
 func (f *FixtureBuilder) WritePointer(offset, target int) {
-	f.WriteU32(
-		offset,
-		uint32(target)|0x08000000,
-	) // #nosec G115 -- fixture offsets fit in a GBA address.
+	f.WriteU32(offset, PointerWord(target))
 }
 
 func (f *FixtureBuilder) MarkPosition(

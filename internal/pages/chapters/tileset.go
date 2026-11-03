@@ -118,14 +118,14 @@ func (s *tilesetState) refresh() {
 }
 
 func (s *tilesetState) selectDefinition(index int) {
-	if index < 0 || index >= s.data.Count() {
+	if index < 0 || index >= 1024 || index >= s.data.Count() {
 		return
 	}
 	s.selected, s.choice = index, fmt.Sprintf("0x%03X", index)
 	definition, _ := s.data.Definition(index)
 	s.tile = maps.Cell{
 		Tile:    uint16(index * 4),
-		Terrain: byte(definition.Terrain),
+		Terrain: byte(definition.Terrain & 0xFF),
 	}
 	s.brush = nil
 	for i, cell := range s.tileset.Cells {

@@ -159,7 +159,7 @@ func TestDocument_SavedState(t *testing.T) {
 	if err := os.WriteFile(
 		path,
 		bytes.Repeat([]byte{0x00}, 0x100),
-		0o644,
+		0o600,
 	); err != nil {
 		t.Fatal(err)
 	}
@@ -504,7 +504,7 @@ func newTestDocument(t *testing.T, size int) *Document {
 	if err := os.WriteFile(
 		path,
 		bytes.Repeat([]byte{0x00}, size),
-		0o644,
+		0o600,
 	); err != nil {
 		t.Fatal(err)
 	}

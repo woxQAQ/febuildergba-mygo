@@ -227,11 +227,11 @@ func TestQuoteReferencesAndFields(t *testing.T) {
 				if err = draft.Set(
 					0,
 					quote.Script,
-					0x08000000+uint32(f.GetPosition("location_script")),
+					testutil.PointerWord(f.GetPosition("location_script")),
 				); err != nil {
 					t.Fatal(err)
 				}
-			} // #nosec G115 -- Fixture positions fit in a GBA address.
+			}
 			plan, err := s.Quotes.Plan(draft)
 			if err != nil {
 				t.Fatal(err)

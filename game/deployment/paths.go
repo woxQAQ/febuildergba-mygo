@@ -139,7 +139,7 @@ func movementStep(position image.Point) []byte {
 	binary.LittleEndian.PutUint16(
 		result,
 		uint16(position.X&63)|uint16(position.Y&63)<<6,
-	) // #nosec G115 -- Coordinates are masked to native six-bit fields.
+	)
 	result[4], result[5] = 0xFF, 0xFF
 	return result
 }

@@ -363,6 +363,21 @@ func TestWorldMapBackgroundImportDuringDocumentEdit(t *testing.T) {
 
 func TestWorldMapBackgroundRejectedImports(t *testing.T) {
 	s := testutil.Open(t, testutil.NewWorldMapBackgroundFixture("FE8J"))
+	before, state := s.Document.Snapshot(), s.Document.State()
+	for _, tone := range []worldmap.BackgroundTone{-1, 256} {
+		if _, err := s.WorldMap.Background(
+			tone,
+		); !errors.Is(
+			err,
+			worldmap.ErrScene,
+		) {
+			t.Fatal("out-of-range background tone", tone, err)
+		}
+	}
+	if !bytes.Equal(before.Data, s.Document.Snapshot().Data) ||
+		state != s.Document.State() {
+		t.Fatal("invalid tone changed document/history")
+	}
 	source, err := s.WorldMap.Background(worldmap.Daytime)
 	if err != nil {
 		t.Fatal(err)

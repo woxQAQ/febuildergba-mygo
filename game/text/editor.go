@@ -88,7 +88,7 @@ func (s *Editor) Entries() (entries []Entry, err error) {
 	}
 	s.entries = make([]Entry, 0, table.Count-1)
 	for id := 1; id < table.Count; id++ {
-		textID := uint16(id) // #nosec G115 -- TextTable bounds Count by 0x7FFF.
+		textID := uint16(id)
 		value, readErr := s.format.Read(s.image.Data, textID)
 		s.entries = append(
 			s.entries,

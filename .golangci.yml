@@ -12,6 +12,7 @@ linters:
     - misspell
     - forbidigo
     - embeddedstructfieldcheck
+    - gosec
   settings:
     depguard:
       # Absolute-path globs use **.go to include direct files and descendants.

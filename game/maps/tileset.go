@@ -47,7 +47,7 @@ func readTilePart(word uint16) TilePart {
 }
 
 func (p TilePart) word() uint16 {
-	word := uint16(p.Tile | p.Palette<<12)
+	word := uint16(p.Tile&0x3FF) | uint16(p.Palette&15)<<12
 	if p.FlipX {
 		word |= 0x400
 	}
@@ -201,7 +201,7 @@ func (f *TilesetConfig) Import(
 				)
 			}
 		}
-		draft.content[tilesetTerrainOffset+index] = byte(definition.Terrain)
+		draft.content[tilesetTerrainOffset+index] = content[tilesetTerrainOffset+index]
 	}
 	return &draft, nil
 }

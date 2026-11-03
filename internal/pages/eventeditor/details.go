@@ -148,6 +148,10 @@ func (page *Page) textOperand(
 	ui.Column(c.Key(key)).Gap(4).Children(func() {
 		label := locales.Label(field.ID)
 		ui.Text(c, label).Tooltip(locales.Label(field.Help))
+		if value < 0 || value > 0xFFFFFFFF {
+			ui.Text(c, locales.GameInvalidValue()).TextColor(c.Theme().Danger)
+			return
+		}
 		components.TextReference(
 			c,
 			page.state,

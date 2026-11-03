@@ -33,7 +33,10 @@ func NewWorldMapRouteFixture(version string) *FixtureBuilder {
 		if i >= 29 {
 			a, b = i-29, i-26
 		}
-		f.WriteAt(at+4, []byte{byte(a), byte(b), 0xC3, 0xD7})
+		f.WriteAt(
+			at+4,
+			[]byte{byte(a), byte(b), 0xC3, 0xD7},
+		) // #nosec G115 -- Fixture endpoints are bounded to the 29 native nodes.
 		f.WriteU32(at+8, 0)
 	}
 	f.WritePointer(routes+8, movement)

@@ -284,8 +284,11 @@ func (e *Editor) Plan(d *Draft) (plan *Plan, err error) {
 		pointers := make([]space.PointerSite, len(t.pointers))
 		for i, site := range t.pointers {
 			pointers[i] = space.PointerSite{
-				Owner: t.kind.Owner(), Address: site,
-				ExpectedWord: uint32(0x08000000 + t.address),
+				Owner:   t.kind.Owner(),
+				Address: site,
+				ExpectedWord: uint32( // #nosec G115 -- The table address was read from a valid GBA ROM pointer.
+					0x08000000 + t.address,
+				),
 			}
 		}
 		destination, appendErr := builder.Replace(t.raw, pointers...)

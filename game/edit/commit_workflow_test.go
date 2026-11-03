@@ -9,6 +9,7 @@ import (
 	"testing"
 
 	"github.com/woxQAQ/febuildergba-mygo/game/edit"
+	"github.com/woxQAQ/febuildergba-mygo/internal/testutil"
 	"github.com/woxQAQ/febuildergba-mygo/rom"
 	"github.com/woxQAQ/febuildergba-mygo/space"
 )
@@ -28,7 +29,10 @@ func TestCapturedCommitLifecycle(t *testing.T) {
 	})
 	var encoded []byte
 	if _, err := builder.ReplaceEncoded(func(at int) ([]byte, error) {
-		encoded = binary.LittleEndian.AppendUint32(nil, uint32(0x08000000+at+4))
+		encoded = binary.LittleEndian.AppendUint32(
+			nil,
+			testutil.PointerWord(at+4),
+		)
 		return append(encoded, 0xA1, 0xA2, 0xA3, 0xA4), nil
 	}, space.PointerSite{Owner: owner, Address: 4, ExpectedWord: 0x08000020}); err != nil {
 		t.Fatal(err)

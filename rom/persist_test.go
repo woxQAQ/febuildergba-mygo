@@ -87,7 +87,7 @@ func TestDocument_DetectsExternalChange(t *testing.T) {
 	}
 	data := doc.Snapshot().Data
 	data[0x200] = 0x99
-	if err := os.WriteFile(path, data, 0o644); err != nil {
+	if err := os.WriteFile(path, data, 0o600); err != nil {
 		t.Fatal(err)
 	}
 	if changed, err := doc.ExternalChanged(); err != nil || !changed {

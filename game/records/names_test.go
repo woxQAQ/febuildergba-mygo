@@ -52,7 +52,7 @@ func TestSharedNameEdits(t *testing.T) {
 			prefix := bytes.Clone(before.Data)
 			binary.LittleEndian.PutUint32(
 				prefix[testutil.NameTable+4:],
-				uint32(0x08000000+edit.Destination()),
+				testutil.PointerWord(edit.Destination()),
 			)
 			if !bytes.Equal(prefix, after.Data[:len(prefix)]) {
 				t.Fatal(
@@ -356,9 +356,7 @@ func TestNameEditReplacesAntiHuffmanEntryWithCompressedText(t *testing.T) {
 	if gba.Uint32(
 		data,
 		testutil.NameTable+12,
-	) != uint32(
-		0x08000000+edit.Destination(),
-	) ||
+	) != testutil.PointerWord(edit.Destination()) ||
 		s.Records.Table(records.Items).Rows[1].Name != "ABC" ||
 		!bytes.Equal(
 			data[testutil.NameRaw:testutil.NameRaw+2],

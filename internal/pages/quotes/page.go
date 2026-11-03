@@ -118,7 +118,7 @@ func (p *Page) Open(kind quote.Kind, index int) {
 			entry.filtered = nil
 			if entry.draft != nil {
 				for position, row := range entry.draft.Entries() {
-					if int(row.ID) == index+1 {
+					if index >= 0 && row.ID == uint64(index)+1 {
 						entry.selected = position
 						break
 					}

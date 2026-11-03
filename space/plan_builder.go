@@ -135,7 +135,7 @@ func (b *Builder) Repoint(pointer PointerSite, target int) error {
 	return b.repointWord(
 		pointer,
 		uint32(0x08000000+target),
-	) // #nosec G115 -- target is bounded by ROM MaxSize.
+	)
 }
 
 // ClearPointer writes a null word to a selected reference. Its domain meaning

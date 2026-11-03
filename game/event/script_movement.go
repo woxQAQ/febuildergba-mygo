@@ -130,19 +130,13 @@ func packScriptMovement(steps []ScriptMovementStep) ([]byte, error) {
 		raw = append(raw, step.Command)
 		switch step.Command {
 		case 9, 12:
-			minimum := 1
 			// The coordinate scanner treats a speed byte as another opcode. Values
 			// above its command range preserve the destination calculated by movement.
-			if step.Command == 12 {
-				minimum = 16
-			}
-			if step.Value < minimum || step.Value > 127 {
+			if step.Value < 1 || step.Value > 127 ||
+				(step.Command == 12 && step.Value < 16) {
 				return nil, edit.ErrValue
 			}
-			raw = append(
-				raw,
-				byte(step.Value),
-			) // #nosec G115 -- bounded native operand.
+			raw = append(raw, byte(step.Value))
 		default:
 			if step.Value != 0 {
 				return nil, edit.ErrValue

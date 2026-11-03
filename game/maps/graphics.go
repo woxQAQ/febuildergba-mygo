@@ -22,7 +22,7 @@ const (
 
 // GraphicsSlot identifies a native loading position, not a separate PLIST.
 // The same graphics entry can be consumed at either or both positions.
-type GraphicsSlot uint8
+type GraphicsSlot int
 
 const (
 	FirstGraphics GraphicsSlot = iota
@@ -210,7 +210,7 @@ func (s *Editor) Graphics(
 	slot GraphicsSlot,
 ) (result *Graphics, err error) {
 	defer func() { err = fault.Wrap(err, "game.read_map_graphics", fault.Context{Resource: GraphicsField}) }()
-	if int(slot) >= len(graphicsConsumers) {
+	if slot < FirstGraphics || int(slot) >= len(graphicsConsumers) {
 		return nil, edit.ErrValue
 	}
 	s.Refresh()

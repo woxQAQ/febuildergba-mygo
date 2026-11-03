@@ -46,7 +46,7 @@ git submodule update --init FEBuilderGBA
 | 原生控件原型       | [ui-probe](../justfile)                                            |
 | 构建应用和安装镜像 | [build](../justfile)                                               |
 
-[lint recipe](../justfile) 的 depguard 按 `.golangci.yml` 检查[导入边界](architecture.md#依赖方向)。自动检查与人工审查的边界见[架构约束](architecture.md#约束)。
+[lint recipe](../justfile) 的 depguard 按 `.golangci.yml` 检查[导入边界](architecture.md#依赖方向)。自动检查与人工审查的边界见[架构约束](architecture.md#约束)。gosec 同时检查生产代码、测试和合成样本构造，包括整数转换的 G115 规则。优先用匹配的类型、明确范围校验或原生位字段编码表达约束；静态分析无法证明的格式语义使用局部 `#nosec`，注明规则与可核对的依据。清理抑制时须确认去除注释后的实际诊断，不能由常规 lint 通过推断注释仍有必要。
 
 [lint](../justfile) 使用项目配置的自动修复；[fmt](../justfile) 格式化仓库并排除旧版子模块。局部格式化时，可向 `golangci-lint fmt` 传入所改包、向 `oxfmt` 传入所改文档，以遵循[保留工作区修改的约定](../AGENTS.md#开始修改)。
 

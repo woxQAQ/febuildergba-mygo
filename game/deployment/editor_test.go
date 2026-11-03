@@ -116,7 +116,7 @@ func TestDeploymentEditingWorkflow(t *testing.T) {
 			expected := bytes.Clone(before.Data)
 			binary.LittleEndian.PutUint32(
 				expected[group.Pointer:],
-				uint32(0x08000000+preview.Destination()),
+				testutil.PointerWord(preview.Destination()),
 			)
 			if !bytes.Equal(expected, after.Data[:len(expected)]) {
 				t.Fatal(
@@ -149,7 +149,7 @@ func TestDeploymentEditingWorkflow(t *testing.T) {
 				}
 				binary.LittleEndian.PutUint32(
 					record[8:],
-					uint32(0x08000000+preview.Destination()+64),
+					testutil.PointerWord(preview.Destination()+64),
 				)
 				path := []byte{
 					1,

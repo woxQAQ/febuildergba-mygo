@@ -93,7 +93,7 @@ func (d *Draft) Add(id int) error {
 	d.items = append(
 		d.items,
 		Item{ID: byte(id)},
-	) // #nosec G115 -- Item IDs are bounded above.
+	)
 	return nil
 }
 
@@ -104,7 +104,7 @@ func (d *Draft) SetItem(index, id int) error {
 	if id < 1 || id > 255 {
 		return edit.ErrValue
 	}
-	d.items[index].ID = byte(id) // #nosec G115 -- Item IDs are bounded above.
+	d.items[index].ID = byte(id)
 	return nil
 }
 
@@ -117,7 +117,7 @@ func (d *Draft) SetExtra(index, value int) error {
 	}
 	d.items[index].Extra = byte(
 		value,
-	) // #nosec G115 -- Raw bytes are bounded above.
+	)
 	return nil
 }
 

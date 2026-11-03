@@ -77,7 +77,7 @@ func TestNativeRoutesEditAndHistory(t *testing.T) {
 			want[at+5] = 5
 			binary.LittleEndian.PutUint32(
 				want[at+8:],
-				uint32(len(before.Data))+0x08000000,
+				testutil.PointerWord(len(before.Data)),
 			)
 			want = append(want, []byte{
 				0, 2, 0, 0, 0, 0x80, 0xFF, 0x7F,

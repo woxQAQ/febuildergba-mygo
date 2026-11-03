@@ -73,9 +73,11 @@ func (s *Editor) Plan(draft *Draft) (result *Plan, err error) {
 		},
 	})
 	if _, err = builder.Replace(compressed, space.PointerSite{
-		Owner:        resourceOwner(LayoutField, draft.pointer),
-		Address:      draft.pointer,
-		ExpectedWord: uint32(0x08000000 + draft.address),
+		Owner:   resourceOwner(LayoutField, draft.pointer),
+		Address: draft.pointer,
+		ExpectedWord: uint32( // #nosec G115 -- The layout address was read from a valid GBA ROM pointer.
+			0x08000000 + draft.address,
+		),
 	}); err != nil {
 		return nil, err
 	}

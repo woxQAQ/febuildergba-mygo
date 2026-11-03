@@ -77,8 +77,12 @@ func (f Format) Routes(data []byte) ([]Route, error) {
 			ID:      i,
 			Address: address,
 			Nodes: [2]int{
-				int(int8(data[address+4])),
-				int(int8(data[address+5])),
+				int(int8( // #nosec G115 -- Native signed-byte node ID.
+					data[address+4],
+				)),
+				int(int8( // #nosec G115 -- Native signed-byte node ID.
+					data[address+5],
+				)),
 			},
 		}
 		r.Road, _ = gba.Pointer(data, address)
@@ -106,7 +110,9 @@ func readMovement(data []byte, at int) ([]MovementPoint, [8]byte, error) {
 		if !gba.Within(data, pos, 8) {
 			break
 		}
-		progress := int(int32(gba.Uint32(data, pos)))
+		progress := int(
+			int32(gba.Uint32(data, pos)),
+		) // #nosec G115 -- Negative native words terminate movement.
 		if progress < 0 {
 			return points, [8]byte(data[pos : pos+8]), nil
 		}
@@ -114,8 +120,12 @@ func readMovement(data []byte, at int) ([]MovementPoint, [8]byte, error) {
 			points,
 			MovementPoint{
 				progress,
-				int(int16(gba.Uint16(data, pos+4))),
-				int(int16(gba.Uint16(data, pos+6))),
+				int(int16( // #nosec G115 -- Native signed-halfword coordinate.
+					gba.Uint16(data, pos+4),
+				)),
+				int(int16( // #nosec G115 -- Native signed-halfword coordinate.
+					gba.Uint16(data, pos+6),
+				)),
 			},
 		)
 	}
@@ -406,10 +416,18 @@ func (e *Editor) PlanRoute(d *RouteDraft) (plan *RoutePlan, err error) {
 			for _, p := range d.points {
 				payload = binary.LittleEndian.AppendUint32(
 					payload,
-					uint32(p.Progress),
+					uint32( // #nosec G115 -- SetPoints bounds progress to 1..4095.
+						p.Progress,
+					),
 				)
-				payload = binary.LittleEndian.AppendUint16(payload, uint16(p.X))
-				payload = binary.LittleEndian.AppendUint16(payload, uint16(p.Y))
+				payload = binary.LittleEndian.AppendUint16(
+					payload,
+					uint16(p.X&0xFFFF),
+				)
+				payload = binary.LittleEndian.AppendUint16(
+					payload,
+					uint16(p.Y&0xFFFF),
+				)
 			}
 			end := r.terminator
 			if r.Movement == 0 {
@@ -426,7 +444,14 @@ func (e *Editor) PlanRoute(d *RouteDraft) (plan *RoutePlan, err error) {
 		if err = builder.Patch(
 			r.Owner(),
 			r.Address+4,
-			[]byte{byte(d.nodes[0]), byte(d.nodes[1])},
+			[]byte{
+				byte( // #nosec G115 -- validateConnections bounds native node IDs.
+					d.nodes[0],
+				),
+				byte( // #nosec G115 -- validateConnections bounds native node IDs.
+					d.nodes[1],
+				),
+			},
 		); err != nil {
 			return nil, err
 		}

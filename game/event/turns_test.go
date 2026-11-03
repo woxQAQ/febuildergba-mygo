@@ -226,7 +226,7 @@ func TestTurnReinforcementWorkflow(t *testing.T) {
 			}
 			binary.LittleEndian.PutUint32(
 				expectedScript[4:],
-				uint32(0x08000000+group.Address),
+				testutil.PointerWord(group.Address),
 			)
 			if !bytes.Equal(script, expectedScript) {
 				t.Fatalf(

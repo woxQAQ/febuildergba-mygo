@@ -146,7 +146,7 @@ func TextPreview(c *ui.Context, texts *text.Editor, id uint32, raw bool) {
 		ui.Text(c, locales.GameInvalidValue()).TextColor(c.Theme().Danger)
 		return
 	}
-	value, err := texts.Value(uint16(id)) // #nosec G115 -- ID is bounded above.
+	value, err := texts.Value(uint16(id))
 	if err != nil {
 		ui.Text(c, ErrorText(err)).
 			FontSize(FontCaption).

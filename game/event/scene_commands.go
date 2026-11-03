@@ -160,13 +160,10 @@ type wordSceneCodes struct {
 	restore, background                                 scriptDefinition
 }
 
-func wordImmediate(code uint32, offset int, value uint32) []byte {
+func wordImmediate(code uint32, offset int, value uint16) []byte {
 	raw := make([]byte, (offset+2+3)&^3)
 	copy(raw, scriptWords(code))
-	binary.LittleEndian.PutUint16(
-		raw[offset:],
-		uint16(value),
-	) // #nosec G115 -- Callers supply bounded halfword operands.
+	binary.LittleEndian.PutUint16(raw[offset:], value)
 	return raw
 }
 

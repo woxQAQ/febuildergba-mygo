@@ -172,7 +172,7 @@ func (page *Page) movement(
 			codes = append(
 				codes,
 				byte(code),
-			) // #nosec G115 -- fixed native command list.
+			)
 		}
 		if !slices.Contains(commands, state.command) {
 			state.command = commands[1]

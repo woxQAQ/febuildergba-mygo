@@ -99,11 +99,11 @@ func TestRoadRouteCommitPreservesSharedSources(t *testing.T) {
 			at := f.GetPosition("worldmap_routes")
 			binary.LittleEndian.PutUint32(
 				want[at:],
-				uint32(len(want))+0x08000000,
+				testutil.PointerWord(len(want)),
 			)
 			binary.LittleEndian.PutUint32(
 				want[at+8:],
-				uint32(len(want)+40)+0x08000000,
+				testutil.PointerWord(len(want)+40),
 			)
 			want[at+5] = 5
 			want = append(want, []byte{
@@ -290,7 +290,7 @@ func TestRoadEditingWithUnreadableBackground(t *testing.T) {
 	want := bytes.Clone(before.Data)
 	binary.LittleEndian.PutUint32(
 		want[f.GetPosition("worldmap_routes"):],
-		uint32(plan.After().Road)+0x08000000,
+		testutil.PointerWord(plan.After().Road),
 	)
 	if !bytes.Equal(want, s.Document.Snapshot().Data[:len(want)]) {
 		t.Fatal("road editing rewrote background")

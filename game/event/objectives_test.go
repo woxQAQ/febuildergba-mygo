@@ -106,7 +106,7 @@ func TestObjectiveWorkflow(t *testing.T) {
 			expected[2], expected[8] = 0x35, 0x34
 			binary.LittleEndian.PutUint32(
 				expected[4:],
-				uint32(0x08000000+f.GetPosition("objective_defeat")),
+				testutil.PointerWord(f.GetPosition("objective_defeat")),
 			)
 			if !bytes.Equal(result.Events[0].Raw, expected) {
 				t.Fatalf(
@@ -145,7 +145,7 @@ func TestObjectiveWorkflow(t *testing.T) {
 				}
 				binary.LittleEndian.PutUint32(
 					want[4:],
-					uint32(0x08000000+script),
+					testutil.PointerWord(script),
 				)
 				binary.LittleEndian.PutUint32(want[8:], args[i])
 				if !bytes.Equal(e.Raw, want) {

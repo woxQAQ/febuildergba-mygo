@@ -143,7 +143,7 @@ func (a *form) supportName(id int) string {
 
 func (a *form) supportRelations(c *ui.Context, v *supportState, disabled bool) {
 	var choices []string
-	values := map[string]uint32{}
+	values := map[string]uint8{}
 	if table := a.state.Session.Records.Table(
 		records.Units,
 	); table != nil &&
@@ -154,7 +154,7 @@ func (a *form) supportRelations(c *ui.Context, v *supportState, disabled bool) {
 			}
 			label := fmt.Sprintf("%02X · %s", row.ID, row.Name)
 			choices = append(choices, label)
-			values[label] = uint32(row.ID)
+			values[label] = uint8(row.ID)
 		}
 	}
 	width, _ := c.Size()
@@ -180,13 +180,13 @@ func (a *form) supportRelations(c *ui.Context, v *supportState, disabled bool) {
 							i,
 							"unit",
 							locales.SupportPartner(),
-							uint32(relation.Unit),
+							relation.Unit,
 							choices,
 							values,
 							disabled,
-							func(value uint32) error {
+							func(value uint8) error {
 								r := v.draft.Relationships()[i]
-								r.Unit = uint8(value)
+								r.Unit = value
 								return v.draft.Set(i, r)
 							},
 						)
@@ -196,13 +196,13 @@ func (a *form) supportRelations(c *ui.Context, v *supportState, disabled bool) {
 							i,
 							"initial",
 							locales.SupportInitial(),
-							uint32(relation.Initial),
+							relation.Initial,
 							nil,
 							nil,
 							disabled,
-							func(value uint32) error {
+							func(value uint8) error {
 								r := v.draft.Relationships()[i]
-								r.Initial = uint8(value)
+								r.Initial = value
 								return v.draft.Set(i, r)
 							},
 						)
@@ -212,13 +212,13 @@ func (a *form) supportRelations(c *ui.Context, v *supportState, disabled bool) {
 							i,
 							"growth",
 							locales.SupportGrowth(),
-							uint32(relation.Growth),
+							relation.Growth,
 							nil,
 							nil,
 							disabled,
-							func(value uint32) error {
+							func(value uint8) error {
 								r := v.draft.Relationships()[i]
-								r.Growth = uint8(value)
+								r.Growth = value
 								return v.draft.Set(i, r)
 							},
 						)
@@ -251,7 +251,7 @@ func (a *form) supportRelations(c *ui.Context, v *supportState, disabled bool) {
 	}
 	next := uint8(0)
 	for _, label := range choices {
-		candidate := uint8(values[label])
+		candidate := values[label]
 		if !used[candidate] {
 			next = candidate
 			break
@@ -271,11 +271,11 @@ func (a *form) supportField(
 	v *supportState,
 	index int,
 	field, label string,
-	value uint32,
+	value uint8,
 	choices []string,
-	values map[string]uint32,
+	values map[string]uint8,
 	disabled bool,
-	set func(uint32) error,
+	set func(uint8) error,
 ) {
 	key := fmt.Sprintf("%d/%s", index, field)
 	current := v.inputs[key]
@@ -311,7 +311,7 @@ func (a *form) supportField(
 						current.invalid = true
 						return
 					}
-					number = uint32(parsed)
+					number = uint8(parsed)
 				}
 				v.err = set(number)
 				current.invalid = v.err != nil

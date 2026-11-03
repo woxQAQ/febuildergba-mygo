@@ -311,7 +311,7 @@ func (d *Draft) Resize(
 		width,
 	), byte(
 		height,
-	) // #nosec G115 -- Native dimensions are bounded above.
+	)
 	dx, dy := (width-d.width)*int(anchor%3)/2, (height-d.height)*int(anchor/3)/2
 	for y := range height {
 		for x := range width {

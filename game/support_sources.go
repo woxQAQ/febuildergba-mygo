@@ -25,9 +25,9 @@ func supportUnits(data []byte, table records.Table) []support.Unit {
 				result,
 				support.Unit{
 					ID: row.ID,
-					Affinity: uint8(
+					Affinity: uint8( // #nosec G115 -- Native affinity field is one byte.
 						affinity.Value(data, row.Address),
-					), // #nosec G115 -- Native affinity field is one byte.
+					),
 					Pointer: row.Address + 44,
 					Name:    row.Name,
 					Host:    recordOwner(records.Units, row.ID),

@@ -61,7 +61,9 @@ func (s *Editor) Plan(
 	)
 	expected := uint32(0)
 	if draft.group.Address != 0 {
-		expected = uint32(0x08000000 + draft.group.Address)
+		expected = uint32(
+			0x08000000 + draft.group.Address,
+		) // #nosec G115 -- The group address was read from a valid GBA ROM pointer.
 	}
 	if _, err = builder.ReplaceEncoded(
 		func(at int) ([]byte, error) { return draft.Payload(at), nil },

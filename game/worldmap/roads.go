@@ -299,10 +299,16 @@ func (d *RoadDraft) encode() []byte {
 			for end < RoadColumns && d.cells[y*RoadColumns+end].Present {
 				end++
 			}
-			out = append(out, byte(x), byte(y), byte(end-x), 1)
+			out = append(
+				out,
+				byte(x),
+				byte(y),
+				byte(end-x),
+				1,
+			) // #nosec G115 -- Runs fit within the fixed RoadColumns by RoadRows grid.
 			for ; x < end; x++ {
 				cell := d.cells[y*RoadColumns+x]
-				word := uint16(cell.Tile)
+				word := uint16(cell.Tile & 0x3FF)
 				if cell.FlipX {
 					word |= 0x400
 				}

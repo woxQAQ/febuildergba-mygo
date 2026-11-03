@@ -78,12 +78,11 @@ func (v *Page) objectiveSummary(
 			if err != nil || value <= 0 || value >= 0x7FFF {
 				continue
 			}
-			id := uint16(value) // #nosec G115 -- The text ID was bounded above.
+			id := uint16(value)
 			ui.Button(c.Key(field), fmt.Sprintf("%s · %04X", locales.Label(field), value)).
 				Disabled(state.Busy).
 				OnClick(func() { openText(id) })
 
-			// #nosec G115 -- Text IDs are bounded above.
 		}
 		for _, ref := range entry.data.Scripts() {
 			if ref.Kind != event.ChapterEndingScript {

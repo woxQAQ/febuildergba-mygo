@@ -78,7 +78,7 @@ func NewSupportFixture(version string) *FixtureBuilder {
 	}
 	for i := range 2 {
 		raw := bytes.Repeat([]byte{0xA7}, size)
-		raw[0], raw[n], raw[2*n], raw[3*n] = byte(2-i), 20, 3, 1
+		raw[0], raw[n], raw[2*n], raw[3*n] = 2-byte(i), 20, 3, 1
 		at := 0x280000 + i*0x40
 		f.WriteAt(at, raw)
 		f.WritePointer(base+i*stride+44, at)

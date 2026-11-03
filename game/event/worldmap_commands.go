@@ -112,7 +112,9 @@ func wmCommand(
 	fields ...ScriptField,
 ) scriptDefinition {
 	raw := make([]byte, size)
-	raw[0], raw[1] = byte(size/2)<<4, opcode
+	raw[0], raw[1] = byte(
+		size/2,
+	)<<4, opcode // #nosec G115 -- Native command definitions use at most fifteen halfwords.
 	preserved := make([]byte, size)
 	for i := 2; i < size; i++ {
 		preserved[i] = 0xFF

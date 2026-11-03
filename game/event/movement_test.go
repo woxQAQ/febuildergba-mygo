@@ -133,7 +133,7 @@ func TestScriptMovementWorkflow(t *testing.T) {
 			target, ok := gba.Pointer(after.Data, root+8)
 			if !ok || target != len(before.Data) ||
 				len(after.Data) != len(before.Data)+64 ||
-				gba.Uint32(after.Data, root+20) != uint32(0x08000000+path) {
+				gba.Uint32(after.Data, root+20) != testutil.PointerWord(path) {
 				t.Fatal("movement ownership or allocation")
 			}
 			want := append(

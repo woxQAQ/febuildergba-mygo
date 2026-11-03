@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"encoding/binary"
 	"errors"
+	"fmt"
 	"image"
 	"image/color"
 	"image/png"
@@ -53,7 +54,7 @@ func exportedGraphics(
 func TestMapGraphicsPNGEditingAndHistory(t *testing.T) {
 	for _, version := range testutil.Games() {
 		for _, slot := range []maps.GraphicsSlot{maps.FirstGraphics, maps.SecondGraphics} {
-			t.Run(version.Name+"/"+string(rune('0'+slot)), func(t *testing.T) {
+			t.Run(fmt.Sprintf("%s/%d", version.Name, slot), func(t *testing.T) {
 				f := testutil.NewMapFixture(version.Name)
 				stride := 148
 				if version.Name == "FE6" {
@@ -422,7 +423,7 @@ func TestMapGraphicsIndependentPreviewResources(t *testing.T) {
 }
 
 func TestMapGraphicsPNGAndCommitFailuresAreAtomic(t *testing.T) {
-	for _, scenario := range []string{"invalid", "truecolor", "size", "index", "alpha", "padding", "oversize", "no-op", "palette-only", "absent", "record-overlap", "payload-overlap", "own-payload-overlap", "other-resource-entry", "cross-role-capacity", "revision", "layout", "document", "capacity"} {
+	for _, scenario := range []string{"invalid", "truecolor", "size", "index", "alpha", "padding", "oversize", "no-op", "palette-only", "absent", "negative-slot", "wide-slot", "record-overlap", "payload-overlap", "own-payload-overlap", "other-resource-entry", "cross-role-capacity", "revision", "layout", "document", "capacity"} {
 		t.Run(scenario, func(t *testing.T) {
 			f := testutil.NewMapFixture("FE8U")
 			list, at := f.GetPosition(
@@ -467,7 +468,8 @@ func TestMapGraphicsPNGAndCommitFailuresAreAtomic(t *testing.T) {
 				}
 			}
 			before, state := s.Document.Snapshot(), s.Document.State()
-			if scenario == "absent" {
+			switch scenario {
+			case "absent":
 				if _, err := s.Maps.Graphics(
 					0,
 					maps.SecondGraphics,
@@ -477,7 +479,21 @@ func TestMapGraphicsPNGAndCommitFailuresAreAtomic(t *testing.T) {
 				) {
 					t.Fatal("absent second stream", err)
 				}
-			} else {
+			case "negative-slot", "wide-slot":
+				slot := maps.GraphicsSlot(-1)
+				if scenario == "wide-slot" {
+					slot = 256
+				}
+				if _, err := s.Maps.Graphics(
+					0,
+					slot,
+				); !errors.Is(
+					err,
+					edit.ErrValue,
+				) {
+					t.Fatal("out-of-range graphics slot", slot, err)
+				}
+			default:
 				source, err := s.Maps.Graphics(0, maps.FirstGraphics)
 				if err != nil {
 					t.Fatal(err)
@@ -670,9 +686,9 @@ func TestMapGraphicsNativeSheetSizes(t *testing.T) {
 func literalMapLZ(data []byte) []byte {
 	output := []byte{
 		0x10,
-		byte(len(data)),
-		byte(len(data) >> 8),
-		byte(len(data) >> 16),
+		byte(len(data) & 0xFF),
+		byte(len(data) >> 8 & 0xFF),
+		byte(len(data) >> 16 & 0xFF),
 	}
 	for at := 0; at < len(data); at += 8 {
 		output = append(output, 0)

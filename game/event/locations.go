@@ -258,7 +258,7 @@ func (d *ConditionDraft) SetLocationPosition(
 		position.X,
 	), byte(
 		position.Y,
-	) // #nosec G115 -- Coordinates are bounded above.
+	)
 	return nil
 }
 
@@ -284,7 +284,7 @@ func (d *ConditionDraft) SetChestReward(index, item, money int) error {
 	binary.LittleEndian.PutUint16(
 		d.records[index].raw[6:],
 		uint16(money),
-	) // #nosec G115 -- Reward halfwords are bounded above.
+	)
 	return nil
 }
 

@@ -23,7 +23,7 @@ const (
 )
 
 // PaletteSection selects color slots without changing their native order.
-type PaletteSection uint8
+type PaletteSection int
 
 const (
 	NormalPalette PaletteSection = iota
@@ -126,7 +126,7 @@ func (p *Palette) Current(
 
 func mapPaletteColor(data []byte, index int) color.RGBA {
 	word := binary.LittleEndian.Uint16(data[index*2:])
-	expand := func(value uint16) uint8 { return uint8(value<<3 | value>>2) }
+	expand := func(value uint16) uint8 { return uint8((value<<3 | value>>2) & 255) }
 	return color.RGBA{
 		R: expand(word & 31),
 		G: expand(word >> 5 & 31),

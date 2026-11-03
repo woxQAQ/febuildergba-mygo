@@ -74,13 +74,17 @@ func (n Node) Value(field Field) int {
 	}
 	if f.width == 1 {
 		if f.signed {
-			return int(int8(n.raw[f.offset]))
+			return int(
+				int8(n.raw[f.offset]),
+			) // #nosec G115 -- Native signed-byte interpretation.
 		}
 		return int(n.raw[f.offset])
 	}
 	value := binary.LittleEndian.Uint16(n.raw[f.offset:])
 	if f.signed {
-		return int(int16(value))
+		return int(
+			int16(value),
+		) // #nosec G115 -- Native signed-halfword interpretation.
 	}
 	return int(value)
 }
@@ -168,13 +172,18 @@ func (d *Draft) Set(field Field, value int) error {
 		return edit.ErrValue
 	}
 	if f.mask != 0 {
-		d.node.raw[f.offset] = d.node.raw[f.offset]&^f.mask | byte(value)&f.mask
+		d.node.raw[f.offset] = d.node.raw[f.offset]&^f.mask | byte(
+			value&0xFF,
+		)&f.mask
 	} else if f.width == 1 {
-		d.node.raw[f.offset] = byte(value)
+		d.node.raw[f.offset] = byte(value & 0xFF)
 	} else {
-		binary.LittleEndian.PutUint16(d.node.raw[f.offset:], uint16(value))
+		binary.LittleEndian.PutUint16(
+			d.node.raw[f.offset:],
+			uint16(value&0xFFFF),
+		)
 	}
-	// The signed conversions above preserve the native two's-complement bits.
+	// Packing retains the native two's-complement bits after range validation.
 	d.node.Name = binary.LittleEndian.Uint16(d.node.raw[28:])
 	return nil
 }

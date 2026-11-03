@@ -171,7 +171,7 @@ func TestWorldMapEventRelocationAndCreation(t *testing.T) {
 	want := bytes.Clone(before.Data)
 	binary.LittleEndian.PutUint32(
 		want[f.GetPosition("wm_site"):],
-		uint32(len(want))+0x08000000,
+		testutil.PointerWord(len(want)),
 	)
 	at := f.GetPosition("wm_script")
 	want = append(want, before.Data[at:at+8]...)
@@ -204,7 +204,7 @@ func TestWorldMapEventRelocationAndCreation(t *testing.T) {
 		t.Fatal(err)
 	}
 	want = bytes.Clone(before.Data)
-	binary.LittleEndian.PutUint32(want[empty:], uint32(len(want))+0x08000000)
+	binary.LittleEndian.PutUint32(want[empty:], testutil.PointerWord(len(want)))
 	want = append(want, 0x40, 0x90, 0, 0, 2, 0, 0, 0, 0x20, 1, 0, 0)
 	if !bytes.Equal(want, s.Document.Snapshot().Data) {
 		t.Fatal("null entry creation")

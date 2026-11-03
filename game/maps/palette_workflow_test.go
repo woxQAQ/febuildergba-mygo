@@ -3,6 +3,7 @@ package maps_test
 import (
 	"bytes"
 	"errors"
+	"fmt"
 	"image"
 	"image/color"
 	"image/png"
@@ -52,7 +53,7 @@ func TestMapPalettePNGEditingAndHistory(t *testing.T) {
 	for _, version := range testutil.Games() {
 		for _, section := range []maps.PaletteSection{maps.NormalPalette, maps.FogPalette, maps.AllPalettes} {
 			t.Run(
-				version.Name+"/"+string(rune('0'+section)),
+				fmt.Sprintf("%s/%d", version.Name, section),
 				func(t *testing.T) {
 					f := testutil.NewMapFixture(version.Name)
 					stride := 148
@@ -319,7 +320,7 @@ func TestMapPaletteNativeBoundaryAndIndependentResources(t *testing.T) {
 }
 
 func TestMapPalettePNGAndCommitFailuresAreAtomic(t *testing.T) {
-	for _, scenario := range []string{"pixel", "truecolor", "size", "alpha", "oversize", "no-op", "record-overlap", "payload-overlap", "other-resource-entry", "revision", "layout", "document", "capacity"} {
+	for _, scenario := range []string{"pixel", "truecolor", "size", "alpha", "oversize", "negative-section", "wide-section", "no-op", "record-overlap", "payload-overlap", "other-resource-entry", "revision", "layout", "document", "capacity"} {
 		t.Run(scenario, func(t *testing.T) {
 			f := testutil.NewMapFixture("FE8U")
 			palette := f.GetPosition("map_palette")
@@ -381,15 +382,24 @@ func TestMapPalettePNGAndCommitFailuresAreAtomic(t *testing.T) {
 				content = palettePNG(t, bitmap)
 			}
 			before, state := s.Document.Snapshot(), s.Document.State()
-			draft, err := source.ImportPNG(maps.NormalPalette, content)
-			if scenario == "pixel" || scenario == "truecolor" ||
-				scenario == "size" ||
-				scenario == "alpha" ||
-				scenario == "oversize" {
+			section := maps.NormalPalette
+			switch scenario {
+			case "negative-section":
+				section = -1
+			case "wide-section":
+				section = 256
+			}
+			draft, err := source.ImportPNG(section, content)
+			switch scenario {
+			case "negative-section", "wide-section":
+				if !errors.Is(err, edit.ErrValue) {
+					t.Fatal("out-of-range palette section", section, err)
+				}
+			case "pixel", "truecolor", "size", "alpha", "oversize":
 				if err == nil {
 					t.Fatal("invalid PNG accepted")
 				}
-			} else {
+			default:
 				if err != nil {
 					t.Fatal(err)
 				}

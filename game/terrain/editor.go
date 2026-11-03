@@ -188,7 +188,7 @@ func (e *Editor) Plan(d *Draft) (result *Plan, err error) {
 		for id, value := range table.Values {
 			payload[id] = byte(
 				value & 0xFF,
-			) // #nosec G115 -- signed-byte encoding, range checked by Set.
+			)
 			if value != d.original[i].Values[id] {
 				move.Changes = append(
 					move.Changes,
@@ -202,8 +202,10 @@ func (e *Editor) Plan(d *Draft) (result *Plan, err error) {
 				ID:       table.Class.ID,
 				Slot:     i,
 			},
-			Address:      table.Pointer,
-			ExpectedWord: uint32(0x08000000 + table.Address),
+			Address: table.Pointer,
+			ExpectedWord: uint32( // #nosec G115 -- The terrain address was read from a valid GBA ROM pointer.
+				0x08000000 + table.Address,
+			),
 		})
 		if err != nil {
 			return nil, err

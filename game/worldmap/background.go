@@ -17,7 +17,7 @@ const MaxBackgroundPNG = 1 << 20
 
 // BackgroundTone selects the independent daytime or dark palette. Both use
 // the same pixel indices and palette map.
-type BackgroundTone uint8
+type BackgroundTone int
 
 const (
 	Daytime BackgroundTone = iota

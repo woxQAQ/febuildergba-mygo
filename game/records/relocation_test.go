@@ -60,9 +60,7 @@ func TestTableMoves(t *testing.T) {
 				if gba.Uint32(
 					after.Data,
 					table.Pointer,
-				) != uint32(
-					0x08000000+move.Destination(),
-				) {
+				) != testutil.PointerWord(move.Destination()) {
 					t.Fatal("table pointer not updated")
 				}
 				if !bytes.Equal(

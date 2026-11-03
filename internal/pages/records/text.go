@@ -114,6 +114,10 @@ func (a *form) textReferenceField(
 			ui.Text(c, components.ErrorText(err)).TextColor(c.Theme().Danger)
 			return
 		}
+		if value < 0 || value > 0xFFFFFFFF {
+			ui.Text(c, locales.GameInvalidValue()).TextColor(c.Theme().Danger)
+			return
+		}
 		components.TextReference(c, a.state, &draft.reference, uint32(value), a.fieldLabel(kind, field), a.showRaw, false, func(id uint16) {
 			a.state.SetErr(a.state.Edit(func() error {
 				return a.state.Session.Records.Set(

@@ -178,7 +178,7 @@ func TestFE7WorldMapMarkersCreationAndRelocation(t *testing.T) {
 			want := bytes.Clone(before.Data)
 			binary.LittleEndian.PutUint32(
 				want[site:],
-				uint32(0x08000000+plan.Destination()),
+				testutil.PointerWord(plan.Destination()),
 			)
 			if !bytes.Equal(want, s.Document.Snapshot().Data[:len(want)]) {
 				t.Fatal(

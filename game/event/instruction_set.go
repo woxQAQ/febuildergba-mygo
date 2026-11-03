@@ -144,9 +144,9 @@ func fe7Scripts(
 		words:  words,
 		// The second opcode installs an ASM callback for event skipping.
 		asmOpcodes: []byte{
-			byte(0x3C + shift),
-			byte(0x97 + shift),
-		}, // #nosec G115 -- Native opcode variants fit in one byte.
+			byte(0x3C + shift), // #nosec G115 -- FE7 opcode shifts are 0 or 2.
+			byte(0x97 + shift), // #nosec G115 -- FE7 opcode shifts are 0 or 2.
+		},
 		labelStop:        scriptWords(0),
 		positionFallback: true,
 		textOffset:       4,

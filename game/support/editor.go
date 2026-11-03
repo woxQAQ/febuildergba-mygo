@@ -199,9 +199,8 @@ func (d *Draft) Add(value Relationship) error {
 	if value.Unit == 0 || int(value.Unit) == d.record.ID {
 		return edit.ErrValue
 	}
-	d.raw[count], d.raw[n+count], d.raw[2*n+count], d.raw[3*n] = value.Unit, value.Initial, value.Growth, byte(
-		count+1,
-	)
+	d.raw[count], d.raw[n+count], d.raw[2*n+count] = value.Unit, value.Initial, value.Growth
+	d.raw[3*n]++
 	return nil
 }
 

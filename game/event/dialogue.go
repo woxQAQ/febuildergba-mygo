@@ -94,7 +94,7 @@ func (s *deploymentScanner) collectTexts(at int, slots *eventSlotState) {
 			*s.texts = append(
 				*s.texts,
 				uint16(id),
-			) // #nosec G115 -- Native text IDs are bounded above.
+			)
 		}
 	}
 }

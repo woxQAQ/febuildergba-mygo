@@ -105,7 +105,7 @@ func TestChapterEditingWorkflow(t *testing.T) {
 				}
 				at := base + version.stride + edit.offset
 				for i := range edit.width {
-					expected[at+i] = byte(edit.value >> (8 * i))
+					expected[at+i] = byte(edit.value >> (8 * i) & 0xFF)
 				}
 			}
 			if !bytes.Equal(expected, s.Document.Snapshot().Data) {

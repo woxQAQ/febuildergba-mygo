@@ -237,7 +237,7 @@ func (d *ConditionDraft) AddObjective(
 	binary.LittleEndian.PutUint32(
 		raw[4:],
 		uint32(0x08000000+address),
-	) // #nosec G115 -- Script references were bounded against the current ROM.
+	)
 	trigger := uint32(2)
 	if template == FlagFailure {
 		raw[2], trigger = 0, 0x65

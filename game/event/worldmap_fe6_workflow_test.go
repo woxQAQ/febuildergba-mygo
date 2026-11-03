@@ -171,7 +171,7 @@ func TestFE6WorldMapSharedSiteRelocationAndCreation(t *testing.T) {
 	prefix := bytes.Clone(before.Data)
 	binary.LittleEndian.PutUint32(
 		prefix[site:],
-		uint32(plan.Destination())|0x08000000,
+		testutil.PointerWord(plan.Destination()),
 	)
 	if !bytes.Equal(prefix, after.Data[:len(prefix)]) {
 		t.Fatal("independent PLIST and unknown aliases changed")

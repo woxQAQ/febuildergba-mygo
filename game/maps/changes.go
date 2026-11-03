@@ -336,12 +336,12 @@ func setMapChangeHeader(row *mapChangeRecord, id int, bounds image.Rectangle) {
 		bounds.Min.X,
 	), byte(
 		bounds.Min.Y,
-	) // #nosec G115
+	) // #nosec G115 -- validID bounds the ID to 0..127; validBounds confines coordinates to the native map.
 	row.header[3], row.header[4] = byte(
 		bounds.Dx(),
 	), byte(
 		bounds.Dy(),
-	) // #nosec G115
+	) // #nosec G115 -- validBounds confines dimensions to the native base-map size.
 }
 
 func (d *ChangesDraft) Cell(index, x, y int) (uint16, bool) {

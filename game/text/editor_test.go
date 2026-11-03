@@ -56,7 +56,7 @@ func TestTextIDWorkflow(t *testing.T) {
 			prefix := bytes.Clone(before.Data)
 			binary.LittleEndian.PutUint32(
 				prefix[testutil.NameTable+16:],
-				uint32(0x08000000+edit.Destination()),
+				testutil.PointerWord(edit.Destination()),
 			)
 			if !bytes.Equal(prefix, after.Data[:len(prefix)]) {
 				t.Fatal(

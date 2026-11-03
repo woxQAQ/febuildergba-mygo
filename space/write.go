@@ -173,7 +173,7 @@ func (b *Builder) Relocate(move Move) (result Range, err error) {
 			if err = b.checkPointer(PointerSite{
 				Owner:   ref.Owner,
 				Address: ref.Address,
-				ExpectedWord: uint32(
+				ExpectedWord: uint32( // #nosec G115 -- Source and reference offsets were bounded by ROM MaxSize.
 					0x08000000 + move.Source.Start + ref.Offset,
 				),
 			}); err != nil {

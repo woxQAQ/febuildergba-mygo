@@ -68,7 +68,7 @@ func (f Field) Editable(raw []byte) bool {
 
 func (f Field) put(raw []byte, value uint32) {
 	for i := range f.Width {
-		raw[f.Offset+i] = byte(value >> (8 * i))
+		raw[f.Offset+i] = byte(value >> (8 * i) & 0xFF)
 	}
 }
 

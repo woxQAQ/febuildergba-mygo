@@ -7,6 +7,7 @@ import (
 	"reflect"
 	"testing"
 
+	"github.com/woxQAQ/febuildergba-mygo/internal/testutil"
 	"github.com/woxQAQ/febuildergba-mygo/space"
 )
 
@@ -120,7 +121,7 @@ func TestEncodedReplacementAndRelocationCompose(t *testing.T) {
 		}
 		content := binary.LittleEndian.AppendUint32(
 			nil,
-			uint32(0x08000000+at+4),
+			testutil.PointerWord(at+4),
 		)
 		return append(content, 0xA1, 0xA2, 0xA3, 0xA4), nil
 	}, movement); err != nil || destination != 136 {

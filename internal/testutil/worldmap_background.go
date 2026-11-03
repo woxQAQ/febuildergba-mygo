@@ -26,7 +26,7 @@ func NewWorldMapBackgroundFixture(version string) *FixtureBuilder {
 	}
 	// Even an initially aliased dark palette remains an independent consumer.
 	for i := range 64 {
-		f.WriteU16(palette+i*2, uint16(i&31|(i>>5)<<5|(i%2)<<15))
+		f.WriteU16(palette+i*2, uint16(i&31)|uint16(i>>5)<<5|uint16(i%2)<<15)
 	}
 	banks := make([]byte, 1280)
 	banks[0], banks[32], banks[39*32] = 0x10, 2, 3
