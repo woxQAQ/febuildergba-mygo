@@ -38,10 +38,15 @@ type Page struct {
 	paletteDrafts          map[int]*paletteState
 	importPalette          func(*maps.Palette, maps.PaletteSection, func(*maps.PaletteDraft, error))
 	exportPalette          func(*maps.Palette, maps.PaletteSection)
+	graphicsDrafts         map[int]*graphicsState
+	graphicsEpoch          uint64
+	importGraphics         func(*maps.Graphics, func(*maps.GraphicsDraft, error))
+	exportGraphics         func(*maps.Graphics, int)
 }
 
 // Deactivate cancels pending placement while keeping the chapter drafts.
 func (v *Page) Deactivate() {
+	v.graphicsEpoch++
 	for _, entry := range v.events {
 		entry.location = locationInteraction{}
 	}
@@ -50,24 +55,35 @@ func (v *Page) Deactivate() {
 func (v *Page) Configuration() bool { return v.mode == 0 }
 
 func (v *Page) Reset() {
-	*v = Page{importPalette: v.importPalette, exportPalette: v.exportPalette}
+	*v = Page{
+		importPalette:  v.importPalette,
+		exportPalette:  v.exportPalette,
+		importGraphics: v.importGraphics,
+		exportGraphics: v.exportGraphics,
+	}
 }
 
 func (v *Page) load(state *editor.State, row records.Row) {
 	s := state.Session
 	if v.session != s {
 		*v = Page{
-			session:       s,
-			entries:       make(map[int]*entryDraft),
-			selections:    make(map[int]*chapterSelection),
-			events:        make(map[eventKey]*eventState),
-			mapDrafts:     make(map[int]*mapState),
-			changeDrafts:  make(map[int]*mapChangesState),
-			tilesetDrafts: make(map[int]*tilesetState),
-			paletteDrafts: make(map[int]*paletteState),
-			importPalette: v.importPalette,
-			exportPalette: v.exportPalette,
+			session:        s,
+			entries:        make(map[int]*entryDraft),
+			selections:     make(map[int]*chapterSelection),
+			events:         make(map[eventKey]*eventState),
+			mapDrafts:      make(map[int]*mapState),
+			changeDrafts:   make(map[int]*mapChangesState),
+			tilesetDrafts:  make(map[int]*tilesetState),
+			paletteDrafts:  make(map[int]*paletteState),
+			graphicsDrafts: make(map[int]*graphicsState),
+			importGraphics: v.importGraphics,
+			exportGraphics: v.exportGraphics,
+			importPalette:  v.importPalette,
+			exportPalette:  v.exportPalette,
 		}
+	}
+	if v.loaded && row.ID != v.chapter {
+		v.graphicsEpoch++
 	}
 	s.Refresh()
 	revision := s.Document.State().Revision
@@ -91,9 +107,10 @@ func (v *Page) Render(
 ) {
 	v.load(state, row)
 	v.openScript = openScript
-	ui.Tabs(c.Key("chapter-mode"), &v.mode, locales.DeployConfiguration(), locales.Deployments(), locales.TurnEvents(), locales.AreaEvents(), locales.TalkEvents(), locales.Objectives(), locales.MapEditor(), locales.MapChangesEditor(), locales.LocationEvents(), locales.MapTilesetEditor(), locales.MapPaletteEditor()).
+	ui.Tabs(c.Key("chapter-mode"), &v.mode, locales.DeployConfiguration(), locales.Deployments(), locales.TurnEvents(), locales.AreaEvents(), locales.TalkEvents(), locales.Objectives(), locales.MapEditor(), locales.MapChangesEditor(), locales.LocationEvents(), locales.MapTilesetEditor(), locales.MapPaletteEditor(), locales.MapGraphicsEditor()).
 		Label(locales.Chapters()).
-		Wrap()
+		Wrap().
+		OnChange(func() { v.graphicsEpoch++ })
 	for key, entry := range v.events {
 		if v.mode != 8 || key.chapter != row.ID {
 			entry.location = locationInteraction{}
@@ -105,6 +122,10 @@ func (v *Page) Render(
 	}
 	if v.mode == 7 {
 		v.mapChangesEditor(c, state, row, jump, openHex)
+		return
+	}
+	if v.mode == 11 {
+		v.graphicsEditor(c, state, row, jump)
 		return
 	}
 	if v.mode == 10 {

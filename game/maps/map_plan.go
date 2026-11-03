@@ -126,21 +126,26 @@ type Binding struct {
 // These are the chapter's concrete PLIST consumers, including the separate
 // roots used by split lists. No ownership is inferred from pointer-like bytes.
 func (f Format) bindings(extra []Binding) []Binding {
-	bindings := []Binding{
-		{Field: GraphicsField, Root: f.Graphics, CompressedLimit: 0x8000},
-		{
-			Field:           "map_object_alt_id",
-			Root:            f.Graphics,
-			CompressedLimit: 0x4000,
-			Optional:        true,
-		},
+	var bindings []Binding
+	for _, consumer := range graphicsConsumers {
+		bindings = append(
+			bindings,
+			Binding{
+				Field:           consumer.field,
+				Root:            f.Graphics,
+				CompressedLimit: consumer.limit,
+				Optional:        consumer.optional,
+			},
+		)
+	}
+	bindings = append(bindings, []Binding{
 		{Field: PaletteField, Root: f.Palette, Length: PaletteSize},
 		{Field: "map_tileset_id", Root: f.Config, CompressedLimit: 0x2400},
 		{Field: LayoutField, Root: f.Layout, CompressedLimit: maxMapBytes},
 		{Field: "tile_animation_1_id", Root: f.Animation, Optional: true},
 		{Field: "tile_animation_2_id", Root: f.Animation2, Optional: true},
 		{Field: "map_changes_id", Root: f.Changes},
-	}
+	}...)
 	return append(bindings, extra...)
 }
 
@@ -182,7 +187,14 @@ func (s *Editor) mapWriteSite(
 				continue
 			}
 			entry := list + int(id)*4
-			if binding.Field != field && overlap(entry, 4) {
+			if overlap(entry, 4) &&
+				resourceOwner(
+					binding.Field,
+					entry,
+				) != resourceOwner(
+					field,
+					site,
+				) {
 				return edit.ErrLayout
 			}
 			address, valid := gba.Pointer(s.image.Data, entry)

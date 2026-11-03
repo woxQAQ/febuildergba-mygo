@@ -7,6 +7,10 @@ import (
 )
 
 func resourceOwner(field string, site int) space.Owner {
+	// Both loading roles consume the same kind of graphics PLIST entry.
+	if field == GraphicsAltField {
+		field = GraphicsField
+	}
 	return space.Owner{Resource: "maps." + field, ID: site}
 }
 

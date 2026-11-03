@@ -194,62 +194,13 @@ func (f Format) tilesetResources(
 	if !gba.Within(data, address, 9) {
 		return mapResources{}, edit.ErrLayout
 	}
-	graphics, err := mapCompressed(
-		data,
-		f.Graphics,
-		data[address+4],
-		GraphicsField,
-		0x8000,
+	graphics, present, err := combineMapGraphics(
+		f.graphicsInputs(data, address),
+		0,
+		nil,
 	)
 	if err != nil {
 		return mapResources{}, err
-	}
-	if len(graphics)%32 != 0 {
-		return mapResources{}, fault.New(
-			ErrMap,
-			"game.map_graphics",
-			fault.Context{
-				Resource:   GraphicsField,
-				ResourceID: new(int(data[address+4])),
-			},
-			nil,
-		)
-	}
-	var present [1024]bool
-	for index := range len(graphics) / 32 {
-		present[index] = true
-	}
-	if data[address+5] != 0 {
-		second, secondErr := mapCompressed(
-			data,
-			f.Graphics,
-			data[address+5],
-			"map_object_alt_id",
-			0x4000,
-		)
-		if secondErr != nil {
-			return mapResources{}, secondErr
-		}
-		if len(second)%32 != 0 {
-			return mapResources{}, fault.New(
-				ErrMap,
-				"game.map_graphics",
-				fault.Context{
-					Resource:   "map_object_alt_id",
-					ResourceID: new(int(data[address+5])),
-				},
-				nil,
-			)
-		}
-		// The second consumer starts at tile 512, even when the first
-		// resource is shorter. Unloaded gaps are not known blank tiles.
-		graphics = append(
-			graphics,
-			make([]byte, max(0, 0x4000+len(second)-len(graphics)))...)
-		copy(graphics[0x4000:], second)
-		for index := range len(second) / 32 {
-			present[512+index] = true
-		}
 	}
 	paletteAt, err := mapResource(
 		data,
@@ -260,7 +211,8 @@ func (f Format) tilesetResources(
 	if err != nil {
 		return mapResources{}, err
 	}
-	if !gba.Within(data, paletteAt, PaletteSize) {
+	if paletteAt < 0xC0 || paletteAt%2 != 0 ||
+		!gba.Within(data, paletteAt, PaletteSize) {
 		return mapResources{}, fault.New(
 			ErrMap,
 			"game.map_palette",

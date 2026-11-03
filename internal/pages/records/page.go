@@ -58,6 +58,13 @@ func (a *Page) SetMapPaletteActions(
 	a.form.chapter.SetPaletteActions(importPNG, exportPNG)
 }
 
+func (a *Page) SetMapGraphicsActions(
+	importPNG func(*maps.Graphics, func(*maps.GraphicsDraft, error)),
+	exportPNG func(*maps.Graphics, int),
+) {
+	a.form.chapter.SetGraphicsActions(importPNG, exportPNG)
+}
+
 func (a *Page) Reset() {
 	a.panes = make([]pane, len(records.Kinds))
 	a.tab = 0

@@ -117,6 +117,27 @@ func (m *application) newWindow(session *game.Session) *mygo.Window {
 			func() ([]byte, error) { return source.PNG(section) },
 		)
 	}
+	a.Actions.ImportMapGraphics = func(source *maps.Graphics, done func(*maps.GraphicsDraft, error)) {
+		importResourcePNG(
+			win,
+			a,
+			locales.MapGraphicsImport(),
+			source.ImportPNG,
+			done,
+		)
+	}
+	a.Actions.ExportMapGraphics = func(source *maps.Graphics, bank int) {
+		suffix := "map-graphics-first"
+		if source.Slot() == maps.SecondGraphics {
+			suffix = "map-graphics-second"
+		}
+		m.exportPNGContent(
+			win,
+			a,
+			suffix,
+			func() ([]byte, error) { return source.PNG(bank) },
+		)
+	}
 	a.Actions.Run = func() {
 		if a.Editor.Session == nil {
 			return

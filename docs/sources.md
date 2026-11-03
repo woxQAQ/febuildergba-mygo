@@ -54,7 +54,7 @@ FE8 路径使用同一固定提交的 [muctrl.h](https://github.com/FireEmblemUn
 
 ## 图块定义
 
-固定旧版基线的 [MapStyleEditorForm.cs](../FEBuilderGBA/FEBuilderGBA/MapStyleEditorForm.cs) 中 `ToConfigData`、`Config_W0/2/4/6_ValueChanged`、`ConfigTerrain_SelectedIndexChanged` 和 `WriteMapConfig` 确认四个半字组成项、地形段、LZ77 配置写入及选定 CONFIG PLIST 更新。`PARTS_MAP_PALETTE_COUNT = 5` 与常规／迷雾配色的切换区分五组原生配色及另一套迷雾色；本次只编辑定义，不迁移 PNG 或 `.mapchip_config` 导入导出。
+固定旧版基线的 [MapStyleEditorForm.cs](../FEBuilderGBA/FEBuilderGBA/MapStyleEditorForm.cs) 中 `ToConfigData`、`Config_W0/2/4/6_ValueChanged`、`ConfigTerrain_SelectedIndexChanged` 和 `WriteMapConfig` 确认四个半字组成项、地形段、LZ77 配置写入及选定 CONFIG PLIST 更新。`PARTS_MAP_PALETTE_COUNT = 5` 与常规／迷雾配色的切换区分五组原生配色及另一套迷雾色；图块定义流程只编辑配置，图像与配色 PNG 见后续两节，`.mapchip_config` 另行接入。
 
 原生图像放置与显示另核对固定来源：
 
@@ -71,6 +71,14 @@ FE8 路径使用同一固定提交的 [muctrl.h](https://github.com/FireEmblemUn
 原生加载长度沿用前节固定提交，并核对 `StanHash/fe6@f9ea5f67f3f1048ca9836d7350077231ba54b589` 的 [src/map.c](https://github.com/StanHash/fe6/blob/f9ea5f67f3f1048ca9836d7350077231ba54b589/src/map.c) 中 `ApplyChapterMapGraphics`／`ApplyChapterMapPalettes`，`StanHash/fe7_us@5c8b3c5e254e00f0f3458b9772c27e1a5a326e3b` 的 [asm/code.s](https://github.com/StanHash/fe7_us/blob/5c8b3c5e254e00f0f3458b9772c27e1a5a326e3b/asm/code.s) 中同名函数，及 `FireEmblemUniverse/fireemblem8u@04d1edb163d14bd10777a065697e1a9f17be65f2` 的 [src/bmmap.c](https://github.com/FireEmblemUniverse/fireemblem8u/blob/04d1edb163d14bd10777a065697e1a9f17be65f2/src/bmmap.c) 中 `UnpackChapterMapGraphics`／`UnpackChapterMapPalette`：十组共 320 字节；绘制按常规／迷雾选择相差五组的基址。日版根指针仍由固定旧版版本定义提供，五版合成样本独立验证文件操作。
 
 读取和会话资源声明仅覆盖这 320 字节，后方 192 字节没有原生色表依据。PNG 的 128×40／128×80 色格尺寸、固定索引及仅替换颜色是新版明确的外部契约；不通过 PNG 内容猜测入口、资源共享或自定义引擎配色长度。未执行的真实 ROM、原生文件面板和游戏内验证不由这些来源替代。
+
+## 地图图像
+
+固定旧版基线的 [MapStyleEditorForm.cs](../FEBuilderGBA/FEBuilderGBA/MapStyleEditorForm.cs) 中 `ObjExportButton_Click`、`ObjImportButton_Click`、`WriteMapChipImage`／`WriteMapChipPalette` 确认索引图像导出、仅图像或连同配色导入、图像 LZ77 与 OBJECT PLIST 更新。旧版组合文件宽 256，并按导入总长度的一半拆分两份资源；新版分别操作原始流、保持各自已有数量，不把总长度折半作为原生加载位置依据，也不迁移联合配色或自动减色工作流。
+
+加载位置与 4bpp 解释沿用[图块定义](#图块定义)列出的固定仓库、提交和文件：FE6 `src/map.c`／`include/constants/videoalloc_global.h`、FE7U `asm/code.s`、FE8U `src/bmmap.c`。两份通过同一图像资源表分别加载到 `06008000`／`0600C000`，映射当前编号 0／512；以原生 BG 区界限固定最大 1024／512 图块。同一具体入口可以被两种位置消费，写入所有者据图像种类及指针项确认，而非据章节字段名拆成两个所有者。日版入口来自固定旧版配置，五版合成流程核对各自字段、像素与历史，不由美版源码代替日版游戏执行验证。
+
+128 宽、每行 16 图块、末行补索引 0、导入只读索引且固定数量是新版 PNG 契约，兼容范围见[图像参考](reference/chapters-and-events.md#地图图像-png)。PNG 配色只用于显示；实际色表由独立流程处理。原生文件面板、真实 ROM 和游戏内显示未由合成或临时无窗口复核替代。
 
 ## 地图变化与事件引用
 

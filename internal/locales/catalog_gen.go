@@ -8240,6 +8240,236 @@ func (msgs Messages) MapPan() string {
 	return Catalog.Format(msgs.locale, "map_pan", nil)
 }
 
+// MapGraphicsEditor says "Map graphics"
+// in the language the app shows.
+func MapGraphicsEditor() string { return In(i18n.Locale()).MapGraphicsEditor() }
+
+// MapGraphicsEditor says "Map graphics"
+// in the language of msgs.
+func (msgs Messages) MapGraphicsEditor() string {
+	return Catalog.Format(msgs.locale, "map_graphics_editor", nil)
+}
+
+// MapGraphicsFirst says "First graphics"
+// in the language the app shows.
+func MapGraphicsFirst() string { return In(i18n.Locale()).MapGraphicsFirst() }
+
+// MapGraphicsFirst says "First graphics"
+// in the language of msgs.
+func (msgs Messages) MapGraphicsFirst() string {
+	return Catalog.Format(msgs.locale, "map_graphics_first", nil)
+}
+
+// MapGraphicsSecond says "Second graphics"
+// in the language the app shows.
+func MapGraphicsSecond() string { return In(i18n.Locale()).MapGraphicsSecond() }
+
+// MapGraphicsSecond says "Second graphics"
+// in the language of msgs.
+func (msgs Messages) MapGraphicsSecond() string {
+	return Catalog.Format(msgs.locale, "map_graphics_second", nil)
+}
+
+// MapGraphicsSource says "Graphics resource"
+// in the language the app shows.
+func MapGraphicsSource() string { return In(i18n.Locale()).MapGraphicsSource() }
+
+// MapGraphicsSource says "Graphics resource"
+// in the language of msgs.
+func (msgs Messages) MapGraphicsSource() string {
+	return Catalog.Format(msgs.locale, "map_graphics_source", nil)
+}
+
+// MapGraphicsExport says "Export graphics PNG"
+// in the language the app shows.
+func MapGraphicsExport() string { return In(i18n.Locale()).MapGraphicsExport() }
+
+// MapGraphicsExport says "Export graphics PNG"
+// in the language of msgs.
+func (msgs Messages) MapGraphicsExport() string {
+	return Catalog.Format(msgs.locale, "map_graphics_export", nil)
+}
+
+// MapGraphicsImport says "Replace graphics PNG"
+// in the language the app shows.
+func MapGraphicsImport() string { return In(i18n.Locale()).MapGraphicsImport() }
+
+// MapGraphicsImport says "Replace graphics PNG"
+// in the language of msgs.
+func (msgs Messages) MapGraphicsImport() string {
+	return Catalog.Format(msgs.locale, "map_graphics_import", nil)
+}
+
+// MapGraphicsReload says "Discard current graphics draft and reload"
+// in the language the app shows.
+func MapGraphicsReload() string { return In(i18n.Locale()).MapGraphicsReload() }
+
+// MapGraphicsReload says "Discard current graphics draft and reload"
+// in the language of msgs.
+func (msgs Messages) MapGraphicsReload() string {
+	return Catalog.Format(msgs.locale, "map_graphics_reload", nil)
+}
+
+// MapGraphicsFormat says "128 pixels wide, with sixteen 8×8 tiles per row. Keep the exported dimensions and use opaque indices 0–15. Unused …"
+// in the language the app shows.
+func MapGraphicsFormat() string { return In(i18n.Locale()).MapGraphicsFormat() }
+
+// MapGraphicsFormat says "128 pixels wide, with sixteen 8×8 tiles per row. Keep the exported dimensions and use opaque indices 0–15. Unused …"
+// in the language of msgs.
+func (msgs Messages) MapGraphicsFormat() string {
+	return Catalog.Format(msgs.locale, "map_graphics_format", nil)
+}
+
+// MapGraphicsCount says "Tile count"
+// in the language the app shows.
+func MapGraphicsCount() string { return In(i18n.Locale()).MapGraphicsCount() }
+
+// MapGraphicsCount says "Tile count"
+// in the language of msgs.
+func (msgs Messages) MapGraphicsCount() string {
+	return Catalog.Format(msgs.locale, "map_graphics_count", nil)
+}
+
+// MapGraphicsUnchanged says "The PNG’s pixel indices are unchanged. Edit colors in Map palettes."
+// in the language the app shows.
+func MapGraphicsUnchanged() string { return In(i18n.Locale()).MapGraphicsUnchanged() }
+
+// MapGraphicsUnchanged says "The PNG’s pixel indices are unchanged. Edit colors in Map palettes."
+// in the language of msgs.
+func (msgs Messages) MapGraphicsUnchanged() string {
+	return Catalog.Format(msgs.locale, "map_graphics_unchanged", nil)
+}
+
+// MapGraphicsDrafts says "Each chapter and graphics stream keeps its own draft. Applying an edit makes other pending drafts stale."
+// in the language the app shows.
+func MapGraphicsDrafts() string { return In(i18n.Locale()).MapGraphicsDrafts() }
+
+// MapGraphicsDrafts says "Each chapter and graphics stream keeps its own draft. Applying an edit makes other pending drafts stale."
+// in the language of msgs.
+func (msgs Messages) MapGraphicsDrafts() string {
+	return Catalog.Format(msgs.locale, "map_graphics_drafts", nil)
+}
+
+// MapGraphicsDisplayBank says "Display palette bank (0–4 normal, 5–9 fog)"
+// in the language the app shows.
+func MapGraphicsDisplayBank() string { return In(i18n.Locale()).MapGraphicsDisplayBank() }
+
+// MapGraphicsDisplayBank says "Display palette bank (0–4 normal, 5–9 fog)"
+// in the language of msgs.
+func (msgs Messages) MapGraphicsDisplayBank() string {
+	return Catalog.Format(msgs.locale, "map_graphics_display_bank", nil)
+}
+
+// MapGraphicsSheet says "8×8 graphics in resource tile order"
+// in the language the app shows.
+func MapGraphicsSheet() string { return In(i18n.Locale()).MapGraphicsSheet() }
+
+// MapGraphicsSheet says "8×8 graphics in resource tile order"
+// in the language of msgs.
+func (msgs Messages) MapGraphicsSheet() string {
+	return Catalog.Format(msgs.locale, "map_graphics_sheet", nil)
+}
+
+// MapGraphicsShowReplacement says "Preview replacement graphics"
+// in the language the app shows.
+func MapGraphicsShowReplacement() string { return In(i18n.Locale()).MapGraphicsShowReplacement() }
+
+// MapGraphicsShowReplacement says "Preview replacement graphics"
+// in the language of msgs.
+func (msgs Messages) MapGraphicsShowReplacement() string {
+	return Catalog.Format(msgs.locale, "map_graphics_show_replacement", nil)
+}
+
+// MapGraphicsApply says "Apply graphics"
+// in the language the app shows.
+func MapGraphicsApply() string { return In(i18n.Locale()).MapGraphicsApply() }
+
+// MapGraphicsApply says "Apply graphics"
+// in the language of msgs.
+func (msgs Messages) MapGraphicsApply() string {
+	return Catalog.Format(msgs.locale, "map_graphics_apply", nil)
+}
+
+// MapGraphicsChanges says "Changed tiles"
+// in the language the app shows.
+func MapGraphicsChanges() string { return In(i18n.Locale()).MapGraphicsChanges() }
+
+// MapGraphicsChanges says "Changed tiles"
+// in the language of msgs.
+func (msgs Messages) MapGraphicsChanges() string {
+	return Catalog.Format(msgs.locale, "map_graphics_changes", nil)
+}
+
+// MapGraphicsScope says "Both loading positions sharing the selected graphics entry change together. Independent entries retain their graphics…"
+// in the language the app shows.
+func MapGraphicsScope() string { return In(i18n.Locale()).MapGraphicsScope() }
+
+// MapGraphicsScope says "Both loading positions sharing the selected graphics entry change together. Independent entries retain their graphics…"
+// in the language of msgs.
+func (msgs Messages) MapGraphicsScope() string {
+	return Catalog.Format(msgs.locale, "map_graphics_scope", nil)
+}
+
+// GameMapGraphicsAbsent says "This chapter has no second graphics resource. Only existing streams can be replaced."
+// in the language the app shows.
+func GameMapGraphicsAbsent() string { return In(i18n.Locale()).GameMapGraphicsAbsent() }
+
+// GameMapGraphicsAbsent says "This chapter has no second graphics resource. Only existing streams can be replaced."
+// in the language of msgs.
+func (msgs Messages) GameMapGraphicsAbsent() string {
+	return Catalog.Format(msgs.locale, "game_map_graphics_absent", nil)
+}
+
+// GameMapGraphicsPng says "The PNG cannot be read or exceeds 1 MiB. Use the exported indexed image."
+// in the language the app shows.
+func GameMapGraphicsPng() string { return In(i18n.Locale()).GameMapGraphicsPng() }
+
+// GameMapGraphicsPng says "The PNG cannot be read or exceeds 1 MiB. Use the exported indexed image."
+// in the language of msgs.
+func (msgs Messages) GameMapGraphicsPng() string {
+	return Catalog.Format(msgs.locale, "game_map_graphics_png", nil)
+}
+
+// GameMapGraphicsSize says "Keep the exported width of 128 pixels and its height without changing the tile count."
+// in the language the app shows.
+func GameMapGraphicsSize() string { return In(i18n.Locale()).GameMapGraphicsSize() }
+
+// GameMapGraphicsSize says "Keep the exported width of 128 pixels and its height without changing the tile count."
+// in the language of msgs.
+func (msgs Messages) GameMapGraphicsSize() string {
+	return Catalog.Format(msgs.locale, "game_map_graphics_size", nil)
+}
+
+// GameMapGraphicsColors says "Use an opaque indexed PNG with pixel indices 0–15, including opaque color zero. PNG colors are display metadata only."
+// in the language the app shows.
+func GameMapGraphicsColors() string { return In(i18n.Locale()).GameMapGraphicsColors() }
+
+// GameMapGraphicsColors says "Use an opaque indexed PNG with pixel indices 0–15, including opaque color zero. PNG colors are display metadata only."
+// in the language of msgs.
+func (msgs Messages) GameMapGraphicsColors() string {
+	return Catalog.Format(msgs.locale, "game_map_graphics_colors", nil)
+}
+
+// GameMapGraphicsPadding says "Unused tiles in the last row have no resource. Keep all their pixels at index 0."
+// in the language the app shows.
+func GameMapGraphicsPadding() string { return In(i18n.Locale()).GameMapGraphicsPadding() }
+
+// GameMapGraphicsPadding says "Unused tiles in the last row have no resource. Keep all their pixels at index 0."
+// in the language of msgs.
+func (msgs Messages) GameMapGraphicsPadding() string {
+	return Catalog.Format(msgs.locale, "game_map_graphics_padding", nil)
+}
+
+// GameMapGraphicsReference says "The capacity of every shared loading position could not be confirmed. Check the graphics entry and shared chapters."
+// in the language the app shows.
+func GameMapGraphicsReference() string { return In(i18n.Locale()).GameMapGraphicsReference() }
+
+// GameMapGraphicsReference says "The capacity of every shared loading position could not be confirmed. Check the graphics entry and shared chapters."
+// in the language of msgs.
+func (msgs Messages) GameMapGraphicsReference() string {
+	return Catalog.Format(msgs.locale, "game_map_graphics_reference", nil)
+}
+
 // MapPaletteEditor says "Map palettes"
 // in the language the app shows.
 func MapPaletteEditor() string { return In(i18n.Locale()).MapPaletteEditor() }
