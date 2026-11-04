@@ -200,6 +200,7 @@ type Graphics struct {
 	input                   graphicsInput
 	inputs                  [2]graphicsInput
 	palette                 []byte
+	paletteSource           *Palette
 	paletteErr              error
 	resources               mapResources
 	resourcesErr, layoutErr error
@@ -240,20 +241,9 @@ func (s *Editor) Graphics(
 		input:   input,
 		inputs:  inputs,
 	}
-	at, paletteErr := mapResource(
-		s.image.Data,
-		s.format.Palette,
-		s.image.Data[row.Address+6],
-		PaletteField,
-	)
-	g.paletteErr = paletteErr
-	if paletteErr == nil {
-		if at < 0xC0 || at%2 != 0 ||
-			!gba.Within(s.image.Data, at, PaletteSize) {
-			g.paletteErr = ErrMap
-		} else {
-			g.palette = bytes.Clone(s.image.Data[at : at+PaletteSize])
-		}
+	g.paletteSource, g.paletteErr = s.Palette(chapter)
+	if g.paletteErr == nil {
+		g.palette = g.paletteSource.original
 	}
 	g.resources, g.resourcesErr = s.format.tilesetResources(
 		s.image.Data,
@@ -282,7 +272,10 @@ func (g *Graphics) Count() int         { return len(g.input.data) / 32 }
 func (g *Graphics) PaletteCount() int  { return len(g.palette) / 32 }
 func (g *Graphics) Slot() GraphicsSlot { return g.slot }
 
-func (g *Graphics) image(pixels []byte, bank int) (*image.Paletted, error) {
+func (g *Graphics) image(
+	pixels, palette []byte,
+	bank int,
+) (*image.Paletted, error) {
 	if g.paletteErr != nil {
 		return nil, g.paletteErr
 	}
@@ -291,7 +284,7 @@ func (g *Graphics) image(pixels []byte, bank int) (*image.Paletted, error) {
 	}
 	colors := make(color.Palette, 16)
 	for index := range colors {
-		colors[index] = mapPaletteColor(g.palette, bank*16+index)
+		colors[index] = mapPaletteColor(palette, bank*16+index)
 	}
 	out := image.NewPaletted(image.Rect(0, 0, 128, (g.Count()+15)/16*8), colors)
 	for tile := range g.Count() {
@@ -308,7 +301,7 @@ func (g *Graphics) image(pixels []byte, bank int) (*image.Paletted, error) {
 func (g *Graphics) Image(
 	bank int,
 ) (*image.Paletted, error) {
-	return g.image(g.input.data, bank)
+	return g.image(g.input.data, g.palette, bank)
 }
 
 func (g *Graphics) PNG(bank int) ([]byte, error) {
@@ -328,15 +321,35 @@ func (g *Graphics) PNG(bank int) ([]byte, error) {
 	return output.Bytes(), nil
 }
 
+// GraphicsImport selects whether PNG colors replace one native palette bank.
+// Bank is ignored when WithPalette is false; indices always retain their order.
+type GraphicsImport struct {
+	WithPalette bool
+	Bank        int
+}
+
 type GraphicsDraft struct {
 	source  *Graphics
 	content []byte
 	encoded []byte
+	palette []byte
+	options GraphicsImport
 }
 
-// ImportPNG changes only 4bpp indices. PNG colors are display metadata; the
-// native palette is preserved. Trailing cells have no resource and stay zero.
-func (g *Graphics) ImportPNG(content []byte) (*GraphicsDraft, error) {
+// ImportPNG retains the resource's tile count and numbering. A joint import
+// requires all sixteen opaque colors, including slots unused by these pixels.
+func (g *Graphics) ImportPNG(
+	content []byte,
+	options GraphicsImport,
+) (*GraphicsDraft, error) {
+	if options.WithPalette {
+		if g.paletteErr != nil {
+			return nil, g.paletteErr
+		}
+		if options.Bank < 0 || options.Bank >= g.PaletteCount() {
+			return nil, edit.ErrValue
+		}
+	}
 	if len(content) == 0 || len(content) > MaxGraphicsPNG {
 		return nil, ErrGraphicsPNG
 	}
@@ -401,7 +414,27 @@ func (g *Graphics) ImportPNG(content []byte) (*GraphicsDraft, error) {
 	if err != nil {
 		return nil, err
 	}
-	return &GraphicsDraft{source: g, content: pixels, encoded: encoded}, nil
+	palette := g.palette
+	if options.WithPalette {
+		if len(bitmap.Palette) < 16 {
+			return nil, ErrGraphicsColors
+		}
+		palette, err = replacePaletteColors(
+			g.palette,
+			options.Bank*16,
+			bitmap.Palette[:16],
+		)
+		if err != nil {
+			return nil, err
+		}
+	}
+	return &GraphicsDraft{
+		source:  g,
+		content: pixels,
+		encoded: encoded,
+		palette: palette,
+		options: options,
+	}, nil
 }
 
 func (d *GraphicsDraft) Current(
@@ -411,7 +444,7 @@ func (d *GraphicsDraft) Current(
 }
 
 func (d *GraphicsDraft) Image(bank int) (*image.Paletted, error) {
-	return d.source.image(d.content, bank)
+	return d.source.image(d.content, d.palette, bank)
 }
 
 // GraphicsPreview reports map and definition failures independently of the
@@ -421,9 +454,15 @@ type GraphicsPreview struct {
 	MapErr, TilesetErr error
 }
 
-func (g *Graphics) preview(pixels []byte, tone PaletteSection) GraphicsPreview {
+func (g *Graphics) preview(
+	pixels, palette []byte,
+	tone PaletteSection,
+) GraphicsPreview {
 	if tone != NormalPalette && tone != FogPalette {
 		return GraphicsPreview{MapErr: edit.ErrValue, TilesetErr: edit.ErrValue}
+	}
+	if g.paletteErr != nil {
+		return GraphicsPreview{MapErr: g.paletteErr, TilesetErr: g.paletteErr}
 	}
 	if g.resourcesErr != nil {
 		return GraphicsPreview{
@@ -441,8 +480,9 @@ func (g *Graphics) preview(pixels []byte, tone PaletteSection) GraphicsPreview {
 	if err != nil {
 		return GraphicsPreview{MapErr: err, TilesetErr: err}
 	}
+	resources.palette = palette
 	if tone == FogPalette {
-		resources.palette = resources.palette[160:PaletteSize]
+		resources.palette = palette[160:PaletteSize]
 	}
 	result := GraphicsPreview{MapErr: g.layoutErr}
 	result.Tileset, result.TilesetErr = resources.tileset()
@@ -455,11 +495,11 @@ func (g *Graphics) preview(pixels []byte, tone PaletteSection) GraphicsPreview {
 func (g *Graphics) Preview(
 	tone PaletteSection,
 ) GraphicsPreview {
-	return g.preview(g.input.data, tone)
+	return g.preview(g.input.data, g.palette, tone)
 }
 
 func (d *GraphicsDraft) Preview(tone PaletteSection) GraphicsPreview {
-	return d.source.preview(d.content, tone)
+	return d.source.preview(d.content, d.palette, tone)
 }
 
 // GraphicsUse keeps the loading role distinct from the entry's identity.
@@ -476,6 +516,9 @@ type GraphicsPlan struct {
 	source, pointer int
 	changed         []int
 	uses            []GraphicsUse
+	paletteChanges  []PaletteChange
+	paletteUses     []Use
+	options         GraphicsImport
 }
 
 func (p *GraphicsPlan) Current(
@@ -491,7 +534,13 @@ func (p *GraphicsPlan) Destination() int { return p.plan.Destination.Start }
 func (p *GraphicsPlan) Length() int { return p.plan.Destination.End - p.plan.Destination.Start }
 
 func (p *GraphicsPlan) ChangedTiles() []int { return slices.Clone(p.changed) }
+
 func (p *GraphicsPlan) Uses() []GraphicsUse { return slices.Clone(p.uses) }
+
+func (p *GraphicsPlan) PaletteChanges() []PaletteChange { return slices.Clone(p.paletteChanges) }
+
+func (p *GraphicsPlan) PaletteUses() []Use            { return slices.Clone(p.paletteUses) }
+func (p *GraphicsPlan) ImportOptions() GraphicsImport { return p.options }
 
 func (s *Editor) graphicsUses(g *Graphics) ([]GraphicsUse, error) {
 	chapters := s.records.Table(records.Chapters)
@@ -558,12 +607,26 @@ func (s *Editor) PlanGraphics(
 	if err := g.binding.Check(s.context); err != nil {
 		return nil, err
 	}
-	if bytes.Equal(g.input.data, draft.content) {
+	pixelsChanged := !bytes.Equal(g.input.data, draft.content)
+	colorsChanged := !bytes.Equal(g.palette, draft.palette)
+	if !pixelsChanged && !colorsChanged {
 		return nil, edit.ErrValue
 	}
-	uses, err := s.graphicsUses(g)
-	if err != nil {
-		return nil, err
+	var uses []GraphicsUse
+	if pixelsChanged {
+		uses, err = s.graphicsUses(g)
+		if err != nil {
+			return nil, err
+		}
+	}
+	var paletteUses []Use
+	var changes []PaletteChange
+	if colorsChanged {
+		paletteUses, err = s.paletteUses(g.paletteSource)
+		if err != nil {
+			return nil, err
+		}
+		changes = paletteChanges(g.palette, draft.palette)
 	}
 	var changed []int
 	for tile := range g.Count() {
@@ -577,27 +640,47 @@ func (s *Editor) PlanGraphics(
 	builder := space.NewBuilder(
 		s.image.Data,
 		space.Protection{
-			Pointer: func(_ []byte, _ space.Owner, site int) error { return s.mapWriteSite(s.format, site, GraphicsField) },
+			Pointer: func(_ []byte, owner space.Owner, site int) error {
+				field := GraphicsField
+				if owner == resourceOwner(PaletteField, site) {
+					field = PaletteField
+				}
+				return s.mapWriteSite(s.format, site, field)
+			},
 		},
 	)
-	if _, err := builder.Replace(
-		draft.encoded,
-		space.PointerSite{
-			Owner:        resourceOwner(GraphicsField, g.input.pointer),
-			Address:      g.input.pointer,
-			ExpectedWord: gba.Uint32(s.image.Data, g.input.pointer),
-		},
-	); err != nil {
-		return nil, err
+	if pixelsChanged {
+		if _, err := builder.Replace(
+			draft.encoded,
+			space.PointerSite{
+				Owner:        resourceOwner(GraphicsField, g.input.pointer),
+				Address:      g.input.pointer,
+				ExpectedWord: gba.Uint32(s.image.Data, g.input.pointer),
+			},
+		); err != nil {
+			return nil, err
+		}
+	}
+	if colorsChanged {
+		p := g.paletteSource
+		if _, err := builder.Replace(draft.palette, space.PointerSite{
+			Owner: resourceOwner(PaletteField, p.pointer), Address: p.pointer,
+			ExpectedWord: gba.Uint32(s.image.Data, p.pointer),
+		}); err != nil {
+			return nil, err
+		}
 	}
 	plan := builder.Plan()
 	return &GraphicsPlan{
-		commit:  edit.NewCommit(g.binding, GraphicsField, plan.Edit),
-		plan:    plan,
-		source:  g.input.address,
-		pointer: g.input.pointer,
-		changed: changed,
-		uses:    uses,
+		commit:         edit.NewCommit(g.binding, GraphicsField, plan.Edit),
+		plan:           plan,
+		source:         g.input.address,
+		pointer:        g.input.pointer,
+		changed:        changed,
+		uses:           uses,
+		paletteChanges: changes,
+		paletteUses:    paletteUses,
+		options:        draft.options,
 	}, nil
 }
 

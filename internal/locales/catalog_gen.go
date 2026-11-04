@@ -8300,6 +8300,36 @@ func (msgs Messages) MapGraphicsImport() string {
 	return Catalog.Format(msgs.locale, "map_graphics_import", nil)
 }
 
+// MapGraphicsWithPalette says "Include palette"
+// in the language the app shows.
+func MapGraphicsWithPalette() string { return In(i18n.Locale()).MapGraphicsWithPalette() }
+
+// MapGraphicsWithPalette says "Include palette"
+// in the language of msgs.
+func (msgs Messages) MapGraphicsWithPalette() string {
+	return Catalog.Format(msgs.locale, "map_graphics_with_palette", nil)
+}
+
+// MapGraphicsPaletteScope says "Chapters sharing the selected palette entry change together; independent entries retain their colors. Only the select…"
+// in the language the app shows.
+func MapGraphicsPaletteScope() string { return In(i18n.Locale()).MapGraphicsPaletteScope() }
+
+// MapGraphicsPaletteScope says "Chapters sharing the selected palette entry change together; independent entries retain their colors. Only the select…"
+// in the language of msgs.
+func (msgs Messages) MapGraphicsPaletteScope() string {
+	return Catalog.Format(msgs.locale, "map_graphics_palette_scope", nil)
+}
+
+// MapGraphicsImportBank says "Import palette bank (0–4 normal, 5–9 fog)"
+// in the language the app shows.
+func MapGraphicsImportBank() string { return In(i18n.Locale()).MapGraphicsImportBank() }
+
+// MapGraphicsImportBank says "Import palette bank (0–4 normal, 5–9 fog)"
+// in the language of msgs.
+func (msgs Messages) MapGraphicsImportBank() string {
+	return Catalog.Format(msgs.locale, "map_graphics_import_bank", nil)
+}
+
 // MapGraphicsReload says "Discard current graphics draft and reload"
 // in the language the app shows.
 func MapGraphicsReload() string { return In(i18n.Locale()).MapGraphicsReload() }
@@ -8310,11 +8340,11 @@ func (msgs Messages) MapGraphicsReload() string {
 	return Catalog.Format(msgs.locale, "map_graphics_reload", nil)
 }
 
-// MapGraphicsFormat says "128 pixels wide, with sixteen 8×8 tiles per row. Keep the exported dimensions and use opaque indices 0–15. Unused …"
+// MapGraphicsFormat says "128 pixels wide, with sixteen 8×8 tiles per row. Keep the exported dimensions and opaque indices 0–15; unused tile…"
 // in the language the app shows.
 func MapGraphicsFormat() string { return In(i18n.Locale()).MapGraphicsFormat() }
 
-// MapGraphicsFormat says "128 pixels wide, with sixteen 8×8 tiles per row. Keep the exported dimensions and use opaque indices 0–15. Unused …"
+// MapGraphicsFormat says "128 pixels wide, with sixteen 8×8 tiles per row. Keep the exported dimensions and opaque indices 0–15; unused tile…"
 // in the language of msgs.
 func (msgs Messages) MapGraphicsFormat() string {
 	return Catalog.Format(msgs.locale, "map_graphics_format", nil)
@@ -8330,11 +8360,11 @@ func (msgs Messages) MapGraphicsCount() string {
 	return Catalog.Format(msgs.locale, "map_graphics_count", nil)
 }
 
-// MapGraphicsUnchanged says "The PNG’s pixel indices are unchanged. Edit colors in Map palettes."
+// MapGraphicsUnchanged says "The selected pixels and colors are unchanged."
 // in the language the app shows.
 func MapGraphicsUnchanged() string { return In(i18n.Locale()).MapGraphicsUnchanged() }
 
-// MapGraphicsUnchanged says "The PNG’s pixel indices are unchanged. Edit colors in Map palettes."
+// MapGraphicsUnchanged says "The selected pixels and colors are unchanged."
 // in the language of msgs.
 func (msgs Messages) MapGraphicsUnchanged() string {
 	return Catalog.Format(msgs.locale, "map_graphics_unchanged", nil)
@@ -8370,21 +8400,21 @@ func (msgs Messages) MapGraphicsSheet() string {
 	return Catalog.Format(msgs.locale, "map_graphics_sheet", nil)
 }
 
-// MapGraphicsShowReplacement says "Preview replacement graphics"
+// MapGraphicsShowReplacement says "Preview import"
 // in the language the app shows.
 func MapGraphicsShowReplacement() string { return In(i18n.Locale()).MapGraphicsShowReplacement() }
 
-// MapGraphicsShowReplacement says "Preview replacement graphics"
+// MapGraphicsShowReplacement says "Preview import"
 // in the language of msgs.
 func (msgs Messages) MapGraphicsShowReplacement() string {
 	return Catalog.Format(msgs.locale, "map_graphics_show_replacement", nil)
 }
 
-// MapGraphicsApply says "Apply graphics"
+// MapGraphicsApply says "Apply import"
 // in the language the app shows.
 func MapGraphicsApply() string { return In(i18n.Locale()).MapGraphicsApply() }
 
-// MapGraphicsApply says "Apply graphics"
+// MapGraphicsApply says "Apply import"
 // in the language of msgs.
 func (msgs Messages) MapGraphicsApply() string {
 	return Catalog.Format(msgs.locale, "map_graphics_apply", nil)
@@ -8440,11 +8470,11 @@ func (msgs Messages) GameMapGraphicsSize() string {
 	return Catalog.Format(msgs.locale, "game_map_graphics_size", nil)
 }
 
-// GameMapGraphicsColors says "Use an opaque indexed PNG with pixel indices 0–15, including opaque color zero. PNG colors are display metadata only."
+// GameMapGraphicsColors says "Use an opaque indexed PNG with indices 0–15, including opaque color zero. Joint import requires all sixteen palette…"
 // in the language the app shows.
 func GameMapGraphicsColors() string { return In(i18n.Locale()).GameMapGraphicsColors() }
 
-// GameMapGraphicsColors says "Use an opaque indexed PNG with pixel indices 0–15, including opaque color zero. PNG colors are display metadata only."
+// GameMapGraphicsColors says "Use an opaque indexed PNG with indices 0–15, including opaque color zero. Joint import requires all sixteen palette…"
 // in the language of msgs.
 func (msgs Messages) GameMapGraphicsColors() string {
 	return Catalog.Format(msgs.locale, "game_map_graphics_colors", nil)

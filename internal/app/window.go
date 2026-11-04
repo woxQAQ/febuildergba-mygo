@@ -124,12 +124,12 @@ func (m *application) newWindow(session *game.Session) *mygo.Window {
 			func() ([]byte, error) { return source.PNG(section) },
 		)
 	}
-	a.Actions.ImportMapGraphics = func(source *maps.Graphics, done func(*maps.GraphicsDraft, error)) {
+	a.Actions.ImportMapGraphics = func(source *maps.Graphics, options maps.GraphicsImport, done func(*maps.GraphicsDraft, error)) {
 		importResourcePNG(
 			win,
 			a,
 			locales.MapGraphicsImport(),
-			source.ImportPNG,
+			func(content []byte) (*maps.GraphicsDraft, error) { return source.ImportPNG(content, options) },
 			done,
 		)
 	}

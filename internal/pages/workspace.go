@@ -48,7 +48,7 @@ type Actions struct {
 	ExportMapTileset          func(*maps.TilesetConfig)
 	ImportMapPalette          func(*maps.Palette, maps.PaletteSection, func(*maps.PaletteDraft, error))
 	ExportMapPalette          func(*maps.Palette, maps.PaletteSection)
-	ImportMapGraphics         func(*maps.Graphics, func(*maps.GraphicsDraft, error))
+	ImportMapGraphics         func(*maps.Graphics, maps.GraphicsImport, func(*maps.GraphicsDraft, error))
 	ExportMapGraphics         func(*maps.Graphics, int)
 	MenuStateChanged          func()
 }
@@ -144,9 +144,9 @@ func New() *Workspace {
 		},
 	)
 	w.records.SetMapGraphicsActions(
-		func(source *maps.Graphics, done func(*maps.GraphicsDraft, error)) {
+		func(source *maps.Graphics, options maps.GraphicsImport, done func(*maps.GraphicsDraft, error)) {
 			if w.Actions.ImportMapGraphics != nil {
-				w.Actions.ImportMapGraphics(source, done)
+				w.Actions.ImportMapGraphics(source, options, done)
 			}
 		},
 		func(source *maps.Graphics, bank int) {

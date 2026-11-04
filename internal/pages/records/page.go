@@ -66,7 +66,7 @@ func (a *Page) SetMapPaletteActions(
 }
 
 func (a *Page) SetMapGraphicsActions(
-	importPNG func(*maps.Graphics, func(*maps.GraphicsDraft, error)),
+	importPNG func(*maps.Graphics, maps.GraphicsImport, func(*maps.GraphicsDraft, error)),
 	exportPNG func(*maps.Graphics, int),
 ) {
 	a.form.chapter.SetGraphicsActions(importPNG, exportPNG)
@@ -201,9 +201,7 @@ func (a *Page) records(c *ui.Context) {
 	})
 }
 
-func (a *Page) SetDefeatView(
-	view func(*ui.Context, int, float32, bool),
-) {
+func (a *Page) SetDefeatView(view func(*ui.Context, int, float32, bool)) {
 	a.form.defeatView = view
 }
 
@@ -212,9 +210,7 @@ func (a *Page) OpenDefeat(id int) {
 	a.form.profileFor(records.Units, id).section = 3
 }
 
-func (a *Page) SetSupportTalkOpener(
-	open func(int, int),
-) {
+func (a *Page) SetSupportTalkOpener(open func(int, int)) {
 	a.form.openSupportTalk = open
 }
 
@@ -223,15 +219,11 @@ func (a *Page) OpenSupport(id int) {
 	a.form.profileFor(records.Units, id).section = 2
 }
 
-func (a *Page) SetPortraitOpener(
-	open func(int),
-) {
+func (a *Page) SetPortraitOpener(open func(int)) {
 	a.form.SetPortraitOpener(open)
 }
 
-func (a *Page) SetScriptOpener(
-	open func(int, int),
-) {
+func (a *Page) SetScriptOpener(open func(int, int)) {
 	a.form.SetScriptOpener(open)
 }
 

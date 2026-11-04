@@ -31,7 +31,8 @@ type graphicsEntry struct {
 	err                error
 	revision           uint64
 	address            int
-	bank               string
+	bank, importBank   string
+	withPalette        bool
 	tone               int
 	preview, unchanged bool
 	filesFocus         ui.Handle
@@ -41,6 +42,7 @@ type graphicsEntry struct {
 	sheetHeight        int
 	sheetErr           error
 	render             maps.GraphicsPreview
+	colorChanges       ui.ListState
 }
 
 type graphicsState struct {
@@ -49,7 +51,7 @@ type graphicsState struct {
 }
 
 func (v *Page) SetGraphicsActions(
-	importPNG func(*maps.Graphics, func(*maps.GraphicsDraft, error)),
+	importPNG func(*maps.Graphics, maps.GraphicsImport, func(*maps.GraphicsDraft, error)),
 	exportPNG func(*maps.Graphics, int),
 ) {
 	v.importGraphics, v.exportGraphics = importPNG, exportPNG
@@ -77,9 +79,10 @@ func (v *Page) graphicsDraft(
 	}
 	if entry == nil {
 		entry = &graphicsEntry{
-			bank:     "0",
-			revision: state.Session.Document.State().Revision,
-			address:  row.Address,
+			bank:       "0",
+			importBank: "0",
+			revision:   state.Session.Document.State().Revision,
+			address:    row.Address,
 		}
 		entry.source, entry.err = state.Session.Maps.Graphics(
 			row.ID,
@@ -158,6 +161,27 @@ func (v *Page) graphicsEditor(
 			if stale {
 				ui.Text(c, locales.DeployStale()).TextColor(c.Theme().Danger)
 			}
+			ui.Row(c.Key("import-options")).
+				Wrap().
+				Gap(8).
+				AlignItems(ui.Center).
+				Children(func() {
+					ui.Checkbox(c.Key("with-palette"), &entry.withPalette, locales.MapGraphicsWithPalette()).
+						Disabled(state.Busy || stale || entry.source.PaletteCount() == 0 && !entry.withPalette).
+						OnChange(func() { v.resourceEpoch++ })
+					if entry.withPalette {
+						choices := make([]string, entry.source.PaletteCount())
+						for index := range choices {
+							choices[index] = strconv.Itoa(index)
+						}
+						ui.Text(c, locales.MapGraphicsImportBank())
+						ui.Select(c.Key("import-bank"), &entry.importBank, choices).
+							Label(locales.MapGraphicsImportBank()).
+							Width(100).
+							Disabled(state.Busy || stale || entry.source.PaletteCount() == 0).
+							OnChange(func() { v.resourceEpoch++ })
+					}
+				})
 			ui.Row(c.Key("files")).Wrap().Gap(8).Children(func() {
 				ui.Button(c.Key("export"), locales.MapGraphicsExport()).
 					Disabled(state.Busy || stale || entry.source.PaletteCount() == 0 || v.exportGraphics == nil).
@@ -167,11 +191,17 @@ func (v *Page) graphicsEditor(
 					})
 				ui.Button(c.Key("import"), locales.MapGraphicsImport()).
 					Bind(&entry.filesFocus).
-					Disabled(state.Busy || stale || v.importGraphics == nil).
+					Disabled(state.Busy || stale || v.importGraphics == nil || entry.withPalette && entry.source.PaletteCount() == 0).
 					OnClick(func() {
 						source, session, slot, epoch := entry.source, state.Session, group.slot, v.resourceEpoch
+						bank, _ := strconv.Atoi(entry.importBank)
+						options := maps.GraphicsImport{
+							WithPalette: entry.withPalette,
+							Bank:        bank,
+						}
 						v.importGraphics(
 							source,
+							options,
 							func(draft *maps.GraphicsDraft, err error) {
 								if state.Session != session ||
 									v.graphicsDrafts[row.ID] != group ||
@@ -188,6 +218,10 @@ func (v *Page) graphicsEditor(
 									return
 								}
 								entry.draft, entry.preview, entry.unchanged = draft, true, false
+								if options.WithPalette {
+									entry.bank = strconv.Itoa(options.Bank)
+									entry.tone = options.Bank / 5
+								}
 								entry.plan, entry.err = e.PlanGraphics(draft)
 								state.Report("editor.operation", entry.err)
 								if errors.Is(entry.err, edit.ErrValue) {
@@ -297,6 +331,7 @@ func (v *Page) reloadGraphics(
 	group.entries[group.slot] = nil
 	_, next := v.graphicsDraft(state, row)
 	next.bank, next.tone = entry.bank, entry.tone
+	next.withPalette, next.importBank = entry.withPalette, entry.importBank
 	next.filesFocus.Focus(c)
 }
 
@@ -343,6 +378,9 @@ func (v *Page) graphicsReview(
 			entry.plan.Length(),
 		)
 		uses := entry.plan.Uses()
+		if len(uses) > 0 {
+			ui.Text(c, locales.MapGraphicsSource()).Bold()
+		}
 		for _, updated := range []bool{true, false} {
 			var selected []maps.GraphicsUse
 			for _, use := range uses {
@@ -372,6 +410,36 @@ func (v *Page) graphicsReview(
 				})
 			})
 		}
-		ui.Text(c, locales.MapGraphicsScope()).FontSize(components.FontCaption)
+		if len(uses) > 0 {
+			ui.Text(c, locales.MapGraphicsScope()).
+				FontSize(components.FontCaption)
+		}
+		if options := entry.plan.ImportOptions(); options.WithPalette {
+			ui.Column(c.Key("palette-review")).Gap(6).Children(func() {
+				ui.Text(c, locales.MapPaletteEditor()).Bold()
+				ui.Textf(
+					c,
+					"%s: %d · %s: %d",
+					locales.MapGraphicsImportBank(),
+					options.Bank,
+					locales.MapPaletteChanges(),
+					len(entry.plan.PaletteChanges()),
+				)
+				if changes := entry.plan.PaletteChanges(); len(changes) > 0 {
+					paletteChangesTable(c, &entry.colorChanges, changes)
+				}
+				if uses := entry.plan.PaletteUses(); len(uses) > 0 {
+					mapUses(
+						c,
+						state,
+						uses,
+						locales.MapGraphicsPaletteScope(),
+						jump,
+					)
+					ui.Text(c, locales.MapGraphicsPaletteScope()).
+						FontSize(components.FontCaption)
+				}
+			})
+		}
 	})
 }

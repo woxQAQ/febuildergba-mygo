@@ -118,7 +118,10 @@ func TestMapGraphicsPNGEditingAndHistory(t *testing.T) {
 				bitmap.SetColorIndex(count*8-1, 7, 4)
 				bitmap.Palette[2] = color.RGBA{R: 9, G: 13, B: 17, A: 255}
 				want[0], want[len(want)-1] = 0x32, 0x45
-				draft, err := source.ImportPNG(graphicsPNG(t, bitmap))
+				draft, err := source.ImportPNG(
+					graphicsPNG(t, bitmap),
+					maps.GraphicsImport{},
+				)
 				if err != nil {
 					t.Fatal(err)
 				}
@@ -271,7 +274,10 @@ func TestMapGraphicsSharedLoadingRolesAndOverlay(t *testing.T) {
 			}
 			bitmap := exportedGraphics(t, source, 0)
 			bitmap.SetColorIndex(0, 0, 2)
-			draft, err := source.ImportPNG(graphicsPNG(t, bitmap))
+			draft, err := source.ImportPNG(
+				graphicsPNG(t, bitmap),
+				maps.GraphicsImport{},
+			)
 			if err != nil {
 				t.Fatal(err)
 			}
@@ -397,7 +403,10 @@ func TestMapGraphicsIndependentPreviewResources(t *testing.T) {
 			}
 			bitmap := image.NewPaletted(image.Rect(0, 0, 128, 8), colors)
 			bitmap.SetColorIndex(0, 0, 2)
-			draft, err := source.ImportPNG(graphicsPNG(t, bitmap))
+			draft, err := source.ImportPNG(
+				graphicsPNG(t, bitmap),
+				maps.GraphicsImport{},
+			)
 			if err != nil {
 				t.Fatal(err)
 			}
@@ -530,7 +539,7 @@ func TestMapGraphicsPNGAndCommitFailuresAreAtomic(t *testing.T) {
 				case "oversize":
 					content = make([]byte, maps.MaxGraphicsPNG+1)
 				}
-				draft, err := source.ImportPNG(content)
+				draft, err := source.ImportPNG(content, maps.GraphicsImport{})
 				if slices.Contains(
 					[]string{
 						"invalid",
@@ -656,7 +665,10 @@ func TestMapGraphicsNativeSheetSizes(t *testing.T) {
 			}
 			bitmap.SetColorIndex(x, y, 4)
 			pixels[(scenario.count-1)*32] = 0x34
-			draft, err := source.ImportPNG(graphicsPNG(t, bitmap))
+			draft, err := source.ImportPNG(
+				graphicsPNG(t, bitmap),
+				maps.GraphicsImport{},
+			)
 			if err != nil {
 				t.Fatal(err)
 			}

@@ -305,29 +305,7 @@ func (v *Page) paletteReview(
 			len(changes),
 			replacement.plan.Length(),
 		)
-		ui.Table(c.Key("colors"), &replacement.changes, []ui.TableColumn{
-			{ID: "slot", Title: locales.MapPaletteSlot(), Width: 80},
-			{ID: "before", Title: locales.Before(), MinWidth: 140},
-			{ID: "after", Title: locales.After(), MinWidth: 140},
-		}, len(changes), func(index, column int) {
-			change := changes[index]
-			if column == 0 {
-				ui.Textf(c, "%03d", change.Index).FontFeatures("tnum")
-				return
-			}
-			value := change.Before
-			if column == 2 {
-				value = change.After
-			}
-			ui.Row(c).Gap(6).AlignItems(ui.Center).Children(func() {
-				ui.Box(c).
-					Size(14, 14).
-					Background(ui.RGB(value.R, value.G, value.B))
-				ui.Text(c, paletteColorText(value)).
-					Font("monospace").
-					FontSize(components.FontCaption)
-			})
-		}).Height(float32(min(240, max(70, (len(changes)+1)*28)))).MaxWidthPercent(100)
+		paletteChangesTable(c, &replacement.changes, changes)
 		mapUses(
 			c,
 			state,
@@ -337,4 +315,34 @@ func (v *Page) paletteReview(
 		)
 		ui.Text(c, locales.MapPaletteScope()).FontSize(components.FontCaption)
 	})
+}
+
+func paletteChangesTable(
+	c *ui.Context,
+	state *ui.ListState,
+	changes []maps.PaletteChange,
+) {
+	ui.Table(c.Key("colors"), state, []ui.TableColumn{
+		{ID: "slot", Title: locales.MapPaletteSlot(), Width: 80},
+		{ID: "before", Title: locales.Before(), MinWidth: 140},
+		{ID: "after", Title: locales.After(), MinWidth: 140},
+	}, len(changes), func(index, column int) {
+		change := changes[index]
+		if column == 0 {
+			ui.Textf(c, "%03d", change.Index).FontFeatures("tnum")
+			return
+		}
+		value := change.Before
+		if column == 2 {
+			value = change.After
+		}
+		ui.Row(c).Gap(6).AlignItems(ui.Center).Children(func() {
+			ui.Box(c).
+				Size(14, 14).
+				Background(ui.RGB(value.R, value.G, value.B))
+			ui.Text(c, paletteColorText(value)).
+				Font("monospace").
+				FontSize(components.FontCaption)
+		})
+	}).Height(float32(min(240, max(70, (len(changes)+1)*28)))).MaxWidthPercent(100)
 }

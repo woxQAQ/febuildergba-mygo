@@ -74,11 +74,11 @@ FE8 路径使用同一固定提交的 [muctrl.h](https://github.com/FireEmblemUn
 
 ## 地图图像
 
-固定旧版基线的 [MapStyleEditorForm.cs](../FEBuilderGBA/FEBuilderGBA/MapStyleEditorForm.cs) 中 `ObjExportButton_Click`、`ObjImportButton_Click`、`WriteMapChipImage`／`WriteMapChipPalette` 确认索引图像导出、仅图像或连同配色导入、图像 LZ77 与 OBJECT PLIST 更新。旧版组合文件宽 256，并按导入总长度的一半拆分两份资源；新版分别操作原始流、保持各自已有数量，不把总长度折半作为原生加载位置依据，也不迁移联合配色或自动减色工作流。
+固定旧版基线的 [MapStyleEditorForm.cs](../FEBuilderGBA/FEBuilderGBA/MapStyleEditorForm.cs) 中 `ObjExportButton_Click`、`ObjImportButton_Click`、`WriteMapChipImage`／`WriteMapChipPalette` 确认索引图像导出、仅图像或连同配色导入、图像 LZ77 与 OBJECT PLIST 更新。旧版组合文件宽 256，并按导入总长度的一半拆分两份资源；新版分别操作原始流、保持各自已有数量，不把总长度折半作为原生加载位置依据，联合配色仅提取完整 16 色到显式选定的一组，不迁移多组映射、色序交换或自动减色工作流。
 
 加载位置与 4bpp 解释沿用[图块定义](#图块定义)列出的固定仓库、提交和文件：FE6 `src/map.c`／`include/constants/videoalloc_global.h`、FE7U `asm/code.s`、FE8U `src/bmmap.c`。两份通过同一图像资源表分别加载到 `06008000`／`0600C000`，映射当前编号 0／512；以原生 BG 区界限固定最大 1024／512 图块。同一具体入口可以被两种位置消费，写入所有者据图像种类及指针项确认，而非据章节字段名拆成两个所有者。日版入口来自固定旧版配置，五版合成流程核对各自字段、像素与历史，不由美版源码代替日版游戏执行验证。
 
-128 宽、每行 16 图块、末行补索引 0、导入只读索引且固定数量是新版 PNG 契约，兼容范围见[图像参考](reference/chapters-and-events.md#地图图像-png)。PNG 配色只用于显示；实际色表由独立流程处理。原生文件面板、真实 ROM 和游戏内显示未由合成或临时无窗口复核替代。
+128 宽、每行 16 图块、末行补索引 0、按索引导入且固定数量是新版 PNG 契约，兼容范围见[图像参考](reference/chapters-and-events.md#地图图像-png)。默认仅替换像素；联合导入将 PNG 完整 16 色按原索引转换为 GBA 颜色，并替换选定原生配色组，其他九组与原半字最高位保留。原生文件面板、真实 ROM 和游戏内显示未由合成或临时无窗口复核替代。
 
 ## 地图变化与事件引用
 

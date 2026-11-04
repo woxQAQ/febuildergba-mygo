@@ -42,7 +42,7 @@ type Page struct {
 	importPalette          func(*maps.Palette, maps.PaletteSection, func(*maps.PaletteDraft, error))
 	exportPalette          func(*maps.Palette, maps.PaletteSection)
 	graphicsDrafts         map[int]*graphicsState
-	importGraphics         func(*maps.Graphics, func(*maps.GraphicsDraft, error))
+	importGraphics         func(*maps.Graphics, maps.GraphicsImport, func(*maps.GraphicsDraft, error))
 	exportGraphics         func(*maps.Graphics, int)
 }
 

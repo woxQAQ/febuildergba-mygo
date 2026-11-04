@@ -55,6 +55,7 @@ func TestROMWorkflows(t *testing.T) {
 				{"png", replacePNG},
 				{"maps", editMap},
 				{"map-tileset-config", editTilesetConfigFile},
+				{"map-graphics-palette", importMapGraphicsAndPalette},
 				{"map-resize", resizeMap},
 				{"map-changes", editMapChanges},
 				{"deployments", editDeployment},

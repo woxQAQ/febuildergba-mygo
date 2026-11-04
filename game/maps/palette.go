@@ -233,19 +233,77 @@ func (p *Palette) ImportPNG(
 	if len(chart.Palette) < count {
 		return nil, ErrPaletteColors
 	}
-	result := bytes.Clone(p.original)
-	for i := range count {
-		pixel := color.NRGBAModel.Convert(chart.Palette[i]).(color.NRGBA)
+	result, err := replacePaletteColors(
+		p.original,
+		start,
+		chart.Palette[:count],
+	)
+	if err != nil {
+		return nil, err
+	}
+	return &PaletteDraft{source: p, section: section, content: result}, nil
+}
+
+// replacePaletteColors preserves the native halfword's unused high bit.
+func replacePaletteColors(
+	original []byte,
+	start int,
+	colors color.Palette,
+) ([]byte, error) {
+	if start < 0 || start+len(colors) > len(original)/2 {
+		return nil, edit.ErrValue
+	}
+	result := bytes.Clone(original)
+	for index, value := range colors {
+		pixel := color.NRGBAModel.Convert(value).(color.NRGBA)
 		if pixel.A != 255 {
 			return nil, ErrPaletteColors
 		}
 		quantize := func(value uint8) uint16 { return (uint16(value)*31 + 127) / 255 }
 		word := quantize(pixel.R) | quantize(pixel.G)<<5 | quantize(pixel.B)<<10
-		at := (start + i) * 2
+		at := (start + index) * 2
 		word |= binary.LittleEndian.Uint16(result[at:]) & 0x8000
 		binary.LittleEndian.PutUint16(result[at:], word)
 	}
-	return &PaletteDraft{source: p, section: section, content: result}, nil
+	return result, nil
+}
+
+func paletteChanges(before, after []byte) []PaletteChange {
+	var changes []PaletteChange
+	for index := range len(before) / 2 {
+		original, replacement := mapPaletteColor(
+			before,
+			index,
+		), mapPaletteColor(
+			after,
+			index,
+		)
+		if original != replacement {
+			changes = append(
+				changes,
+				PaletteChange{
+					Index:  index,
+					Before: original,
+					After:  replacement,
+				},
+			)
+		}
+	}
+	return changes
+}
+
+func (s *Editor) paletteUses(p *Palette) ([]Use, error) {
+	uses, err := s.mapResourceUses(s.format, PaletteField, p.pointer, p.address)
+	if err != nil {
+		return nil, err
+	}
+	if !slices.ContainsFunc(
+		uses,
+		func(use Use) bool { return use.Updated && use.Chapter == p.chapter },
+	) {
+		return nil, rom.ErrStale
+	}
+	return uses, nil
 }
 
 func (d *PaletteDraft) Current(
@@ -337,38 +395,11 @@ func (s *Editor) PlanPalette(
 	if bytes.Equal(draft.source.original, draft.content) {
 		return nil, edit.ErrValue
 	}
-	uses, err := s.mapResourceUses(
-		s.format,
-		PaletteField,
-		draft.source.pointer,
-		draft.source.address,
-	)
+	uses, err := s.paletteUses(draft.source)
 	if err != nil {
 		return nil, err
 	}
-	found := slices.ContainsFunc(
-		uses,
-		func(use Use) bool { return use.Updated && use.Chapter == draft.source.chapter },
-	)
-	if !found {
-		return nil, rom.ErrStale
-	}
-	var changes []PaletteChange
-	for index := range PaletteSize / 2 {
-		before, after := mapPaletteColor(
-			draft.source.original,
-			index,
-		), mapPaletteColor(
-			draft.content,
-			index,
-		)
-		if before != after {
-			changes = append(
-				changes,
-				PaletteChange{Index: index, Before: before, After: after},
-			)
-		}
-	}
+	changes := paletteChanges(draft.source.original, draft.content)
 	builder := space.NewBuilder(
 		s.image.Data,
 		space.Protection{
