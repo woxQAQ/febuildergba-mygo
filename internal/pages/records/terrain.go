@@ -86,10 +86,6 @@ func (a *form) profileTerrain(
 						Placeholder(locales.TerrainSearch()).
 						Tooltip(locales.TerrainNamesHelp()),
 				)
-				ui.Text(c, locales.TerrainHelp()).
-					FontSize(components.FontCaption).
-					TextColor(c.Theme().TextMuted).
-					Tooltip(locales.TerrainScope())
 			})
 			if v.draft.Modified() || v.invalid() || !current {
 				ui.Row(c.Key("actions")).
@@ -98,6 +94,7 @@ func (a *form) profileTerrain(
 					AlignItems(ui.Center).
 					Children(func() {
 						ui.Button(c, locales.TerrainPreview()).
+							Tooltip(locales.TerrainScope()).
 							Disabled(a.state.Busy || !current || v.invalid() || !v.draft.Modified()).
 							OnClick(func() { v.plan, v.err = editor.Plan(v.draft); a.state.Report("editor.operation", v.err) })
 						ui.Button(c, locales.TerrainReload()).

@@ -163,49 +163,43 @@ func (a *form) profileWeapons(
 	kind records.Kind,
 	row records.Row,
 	table *records.Table,
+	available float32,
 ) {
 	weapons, err := a.state.Session.Records.WeaponSkills(kind, row.ID)
 	if err != nil {
 		ui.Text(c, components.ErrorText(err))
 		return
 	}
-	width, _ := c.Size()
-	available := max(float32(300), width-a.sidebar-40)
-	ui.Column(c.Key("profile-weapons")).Gap(6).Children(func() {
-		ui.Text(c, locales.Label(records.GroupWeapon)).
-			Bold().
-			Tooltip(locales.RecordWeaponsHelp())
-		ui.ScrollHorizontal(c).
-			Width(available).
-			MaxWidthPercent(100).
-			Children(func() {
-				tracks := []ui.Track{ui.Fixed(92)}
-				for range weapons {
-					tracks = append(tracks, ui.Fr(1))
-				}
-				ui.Grid(c).
-					Width(max(available, 620)).
-					ColumnTracks(tracks...).
-					GapX(6).
-					GapY(3).
-					AlignItems(ui.Center).
-					Children(func() {
-						ui.Text(c, "")
-						for _, weapon := range weapons {
-							a.profileRank(c, kind, row, weapon)
-						}
-						label := locales.RecordPersonalRanks()
-						if kind == records.Classes {
-							label = locales.RecordClassRanks()
-						}
-						ui.Text(c, label)
-						for _, weapon := range weapons {
-							field, _ := profileField(table, weapon.Field)
-							a.numberField(c, kind, row, field, weapon.Value)
-						}
-					})
-			})
-	})
+	ui.ScrollHorizontal(c.Key("weapons")).
+		Width(available).
+		MaxWidthPercent(100).
+		Children(func() {
+			tracks := []ui.Track{ui.Fixed(92)}
+			for range weapons {
+				tracks = append(tracks, ui.Fr(1))
+			}
+			ui.Grid(c).
+				Width(max(available, 620)).
+				ColumnTracks(tracks...).
+				GapX(6).
+				GapY(3).
+				AlignItems(ui.Center).
+				Children(func() {
+					ui.Text(c, "")
+					for _, weapon := range weapons {
+						a.profileRank(c, kind, row, weapon)
+					}
+					label := locales.Label(records.GroupWeapon)
+					if kind == records.Classes {
+						label = locales.RecordClassRanks()
+					}
+					ui.Text(c, label)
+					for _, weapon := range weapons {
+						field, _ := profileField(table, weapon.Field)
+						a.numberField(c, kind, row, field, weapon.Value)
+					}
+				})
+		})
 }
 
 func (a *form) profileRank(

@@ -170,6 +170,7 @@ func (a *form) profileAbilities(
 						}
 					})
 			})
+		a.profileWeapons(c, kind, row, table, available)
 	})
 }
 

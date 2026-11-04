@@ -6,9 +6,12 @@ import (
 	"github.com/egoist/mygo/ui"
 
 	"github.com/woxQAQ/febuildergba-mygo/game/records"
+	"github.com/woxQAQ/febuildergba-mygo/game/text"
 	"github.com/woxQAQ/febuildergba-mygo/internal/components"
 	"github.com/woxQAQ/febuildergba-mygo/internal/locales"
 )
+
+const profileRawTab = 4
 
 type (
 	choiceDraft struct {
@@ -88,6 +91,7 @@ func (a *form) profile(
 							sections,
 							locales.SupportEditor(),
 							locales.Label("quote_death"),
+							locales.Advanced(),
 						)
 					}
 					ui.Row(c.Key("profile-toolbar")).
@@ -96,13 +100,16 @@ func (a *form) profile(
 						Children(func() {
 							ui.Tabs(c.Key("profile-section"), &entry.section, sections...).
 								Label(locales.RecordSections())
-							ui.Box(c).Grow(1)
-							ui.Checkbox(c.Key("raw"), &a.showRaw, locales.Advanced()).
-								FontSize(components.FontCaption)
+							if kind == records.Classes {
+								ui.Box(c).Grow(1)
+								ui.Checkbox(c.Key("raw"), &a.showRaw, locales.Advanced()).
+									FontSize(components.FontCaption)
+							}
 						})
-					if entry.section == 0 {
+					if kind == records.Units && entry.section == profileRawTab {
+						a.profileRaw(c, kind, row, table)
+					} else if entry.section == 0 {
 						a.profileAbilities(c, kind, row, table, entry)
-						a.profileWeapons(c, kind, row, table)
 						a.profileTraits(c, kind, row)
 					} else if entry.section == 2 && kind == records.Classes {
 						a.profileTerrain(c, row, entry)
@@ -113,7 +120,7 @@ func (a *form) profile(
 								c,
 								row.ID,
 								width-a.sidebar-32,
-								a.showRaw,
+								false,
 							)
 						}
 					} else if entry.section == 2 {
@@ -121,11 +128,18 @@ func (a *form) profile(
 					} else {
 						a.profileRelated(c, kind, row, table, entry)
 					}
-					if a.showRaw {
+					if kind == records.Classes && a.showRaw {
 						a.profileRaw(c, kind, row, table)
 					}
 				})
 		})
+}
+
+func (a *form) rawRecord(kind records.Kind, id int) bool {
+	if kind == records.Units {
+		return a.profileFor(kind, id).section == profileRawTab
+	}
+	return a.showRaw
 }
 
 func (a *form) profileIdentity(
@@ -350,7 +364,7 @@ func (a *form) profileRelated(
 	var fields []records.Field
 	for _, field := range table.Fields {
 		if field.Group != records.GroupGeneral || field.ID == "id" ||
-			field.Reference != "" ||
+			field.Text != text.NoRole || field.Reference != "" ||
 			field.ID == "affinity" ||
 			field.ID == "movement_speed" || field.ID == "portrait_id" || field.ID == "mini_portrait" {
 			continue
@@ -372,6 +386,14 @@ func (a *form) profileRelated(
 	if kind == records.Units {
 		return
 	}
+	a.profileResources(c, kind, row)
+}
+
+func (a *form) profileResources(
+	c *ui.Context,
+	kind records.Kind,
+	row records.Row,
+) {
 	links, err := a.state.Session.Records.RecordResources(kind, row.ID)
 	if err != nil {
 		ui.Text(c, components.ErrorText(err)).TextColor(c.Theme().Danger)
@@ -420,7 +442,8 @@ func (a *form) profileRaw(
 ) {
 	var fields []records.Field
 	for _, field := range table.Fields {
-		if field.Group == records.GroupAdvanced || field.ID == "id" {
+		if field.Group == records.GroupAdvanced || field.ID == "id" ||
+			field.Text != text.NoRole {
 			fields = append(fields, field)
 		}
 	}
@@ -436,4 +459,7 @@ func (a *form) profileRaw(
 	ui.Button(c, locales.EditBytes()).
 		Disabled(a.state.Busy).
 		OnClick(func() { a.openHex(row.Address, table.Stride) })
+	if kind == records.Units {
+		a.profileResources(c, kind, row)
+	}
 }

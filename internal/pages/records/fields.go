@@ -22,12 +22,13 @@ type fieldKey struct {
 }
 
 type fieldDraft struct {
-	text      string
-	reference components.TextReferenceState
-	value     int64
-	epoch     uint64
-	invalid   bool
-	input     ui.Handle
+	text        string
+	reference   components.TextReferenceState
+	value       int64
+	epoch       uint64
+	initialized bool
+	invalid     bool
+	input       ui.Handle
 }
 
 func formatField(f records.Field, value int64) string {
@@ -62,18 +63,16 @@ func (a *form) numberField(
 	key := fieldKey{kind, row.ID, f.ID}
 	draft := a.drafts[key]
 	if draft == nil {
-		draft = &fieldDraft{
-			text:  formatField(f, value),
-			value: value,
-			epoch: a.state.HistoryEpoch,
-		}
+		draft = &fieldDraft{}
 		a.drafts[key] = draft
 	}
-	if draft.value != value || draft.epoch != a.state.HistoryEpoch {
+	if !draft.initialized || draft.value != value ||
+		draft.epoch != a.state.HistoryEpoch {
 		draft.text = formatField(f, value)
 		draft.value = value
 		draft.epoch = a.state.HistoryEpoch
 		draft.invalid = false
+		draft.initialized = true
 	}
 	low, high := f.Bounds()
 	help := fmt.Sprintf(
@@ -84,7 +83,8 @@ func (a *form) numberField(
 		high,
 		locales.FieldHint(),
 	)
-	if a.showRaw {
+	raw := a.rawRecord(kind, row.ID)
+	if raw {
 		help += fmt.Sprintf(
 			"\n0x%08X   0x%X",
 			row.Address+f.Offset,
@@ -153,7 +153,7 @@ func (a *form) numberField(
 			Disabled(a.state.Busy || draft.value <= low).Chosen() {
 			a.nudgeField(key, f, -1)
 		}
-		if a.showRaw && a.openHex != nil {
+		if raw && a.openHex != nil {
 			menu.Separator()
 			if menu.Item(locales.EditBytes()).Disabled(a.state.Busy).Chosen() {
 				a.openHex(row.Address+f.Offset, f.Width)
@@ -269,7 +269,8 @@ func (a *form) inlineSection(
 		} else if f.Width == 2 {
 			inputWidth = max(inputWidth, 72)
 		}
-		if f.Reference != "" || f.Text != text.NoRole {
+		if f.Reference != "" ||
+			f.Text != text.NoRole && group != records.GroupAdvanced {
 			actionWidth = 48
 		}
 	}
@@ -281,7 +282,15 @@ func (a *form) inlineSection(
 		ui.Text(c, locales.Label(group)).Bold()
 		ui.Grid(c).Columns(columns).GapX(16).GapY(4).Children(func() {
 			for _, f := range fields {
-				a.inlineField(c, kind, row, f, inputWidth, actionWidth)
+				a.inlineField(
+					c,
+					kind,
+					row,
+					f,
+					inputWidth,
+					actionWidth,
+					group == records.GroupAdvanced,
+				)
 			}
 		})
 	})
@@ -293,8 +302,9 @@ func (a *form) inlineField(
 	row records.Row,
 	f records.Field,
 	inputWidth, actionWidth float32,
+	raw bool,
 ) {
-	if f.Text != text.NoRole {
+	if f.Text != text.NoRole && !raw {
 		a.textReferenceField(c, kind, row, f)
 		return
 	}

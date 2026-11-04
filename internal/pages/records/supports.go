@@ -102,15 +102,6 @@ func (a *form) profileSupports(
 				Disabled(disabled).
 				OnChange(func() { v.plan = nil }).
 				Tooltip(locales.SupportSynchronizeHelp())
-			if a.showRaw {
-				ui.Textf(c, "0x%08X · % X", v.draft.Address(), v.draft.Raw()).
-					Font("monospace").
-					FontSize(components.FontCaption).
-					Selectable()
-				ui.Button(c, locales.EditBytes()).
-					Disabled(disabled || v.draft.Address() == 0 || a.openHex == nil).
-					OnClick(func() { a.openHex(v.draft.Address(), len(v.draft.Raw())) })
-			}
 			ui.Row(c).Wrap().Gap(8).Children(func() {
 				ui.Button(c, locales.SupportPreview()).
 					Disabled(disabled || v.invalid() || !v.draft.Modified()).
@@ -373,11 +364,6 @@ func (a *form) supportPreview(
 				}
 				for _, other := range move.Shared {
 					ui.Textf(c, "%s: %02X %s", locales.SupportShared(), other.ID, other.Name).
-						FontSize(components.FontCaption)
-				}
-				if a.showRaw {
-					ui.Textf(c, "0x%08X → 0x%08X", move.Before, move.After).
-						Font("monospace").
 						FontSize(components.FontCaption)
 				}
 			}

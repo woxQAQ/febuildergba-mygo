@@ -11142,16 +11142,6 @@ func (msgs Messages) NameEditScope() string {
 	return Catalog.Format(msgs.locale, "name_edit_scope", nil)
 }
 
-// NameNeedsId says "Choose an existing nonzero name text ID before editing its text."
-// in the language the app shows.
-func NameNeedsId() string { return In(i18n.Locale()).NameNeedsId() }
-
-// NameNeedsId says "Choose an existing nonzero name text ID before editing its text."
-// in the language of msgs.
-func (msgs Messages) NameNeedsId() string {
-	return Catalog.Format(msgs.locale, "name_needs_id", nil)
-}
-
 // TextEditSummary says "Text ID {textID}: all uses of this ID will change. Known text fields: {count}."
 // in the language the app shows.
 func TextEditSummary(textID string, count int) string {
@@ -11222,16 +11212,6 @@ func ApplyText() string { return In(i18n.Locale()).ApplyText() }
 // in the language of msgs.
 func (msgs Messages) ApplyText() string {
 	return Catalog.Format(msgs.locale, "apply_text", nil)
-}
-
-// TextNeedsId says "No text ID assigned"
-// in the language the app shows.
-func TextNeedsId() string { return In(i18n.Locale()).TextNeedsId() }
-
-// TextNeedsId says "No text ID assigned"
-// in the language of msgs.
-func (msgs Messages) TextNeedsId() string {
-	return Catalog.Format(msgs.locale, "text_needs_id", nil)
 }
 
 // GameInvalidTextEncoding says "This text cannot be encoded losslessly. Use characters, commands and parameters supported by the ROM’s encoding and…"
@@ -11344,11 +11324,11 @@ func (msgs Messages) Promotion() string {
 	return Catalog.Format(msgs.locale, "promotion", nil)
 }
 
-// Weapon says "Weapon ranks"
+// Weapon says "Weapon EXP"
 // in the language the app shows.
 func Weapon() string { return In(i18n.Locale()).Weapon() }
 
-// Weapon says "Weapon ranks"
+// Weapon says "Weapon EXP"
 // in the language of msgs.
 func (msgs Messages) Weapon() string {
 	return Catalog.Format(msgs.locale, "weapon", nil)
@@ -12172,16 +12152,6 @@ func RecordReferenceUnavailable() string { return In(i18n.Locale()).RecordRefere
 // in the language of msgs.
 func (msgs Messages) RecordReferenceUnavailable() string {
 	return Catalog.Format(msgs.locale, "record_reference_unavailable", nil)
-}
-
-// RecordPersonalRanks says "Character setting"
-// in the language the app shows.
-func RecordPersonalRanks() string { return In(i18n.Locale()).RecordPersonalRanks() }
-
-// RecordPersonalRanks says "Character setting"
-// in the language of msgs.
-func (msgs Messages) RecordPersonalRanks() string {
-	return Catalog.Format(msgs.locale, "record_personal_ranks", nil)
 }
 
 // RecordClassRanks says "Class base"
@@ -16294,16 +16264,6 @@ func TerrainStale() string { return In(i18n.Locale()).TerrainStale() }
 // in the language of msgs.
 func (msgs Messages) TerrainStale() string {
 	return Catalog.Format(msgs.locale, "terrain_stale", nil)
-}
-
-// TerrainHelp says "Edit values, then preview and apply."
-// in the language the app shows.
-func TerrainHelp() string { return In(i18n.Locale()).TerrainHelp() }
-
-// TerrainHelp says "Edit values, then preview and apply."
-// in the language of msgs.
-func (msgs Messages) TerrainHelp() string {
-	return Catalog.Format(msgs.locale, "terrain_help", nil)
 }
 
 // TerrainScope says "Class tables only. Ballista movement, terrain healing and custom engine rules use separate data."

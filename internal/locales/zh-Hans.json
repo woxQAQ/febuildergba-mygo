@@ -1124,7 +1124,6 @@
   "preview_name": "预览名称",
   "apply_name": "应用名称",
   "name_edit_scope": "英文版使用 ASCII，日文版使用 Shift-JIS；字符须由此 ROM 支持。",
-  "name_needs_id": "请先选择一个已有的非零名称文本 ID，再编辑对应文本。",
   "text_edit_summary": "文本 ID {textID}：所有使用此 ID 的位置都会变化。已知文本字段共 {count} 处。",
   "@text_edit_summary": {
     "placeholders": {
@@ -1138,7 +1137,6 @@
   "description_edit_scope": "英文版使用 ASCII，日文版使用 Shift-JIS。可输入 [A]、[Wink]、[LoadFace][0x0101] 等可读指令或原始控制标记。[.] 是填充符；字面 [ 和反斜杠写作 \\[ 和 \\\\。",
   "preview_text": "预览文本",
   "apply_text": "应用文本",
-  "text_needs_id": "未设置文本 ID",
   "game_invalid_text_encoding": "无法无损编码此文本。字符、指令及参数需受当前 ROM 的字符编码与 Huffman 树支持；游戏文本最多 4096 字节。",
   "game_invalid_text": "文本入口或 Huffman 树无效。写入需要有效的主文本表指针。",
   "id": "ID",
@@ -1233,7 +1231,6 @@
   "record_growth_count": "成长次数",
   "record_estimate_range": "人物目标等级不得低于初始等级；职业成长次数为 0–255。",
   "record_reference_unavailable": "参照不可用",
-  "record_personal_ranks": "人物设置",
   "record_class_ranks": "职业基础",
   "record_raw_value": "原值",
   "record_inherit": "沿用",
@@ -1659,7 +1656,6 @@
   "terrain_apply": "应用地形修改",
   "terrain_reload": "放弃修改并重读",
   "terrain_stale": "文档或职业布局已改变，草稿已保留；请重新读取后编辑。",
-  "terrain_help": "修改数值后，预览并应用。",
   "terrain_scope": "本页编辑职业地形表。炮台移动、地形回复及自定义引擎规则使用独立数据。",
   "terrain_range": "请输入有符号字节值：−128…127。",
   "terrain_movement_help": "移动消耗（−128…127）。−1（FF）为原生不可通行值。0 和其他负值保留原值；寻路与落脚检查对它们的处理可能不同。",

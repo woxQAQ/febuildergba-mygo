@@ -57,8 +57,13 @@ func (a *form) textPreview(
 		return
 	}
 	uses := edit.Uses()
-	ui.Text(c, locales.TextEditSummary(fmt.Sprintf("0x%04X", edit.TextID()), len(uses))).
-		FontSize(components.FontCaption)
+	ui.Text(
+		c,
+		locales.TextEditSummary(
+			fmt.Sprintf("0x%04X", edit.TextID()),
+			len(uses),
+		),
+	)
 	for _, kind := range records.Kinds {
 		var fields []string
 		for _, use := range uses {
@@ -70,8 +75,10 @@ func (a *form) textPreview(
 			}
 		}
 		if len(fields) > 0 {
-			ui.Text(c, locales.Label(string(kind))+": "+strings.Join(fields, ", ")).
-				FontSize(components.FontCaption)
+			ui.Text(
+				c,
+				locales.Label(string(kind))+": "+strings.Join(fields, ", "),
+			)
 		}
 	}
 	ui.Button(c, label).Disabled(a.state.Busy).OnClick(func() {
@@ -85,6 +92,26 @@ func (a *form) textPreview(
 	})
 }
 
+func (a *form) textReferenceDraft(key fieldKey) *fieldDraft {
+	if a.drafts == nil {
+		a.drafts = make(map[fieldKey]*fieldDraft)
+	}
+	if a.drafts[key] == nil {
+		a.drafts[key] = &fieldDraft{}
+	}
+	return a.drafts[key]
+}
+
+func (a *form) openTextReference(key fieldKey) {
+	switch key.Kind {
+	case records.Units:
+		a.profileFor(key.Kind, key.Record).section = profileRawTab
+	case records.Classes:
+		a.showRaw = true
+	}
+	a.textReferenceDraft(key).input.Focus()
+}
+
 func (a *form) textReferenceField(
 	c *ui.Context,
 	kind records.Kind,
@@ -92,14 +119,7 @@ func (a *form) textReferenceField(
 	field records.Field,
 ) {
 	key := fieldKey{kind, row.ID, field.ID}
-	if a.drafts == nil {
-		a.drafts = make(map[fieldKey]*fieldDraft)
-	}
-	draft := a.drafts[key]
-	if draft == nil {
-		draft = &fieldDraft{}
-		a.drafts[key] = draft
-	}
+	draft := a.textReferenceDraft(key)
 	value, err := a.state.Session.Records.Value(kind, row.ID, field.ID)
 	ui.Column(c.Key(field.ID)).Gap(4).Children(func() {
 		label := locales.Label(field.ID)
@@ -159,19 +179,10 @@ func (a *form) descriptions(
 		ui.Column(c.Key(field.ID + "-editor")).Gap(6).Children(func() {
 			if err == nil && value.ID == 0 {
 				ui.Row(c).Wrap().Gap(8).AlignItems(ui.Center).Children(func() {
-					ui.Text(c, label).Bold()
-					ui.Text(c, locales.TextNeedsId()).
-						TextColor(c.Theme().TextMuted).
-						Grow(1)
+					ui.Text(c, label).Bold().Grow(1)
 					ui.Button(c, locales.ChooseTextId()).
 						Disabled(a.state.Busy).
-						OnClick(func() {
-							if kind == records.Units ||
-								kind == records.Classes {
-								a.profileFor(kind, row.ID).section = 1
-							}
-							a.focusField(key)
-						})
+						OnClick(func() { a.openTextReference(key) })
 				})
 				return
 			}
@@ -243,6 +254,7 @@ func (a *form) nameEditor(
 			components.TextDraft(
 				a.state,
 				ui.TextInput(c, &draft.text).
+					Placeholder(locales.Name()).
 					Label(locales.Label(string(kind))+" / "+locales.Name()).
 					Tooltip(locales.NameEditScope()).
 					FontSize(components.FontTitle).
@@ -253,6 +265,11 @@ func (a *form) nameEditor(
 						draft.preview, draft.err = nil, nil
 					}),
 			)
+			if row.NameID == 0 {
+				ui.Button(c, locales.ChooseTextId()).
+					Disabled(a.state.Busy).
+					OnClick(func() { a.openTextReference(key) })
+			}
 			if draft.text != row.Name {
 				ui.Button(c, locales.PreviewName()).
 					Disabled(a.state.Busy || unavailable).
@@ -272,11 +289,6 @@ func (a *form) nameEditor(
 					})
 			}
 		})
-		if row.NameID == 0 {
-			ui.Text(c, locales.NameNeedsId()).
-				FontSize(components.FontCaption).
-				TextColor(c.Theme().TextMuted)
-		}
 		if draft.err != nil {
 			ui.Text(c, components.ErrorText(draft.err)).
 				TextColor(c.Theme().Danger)
