@@ -86,10 +86,12 @@ func TextReference(
 						}
 					}),
 			)
-			ui.Button(c, locales.QuoteOpenText()).
-				Disabled(state.Busy || id == 0 || id > 65535 || open == nil).
-				OnClick(func() { open(uint16(id)) })
-			// #nosec G115 -- Enabled only for bounded IDs.
+			if open != nil {
+				ui.Button(c, locales.QuoteOpenText()).
+					Disabled(state.Busy || id == 0 || id > 65535).
+					OnClick(func() { open(uint16(id)) })
+				// #nosec G115 -- Enabled only for bounded IDs.
+			}
 		})
 		if err != nil {
 			ui.Text(c, ErrorText(err)).

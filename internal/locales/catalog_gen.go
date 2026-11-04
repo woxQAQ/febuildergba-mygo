@@ -15556,14 +15556,234 @@ func (msgs Messages) QuoteNoDefeat() string {
 	return Catalog.Format(msgs.locale, "quote_no_defeat", nil)
 }
 
-// QuoteDefeatSettings says "More settings"
+// DefeatDefault says "General"
 // in the language the app shows.
-func QuoteDefeatSettings() string { return In(i18n.Locale()).QuoteDefeatSettings() }
+func DefeatDefault() string { return In(i18n.Locale()).DefeatDefault() }
 
-// QuoteDefeatSettings says "More settings"
+// DefeatDefault says "General"
 // in the language of msgs.
-func (msgs Messages) QuoteDefeatSettings() string {
-	return Catalog.Format(msgs.locale, "quote_defeat_settings", nil)
+func (msgs Messages) DefeatDefault() string {
+	return Catalog.Format(msgs.locale, "defeat_default", nil)
+}
+
+// DefeatVariants says "Applies to"
+// in the language the app shows.
+func DefeatVariants() string { return In(i18n.Locale()).DefeatVariants() }
+
+// DefeatVariants says "Applies to"
+// in the language of msgs.
+func (msgs Messages) DefeatVariants() string {
+	return Catalog.Format(msgs.locale, "defeat_variants", nil)
+}
+
+// DefeatEditText says "Edit dialogue"
+// in the language the app shows.
+func DefeatEditText() string { return In(i18n.Locale()).DefeatEditText() }
+
+// DefeatEditText says "Edit dialogue"
+// in the language of msgs.
+func (msgs Messages) DefeatEditText() string {
+	return Catalog.Format(msgs.locale, "defeat_edit_text", nil)
+}
+
+// DefeatChangeText says "Change dialogue…"
+// in the language the app shows.
+func DefeatChangeText() string { return In(i18n.Locale()).DefeatChangeText() }
+
+// DefeatChangeText says "Change dialogue…"
+// in the language of msgs.
+func (msgs Messages) DefeatChangeText() string {
+	return Catalog.Format(msgs.locale, "defeat_change_text", nil)
+}
+
+// DefeatActions says "Dialogue actions"
+// in the language the app shows.
+func DefeatActions() string { return In(i18n.Locale()).DefeatActions() }
+
+// DefeatActions says "Dialogue actions"
+// in the language of msgs.
+func (msgs Messages) DefeatActions() string {
+	return Catalog.Format(msgs.locale, "defeat_actions", nil)
+}
+
+// DefeatAddText says "Add defeat dialogue…"
+// in the language the app shows.
+func DefeatAddText() string { return In(i18n.Locale()).DefeatAddText() }
+
+// DefeatAddText says "Add defeat dialogue…"
+// in the language of msgs.
+func (msgs Messages) DefeatAddText() string {
+	return Catalog.Format(msgs.locale, "defeat_add_text", nil)
+}
+
+// DefeatAddSpecial says "Add conditional dialogue…"
+// in the language the app shows.
+func DefeatAddSpecial() string { return In(i18n.Locale()).DefeatAddSpecial() }
+
+// DefeatAddSpecial says "Add conditional dialogue…"
+// in the language of msgs.
+func (msgs Messages) DefeatAddSpecial() string {
+	return Catalog.Format(msgs.locale, "defeat_add_special", nil)
+}
+
+// DefeatAddTable says "Add {table}…"
+// in the language the app shows.
+func DefeatAddTable(table string) string { return In(i18n.Locale()).DefeatAddTable(table) }
+
+// DefeatAddTable says "Add {table}…"
+// in the language of msgs.
+func (msgs Messages) DefeatAddTable(table string) string {
+	return Catalog.Format(msgs.locale, "defeat_add_table", map[string]any{"table": table})
+}
+
+// DefeatEditScope says "Change scope…"
+// in the language the app shows.
+func DefeatEditScope() string { return In(i18n.Locale()).DefeatEditScope() }
+
+// DefeatEditScope says "Change scope…"
+// in the language of msgs.
+func (msgs Messages) DefeatEditScope() string {
+	return Catalog.Format(msgs.locale, "defeat_edit_scope", nil)
+}
+
+// DefeatRemove says "Remove this dialogue"
+// in the language the app shows.
+func DefeatRemove() string { return In(i18n.Locale()).DefeatRemove() }
+
+// DefeatRemove says "Remove this dialogue"
+// in the language of msgs.
+func (msgs Messages) DefeatRemove() string {
+	return Catalog.Format(msgs.locale, "defeat_remove", nil)
+}
+
+// DefeatSilent says "No dialogue plays"
+// in the language the app shows.
+func DefeatSilent() string { return In(i18n.Locale()).DefeatSilent() }
+
+// DefeatSilent says "No dialogue plays"
+// in the language of msgs.
+func (msgs Messages) DefeatSilent() string {
+	return Catalog.Format(msgs.locale, "defeat_silent", nil)
+}
+
+// DefeatConfirm says "OK"
+// in the language the app shows.
+func DefeatConfirm() string { return In(i18n.Locale()).DefeatConfirm() }
+
+// DefeatConfirm says "OK"
+// in the language of msgs.
+func (msgs Messages) DefeatConfirm() string {
+	return Catalog.Format(msgs.locale, "defeat_confirm", nil)
+}
+
+// DefeatPending says "Pending changes"
+// in the language the app shows.
+func DefeatPending() string { return In(i18n.Locale()).DefeatPending() }
+
+// DefeatPending says "Pending changes"
+// in the language of msgs.
+func (msgs Messages) DefeatPending() string {
+	return Catalog.Format(msgs.locale, "defeat_pending", nil)
+}
+
+// DefeatApplyThenEdit says "Apply before editing dialogue"
+// in the language the app shows.
+func DefeatApplyThenEdit() string { return In(i18n.Locale()).DefeatApplyThenEdit() }
+
+// DefeatApplyThenEdit says "Apply before editing dialogue"
+// in the language of msgs.
+func (msgs Messages) DefeatApplyThenEdit() string {
+	return Catalog.Format(msgs.locale, "defeat_apply_then_edit", nil)
+}
+
+// DefeatApplyAndEdit says "Apply and edit dialogue"
+// in the language the app shows.
+func DefeatApplyAndEdit() string { return In(i18n.Locale()).DefeatApplyAndEdit() }
+
+// DefeatApplyAndEdit says "Apply and edit dialogue"
+// in the language of msgs.
+func (msgs Messages) DefeatApplyAndEdit() string {
+	return Catalog.Format(msgs.locale, "defeat_apply_and_edit", nil)
+}
+
+// DefeatNeedsScope says "Choose a chapter or route for this conditional dialogue."
+// in the language the app shows.
+func DefeatNeedsScope() string { return In(i18n.Locale()).DefeatNeedsScope() }
+
+// DefeatNeedsScope says "Choose a chapter or route for this conditional dialogue."
+// in the language of msgs.
+func (msgs Messages) DefeatNeedsScope() string {
+	return Catalog.Format(msgs.locale, "defeat_needs_scope", nil)
+}
+
+// DefeatNeedsContent says "Choose dialogue text or enter a script address."
+// in the language the app shows.
+func DefeatNeedsContent() string { return In(i18n.Locale()).DefeatNeedsContent() }
+
+// DefeatNeedsContent says "Choose dialogue text or enter a script address."
+// in the language of msgs.
+func (msgs Messages) DefeatNeedsContent() string {
+	return Catalog.Format(msgs.locale, "defeat_needs_content", nil)
+}
+
+// DefeatUseText says "Use dialogue text…"
+// in the language the app shows.
+func DefeatUseText() string { return In(i18n.Locale()).DefeatUseText() }
+
+// DefeatUseText says "Use dialogue text…"
+// in the language of msgs.
+func (msgs Messages) DefeatUseText() string {
+	return Catalog.Format(msgs.locale, "defeat_use_text", nil)
+}
+
+// DefeatUseScript says "Use a script…"
+// in the language the app shows.
+func DefeatUseScript() string { return In(i18n.Locale()).DefeatUseScript() }
+
+// DefeatUseScript says "Use a script…"
+// in the language of msgs.
+func (msgs Messages) DefeatUseScript() string {
+	return Catalog.Format(msgs.locale, "defeat_use_script", nil)
+}
+
+// DefeatChangeScript says "Change script"
+// in the language the app shows.
+func DefeatChangeScript() string { return In(i18n.Locale()).DefeatChangeScript() }
+
+// DefeatChangeScript says "Change script"
+// in the language of msgs.
+func (msgs Messages) DefeatChangeScript() string {
+	return Catalog.Format(msgs.locale, "defeat_change_script", nil)
+}
+
+// DefeatFallbackScript says "Fallback script"
+// in the language the app shows.
+func DefeatFallbackScript() string { return In(i18n.Locale()).DefeatFallbackScript() }
+
+// DefeatFallbackScript says "Fallback script"
+// in the language of msgs.
+func (msgs Messages) DefeatFallbackScript() string {
+	return Catalog.Format(msgs.locale, "defeat_fallback_script", nil)
+}
+
+// DefeatUsingScript says "No text is selected; the existing script will be used."
+// in the language the app shows.
+func DefeatUsingScript() string { return In(i18n.Locale()).DefeatUsingScript() }
+
+// DefeatUsingScript says "No text is selected; the existing script will be used."
+// in the language of msgs.
+func (msgs Messages) DefeatUsingScript() string {
+	return Catalog.Format(msgs.locale, "defeat_using_script", nil)
+}
+
+// DefeatNeedsScript says "Enter the script address to execute."
+// in the language the app shows.
+func DefeatNeedsScript() string { return In(i18n.Locale()).DefeatNeedsScript() }
+
+// DefeatNeedsScript says "Enter the script address to execute."
+// in the language of msgs.
+func (msgs Messages) DefeatNeedsScript() string {
+	return Catalog.Format(msgs.locale, "defeat_needs_script", nil)
 }
 
 // QuoteControlOnly says "(Control commands only)"

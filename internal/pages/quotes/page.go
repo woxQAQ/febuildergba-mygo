@@ -28,16 +28,14 @@ type (
 		invalid   bool
 	}
 	tableState struct {
-		draft        *quote.Draft
-		preview      *quote.Plan
-		err          error
-		inputs       map[fieldKey]*valueInput
-		rows         []quote.Entry
-		filtered     []int
-		selected     int
-		list         ui.ListState
-		recordChoice string
-		choiceID     uint64
+		draft    *quote.Draft
+		preview  *quote.Plan
+		err      error
+		inputs   map[fieldKey]*valueInput
+		rows     []quote.Entry
+		filtered []int
+		selected int
+		list     ui.ListState
 	}
 )
 
@@ -60,24 +58,24 @@ func (entry *tableState) index() int {
 }
 
 type Page struct {
-	state              *editor.State
-	openRecord         func(records.Kind, int)
-	openText           func(uint16)
-	openHex            func(int, int)
-	sidebar            components.Sidebar
-	category           int
-	categoryChoice     string
-	query              string
-	advanced           bool
-	showHelp           bool
-	showDefeatSettings bool
-	tables             []quote.Table
-	drafts             map[quote.Kind]*tableState
-	unit               int
-	extraKind          quote.Kind
-	thumbnails         components.Thumbnails
-	battleScope        int
-	scopeChoice        string
+	state          *editor.State
+	openRecord     func(records.Kind, int)
+	openText       func(uint16)
+	openHex        func(int, int)
+	sidebar        components.Sidebar
+	category       int
+	categoryChoice string
+	query          string
+	advanced       bool
+	showHelp       bool
+	defeat         defeatState
+	tables         []quote.Table
+	drafts         map[quote.Kind]*tableState
+	unit           int
+	extraKind      quote.Kind
+	thumbnails     components.Thumbnails
+	battleScope    int
+	scopeChoice    string
 }
 
 func New(
@@ -133,16 +131,28 @@ func (p *Page) Open(kind quote.Kind, index int) {
 
 func (p *Page) draft(table quote.Table) *tableState {
 	entry := p.drafts[table.Kind]
+	var selected uint64
 	if entry != nil && entry.draft != nil &&
 		!entry.draft.Current(p.state.Session.Quotes) &&
 		!entry.draft.Modified() &&
 		!entry.invalid() {
+		if index := entry.index(); index >= 0 {
+			selected = entry.rows[index].ID
+		}
 		entry = nil
 	}
 	if entry == nil || entry.draft == nil && table.Err == nil {
 		entry = &tableState{selected: 0, inputs: make(map[fieldKey]*valueInput)}
 		entry.draft, entry.err = p.state.Session.Quotes.NewDraft(table.Kind)
 		p.drafts[table.Kind] = entry
+		if selected != 0 && entry.draft != nil {
+			for index, row := range entry.draft.Entries() {
+				if row.ID == selected {
+					p.selectIndex(entry, index)
+					break
+				}
+			}
+		}
 	}
 	return entry
 }
@@ -753,7 +763,18 @@ func (p *Page) actions(c *ui.Context, entry *tableState, stale bool) {
 								p.query = ""
 								p.battleScope, p.scopeChoice = 0, ""
 								p.selectIndex(entry, index)
-								p.showDefeatSettings = true
+								if p.unit >= 0 {
+									p.startDefeatEdit(
+										entry,
+										index,
+										fieldLabel(
+											entry.draft.Kind(),
+											key.field,
+										),
+										[]string{key.field},
+										&p.defeat.actions,
+									)
+								}
 								return
 							}
 						}
@@ -764,8 +785,9 @@ func (p *Page) actions(c *ui.Context, entry *tableState, stale bool) {
 			ui.Button(c, locales.QuotePreview()).
 				Disabled(p.state.Busy || stale || !modified || invalid).
 				OnClick(func() {
+					p.defeat.openText = 0
 					preview, err := p.state.Session.Quotes.Plan(entry.draft)
-					entry.preview = preview
+					entry.preview, entry.err = preview, err
 					p.state.SetErr(err)
 				})
 		}
@@ -775,28 +797,46 @@ func (p *Page) actions(c *ui.Context, entry *tableState, stale bool) {
 		}
 		ui.Button(c, reload).
 			Disabled(p.state.Busy).
-			OnClick(func() { delete(p.drafts, p.tables[p.category].Kind) })
+			OnClick(func() {
+				p.defeat.openText = 0
+				delete(p.drafts, p.tables[p.category].Kind)
+			})
 	})
 	if plan := entry.preview; plan != nil {
 		ui.Column(c.Key("preview")).Gap(6).Children(func() {
-			ui.Textf(c, "%s · %d · 0x%08X → 0x%08X", locales.QuoteRecords(), plan.Count(), plan.Before(), plan.After()).
-				Selectable()
-			ui.Text(c, locales.QuotePreviewHelp()).
-				FontSize(components.FontCaption)
-			for _, site := range plan.Pointers() {
-				ui.Textf(c, "0x%08X → 0x%08X", site, 0x08000000+plan.After()).
-					Selectable().
+			if p.unit < 0 {
+				ui.Textf(c, "%s · %d · 0x%08X → 0x%08X", locales.QuoteRecords(), plan.Count(), plan.Before(), plan.After()).
+					Selectable()
+				ui.Text(c, locales.QuotePreviewHelp()).
 					FontSize(components.FontCaption)
+				for _, site := range plan.Pointers() {
+					ui.Textf(c, "0x%08X → 0x%08X", site, 0x08000000+plan.After()).
+						Selectable().
+						FontSize(components.FontCaption)
+				}
 			}
 			for _, kind := range plan.Shared() {
-				ui.Textf(c, "%s · %s", locales.QuoteShared(), locales.Label(string(kind))).
-					FontSize(components.FontCaption)
+				label := ui.Textf(
+					c,
+					"%s · %s",
+					locales.QuoteShared(),
+					locales.Label(string(kind)),
+				)
+				if p.unit < 0 {
+					label.FontSize(components.FontCaption)
+				}
 			}
-			ui.Text(c, locales.QuoteReferenceLimit()).
-				FontSize(components.FontCaption).
-				TextColor(c.Theme().TextMuted)
+			limit := ui.Text(c, locales.QuoteReferenceLimit())
+			if p.unit < 0 {
+				limit.FontSize(components.FontCaption).
+					TextColor(c.Theme().TextMuted)
+			}
 			ui.Row(c).Children(func() {
-				ui.PrimaryButton(c, locales.QuoteApply()).
+				label := locales.QuoteApply()
+				if p.unit >= 0 && p.defeat.openText != 0 {
+					label = locales.DefeatApplyAndEdit()
+				}
+				ui.PrimaryButton(c, label).
 					Disabled(p.state.Busy || stale || entry.invalid() || !plan.Current(p.state.Session.Quotes)).
 					OnClick(func() {
 						p.state.SetErr(
@@ -805,8 +845,19 @@ func (p *Page) actions(c *ui.Context, entry *tableState, stale bool) {
 							),
 						)
 						if p.state.Err == nil {
+							selected := entry.index()
 							delete(p.drafts, entry.draft.Kind())
+							if p.unit >= 0 {
+								fresh := p.draft(p.tables[p.category])
+								p.selectIndex(fresh, selected)
+							}
 							p.state.HistoryEpoch++
+							if id := p.defeat.openText; p.unit >= 0 &&
+								id != 0 &&
+								p.openText != nil {
+								p.defeat.openText = 0
+								p.openText(id)
+							}
 						}
 					})
 			})
