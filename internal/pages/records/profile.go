@@ -20,6 +20,11 @@ const (
 	profileTerrainTab
 )
 
+const (
+	profileReferenceBasis float32 = 200
+	profileSecondaryWidth float32 = 160
+)
+
 type profileTab struct {
 	id    int
 	label string
@@ -188,7 +193,7 @@ func (a *form) profileIdentity(
 	preview *assetPreview,
 ) {
 	ui.Row(c.Key("identity")).
-		MaxWidth(880).
+		MaxWidth(760).
 		Wrap().
 		Gap(12).
 		AlignItems(ui.Start).
@@ -222,11 +227,11 @@ func (a *form) profileIdentity(
 					}
 				})
 			ui.Column(c.Key("basic-info")).
-				Width(300).
+				Basis(360).
 				Grow(1).
 				MinWidth(0).
 				MaxWidthPercent(100).
-				Gap(6).
+				Gap(10).
 				Children(func() {
 					ui.Row(c.Key("name")).
 						Gap(8).
@@ -242,28 +247,38 @@ func (a *form) profileIdentity(
 					ui.Row(c.Key("class-level")).
 						Wrap().
 						Gap(12).
-						AlignItems(ui.Center).
+						AlignItems(ui.Start).
 						Children(func() {
 							field := "class_id"
 							if kind == records.Classes {
 								field = "promotion_id"
 							}
-							a.profileClass(c, kind, row, table, entry, field)
+							a.profileClass(c, kind, row, table, entry, field).
+								Basis(profileReferenceBasis).
+								Grow(1).MinWidth(0).MaxWidthPercent(100)
 							if kind == records.Units {
 								ui.Row(c.Key("level-affinity")).
-									Gap(10).
-									AlignItems(ui.Center).
+									Width(profileSecondaryWidth).
+									MaxWidthPercent(100).
+									Wrap().
+									Gap(12).
+									AlignItems(ui.Start).
 									Children(func() {
-										ui.Text(c, locales.Label("level")).
-											FontSize(components.FontCaption)
-										a.profileNumber(
-											c,
-											kind,
-											row,
-											table,
-											"level",
-											44,
-										)
+										ui.Column(c.Key("level")).
+											Width(56).
+											Gap(4).
+											Children(func() {
+												ui.Text(c, locales.Label("level")).
+													FontSize(components.FontCaption)
+												a.profileNumber(
+													c,
+													kind,
+													row,
+													table,
+													"level",
+													56,
+												)
+											})
 										a.profileEnum(
 											c,
 											kind,
@@ -281,14 +296,14 @@ func (a *form) profileIdentity(
 												"affinity_light",
 												"affinity_anima",
 											},
-										)
+										).Width(92)
 									})
 							}
 						})
 					ui.Row(c.Key("portraits")).
 						Wrap().
 						Gap(12).
-						AlignItems(ui.Center).
+						AlignItems(ui.Start).
 						Children(func() {
 							a.profilePortraitReference(
 								c,
@@ -309,65 +324,65 @@ func (a *form) profilePortraitReference(
 	table *records.Table,
 	preview *assetPreview,
 ) {
-	ui.Row(c.Key("portrait-reference")).
-		Gap(6).
-		AlignItems(ui.Center).
+	ui.Column(c.Key("portrait-reference")).
+		Basis(profileReferenceBasis).Grow(1).MinWidth(0).MaxWidthPercent(100).
+		Gap(4).
 		Children(func() {
 			ui.Text(c, locales.Label("portrait_id")).
-				Width(76).
 				FontSize(components.FontCaption)
-			a.profileNumber(c, kind, row, table, "portrait_id", 64)
-			if a.openPortrait != nil {
-				ui.Button(c, locales.OpenPortraitTable()).
-					Height(26).
-					FontSize(components.FontCaption).
-					Disabled(a.state.Busy || preview == nil || preview.ref.ID == 0).
-					OnClick(func() { a.openPortrait(preview.ref.ID) })
-			}
+			ui.Row(c).Gap(6).AlignItems(ui.Center).Children(func() {
+				a.profileNumber(c, kind, row, table, "portrait_id", 64)
+				if a.openPortrait != nil {
+					ui.Button(c, locales.OpenPortraitTable()).
+						Height(26).
+						FontSize(components.FontCaption).
+						Disabled(a.state.Busy || preview == nil || preview.ref.ID == 0).
+						OnClick(func() { a.openPortrait(preview.ref.ID) })
+				}
+			})
 		})
 	if kind != records.Units {
 		return
 	}
-	ui.Row(c.Key("mini-reference")).
-		Wrap().
-		Gap(6).
-		AlignItems(ui.Center).
+	ui.Column(c.Key("mini-reference")).
+		Width(profileSecondaryWidth).MaxWidthPercent(100).
+		Gap(4).
 		Children(func() {
-			ui.Row(c).Gap(6).AlignItems(ui.Center).Children(func() {
-				ui.Text(c, locales.Label("portrait_mini_source")).
-					FontSize(components.FontCaption)
+			ui.Text(c, locales.Label("portrait_mini_source")).
+				FontSize(components.FontCaption)
+			ui.Row(c).Wrap().Gap(6).AlignItems(ui.Center).Children(func() {
 				a.profileNumber(c, kind, row, table, "mini_portrait", 48)
-			})
-			if preview == nil || preview.source == nil {
-				return
-			}
-			source := preview.source
-			label := locales.Label("portrait_mini_inherit")
-			if source.GenericMini != 0 {
-				label = fmt.Sprintf(
-					"%s %d",
-					locales.Label("portrait_mini_generic"),
-					source.GenericMini,
-				)
-			}
-			ui.Text(c, label).
-				FontSize(components.FontCaption).
-				TextColor(c.Theme().TextMuted)
-			if source.MiniErr != nil {
-				ui.Text(c, components.ErrorText(source.MiniErr)).
-					FontSize(components.FontCaption).
-					TextColor(c.Theme().Danger)
-			}
-			if source.GenericMini != 0 && len(source.MiniResources) > 0 {
-				resource := source.MiniResources[0]
-				if !resource.Empty && resource.Err == nil {
-					ui.Button(c, locales.Label("portrait_generic_bytes")).
-						Height(26).
-						FontSize(components.FontCaption).
-						Disabled(a.state.Busy).
-						OnClick(func() { a.openHex(resource.Address, resource.Length) })
+				if preview == nil || preview.source == nil {
+					return
 				}
-			}
+				source := preview.source
+				label := locales.Label("portrait_mini_inherit")
+				if source.GenericMini != 0 {
+					label = fmt.Sprintf(
+						"%s %d",
+						locales.Label("portrait_mini_generic"),
+						source.GenericMini,
+					)
+				}
+				ui.Text(c, label).
+					FontSize(components.FontCaption).
+					TextColor(c.Theme().TextMuted)
+				if source.MiniErr != nil {
+					ui.Text(c, components.ErrorText(source.MiniErr)).
+						FontSize(components.FontCaption).
+						TextColor(c.Theme().Danger)
+				}
+				if source.GenericMini != 0 && len(source.MiniResources) > 0 {
+					resource := source.MiniResources[0]
+					if !resource.Empty && resource.Err == nil {
+						ui.Button(c, locales.Label("portrait_generic_bytes")).
+							Height(26).
+							FontSize(components.FontCaption).
+							Disabled(a.state.Busy).
+							OnClick(func() { a.openHex(resource.Address, resource.Length) })
+					}
+				}
+			})
 		})
 }
 
@@ -428,7 +443,7 @@ func (a *form) profileRelated(
 			entry,
 			"movement_speed",
 			[]string{"record_walk_standard", "record_walk_slow"},
-		)
+		).Width(180)
 	}
 	if kind == records.Units {
 		return

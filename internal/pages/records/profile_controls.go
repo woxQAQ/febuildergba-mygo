@@ -34,14 +34,14 @@ func (a *form) profileClass(
 	table *records.Table,
 	entry *profileState,
 	id string,
-) {
+) ui.Element {
 	field, exists := profileField(table, id)
 	if !exists {
-		return
+		return ui.Element{}
 	}
 	value, err := a.state.Session.Records.Value(kind, row.ID, id)
 	if err != nil {
-		return
+		return ui.Element{}
 	}
 	var labels []string
 	var ids []int
@@ -66,41 +66,47 @@ func (a *form) profileClass(
 		ids = append(ids, int(value))
 	}
 	draft := entry.choice(id, value, caption)
-	ui.Row(c.Key(id)).Gap(6).AlignItems(ui.Center).Children(func() {
+	return ui.Column(c.Key(id)).Gap(4).Children(func() {
 		help := locales.RecordDefaultClassHelp()
 		if kind == records.Classes {
 			help = locales.RecordRelatedClassHelp()
 		}
 		ui.Text(c, locales.Label(id)).
-			Width(76).
 			FontSize(components.FontCaption).
 			Tooltip(help)
-		components.TextDraft(
-			a.state,
-			ui.Combobox(c, &draft.text, labels).
-				Width(140).
+		ui.Row(c).Gap(6).AlignItems(ui.Center).Children(func() {
+			components.TextDraft(
+				a.state,
+				ui.Combobox(c, &draft.text, labels).
+					Grow(1).
+					MinWidth(0).
+					Height(26).
+					Label(a.fieldLabel(kind, field)).
+					Tooltip(help).
+					Disabled(a.state.Busy).
+					OnChange(func() {
+						if index := slices.Index(
+							labels,
+							draft.text,
+						); index >= 0 {
+							a.state.SetErr(a.state.Edit(func() error {
+								return a.state.Session.Records.Set(
+									kind,
+									[]int{row.ID},
+									id,
+									int64(ids[index]),
+								)
+							}))
+						}
+					}),
+			)
+			ui.Button(c, locales.Jump()).
 				Height(26).
-				Label(a.fieldLabel(kind, field)).
-				Tooltip(help).
-				Disabled(a.state.Busy).
-				OnChange(func() {
-					if index := slices.Index(labels, draft.text); index >= 0 {
-						a.state.SetErr(a.state.Edit(func() error {
-							return a.state.Session.Records.Set(
-								kind,
-								[]int{row.ID},
-								id,
-								int64(ids[index]),
-							)
-						}))
-					}
-				}),
-		)
-		ui.Button(c, locales.Jump()).
-			Height(26).
-			FontSize(components.FontCaption).
-			Disabled(a.state.Busy || target < 0).
-			OnClick(func() { a.jump(records.Classes, target) })
+				Shrink(0).
+				FontSize(components.FontCaption).
+				Disabled(a.state.Busy || target < 0).
+				OnClick(func() { a.jump(records.Classes, target) })
+		})
 	})
 }
 
@@ -112,14 +118,14 @@ func (a *form) profileEnum(
 	entry *profileState,
 	id string,
 	keys []string,
-) {
+) ui.Element {
 	field, exists := profileField(table, id)
 	if !exists {
-		return
+		return ui.Element{}
 	}
 	value, err := a.state.Session.Records.Value(kind, row.ID, id)
 	if err != nil {
-		return
+		return ui.Element{}
 	}
 	labels := make([]string, len(keys))
 	for index, key := range keys {
@@ -132,10 +138,11 @@ func (a *form) profileEnum(
 		labels = append(labels, caption)
 	}
 	draft := entry.choice(id, value, caption)
-	ui.Row(c.Key(id)).Gap(6).AlignItems(ui.Center).Children(func() {
+	return ui.Column(c.Key(id)).Gap(4).Children(func() {
 		ui.Text(c, locales.Label(id)).FontSize(components.FontCaption)
 		ui.Select(c, &draft.text, labels).
-			MinWidth(72).
+			WidthPercent(100).
+			MinWidth(0).
 			Height(26).
 			Label(a.fieldLabel(kind, field)).
 			Disabled(a.state.Busy).
