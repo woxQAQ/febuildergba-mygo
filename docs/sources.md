@@ -30,6 +30,12 @@
 
 FE8 路径使用同一固定提交的 [muctrl.h](https://github.com/FireEmblemUniverse/fireemblem8u/blob/04d1edb163d14bd10777a065697e1a9f17be65f2/include/muctrl.h) 和 [muctrl.c](https://github.com/FireEmblemUniverse/fireemblem8u/blob/04d1edb163d14bd10777a065697e1a9f17be65f2/src/muctrl.c)，核对 `REDA`、`CopyEventMoveREDAs`、`MuCtr_ExecREDA_807A358` 的绝对目标、缓冲区和等待语义；条件事件参考 [eventinfo.c](https://github.com/FireEmblemUniverse/fireemblem8u/blob/04d1edb163d14bd10777a065697e1a9f17be65f2/src/eventinfo.c) 中的 `EvCheck02_TURN` 等执行逻辑。
 
+## 文本文件
+
+固定旧版基线的 `TextForm.cs` 中 `Export_Click`／`Import_Click` 进入 `ToolTranslateROM.cs` 的 `ExportallText`／`ReadTextDataDic`／`WriteText`。`ExportText` 写 `[十六进制 ID]` 和正文，`ReadTextDataDic` 用物理行组成正文，忽略空行、注释及其他游戏语言行；`WriteText` 去除最后追加的一次物理换行。`TranslateTextUtil.cs` 的 `IsTextIDCode` 和 `U.cs` 的 `OtherLangLine`／`ClipComment` 提供标题及 `{J}`／`{U}`／`//` 规则。`TextForm.ConvertFEditorToEscape` 和 `TextEscape.cs` 的固定表提供原生 `@NNNN`、FEditor 参数、位置别名及 `[N]`／`[X]` 的处理依据。
+
+新版采用其中的 UTF-8、已有非零 ID 和原生／共有 FEditor 控制码子集，严格拒绝重复 ID，不沿用旧版字典最后一项覆盖前项的行为；不接受 `[XXXX]` 无效段、原始地址段、UTF-16、自定义文本引擎或自动安装反 Huffman 补丁。导出使用显式原生标记保存真实游戏换行、字面分隔符及名称填充，不沿用多字节导出删除 `@001F` 的有损步骤。格式和写入边界见[文件参考](reference/text-and-images.md#文本文件)，这些约定不改变现有 ROM 编码和主表入口规则。
+
 ## 列表缩略图与武器类别图标
 
 五版入口、我方调色板地址、形状及武器裁图依据固定旧版提交 `8e3557912ddab708d11bf85ad311b41bb6630fd1` 的 `ROMFE6JP.cs`、`ROMFE7U.cs`、`ROMFE7JP.cs`、`ROMFE8U.cs`、`ROMFE8JP.cs`、[ImageUnitWaitIconFrom.cs](https://github.com/FEBuilderGBA/FEBuilderGBA/blob/8e3557912ddab708d11bf85ad311b41bb6630fd1/FEBuilderGBA/ImageUnitWaitIconFrom.cs) 和 [ImageSystemIconForm.cs](https://github.com/FEBuilderGBA/FEBuilderGBA/blob/8e3557912ddab708d11bf85ad311b41bb6630fd1/FEBuilderGBA/ImageSystemIconForm.cs)。旧版 FE8 的候选入口选择只用于只读读取。

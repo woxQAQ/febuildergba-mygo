@@ -34,6 +34,206 @@ type Messages struct{ locale string }
 // source language.
 func In(locale string) Messages { return Messages{locale} }
 
+// TextFileExport says "Export filtered text…"
+// in the language the app shows.
+func TextFileExport() string { return In(i18n.Locale()).TextFileExport() }
+
+// TextFileExport says "Export filtered text…"
+// in the language of msgs.
+func (msgs Messages) TextFileExport() string {
+	return Catalog.Format(msgs.locale, "text_file_export", nil)
+}
+
+// TextFileChoose says "Choose file…"
+// in the language the app shows.
+func TextFileChoose() string { return In(i18n.Locale()).TextFileChoose() }
+
+// TextFileChoose says "Choose file…"
+// in the language of msgs.
+func (msgs Messages) TextFileChoose() string {
+	return Catalog.Format(msgs.locale, "text_file_choose", nil)
+}
+
+// TextFileSkipped says "Export skips {count, plural, one {# unreadable entry} other {# unreadable entries}}."
+// in the language the app shows.
+func TextFileSkipped(count int) string { return In(i18n.Locale()).TextFileSkipped(count) }
+
+// TextFileSkipped says "Export skips {count, plural, one {# unreadable entry} other {# unreadable entries}}."
+// in the language of msgs.
+func (msgs Messages) TextFileSkipped(count int) string {
+	return Catalog.Format(msgs.locale, "text_file_skipped", map[string]any{"count": count})
+}
+
+// TextFileImport says "Import text file…"
+// in the language the app shows.
+func TextFileImport() string { return In(i18n.Locale()).TextFileImport() }
+
+// TextFileImport says "Import text file…"
+// in the language of msgs.
+func (msgs Messages) TextFileImport() string {
+	return Catalog.Format(msgs.locale, "text_file_import", nil)
+}
+
+// TextFileApply says "Apply import"
+// in the language the app shows.
+func TextFileApply() string { return In(i18n.Locale()).TextFileApply() }
+
+// TextFileApply says "Apply import"
+// in the language of msgs.
+func (msgs Messages) TextFileApply() string {
+	return Catalog.Format(msgs.locale, "text_file_apply", nil)
+}
+
+// TextFileReturn says "Cancel import"
+// in the language the app shows.
+func TextFileReturn() string { return In(i18n.Locale()).TextFileReturn() }
+
+// TextFileReturn says "Cancel import"
+// in the language of msgs.
+func (msgs Messages) TextFileReturn() string {
+	return Catalog.Format(msgs.locale, "text_file_return", nil)
+}
+
+// TextFileChanged says "Changed"
+// in the language the app shows.
+func TextFileChanged() string { return In(i18n.Locale()).TextFileChanged() }
+
+// TextFileChanged says "Changed"
+// in the language of msgs.
+func (msgs Messages) TextFileChanged() string {
+	return Catalog.Format(msgs.locale, "text_file_changed", nil)
+}
+
+// TextFileUnchanged says "Unchanged"
+// in the language the app shows.
+func TextFileUnchanged() string { return In(i18n.Locale()).TextFileUnchanged() }
+
+// TextFileUnchanged says "Unchanged"
+// in the language of msgs.
+func (msgs Messages) TextFileUnchanged() string {
+	return Catalog.Format(msgs.locale, "text_file_unchanged", nil)
+}
+
+// TextFileLine says "File line"
+// in the language the app shows.
+func TextFileLine() string { return In(i18n.Locale()).TextFileLine() }
+
+// TextFileLine says "File line"
+// in the language of msgs.
+func (msgs Messages) TextFileLine() string {
+	return Catalog.Format(msgs.locale, "text_file_line", nil)
+}
+
+// TextFileStatus says "Status"
+// in the language the app shows.
+func TextFileStatus() string { return In(i18n.Locale()).TextFileStatus() }
+
+// TextFileStatus says "Status"
+// in the language of msgs.
+func (msgs Messages) TextFileStatus() string {
+	return Catalog.Format(msgs.locale, "text_file_status", nil)
+}
+
+// TextFileExportDrafts says "Export uses ROM text and excludes pending single-text drafts."
+// in the language the app shows.
+func TextFileExportDrafts() string { return In(i18n.Locale()).TextFileExportDrafts() }
+
+// TextFileExportDrafts says "Export uses ROM text and excludes pending single-text drafts."
+// in the language of msgs.
+func (msgs Messages) TextFileExportDrafts() string {
+	return Catalog.Format(msgs.locale, "text_file_export_drafts", nil)
+}
+
+// TextFileReplaceDrafts says "Applying discards pending drafts for the changed text IDs. Cancel import to keep them."
+// in the language the app shows.
+func TextFileReplaceDrafts() string { return In(i18n.Locale()).TextFileReplaceDrafts() }
+
+// TextFileReplaceDrafts says "Applying discards pending drafts for the changed text IDs. Cancel import to keep them."
+// in the language of msgs.
+func (msgs Messages) TextFileReplaceDrafts() string {
+	return Catalog.Format(msgs.locale, "text_file_replace_drafts", nil)
+}
+
+// TextFileErrors says "Errors"
+// in the language the app shows.
+func TextFileErrors() string { return In(i18n.Locale()).TextFileErrors() }
+
+// TextFileErrors says "Errors"
+// in the language of msgs.
+func (msgs Messages) TextFileErrors() string {
+	return Catalog.Format(msgs.locale, "text_file_errors", nil)
+}
+
+// GameTextFileSyntax says "Use a UTF-8 file with [hex ID] sections and LF or CRLF lines. Content must follow an ID header."
+// in the language the app shows.
+func GameTextFileSyntax() string { return In(i18n.Locale()).GameTextFileSyntax() }
+
+// GameTextFileSyntax says "Use a UTF-8 file with [hex ID] sections and LF or CRLF lines. Content must follow an ID header."
+// in the language of msgs.
+func (msgs Messages) GameTextFileSyntax() string {
+	return Catalog.Format(msgs.locale, "game_text_file_syntax", nil)
+}
+
+// GameTextFileId says "The file refers to an invalid or unavailable text ID. Only existing nonzero IDs can be imported."
+// in the language the app shows.
+func GameTextFileId() string { return In(i18n.Locale()).GameTextFileId() }
+
+// GameTextFileId says "The file refers to an invalid or unavailable text ID. Only existing nonzero IDs can be imported."
+// in the language of msgs.
+func (msgs Messages) GameTextFileId() string {
+	return Catalog.Format(msgs.locale, "game_text_file_id", nil)
+}
+
+// GameTextFileDuplicate says "A text ID appears more than once. Keep one section per ID."
+// in the language the app shows.
+func GameTextFileDuplicate() string { return In(i18n.Locale()).GameTextFileDuplicate() }
+
+// GameTextFileDuplicate says "A text ID appears more than once. Keep one section per ID."
+// in the language of msgs.
+func (msgs Messages) GameTextFileDuplicate() string {
+	return Catalog.Format(msgs.locale, "game_text_file_duplicate", nil)
+}
+
+// GameTextFileSize says "The text file is empty or exceeds 16 MiB."
+// in the language the app shows.
+func GameTextFileSize() string { return In(i18n.Locale()).GameTextFileSize() }
+
+// GameTextFileSize says "The text file is empty or exceeds 16 MiB."
+// in the language of msgs.
+func (msgs Messages) GameTextFileSize() string {
+	return Catalog.Format(msgs.locale, "game_text_file_size", nil)
+}
+
+// GameTextFileEntries says "Some entries cannot be imported. Review the errors by text ID; the whole import remains unapplied."
+// in the language the app shows.
+func GameTextFileEntries() string { return In(i18n.Locale()).GameTextFileEntries() }
+
+// GameTextFileEntries says "Some entries cannot be imported. Review the errors by text ID; the whole import remains unapplied."
+// in the language of msgs.
+func (msgs Messages) GameTextFileEntries() string {
+	return Catalog.Format(msgs.locale, "game_text_file_entries", nil)
+}
+
+// AppTextExportPath says "Choose a .txt path for the exported text."
+// in the language the app shows.
+func AppTextExportPath() string { return In(i18n.Locale()).AppTextExportPath() }
+
+// AppTextExportPath says "Choose a .txt path for the exported text."
+// in the language of msgs.
+func (msgs Messages) AppTextExportPath() string {
+	return Catalog.Format(msgs.locale, "app_text_export_path", nil)
+}
+
+// AppTextExportRom says "This path refers to an open ROM. Choose a separate text file."
+// in the language the app shows.
+func AppTextExportRom() string { return In(i18n.Locale()).AppTextExportRom() }
+
+// AppTextExportRom says "This path refers to an open ROM. Choose a separate text file."
+// in the language of msgs.
+func (msgs Messages) AppTextExportRom() string {
+	return Catalog.Format(msgs.locale, "app_text_export_rom", nil)
+}
+
 // ScriptWmFadeHighlights says "Fade out all world-map highlights"
 // in the language the app shows.
 func ScriptWmFadeHighlights() string { return In(i18n.Locale()).ScriptWmFadeHighlights() }

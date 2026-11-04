@@ -13,6 +13,7 @@ import (
 	"github.com/woxQAQ/febuildergba-mygo/game/records"
 	"github.com/woxQAQ/febuildergba-mygo/game/shop"
 	"github.com/woxQAQ/febuildergba-mygo/game/support"
+	"github.com/woxQAQ/febuildergba-mygo/game/text"
 	"github.com/woxQAQ/febuildergba-mygo/game/worldmap"
 	"github.com/woxQAQ/febuildergba-mygo/internal/components"
 	"github.com/woxQAQ/febuildergba-mygo/internal/editor"
@@ -50,6 +51,8 @@ type Actions struct {
 	ExportMapPalette          func(*maps.Palette, maps.PaletteSection)
 	ImportMapGraphics         func(*maps.Graphics, maps.GraphicsImport, func(*maps.GraphicsDraft, error))
 	ExportMapGraphics         func(*maps.Graphics, int)
+	ImportTextFile            func(*text.File, func(*text.Import, string, error))
+	ExportTextFile            func(*text.File, []uint16)
 	MenuStateChanged          func()
 }
 
@@ -98,6 +101,18 @@ func New() *Workspace {
 				}
 			}
 			w.records.Open(kind, id)
+		},
+	)
+	w.texts.SetFileActions(
+		func(source *text.File, done func(*text.Import, string, error)) {
+			if w.Actions.ImportTextFile != nil {
+				w.Actions.ImportTextFile(source, done)
+			}
+		},
+		func(source *text.File, ids []uint16) {
+			if w.Actions.ExportTextFile != nil {
+				w.Actions.ExportTextFile(source, ids)
+			}
 		},
 	)
 	assets := components.AssetActions{
@@ -359,6 +374,9 @@ func (w *Workspace) View(c *ui.Context) {
 		})
 		if w.tab >= len(records.Kinds) {
 			w.records.Deactivate()
+		}
+		if w.tab != len(records.Kinds) {
+			w.texts.Deactivate()
 		}
 		if w.tab != len(records.Kinds)+8 {
 			w.worldmap.Deactivate()

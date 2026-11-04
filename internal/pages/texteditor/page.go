@@ -23,21 +23,33 @@ type draft struct {
 }
 
 type Page struct {
-	state      *editor.State
-	openRecord func(records.Kind, int)
-	sidebar    components.Sidebar
-	query      string
-	lastQuery  string
-	selected   int
-	list       ui.ListState
-	entries    []text.Entry
-	rows       []text.Entry
-	revision   uint64
-	indexed    bool
-	indexErr   error
-	drafts     map[uint16]*draft
-	showRaw    bool
-	showHelp   bool
+	state         *editor.State
+	openRecord    func(records.Kind, int)
+	sidebar       components.Sidebar
+	query         string
+	lastQuery     string
+	selected      int
+	list          ui.ListState
+	entries       []text.Entry
+	rows          []text.Entry
+	revision      uint64
+	indexed       bool
+	indexErr      error
+	drafts        map[uint16]*draft
+	showRaw       bool
+	showHelp      bool
+	importFile    func(*text.File, func(*text.Import, string, error))
+	exportFile    func(*text.File, []uint16)
+	fileEpoch     uint64
+	fileDraft     *text.Import
+	filePlan      *text.ImportPlan
+	fileErr       error
+	fileRows      []text.FileEntry
+	fileSelection int
+	fileList      ui.ListState
+	filesFocus    ui.Handle
+	fileName      string
+	reviewFocus   ui.Handle
 }
 
 func New(state *editor.State, openRecord func(records.Kind, int)) *Page {
@@ -50,8 +62,11 @@ func New(state *editor.State, openRecord func(records.Kind, int)) *Page {
 
 func (p *Page) Reset() {
 	state, openRecord, sidebar := p.state, p.openRecord, p.sidebar
+	importFile, exportFile := p.importFile, p.exportFile
+	epoch := p.fileEpoch + 1
 	*p = *New(state, openRecord)
 	p.sidebar = sidebar
+	p.importFile, p.exportFile, p.fileEpoch = importFile, exportFile, epoch
 }
 
 func (p *Page) refresh() {
@@ -93,6 +108,7 @@ func (p *Page) refresh() {
 }
 
 func (p *Page) Open(id uint16) {
+	p.fileEpoch++
 	p.query = fmt.Sprintf("0x%04X", id)
 	p.refresh()
 	for i, entry := range p.rows {
@@ -108,7 +124,22 @@ func (p *Page) Open(id uint16) {
 
 func (p *Page) View(c *ui.Context) {
 	p.refresh()
-	p.sidebar.Render(c, 330, func() { p.navigation(c) }, func() { p.editor(c) })
+	ui.Column(c.Key("text-page")).
+		FillWidth().
+		Grow(1).
+		MinHeight(0).
+		Children(func() {
+			if p.fileDraft != nil {
+				p.fileReview(c)
+			} else {
+				p.sidebar.Render(
+					c.Key("text-browser"),
+					330,
+					func() { p.navigation(c) },
+					func() { p.editor(c) },
+				)
+			}
+		})
 }
 
 func (p *Page) navigation(c *ui.Context) {
@@ -124,6 +155,9 @@ func (p *Page) navigation(c *ui.Context) {
 		if p.indexErr != nil {
 			ui.Text(c, components.ErrorText(p.indexErr)).
 				TextColor(c.Theme().Danger)
+			ui.Scroll(c.Key("file-actions")).
+				Grow(1).
+				Children(func() { p.fileActions(c) })
 			return
 		}
 		p.list.Selected = &p.selected
@@ -148,6 +182,10 @@ func (p *Page) navigation(c *ui.Context) {
 		}).Grow(1).Label(locales.TextEditor())
 		ui.Text(c, locales.RecordSummary(len(p.rows))).
 			TextColor(c.Theme().TextMuted)
+		ui.Scroll(c.Key("file-actions")).
+			MaxHeight(220).
+			Shrink(0).
+			Children(func() { p.fileActions(c) })
 	})
 }
 

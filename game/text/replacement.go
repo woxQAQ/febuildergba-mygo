@@ -23,9 +23,44 @@ func (g Format) plan(
 	if err != nil {
 		return space.WritePlan{}, err
 	}
+	return g.planReplacements(data, []replacement{
+		{
+			id:         id,
+			role:       role,
+			entry:      entry,
+			encoded:    encoded,
+			expected:   expected,
+			references: references,
+		},
+	})
+}
+
+type replacement struct {
+	id         uint16
+	role       Role
+	entry      int
+	encoded    []byte
+	expected   string
+	references References
+}
+
+// All replacements share one allocator and one prospective image. The same
+// reference checks and read-back validation apply to single and file edits.
+func (g Format) planReplacements(
+	data []byte,
+	replacements []replacement,
+) (space.WritePlan, error) {
+	byID := make(map[int]replacement, len(replacements))
+	for _, item := range replacements {
+		byID[int(item.id)] = item
+	}
 	builder := space.NewBuilder(data, space.Protection{
-		Pointer: func(data []byte, _ space.Owner, site int) error {
-			expected, err := g.entry(data, id, references)
+		Pointer: func(data []byte, owner space.Owner, site int) error {
+			item, ok := byID[owner.ID]
+			if !ok || owner.Resource != Resource {
+				return ErrText
+			}
+			expected, err := g.entry(data, item.id, item.references)
 			if err != nil {
 				return err
 			}
@@ -35,11 +70,20 @@ func (g Format) plan(
 			return nil
 		},
 	})
-	if _, err := builder.Replace(encoded, space.PointerSite{
-		Owner:   space.Owner{Resource: Resource, ID: int(id)},
-		Address: entry, ExpectedWord: gba.Uint32(data, entry),
-	}); err != nil {
-		return space.WritePlan{}, err
+	for _, item := range replacements {
+		if _, err := builder.Replace(item.encoded, space.PointerSite{
+			Owner:   space.Owner{Resource: Resource, ID: int(item.id)},
+			Address: item.entry, ExpectedWord: gba.Uint32(data, item.entry),
+		}); err != nil {
+			return space.WritePlan{}, fault.Wrap(
+				err,
+				"game.replace_text",
+				fault.Context{
+					Resource:   Resource,
+					ResourceID: new(int(item.id)),
+				},
+			)
+		}
 	}
 	plan := builder.Plan()
 	prospective := bytes.Repeat([]byte{0xFF}, plan.Edit.Size)
@@ -47,20 +91,31 @@ func (g Format) plan(
 	for _, change := range plan.Edit.Changes {
 		copy(prospective[change.Offset:], change.Data)
 	}
-	if role == Description {
-		decoded, decodeErr := g.Read(prospective, id)
-		if decodeErr != nil || !decoded.Editable ||
-			decoded.Content != expected {
-			return space.WritePlan{}, ErrTextEncoding
-		}
-	} else {
-		if decoded, decodeErr := g.ReadName(
-			prospective,
-			id,
-			references.Aliases,
-		); decodeErr != nil ||
-			decoded != expected {
-			return space.WritePlan{}, ErrNameEncoding
+	for _, item := range replacements {
+		if item.role == Description {
+			decoded, decodeErr := g.Read(prospective, item.id)
+			if decodeErr != nil || !decoded.Editable ||
+				decoded.Content != item.expected {
+				return space.WritePlan{}, fault.New(
+					ErrTextEncoding,
+					"game.verify_text",
+					fault.Context{
+						Resource:   Resource,
+						ResourceID: new(int(item.id)),
+					},
+					decodeErr,
+				)
+			}
+		} else if decoded, decodeErr := g.ReadName(prospective, item.id, item.references.Aliases); decodeErr != nil || decoded != item.expected {
+			return space.WritePlan{}, fault.New(
+				ErrNameEncoding,
+				"game.verify_text",
+				fault.Context{
+					Resource:   Resource,
+					ResourceID: new(int(item.id)),
+				},
+				decodeErr,
+			)
 		}
 	}
 	return plan, nil
