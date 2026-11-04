@@ -11,7 +11,19 @@ import (
 	"github.com/woxQAQ/febuildergba-mygo/internal/locales"
 )
 
-const profileRawTab = 4
+const (
+	profileAbilitiesTab = iota
+	profileRelatedTab
+	profileSupportTab
+	profileDefeatTab
+	profileRawTab
+	profileTerrainTab
+)
+
+type profileTab struct {
+	id    int
+	label string
+}
 
 type (
 	choiceDraft struct {
@@ -66,6 +78,8 @@ func (a *form) profile(
 	table *records.Table,
 ) {
 	entry := a.profileFor(kind, row.ID)
+	tabs := profileTabs(table)
+	entry.section = min(entry.section, len(tabs)-1)
 	preview := a.previewFor(kind, row.ID)
 	ui.Column(c.Key(fmt.Sprintf("profile/%s/%d", kind, row.ID))).
 		Fill().
@@ -80,19 +94,9 @@ func (a *form) profile(
 						ui.Text(c, components.ErrorText(preview.err)).
 							TextColor(c.Theme().Danger)
 					}
-					sections := []string{
-						locales.RecordAbilities(),
-						locales.RecordRelated(),
-					}
-					if kind == records.Classes {
-						sections = append(sections, locales.TerrainEditor())
-					} else {
-						sections = append(
-							sections,
-							locales.SupportEditor(),
-							locales.Label("quote_death"),
-							locales.Advanced(),
-						)
+					sections := make([]string, len(tabs))
+					for index, tab := range tabs {
+						sections[index] = tab.label
 					}
 					ui.Row(c.Key("profile-toolbar")).
 						Wrap().Gap(12).
@@ -106,26 +110,22 @@ func (a *form) profile(
 									FontSize(components.FontCaption)
 							}
 						})
-					if kind == records.Units && entry.section == profileRawTab {
+					switch tabs[entry.section].id {
+					case profileRawTab:
 						a.profileRaw(c, kind, row, table)
-					} else if entry.section == 0 {
+					case profileAbilitiesTab:
 						a.profileAbilities(c, kind, row, table, entry)
 						a.profileTraits(c, kind, row)
-					} else if entry.section == 2 && kind == records.Classes {
+					case profileTerrainTab:
 						a.profileTerrain(c, row, entry)
-					} else if entry.section == 3 && kind == records.Units {
+					case profileDefeatTab:
 						if a.defeatView != nil {
 							width, _ := c.Size()
-							a.defeatView(
-								c,
-								row.ID,
-								width-a.sidebar-32,
-								false,
-							)
+							a.defeatView(c, row.ID, width-a.sidebar-32, false)
 						}
-					} else if entry.section == 2 {
+					case profileSupportTab:
 						a.profileSupports(c, row, entry)
-					} else {
+					case profileRelatedTab:
 						a.profileRelated(c, kind, row, table, entry)
 					}
 					if kind == records.Classes && a.showRaw {
@@ -135,9 +135,46 @@ func (a *form) profile(
 		})
 }
 
+func profileTabs(table *records.Table) []profileTab {
+	tabs := []profileTab{{profileAbilitiesTab, locales.RecordAbilities()}}
+	if table.Kind == records.Classes || len(profileRelatedFields(table)) > 0 {
+		tabs = append(
+			tabs,
+			profileTab{profileRelatedTab, locales.RecordRelated()},
+		)
+	}
+	if table.Kind == records.Classes {
+		return append(
+			tabs,
+			profileTab{profileTerrainTab, locales.TerrainEditor()},
+		)
+	}
+	return append(tabs,
+		profileTab{profileSupportTab, locales.SupportEditor()},
+		profileTab{profileDefeatTab, locales.Label("quote_death")},
+		profileTab{profileRawTab, locales.Advanced()},
+	)
+}
+
+func (a *form) selectProfileTab(kind records.Kind, id, target int) {
+	table := a.state.Session.Records.Table(kind)
+	if table == nil {
+		return
+	}
+	for index, tab := range profileTabs(table) {
+		if tab.id == target {
+			a.profileFor(kind, id).section = index
+			return
+		}
+	}
+}
+
 func (a *form) rawRecord(kind records.Kind, id int) bool {
 	if kind == records.Units {
-		return a.profileFor(kind, id).section == profileRawTab
+		table := a.state.Session.Records.Table(kind)
+		tabs := profileTabs(table)
+		index := a.profileFor(kind, id).section
+		return index < len(tabs) && tabs[index].id == profileRawTab
 	}
 	return a.showRaw
 }
@@ -354,6 +391,24 @@ func (a *form) profileNumber(
 	a.numberField(c, kind, row, field, value).Width(width)
 }
 
+func profileRawField(field records.Field) bool {
+	return field.Group == records.GroupAdvanced || field.Text != text.NoRole ||
+		field.ID == "id" || field.ID == "sort_order" || field.ID == "visit_group"
+}
+
+func profileRelatedFields(table *records.Table) []records.Field {
+	var fields []records.Field
+	for _, field := range table.Fields {
+		if field.Group != records.GroupGeneral || profileRawField(field) ||
+			field.Reference != "" || field.ID == "affinity" ||
+			field.ID == "movement_speed" || field.ID == "portrait_id" || field.ID == "mini_portrait" {
+			continue
+		}
+		fields = append(fields, field)
+	}
+	return fields
+}
+
 func (a *form) profileRelated(
 	c *ui.Context,
 	kind records.Kind,
@@ -361,17 +416,9 @@ func (a *form) profileRelated(
 	table *records.Table,
 	entry *profileState,
 ) {
-	var fields []records.Field
-	for _, field := range table.Fields {
-		if field.Group != records.GroupGeneral || field.ID == "id" ||
-			field.Text != text.NoRole || field.Reference != "" ||
-			field.ID == "affinity" ||
-			field.ID == "movement_speed" || field.ID == "portrait_id" || field.ID == "mini_portrait" {
-			continue
-		}
-		fields = append(fields, field)
+	if fields := profileRelatedFields(table); len(fields) > 0 {
+		a.inlineSection(c, kind, row, records.GroupGeneral, fields, 2)
 	}
-	a.inlineSection(c, kind, row, records.GroupGeneral, fields, 2)
 	if kind == records.Classes {
 		a.profileEnum(
 			c,
@@ -442,8 +489,7 @@ func (a *form) profileRaw(
 ) {
 	var fields []records.Field
 	for _, field := range table.Fields {
-		if field.Group == records.GroupAdvanced || field.ID == "id" ||
-			field.Text != text.NoRole {
+		if profileRawField(field) {
 			fields = append(fields, field)
 		}
 	}

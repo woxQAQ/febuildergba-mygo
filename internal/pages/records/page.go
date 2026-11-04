@@ -207,7 +207,7 @@ func (a *Page) SetDefeatView(view func(*ui.Context, int, float32, bool)) {
 
 func (a *Page) OpenDefeat(id int) {
 	a.Open(records.Units, id)
-	a.form.profileFor(records.Units, id).section = 3
+	a.form.selectProfileTab(records.Units, id, profileDefeatTab)
 }
 
 func (a *Page) SetSupportTalkOpener(open func(int, int)) {
@@ -216,7 +216,7 @@ func (a *Page) SetSupportTalkOpener(open func(int, int)) {
 
 func (a *Page) OpenSupport(id int) {
 	a.Open(records.Units, id)
-	a.form.profileFor(records.Units, id).section = 2
+	a.form.selectProfileTab(records.Units, id, profileSupportTab)
 }
 
 func (a *Page) SetPortraitOpener(open func(int)) {

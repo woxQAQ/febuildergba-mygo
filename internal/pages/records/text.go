@@ -105,7 +105,7 @@ func (a *form) textReferenceDraft(key fieldKey) *fieldDraft {
 func (a *form) openTextReference(key fieldKey) {
 	switch key.Kind {
 	case records.Units:
-		a.profileFor(key.Kind, key.Record).section = profileRawTab
+		a.selectProfileTab(key.Kind, key.Record, profileRawTab)
 	case records.Classes:
 		a.showRaw = true
 	}
