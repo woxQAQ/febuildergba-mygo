@@ -57,78 +57,87 @@ func (a *form) profilePortrait(
 		scale := min(float32(1), 96/float32(bounds.Dx()))
 		width, height = float32(bounds.Dx())*scale, float32(bounds.Dy())*scale
 	}
-	ui.Column(c.Key("portrait")).Width(136).Shrink(0).Gap(6).Children(func() {
-		ui.Row(c).Gap(8).AlignItems(ui.End).Children(func() {
-			control := ui.ButtonBase(c.Key("portrait-link")).
-				Size(width+6, height+6).
-				Margin(-3).
-				Padding(2).
-				Radius(3).
-				Border(1, ui.RGBA(0, 0, 0, 0)).
-				Bind(&entry.portrait).
-				FocusRing(true).
-				Label(locales.Label("portrait_id")).
-				Tooltip(help).
-				Disabled(a.state.Busy || err != nil).
-				OnClick(func() {
-					if source.Ref.ID != 0 && a.openPortrait != nil {
-						a.openPortrait(source.Ref.ID)
+	portraitWidth := width
+	if preview != nil && preview.mini != nil {
+		portraitWidth += 8 + 32
+	}
+	ui.Column(c.Key("portrait")).
+		Width(portraitWidth).
+		Shrink(0).
+		Gap(6).
+		Children(func() {
+			ui.Row(c).Gap(8).AlignItems(ui.End).Children(func() {
+				control := ui.ButtonBase(c.Key("portrait-link")).
+					Size(width+6, height+6).
+					Margin(-3).
+					Padding(2).
+					Radius(3).
+					Border(1, ui.RGBA(0, 0, 0, 0)).
+					Bind(&entry.portrait).
+					FocusRing(true).
+					Label(locales.Label("portrait_id")).
+					Tooltip(help).
+					Disabled(a.state.Busy || err != nil).
+					OnClick(func() {
+						if source.Ref.ID != 0 && a.openPortrait != nil {
+							a.openPortrait(source.Ref.ID)
+						} else {
+							a.beginPortraitChoice(kind, row.ID, &entry.portrait)
+						}
+					}).
+					ContextMenu(func(menu *ui.Menu) {
+						if menu.Item(locales.PortraitChoose()).
+							Disabled(a.state.Busy || err != nil).
+							Chosen() {
+							a.beginPortraitChoice(kind, row.ID, &entry.portrait)
+						}
+						label := locales.PortraitInheritClass()
+						if kind == records.Classes {
+							label = locales.PortraitClear()
+						}
+						if menu.Item(label).Checked(zero).
+							Disabled(a.state.Busy || err != nil || zero).
+							Chosen() {
+							a.state.SetErr(
+								a.setProfilePortrait(kind, row.ID, source, 0),
+							)
+						}
+					})
+				if control.Hovered() {
+					control.Cursor(ui.CursorPointer).
+						Background(c.Theme().SurfaceHover).
+						BorderColor(c.Theme().Accent)
+				}
+				if control.Pressed() {
+					control.Background(c.Theme().SurfacePressed).
+						BorderColor(c.Theme().AccentPressed)
+				}
+				control.Children(func() {
+					if preview != nil && preview.bitmap != nil {
+						ui.Image(c, preview.bitmap).Size(width, height)
 					} else {
-						a.beginPortraitChoice(kind, row.ID, &entry.portrait)
-					}
-				}).
-				ContextMenu(func(menu *ui.Menu) {
-					if menu.Item(locales.PortraitChoose()).
-						Disabled(a.state.Busy || err != nil).
-						Chosen() {
-						a.beginPortraitChoice(kind, row.ID, &entry.portrait)
-					}
-					label := locales.PortraitInheritClass()
-					if kind == records.Classes {
-						label = locales.PortraitClear()
-					}
-					if menu.Item(label).Checked(zero).
-						Disabled(a.state.Busy || err != nil || zero).Chosen() {
-						a.state.SetErr(
-							a.setProfilePortrait(kind, row.ID, source, 0),
-						)
+						ui.Box(c).
+							Size(width, height).
+							Background(c.Theme().Surface).
+							Center().
+							Children(func() {
+								ui.Text(c, placeholder).
+									FontSize(components.FontCaption).
+									TextColor(c.Theme().TextMuted)
+							})
 					}
 				})
-			if control.Hovered() {
-				control.Cursor(ui.CursorPointer).
-					Background(c.Theme().SurfaceHover).
-					BorderColor(c.Theme().Accent)
-			}
-			if control.Pressed() {
-				control.Background(c.Theme().SurfacePressed).
-					BorderColor(c.Theme().AccentPressed)
-			}
-			control.Children(func() {
-				if preview != nil && preview.bitmap != nil {
-					ui.Image(c, preview.bitmap).Size(width, height)
-				} else {
-					ui.Box(c).
-						Size(width, height).
-						Background(c.Theme().Surface).
-						Center().
-						Children(func() {
-							ui.Text(c, placeholder).
-								FontSize(components.FontCaption).
-								TextColor(c.Theme().TextMuted)
-						})
+				if preview != nil && preview.mini != nil {
+					ui.Image(c, preview.mini).Size(32, 32).
+						Label(locales.Label("portrait_mini"))
 				}
 			})
-			if preview != nil && preview.mini != nil {
-				ui.Image(c, preview.mini).Size(32, 32).
-					Label(locales.Label("portrait_mini"))
+			if source.Inherited {
+				ui.Textf(c, "%s %04X", locales.Label("portrait_inherit"), source.Ref.ID).
+					FontSize(components.FontCaption).
+					TextColor(c.Theme().TextMuted)
 			}
 		})
-		if source.Inherited {
-			ui.Textf(c, "%s %04X", locales.Label("portrait_inherit"), source.Ref.ID).
-				FontSize(components.FontCaption).
-				TextColor(c.Theme().TextMuted)
-		}
-	})
 }
 
 func (a *form) setProfilePortrait(

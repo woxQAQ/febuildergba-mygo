@@ -41,7 +41,7 @@
 
 ### 参照与估算
 
-人物使用 `class_id` 指定的默认／参照职业。章节部署可以覆盖职业，界面结果不代表实际出场状态。职业记录的 `promotion_id` 显示为"关联职业"；FE8 的高级单位自动成长会用它取得低阶参照职业，实际转职分支是独立规则。
+人物使用 `class_id` 指定的默认／参照职业。章节部署可以覆盖职业，界面结果不代表实际出场状态。职业记录的 `promotion_id` 显示为"关联职业"：FE6／FE7 用作转职目标，FE8 的高级单位自动成长与经验计算会用它取得低阶参照职业，实际转职分支是独立规则。固定旧版日文标签为“クラスチェンジクラス”，英文译为“Menu Class”，中文译为“职业更换职业”；版本用途依据 `FEBuilderGBA/FEBuilderGBA/InputFormRef.cs` 的 `@CLASS_CC` 说明及[固定 FE8U 源码](https://github.com/FireEmblemUniverse/fireemblem8u/blob/04d1edb163d14bd10777a065697e1a9f17be65f2/src/bmunit.c)的 `UnitAutolevel`、[经验计算](https://github.com/FireEmblemUniverse/fireemblem8u/blob/04d1edb163d14bd10777a065697e1a9f17be65f2/src/bmbattle.c)的 `GetUnitPowerLevel`。
 
 初始参考按原生规则计算。常规能力是职业基础加人物修正，幸运来自人物，体格包含人物修正，移动来自职业。职业缺失或引用无效时显示原因，普通字段仍可编辑。
 

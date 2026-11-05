@@ -1269,7 +1269,7 @@
   "record_walk_standard": "Standard",
   "record_walk_slow": "Slow",
   "record_default_class_help": "Default and reference class. Chapter deployments can override it. Reference abilities use this class, rather than actual game state.",
-  "record_related_class_help": "Related class in this native record. In FE8, promoted autoleveling uses it as the lower-tier class reference; promotion branches are defined separately.",
+  "record_related_class_help": "FE6/FE7 use this as the promotion target. FE8 uses it for promoted autoleveling and EXP calculations; its promotion branches are defined separately.",
   "record_estimate_help": "Reference only: current class base plus character modifiers, then growth rate × growth count / 100. Class estimates use class growths. Excludes caps, promotions, random levels, difficulty bonuses and event changes. Reference settings do not write ROM or create history.",
   "record_weapons_help": "Click a rank to choose it, or edit the exact weapon EXP below. Character zero inherits the referenced class; a nonzero value replaces it. A changed rank writes its native minimum; choosing the same rank keeps partial progress. FE6 thresholds differ from FE7/FE8.",
   "record_traits_help": "Each checkbox edits this record's bit only. Character and deployment-class traits combine in game. Unknown bits remain read-only here; raw encoding is available under advanced data.",

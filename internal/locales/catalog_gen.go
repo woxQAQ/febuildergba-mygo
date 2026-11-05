@@ -12444,11 +12444,11 @@ func (msgs Messages) RecordDefaultClassHelp() string {
 	return Catalog.Format(msgs.locale, "record_default_class_help", nil)
 }
 
-// RecordRelatedClassHelp says "Related class in this native record. In FE8, promoted autoleveling uses it as the lower-tier class reference; promoti…"
+// RecordRelatedClassHelp says "FE6/FE7 use this as the promotion target. FE8 uses it for promoted autoleveling and EXP calculations; its promotion b…"
 // in the language the app shows.
 func RecordRelatedClassHelp() string { return In(i18n.Locale()).RecordRelatedClassHelp() }
 
-// RecordRelatedClassHelp says "Related class in this native record. In FE8, promoted autoleveling uses it as the lower-tier class reference; promoti…"
+// RecordRelatedClassHelp says "FE6/FE7 use this as the promotion target. FE8 uses it for promoted autoleveling and EXP calculations; its promotion b…"
 // in the language of msgs.
 func (msgs Messages) RecordRelatedClassHelp() string {
 	return Catalog.Format(msgs.locale, "record_related_class_help", nil)

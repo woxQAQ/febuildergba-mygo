@@ -330,7 +330,6 @@ func (a *form) profileDetails(
 			continue
 		}
 		ui.Column(c.Key(field.ID)).
-			Width(140).
 			MinWidth(0).
 			MaxWidthPercent(100).
 			Gap(4).
