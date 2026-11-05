@@ -31,7 +31,6 @@ func (v *Page) fields(
 	c *ui.Context,
 	state *editor.State,
 	entry *entryDraft,
-	advanced bool,
 	jump func(records.Kind, int),
 ) {
 	if entry.data.Count() == 0 || entry.selected >= entry.data.Count() {
@@ -44,17 +43,23 @@ func (v *Page) fields(
 			ui.Textf(c, "%02X · %s", entry.selected, nameOf(state.Session, records.Units, unit.Character)).
 				Bold().
 				Tooltip(locales.DeployPositionHelp())
-			for _, group := range []string{"general", "deploy_position", "items", "deploy_ai", "advanced"} {
-				if group == "advanced" && !advanced {
+			for _, group := range []string{"general", "deploy_position", "items", "deploy_ai"} {
+				var fields []deployment.Field
+				for _, field := range entry.data.Fields() {
+					if field.Group == group ||
+						group == "deploy_position" &&
+							field.Group == records.GroupAdvanced {
+						fields = append(fields, field)
+					}
+				}
+				if len(fields) == 0 {
 					continue
 				}
+
 				ui.Column(c.Key(group)).Gap(4).Children(func() {
 					ui.Text(c, locales.Label(group)).Bold()
 					ui.Row(c).Wrap().Gap(16).Children(func() {
-						for _, field := range entry.data.Fields() {
-							if field.Group != group {
-								continue
-							}
+						for _, field := range fields {
 							width := float32(380)
 							if group == records.GroupGeneral {
 								width = 260
@@ -72,7 +77,8 @@ func (v *Page) fields(
 									v.number(c, state, entry, field)
 									kind := records.Kind("")
 									switch field.ID {
-									case "deploy_character", "deploy_leader":
+									case "deploy_character",
+										"deploy_leader":
 										kind = records.Units
 									case "deploy_class":
 										kind = records.Classes
@@ -87,13 +93,25 @@ func (v *Page) fields(
 											entry.selected,
 											field.ID,
 										)
-										ui.Button(c, locales.Jump()).
-											Height(26).
-											Padding(3, 6).
-											Disabled(state.Busy || value == 0).
-											OnClick(func() { jump(kind, int(value)) })
+										_, target, _, err := state.Session.Records.Resolve(
+											kind,
+											int(value),
+											"id",
+										)
+										caption := fmt.Sprintf(
+											"%02X · %s",
+											value,
+											target.Name,
+										)
+										components.ReferenceLink(
+											c,
+											locales.OpenReference(caption),
+											state.Busy || value == 0 || err != nil ||
+												jump == nil,
+											func() { jump(kind, int(value)) },
+										)
 									} else {
-										ui.Box(c).Width(42)
+										ui.Box(c).Width(26)
 									}
 								})
 						}

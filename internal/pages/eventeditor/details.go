@@ -31,26 +31,31 @@ func (page *Page) commands(c *ui.Context, draft *draftState) {
 			Width(190).
 			Label(locales.ScriptNewCommand()).
 			Disabled(disabled)
-		ui.Button(c, locales.ScriptInsert()).Disabled(disabled).OnClick(func() {
-			if index := slices.Index(labels, draft.command); index >= 0 {
-				page.state.SetErr(draft.data.Insert(draft.selected, ops[index]))
-				if page.state.Err == nil {
-					draft.structuralChanged(draft.selected)
+		components.ActionButton(c, "+", locales.ScriptInsert()).
+			Disabled(disabled).
+			OnClick(func() {
+				if index := slices.Index(labels, draft.command); index >= 0 {
+					page.state.SetErr(
+						draft.data.Insert(draft.selected, ops[index]),
+					)
+					if page.state.Err == nil {
+						draft.structuralChanged(draft.selected)
+					}
 				}
-			}
-		})
+			})
 		for _, action := range []struct {
+			symbol   string
 			label    string
 			enabled  bool
 			run      func() error
 			selected int
 		}{
-			{locales.ScriptCopy(), true, func() error { return draft.data.Duplicate(draft.selected) }, draft.selected + 1},
-			{locales.ScriptDelete(), true, func() error { return draft.data.Remove(draft.selected) }, max(0, draft.selected-1)},
-			{locales.MoveUp(), draft.selected > 0, func() error { return draft.data.Move(draft.selected, draft.selected-1) }, draft.selected - 1},
-			{locales.MoveDown(), draft.selected+1 < len(draft.data.Instructions()), func() error { return draft.data.Move(draft.selected, draft.selected+1) }, draft.selected + 1},
+			{"⧉", locales.ScriptCopy(), true, func() error { return draft.data.Duplicate(draft.selected) }, draft.selected + 1},
+			{"−", locales.ScriptDelete(), true, func() error { return draft.data.Remove(draft.selected) }, max(0, draft.selected-1)},
+			{"↑", locales.MoveUp(), draft.selected > 0, func() error { return draft.data.Move(draft.selected, draft.selected-1) }, draft.selected - 1},
+			{"↓", locales.MoveDown(), draft.selected+1 < len(draft.data.Instructions()), func() error { return draft.data.Move(draft.selected, draft.selected+1) }, draft.selected + 1},
 		} {
-			ui.Button(c, action.label).
+			components.ActionButton(c, action.symbol, action.label).
 				Disabled(disabled || !action.enabled).
 				OnClick(func() {
 					page.state.SetErr(action.run())
@@ -126,7 +131,7 @@ func (page *Page) operands(
 	}
 	page.operandLinks(c, draft, row, fields)
 	page.mapChanges(c, draft, row)
-	if page.showRaw || !row.Editable {
+	if !row.Editable {
 		ui.Textf(c, "% X", row.Raw).Font("monospace").Selectable()
 	}
 }
@@ -158,7 +163,6 @@ func (page *Page) textOperand(
 			&current.reference,
 			uint32(value),
 			locales.ScriptEditor()+" / "+label,
-			page.showRaw,
 			!row.Editable ||
 				!draft.data.Current(page.state.Session.Events),
 			func(id uint16) {
@@ -230,7 +234,7 @@ func (page *Page) operandLinks(
 					})
 			}
 		}
-		if row.Address >= 0xC0 {
+		if !row.Editable && row.Address >= 0xC0 {
 			ui.Button(c, locales.EditBytes()).
 				Disabled(page.state.Busy).
 				OnClick(func() { page.openHex(row.Address, len(row.Raw)) })

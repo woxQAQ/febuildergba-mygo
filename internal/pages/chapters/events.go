@@ -33,7 +33,6 @@ type eventState struct {
 	textChoices                  []dialogueChoice
 	textReference                string
 	location                     locationInteraction
-	locationScript               bool
 	shops                        map[*shop.Draft]*shopview.View
 }
 
@@ -210,7 +209,6 @@ func (v *Page) eventEditor(
 	state *editor.State,
 	row records.Row,
 	table event.Table,
-	advanced bool,
 	jump func(records.Kind, int),
 	openHex func(int, int),
 	openText func(uint16),
@@ -275,7 +273,6 @@ func (v *Page) eventEditor(
 				state,
 				row,
 				entry,
-				advanced,
 				jump,
 				openHex,
 				openText,

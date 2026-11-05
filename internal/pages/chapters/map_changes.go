@@ -178,7 +178,6 @@ func (v *Page) mapChangesEditor(
 	state *editor.State,
 	row records.Row,
 	jump func(records.Kind, int),
-	openHex func(int, int),
 ) {
 	entry := v.changeDraft(state, row.ID)
 	if entry.err != nil {
@@ -258,7 +257,7 @@ func (v *Page) mapChangesEditor(
 						TextColor(c.Theme().TextMuted)
 				}
 			})
-			v.changeRows(c, state, entry, disabled, openHex)
+			v.changeRows(c, state, entry, disabled)
 			if len(entry.data.Entries()) > 0 {
 				entry.properties(c, state, disabled)
 			}
@@ -321,7 +320,6 @@ func (v *Page) changeRows(
 	state *editor.State,
 	entry *mapChangesState,
 	disabled bool,
-	openHex func(int, int),
 ) {
 	rows := entry.data.Entries()
 	if len(rows) == 0 {
@@ -363,7 +361,7 @@ func (v *Page) changeRows(
 		}
 	}
 	ui.Row(c).Wrap().Gap(8).Children(func() {
-		ui.Button(c, locales.MapChangeAdd()).
+		components.ActionButton(c, "+", locales.MapChangeAdd()).
 			Disabled(disabled || entry.pending()).
 			OnClick(func() {
 				id, err := entry.data.FreeID()
@@ -376,7 +374,7 @@ func (v *Page) changeRows(
 					entry.refresh()
 				}
 			})
-		ui.Button(c, locales.MapChangeCopy()).
+		components.ActionButton(c, "⧉", locales.MapChangeCopy()).
 			Disabled(disabled || entry.pending() || len(rows) == 0).
 			OnClick(func() {
 				id, err := entry.data.FreeID()
@@ -389,7 +387,7 @@ func (v *Page) changeRows(
 					entry.refresh()
 				}
 			})
-		ui.Button(c, locales.MapChangeDelete()).
+		components.ActionButton(c, "−", locales.MapChangeDelete()).
 			Disabled(disabled || entry.pending() || len(rows) == 0).
 			OnClick(func() {
 				state.SetErr(entry.data.Delete(entry.selected))
@@ -397,11 +395,6 @@ func (v *Page) changeRows(
 					entry.refresh()
 				}
 			})
-		if len(rows) > 0 && rows[entry.selected].Address != 0 {
-			ui.Button(c, locales.EditBytes()).
-				Disabled(state.Busy || openHex == nil).
-				OnClick(func() { openHex(rows[entry.selected].Address, 12) })
-		}
 	})
 }
 

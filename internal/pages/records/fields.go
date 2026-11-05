@@ -153,12 +153,6 @@ func (a *form) numberField(
 			Disabled(a.state.Busy || draft.value <= low).Chosen() {
 			a.nudgeField(key, f, -1)
 		}
-		if raw && a.openHex != nil {
-			menu.Separator()
-			if menu.Item(locales.EditBytes()).Disabled(a.state.Busy).Chosen() {
-				a.openHex(row.Address+f.Offset, f.Width)
-			}
-		}
 	})
 	if draft.invalid {
 		message := fmt.Sprintf("%s: %d…%d", locales.AllowedRange(), low, high)
@@ -236,8 +230,7 @@ func (a *form) recordFields(
 	width, _ := c.Size()
 	ui.Column(c.Key("field-groups")).Gap(24).Children(func() {
 		for _, group := range groups {
-			if len(sections[group]) == 0 ||
-				group == records.GroupAdvanced && !a.showRaw {
+			if len(sections[group]) == 0 {
 				continue
 			}
 			columns := 2
@@ -271,7 +264,7 @@ func (a *form) inlineSection(
 		}
 		if f.Reference != "" ||
 			f.Text != text.NoRole && group != records.GroupAdvanced {
-			actionWidth = 48
+			actionWidth = 26
 		}
 	}
 	width, _ := c.Size()
@@ -279,7 +272,9 @@ func (a *form) inlineSection(
 		columns = 1
 	}
 	return ui.Column(c.Key(group)).Gap(8).Children(func() {
-		ui.Text(c, locales.Label(group)).Bold()
+		if group != records.GroupAdvanced {
+			ui.Text(c, locales.Label(group)).Bold()
+		}
 		ui.Grid(c).Columns(columns).GapX(16).GapY(4).Children(func() {
 			for _, f := range fields {
 				a.inlineField(
@@ -331,18 +326,31 @@ func (a *form) inlineField(
 		a.numberField(c, kind, row, f, value).Width(inputWidth).Shrink(0)
 		switch {
 		case f.Reference != "":
-			ui.Button(c, locales.Jump()).
-				Size(actionWidth, 26).
-				Padding(3, 6).
-				Shrink(0).
-				Disabled(a.state.Busy).
-				OnClick(func() { a.jump(f.Reference, int(value)) })
+			caption := fmt.Sprintf(
+				"%s %02X",
+				locales.Label(string(f.Reference)),
+				value,
+			)
+			_, target, _, err := a.state.Session.Records.Resolve(
+				f.Reference,
+				int(value),
+				"id",
+			)
+			if err == nil {
+				caption = fmt.Sprintf("%02X · %s", target.ID, target.Name)
+			}
+			components.ReferenceLink(c, locales.OpenReference(caption),
+				a.state.Busy || a.jump == nil || err != nil,
+				func() { a.jump(f.Reference, int(value)) },
+			)
 
 		case f.Asset == graphics.Portrait && a.openPortrait != nil:
-			ui.Button(c, locales.Jump()).
-				Height(26).
-				Disabled(a.state.Busy).
-				OnClick(func() { a.openPortrait(int(value)) })
+			components.ReferenceLink(
+				c,
+				locales.OpenReference(locales.Label("portrait_id")),
+				a.state.Busy || value == 0,
+				func() { a.openPortrait(int(value)) },
+			)
 		case actionWidth > 0:
 			ui.Box(c).Width(actionWidth).Shrink(0)
 		}

@@ -49,26 +49,21 @@ func (d *draftState) invalid() bool {
 type Page struct {
 	state      *editor.State
 	openRecord func(records.Kind, int)
-	openHex    func(int, int)
 	group      int
 	entries    map[arena.Kind]*draftState
-	advanced   bool
-	showRules  bool
 }
 
 func New(
 	state *editor.State,
 	record func(records.Kind, int),
-	hex func(int, int),
 ) *Page {
 	return &Page{
 		state:      state,
 		openRecord: record,
-		openHex:    hex,
 		entries:    make(map[arena.Kind]*draftState),
 	}
 }
-func (p *Page) Reset() { *p = *New(p.state, p.openRecord, p.openHex) }
+func (p *Page) Reset() { *p = *New(p.state, p.openRecord) }
 func caption(kind arena.Kind) string {
 	labels := [...]string{
 		locales.ArenaMelee(),
@@ -135,11 +130,18 @@ func (p *Page) View(c *ui.Context) {
 		}
 	}
 	p.group = min(p.group, len(groups)-1)
+	group := groups[p.group]
+	help := locales.ArenaClassHelp()
+	if group == arena.BaseWeapons {
+		help = locales.ArenaWeaponHelp()
+	}
+	if group == arena.LinkUnits {
+		help = locales.ArenaLinkHelp()
+	}
 	ui.Column(c).Fill().MinHeight(0).Children(func() {
 		ui.ScrollHorizontal(c.Key("arena-tabs")).Shrink(0).Children(func() {
-			ui.Tabs(c, &p.group, labels...).Disabled(p.state.Busy)
+			ui.Tabs(c, &p.group, labels...).Tooltip(help).Disabled(p.state.Busy)
 		})
-		group := groups[p.group]
 		entry := p.draft(group)
 		reload := func() { delete(p.entries, group) }
 		ui.Scroll(c.Key(entry)).Fill().Padding(16).Gap(12).Children(func() {
@@ -189,13 +191,6 @@ func (p *Page) View(c *ui.Context) {
 						ui.Button(c, locales.DeployReload()).
 							Disabled(p.state.Busy).
 							OnClick(reload)
-						if entry.plan != nil {
-							ui.Checkbox(
-								c.Key("advanced"),
-								&p.advanced,
-								locales.Advanced(),
-							)
-						}
 					})
 			}
 			if entry.invalid() {
@@ -216,21 +211,6 @@ func (p *Page) View(c *ui.Context) {
 					Gap(8).
 					Children(func() { p.table(c, entry, kind, p.state.Busy || stale) })
 			}
-			ui.Collapsible(
-				c.Key("rules"),
-				locales.ArenaRules(),
-				&p.showRules,
-				func() {
-					help := locales.ArenaClassHelp()
-					if group == arena.BaseWeapons {
-						help = locales.ArenaWeaponHelp()
-					}
-					if group == arena.LinkUnits {
-						help = locales.ArenaLinkHelp()
-					}
-					ui.Text(c, help).FontSize(components.FontCaption)
-				},
-			)
 		})
 	})
 }
@@ -253,17 +233,6 @@ func (p *Page) table(
 			title = locales.Label(string(recordKind(kind)))
 		}
 		ui.Textf(c, "%s · %d", title, len(rows)).Bold()
-		if kind == entry.draft.Kinds()[0] {
-			ui.Checkbox(c.Key("advanced"), &p.advanced, locales.Advanced())
-		}
-		if p.advanced {
-			ui.Textf(c, "0x%08X", entry.draft.Address(kind)).
-				Font("monospace").
-				FontSize(components.FontCaption)
-			ui.Button(c, locales.EditBytes()).
-				Disabled(disabled || p.openHex == nil).
-				OnClick(func() { p.openHex(entry.draft.Address(kind), len(entry.draft.Raw(kind))) })
-		}
 	})
 	list := entry.lists[kind]
 	if list == nil {
@@ -389,7 +358,7 @@ func (p *Page) structure(
 	disabled bool,
 ) {
 	ui.Row(c.Key("structure")).Wrap().Gap(6).Children(func() {
-		ui.Button(c, locales.ArenaAdd()).
+		components.ActionButton(c, "+", locales.ArenaAdd()).
 			Disabled(disabled || len(rows) >= arena.MaxClasses).
 			OnClick(func() {
 				value := 1
@@ -402,7 +371,7 @@ func (p *Page) structure(
 					entry.plan = nil
 				}
 			})
-		ui.Button(c, locales.ArenaCopy()).
+		components.ActionButton(c, "⧉", locales.ArenaCopy()).
 			Disabled(disabled || len(rows) == 0 || len(rows) >= arena.MaxClasses).
 			OnClick(func() {
 				entry.err = entry.draft.Insert(
@@ -415,7 +384,7 @@ func (p *Page) structure(
 					entry.plan = nil
 				}
 			})
-		ui.Button(c, locales.ArenaDelete()).
+		components.ActionButton(c, "−", locales.ArenaDelete()).
 			Disabled(disabled || len(rows) == 0).
 			OnClick(func() {
 				entry.err = entry.draft.Delete(kind, selected)
@@ -500,24 +469,6 @@ func (p *Page) preview(c *ui.Context, entry *draftState, reload func()) {
 						}
 						ui.Text(c, locales.ArenaShared()+strings.Join(labels, "、")).
 							FontSize(components.FontCaption)
-					}
-					if p.advanced {
-						ui.Textf(c, "0x%08X → 0x%08X", change.Before, change.Destination).
-							Font("monospace").
-							FontSize(components.FontCaption)
-						ui.Row(c).
-							Wrap().
-							Gap(8).
-							AlignItems(ui.Center).
-							Children(func() {
-								ui.Text(c, locales.ArenaPointerSites()).
-									FontSize(components.FontCaption)
-								for _, site := range change.Pointers {
-									ui.Textf(c, "0x%08X", site).
-										Font("monospace").
-										FontSize(components.FontCaption)
-								}
-							})
 					}
 				})
 			}

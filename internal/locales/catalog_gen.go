@@ -34,6 +34,26 @@ type Messages struct{ locale string }
 // source language.
 func In(locale string) Messages { return Messages{locale} }
 
+// ShopPatchParameters says "Patch parameters"
+// in the language the app shows.
+func ShopPatchParameters() string { return In(i18n.Locale()).ShopPatchParameters() }
+
+// ShopPatchParameters says "Patch parameters"
+// in the language of msgs.
+func (msgs Messages) ShopPatchParameters() string {
+	return Catalog.Format(msgs.locale, "shop_patch_parameters", nil)
+}
+
+// OpenReference says "Open {target}"
+// in the language the app shows.
+func OpenReference(target string) string { return In(i18n.Locale()).OpenReference(target) }
+
+// OpenReference says "Open {target}"
+// in the language of msgs.
+func (msgs Messages) OpenReference(target string) string {
+	return Catalog.Format(msgs.locale, "open_reference", map[string]any{"target": target})
+}
+
 // TextFileExport says "Export filtered text…"
 // in the language the app shows.
 func TextFileExport() string { return In(i18n.Locale()).TextFileExport() }

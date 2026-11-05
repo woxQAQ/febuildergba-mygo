@@ -48,8 +48,7 @@ type defeatEdit struct {
 
 // ViewDefeat presents the text first. Native rows remain separate, ordered
 // variants; each uncommon operation has its own editing task.
-func (p *Page) ViewDefeat(c *ui.Context, available float32, raw bool) {
-	p.advanced = raw
+func (p *Page) ViewDefeat(c *ui.Context, available float32) {
 	p.refreshTables()
 	if len(p.tables) == 0 {
 		return
@@ -88,9 +87,6 @@ func (p *Page) ViewDefeat(c *ui.Context, available float32, raw bool) {
 					row   uint64
 				}{entry, entry.rows[index].ID})).Gap(8).Children(func() {
 					p.defeatBody(c, entry, index, disabled)
-					if raw {
-						p.rawRecord(c, entry.rows[index])
-					}
 				})
 			} else {
 				ui.Text(c, locales.QuoteNoDefeat()).
@@ -329,7 +325,7 @@ func (p *Page) defeatBody(
 	})
 	switch {
 	case textErr == nil && textID != 0:
-		components.TextPreview(c, p.state.Session.Texts, textID, p.advanced)
+		components.TextPreview(c, p.state.Session.Texts, textID)
 	case script != 0:
 		ui.Textf(c, "%s · 0x%08X", locales.Label(quote.Script), script).
 			Selectable()
@@ -468,12 +464,6 @@ func (p *Page) defeatCommands(
 				nil,
 				&p.defeat.actions,
 			)
-		}
-		if menu.Item(locales.QuoteRaw()).
-			Disabled(p.state.Busy || index < 0 || entry.rows[index].Address < 0 || p.openHex == nil).
-			Chosen() {
-			row := entry.rows[index]
-			p.openHex(row.Address, len(row.Raw))
 		}
 	}).
 		Bind(&p.defeat.actions)
@@ -667,7 +657,6 @@ func (p *Page) defeatTaskField(
 				&current.reference,
 				value,
 				inputLabel,
-				p.advanced,
 				disabled,
 				func(id uint16) {
 					task.values[field.ID] = uint32(id)

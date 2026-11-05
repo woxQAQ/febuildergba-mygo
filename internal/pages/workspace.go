@@ -170,9 +170,9 @@ func New() *Workspace {
 			}
 		},
 	)
-	w.portraits = portraits.New(w.Editor, assets, w.records.Open, w.openHex)
+	w.portraits = portraits.New(w.Editor, assets, w.records.Open)
 	w.records.SetPortraitOpener(w.OpenPortrait)
-	w.shops = shops.New(w.Editor, w.records.OpenShop, w.openHex)
+	w.shops = shops.New(w.Editor, w.records.OpenShop)
 	w.shops.SetNodeOpener(w.openWorldMap)
 	w.worldmap = worldmaps.New(
 		w.Editor,
@@ -182,19 +182,17 @@ func New() *Workspace {
 			w.tab = len(records.Kinds) + 4
 			w.shops.Open(key)
 		},
-		w.openHex,
 	)
-	w.arenas = arenas.New(w.Editor, w.records.Open, w.openHex)
+	w.arenas = arenas.New(w.Editor, w.records.Open)
 	w.quotes = quotes.New(w.Editor, w.records.Open, w.openText, w.openHex)
 	w.defeats = make(map[int]*quotes.Page)
 	w.records.SetDefeatView(
-		func(c *ui.Context, id int, available float32, raw bool) { w.defeat(id).ViewDefeat(c, available, raw) },
+		func(c *ui.Context, id int, available float32) { w.defeat(id).ViewDefeat(c, available) },
 	)
 	w.supports = supports.New(
 		w.Editor,
 		w.records.OpenSupport,
 		w.openText,
-		w.openHex,
 	)
 	w.records.SetSupportTalkOpener(
 		func(unit, partner int) { w.tab = len(records.Kinds) + 6; w.supports.OpenPair(unit, partner) },

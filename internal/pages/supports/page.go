@@ -45,7 +45,6 @@ type Page struct {
 	state         *editor.State
 	openSupport   func(int)
 	openText      func(uint16)
-	openHex       func(int, int)
 	sidebar       components.Sidebar
 	query         string
 	unit, partner int
@@ -53,26 +52,23 @@ type Page struct {
 	list          ui.ListState
 	rows          []support.Talk
 	entry         *dialogueState
-	advanced      bool
 }
 
 func New(
 	state *editor.State,
 	character func(int),
 	text func(uint16),
-	hex func(int, int),
 ) *Page {
 	return &Page{
 		state:       state,
 		openSupport: character,
 		openText:    text,
-		openHex:     hex,
 	}
 }
 
 func (p *Page) Reset() {
-	state, character, text, hex, sidebar := p.state, p.openSupport, p.openText, p.openHex, p.sidebar
-	*p = *New(state, character, text, hex)
+	state, character, text, sidebar := p.state, p.openSupport, p.openText, p.sidebar
+	*p = *New(state, character, text)
 	p.sidebar = sidebar
 }
 
@@ -282,7 +278,6 @@ func (p *Page) detail(
 				Disabled(p.state.Busy || id == 0 || id > 255).
 				OnClick(func() { p.openSupport(int(id)) })
 		}
-		ui.Checkbox(c, &p.advanced, locales.Advanced())
 	})
 	ui.Text(c, locales.SupportDialogueHelp()).
 		FontSize(components.FontCaption).
@@ -303,7 +298,6 @@ func (p *Page) detail(
 				&current.reference,
 				id,
 				locales.SupportDialogues()+" / "+label,
-				p.advanced,
 				stale,
 				func(id uint16) {
 					entry.plan = nil
@@ -313,15 +307,6 @@ func (p *Page) detail(
 				p.openText,
 			)
 		})
-	}
-	if p.advanced {
-		ui.Textf(c, "0x%08X · % X", row.Address, row.Raw).
-			Font("monospace").
-			FontSize(components.FontCaption).
-			Selectable()
-		ui.Button(c, locales.EditBytes()).
-			Disabled(p.state.Busy || stale).
-			OnClick(func() { p.openHex(row.Address, len(row.Raw)) })
 	}
 }
 
@@ -381,13 +366,6 @@ func (p *Page) actions(c *ui.Context, entry *dialogueState, stale bool) {
 			}
 			ui.Text(c, locales.SupportTalkApplyHelp()).
 				FontSize(components.FontCaption)
-			if p.advanced {
-				for _, move := range entry.plan.Moves() {
-					ui.Textf(c, "0x%08X → 0x%08X", move.Before, move.After).
-						Font("monospace").
-						FontSize(components.FontCaption)
-				}
-			}
 			ui.Button(c, locales.SupportApply()).
 				AlignSelf(ui.Start).
 				Disabled(p.state.Busy || stale || entry.invalid() || !entry.plan.Current(p.state.Session.Supports)).

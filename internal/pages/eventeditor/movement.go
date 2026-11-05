@@ -144,7 +144,7 @@ func (page *Page) movement(
 					control.Error(fmt.Sprintf("%d…127", minimum))
 				}
 			}
-			ui.Button(c, locales.ScriptDelete()).
+			components.ActionButton(c, "−", locales.ScriptDelete()).
 				Disabled(disabled || index == len(steps)-1).
 				OnClick(func() { update(slices.Delete(slices.Clone(steps), index, index+1), -1) })
 			ui.Button(c, locales.MoveUp()).

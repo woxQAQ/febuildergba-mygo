@@ -280,7 +280,6 @@ func (p *Page) routeDetail(c *ui.Context) {
 				ui.Button(c, locales.DeployReload()).
 					Disabled(p.state.Busy).
 					OnClick(reload)
-				ui.Checkbox(c, &p.advanced, locales.Advanced())
 			})
 			if entry.err != nil {
 				ui.Text(c, components.ErrorText(entry.err)).
@@ -311,16 +310,6 @@ func (p *Page) routeDetail(c *ui.Context) {
 					}
 				})
 			p.movementPoints(c, entry, disabled)
-			if p.advanced {
-				ui.Row(c.Key("route-address")).Wrap().Gap(8).Children(func() {
-					ui.Textf(c, "0x%08X", current.Address).
-						Font("monospace").
-						FontSize(components.FontCaption)
-					ui.Button(c, locales.EditBytes()).
-						Disabled(disabled || p.openHex == nil).
-						OnClick(func() { p.openHex(current.Address, worldmap.RouteSize) })
-				})
-			}
 		})
 }
 
@@ -371,7 +360,7 @@ func (p *Page) movementPoints(c *ui.Context, s *routeState, disabled bool) {
 			FontSize(components.FontCaption).
 			TextColor(c.Theme().TextMuted)
 		ui.Row(c.Key("point-tools")).Wrap().Gap(8).Children(func() {
-			ui.Button(c, locales.WorldmapAddPoint()).
+			components.ActionButton(c, "+", locales.WorldmapAddPoint()).
 				Disabled(disabled || s.invalid() || len(s.points) >= worldmap.MaxMovementPoints).
 				OnClick(func() {
 					points := s.draft.Route().Points()
@@ -444,13 +433,13 @@ func (p *Page) movementPoints(c *ui.Context, s *routeState, disabled bool) {
 				ui.Fixed(110),
 				ui.Fixed(32),
 				ui.Fixed(32),
-				ui.Fixed(64),
+				ui.Fixed(32),
 			}
 			ui.ScrollHorizontal(c.Key("point-table")).
 				MinWidth(0).
 				Children(func() {
 					ui.Column(c.Key("point-rows")).
-						Width(526).
+						Width(494).
 						Gap(6).
 						Children(func() {
 							ui.Grid(c.Key("point-headings")).
@@ -509,8 +498,7 @@ func (p *Page) movementPoints(c *ui.Context, s *routeState, disabled bool) {
 												s.selected = index + 1
 												s.syncPoints()
 											})
-										ui.Button(c.Key("remove"), locales.WorldmapRemovePoint()).
-											Label(fmt.Sprintf("%s %d", locales.WorldmapRemovePoint(), index+1)).
+										components.ActionButton(c.Key("remove"), "−", fmt.Sprintf("%s %d", locales.WorldmapRemovePoint(), index+1)).
 											Disabled(disabled).
 											OnClick(func() {
 												s.points = slices.Delete(

@@ -1,4 +1,6 @@
 {
+  "shop_patch_parameters": "Patch parameters",
+  "open_reference": "Open {target}",
   "text_file_export": "Export filtered text…",
   "text_file_choose": "Choose file…",
   "text_file_skipped": "Export skips {count, plural, one {# unreadable entry} other {# unreadable entries}}.",

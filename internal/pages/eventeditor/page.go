@@ -31,15 +31,14 @@ type (
 		field       string
 	}
 	draftState struct {
-		data          *event.ScriptDraft
-		selected      int
-		list          ui.ListState
-		inputs        map[operandKey]*numberDraft
-		preview       *event.ScriptPlan
-		command       string
-		references    map[operandKey]*referenceDraft
-		movements     map[operandKey]*movementDraft
-		structureOpen bool
+		data       *event.ScriptDraft
+		selected   int
+		list       ui.ListState
+		inputs     map[operandKey]*numberDraft
+		preview    *event.ScriptPlan
+		command    string
+		references map[operandKey]*referenceDraft
+		movements  map[operandKey]*movementDraft
 	}
 )
 
@@ -102,7 +101,6 @@ type Page struct {
 	entries, rows  []event.ScriptEntry
 	err            error
 	drafts         map[int]*draftState
-	showRaw        bool
 }
 
 func New(
@@ -366,7 +364,6 @@ func (page *Page) editor(c *ui.Context) {
 				ui.Text(c, entryCaption(entry)).
 					FontSize(components.FontTitle).
 					Grow(1)
-				ui.Checkbox(c, &page.showRaw, locales.Advanced())
 			})
 			ui.Textf(c, "0x%08X → 0x%08X", entry.Pointer, entry.Address).
 				Selectable().
@@ -399,14 +396,9 @@ func (page *Page) editor(c *ui.Context) {
 					})
 			} else {
 				page.instructionTable(c, draft, rows)
-				ui.Collapsible(
-					c.Key("script-structure"),
-					locales.ScriptStructure(),
-					&draft.structureOpen,
-					func() {
-						page.commands(c, draft)
-					},
-				)
+				ui.Row(c.Key("script-structure")).Children(func() {
+					page.commands(c, draft)
+				})
 				ui.Column(c.Key("script-operands")).Gap(8).Children(func() {
 					ui.Text(c, locales.Label(string(rows[draft.selected].Op))).
 						Bold()

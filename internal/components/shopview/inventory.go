@@ -65,7 +65,7 @@ func (view *View) Render(
 	c *ui.Context,
 	state *editor.State,
 	inventory *shop.Draft,
-	disabled, advanced bool,
+	disabled bool,
 	changed func(),
 ) {
 	if view.inventory != inventory {
@@ -101,7 +101,7 @@ func (view *View) Render(
 	// this build. Keep the inspector on the nearest remaining inventory row.
 	view.selected = max(0, min(view.selected, len(items)-1))
 	ui.Row(c).Wrap().Gap(6).Children(func() {
-		ui.Button(c, locales.ShopAdd()).
+		components.ActionButton(c, "+", locales.ShopAdd()).
 			Disabled(disabled || len(items) >= shop.MaxItems).
 			OnClick(func() {
 				if state.SetErr(inventory.Add(1)); state.Err == nil {
@@ -114,7 +114,7 @@ func (view *View) Render(
 					view.list.ScrollTo(view.selected, ui.Center)
 				}
 			})
-		ui.Button(c, locales.ShopRemove()).
+		components.ActionButton(c, "−", locales.ShopRemove()).
 			Disabled(disabled || len(items) == 0).
 			OnClick(func() {
 				if state.SetErr(inventory.Remove(
@@ -178,8 +178,8 @@ func (view *View) Render(
 						changed()
 					}
 				}))
-		if advanced || row.extra.invalid {
-			ui.Text(c, locales.ShopExtra()).
+		ui.Column(c.Key("parameters")).Gap(4).Children(func() {
+			ui.Text(c, locales.ShopPatchParameters()).
 				FontSize(components.FontCaption).
 				Tooltip(locales.ShopExtraHelp())
 			extra := components.TextDraft(
@@ -187,9 +187,12 @@ func (view *View) Render(
 				ui.TextInput(c.Key("extra"), &row.extra.text).
 					Width(92).
 					Label(locales.ShopInventory()+" / "+locales.ShopExtra()).
+					Tooltip(locales.ShopExtraHelp()).
 					Disabled(disabled).
 					OnChange(func() {
-						value, parseErr := input.ParseInteger(row.extra.text)
+						value, parseErr := input.ParseInteger(
+							row.extra.text,
+						)
 						changed()
 						if parseErr != nil || value < 0 || value > 255 {
 							row.extra.invalid = true
@@ -200,8 +203,10 @@ func (view *View) Render(
 					}),
 			)
 			if row.extra.invalid {
-				extra.Error(fmt.Sprintf("%s: 0…255", locales.AllowedRange()))
+				extra.Error(
+					fmt.Sprintf("%s: 0…255", locales.AllowedRange()),
+				)
 			}
-		}
+		})
 	})
 }

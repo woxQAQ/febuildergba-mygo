@@ -201,7 +201,7 @@ func (a *Page) records(c *ui.Context) {
 	})
 }
 
-func (a *Page) SetDefeatView(view func(*ui.Context, int, float32, bool)) {
+func (a *Page) SetDefeatView(view func(*ui.Context, int, float32)) {
 	a.form.defeatView = view
 }
 

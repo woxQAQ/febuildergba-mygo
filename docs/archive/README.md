@@ -7,6 +7,7 @@
 | [人物与职业审查](record-editor-deslop-review.md)           | `a164bd7`                    | [人物与职业设计](../record-editor-design.md)                                              |
 | [头像审查](portrait-editor-deslop-review.md)               | `a164bd7`                    | [头像设计](../portrait-editor-design.md)                                                  |
 | [测试实施记录](test-implementation.md)                     | `a77fea5`                    | [测试说明](../../tests/README.md)                                                         |
+| [临时验证历史发掘](temporary-verification-history.md)      | `88402d0` 加核对时工作区修改 | [测试说明](../../tests/README.md)、[AGENTS](../../AGENTS.md#命令与验证)                   |
 | [MyGo v0.6.3 → v0.7.3 评估](mygo-0.6.3-to-0.7.3-review.md) | `44cdc8f` 加调研时工作区修改 | `go.mod`、[架构](../architecture.md)、[开发说明](../development.md)                       |
 | [MyGo v0.7.3 → v0.7.4 评估](mygo-0.7.3-to-0.7.4-review.md) | `32de81f` 加调研时工作区修改 | `go.mod`、[架构](../architecture.md)、[开发说明](../development.md)                       |
 | [应用日志与诊断记录设计](logging-design.md)                | 设计基线 `0f82791`           | [错误设计](../error-design.md)、[架构](../architecture.md)、[开发说明](../development.md) |

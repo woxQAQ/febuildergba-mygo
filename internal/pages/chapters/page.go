@@ -105,7 +105,6 @@ func (v *Page) Render(
 	state *editor.State,
 	row records.Row,
 	width float32,
-	advanced bool,
 	jump func(records.Kind, int),
 	openHex func(int, int),
 	openText func(uint16),
@@ -127,7 +126,7 @@ func (v *Page) Render(
 		return
 	}
 	if v.mode == 7 {
-		v.mapChangesEditor(c, state, row, jump, openHex)
+		v.mapChangesEditor(c, state, row, jump)
 		return
 	}
 	if v.mode == 11 {
@@ -143,7 +142,7 @@ func (v *Page) Render(
 		return
 	}
 	if v.mode == 8 {
-		v.locationEditor(c, state, row, width, advanced, openHex, openText)
+		v.locationEditor(c, state, row, width, openHex, openText)
 		return
 	}
 	if v.Configuration() {
@@ -152,7 +151,7 @@ func (v *Page) Render(
 	}
 	if v.mode >= 2 && v.mode <= 5 {
 		table := [...]event.Table{event.TurnEvents, event.AlwaysEvents, event.TalkEvents, event.AlwaysEvents}[v.mode-2]
-		v.eventEditor(c, state, row, table, advanced, jump, openHex, openText)
+		v.eventEditor(c, state, row, table, jump, openHex, openText)
 		return
 	}
 	ui.Column(c.Key("deployments")).Gap(12).Children(func() {
@@ -195,19 +194,7 @@ func (v *Page) Render(
 		}
 		v.actions(c, state, group, entry)
 		v.preview(c, state, group, entry, jump)
-		v.fields(c, state, entry, advanced, jump)
-		if advanced {
-			ui.Row(c).Gap(8).Wrap().Children(func() {
-				ui.Button(c, locales.DeployReference()).
-					Disabled(state.Busy).
-					OnClick(func() { openHex(group.Pointer, 4) })
-				if group.Address != 0 {
-					ui.Button(c, locales.DeployRaw()).
-						Disabled(state.Busy).
-						OnClick(func() { openHex(group.Address, len(group.Units)*group.Stride+4) })
-				}
-			})
-		}
+		v.fields(c, state, entry, jump)
 	})
 }
 

@@ -87,7 +87,6 @@ func (p *Page) bonusView(c *ui.Context) {
 		ui.Row(c).Wrap().Gap(12).AlignItems(ui.Center).Children(func() {
 			ui.Text(c, locales.SupportBonusHelp()).
 				Tooltip(locales.SupportBonusScope())
-			ui.Checkbox(c, &p.advanced, locales.Advanced())
 		})
 		if entry.draft.Modified() || entry.invalid() || stale {
 			ui.Row(c).Wrap().Gap(8).Children(func() {
@@ -161,16 +160,6 @@ func (p *Page) bonusView(c *ui.Context) {
 						}
 					})
 			})
-		if p.advanced {
-			ui.Row(c).Wrap().Gap(8).AlignItems(ui.Center).Children(func() {
-				ui.Textf(c, "0x%08X", entry.draft.Address()).
-					Font("monospace").
-					FontSize(components.FontCaption)
-				ui.Button(c, locales.EditBytes()).
-					Disabled(p.state.Busy || stale || p.openHex == nil).
-					OnClick(func() { p.openHex(entry.draft.Address(), len(entry.draft.Raw())) })
-			})
-		}
 	})
 }
 
@@ -253,11 +242,6 @@ func (p *Page) bonusPreview(c *ui.Context, entry *bonusState, reload func()) {
 						})
 					}
 				})
-			}
-			if p.advanced {
-				ui.Textf(c, "0x%08X → 0x%08X", entry.plan.Before(), entry.plan.Destination()).
-					Font("monospace").
-					FontSize(components.FontCaption)
 			}
 			ui.Button(c, locales.SupportApply()).AlignSelf(ui.Start).
 				Disabled(p.state.Busy || entry.invalid() || !entry.plan.Current(p.state.Session.Supports)).

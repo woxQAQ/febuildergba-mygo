@@ -235,7 +235,7 @@ func (v *Page) dialoguePicker(
 		ui.Button(c, locales.QuoteOpenText()).Disabled(state.Busy || id == 0).
 			OnClick(func() { openText(id) })
 	})
-	components.TextPreview(c, state.Session.Texts, uint32(id), false)
+	components.TextPreview(c, state.Session.Texts, uint32(id))
 	if _, err := state.Session.Events.DialogueText(id); err != nil {
 		message := components.ErrorText(err)
 		if id == 0 {

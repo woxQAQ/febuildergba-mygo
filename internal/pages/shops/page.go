@@ -51,12 +51,10 @@ type Page struct {
 	state              *editor.State
 	openChapter        func(int, int)
 	openNode           func(int)
-	openHex            func(int, int)
 	sidebar            components.Sidebar
 	query              string
 	category, selected int
 	sourceChoice       string
-	advanced           bool
 	showInactive       bool
 	list               ui.ListState
 	rows               []shop.Entry
@@ -65,19 +63,18 @@ type Page struct {
 	drafts             map[shop.Key]*entryState
 }
 
-func New(state *editor.State, openChapter, openHex func(int, int)) *Page {
+func New(state *editor.State, openChapter func(int, int)) *Page {
 	return &Page{
 		state:       state,
 		openChapter: openChapter,
-		openHex:     openHex,
 		selected:    -1,
 		drafts:      make(map[shop.Key]*entryState),
 	}
 }
 
 func (page *Page) Reset() {
-	state, chapter, hex, sidebar, node := page.state, page.openChapter, page.openHex, page.sidebar, page.openNode
-	*page = *New(state, chapter, hex)
+	state, chapter, sidebar, node := page.state, page.openChapter, page.sidebar, page.openNode
+	*page = *New(state, chapter)
 	page.sidebar, page.openNode = sidebar, node
 }
 
@@ -304,7 +301,6 @@ func (page *Page) detail(c *ui.Context) {
 				ui.Text(c, locales.DeployStale()).TextColor(c.Theme().Danger)
 			}
 			ui.Row(c).Wrap().Gap(8).Children(func() {
-				ui.Checkbox(c, &page.advanced, locales.Advanced())
 				if entry.entry.Key.Origin == shop.WorldMap &&
 					page.openNode != nil {
 					ui.Button(c, locales.WorldmapOpenNode()).
@@ -339,21 +335,10 @@ func (page *Page) detail(c *ui.Context) {
 					page.state,
 					entry.inventory,
 					page.state.Busy || stale,
-					page.advanced,
 					entry.changed,
 				)
 			}
 			page.actions(c, entry)
-			if page.advanced {
-				ui.Row(c).Gap(8).Wrap().Children(func() {
-					ui.Button(c, locales.DeployReference()).
-						Disabled(page.state.Busy).
-						OnClick(func() { page.openHex(entry.entry.Pointer, 4) })
-					ui.Button(c, locales.ShopRaw()).
-						Disabled(page.state.Busy || entry.entry.Address == 0).
-						OnClick(func() { page.openHex(entry.entry.Address, shop.PayloadSize) })
-				})
-			}
 		})
 	})
 }

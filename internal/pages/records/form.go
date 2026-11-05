@@ -14,24 +14,24 @@ import (
 )
 
 type form struct {
-	state                 *editor.State
-	drafts                map[fieldKey]*fieldDraft
-	texts                 map[fieldKey]*textDraft
-	preview               assetPreview
-	chapter               chapters.Page
-	profiles              map[fieldKey]*profileState
-	largePreview, showRaw bool
-	sidebar               float32
-	openHex               func(int, int)
-	openText              func(uint16)
-	openScript            func(int, int)
-	openPortrait          func(int)
-	openSupportTalk       func(int, int)
-	imageEditor           components.AssetEditor
-	thumbnails            components.Thumbnails
-	defeatView            func(*ui.Context, int, float32, bool)
-	jump                  func(records.Kind, int)
-	assets                components.AssetActions
+	state           *editor.State
+	drafts          map[fieldKey]*fieldDraft
+	texts           map[fieldKey]*textDraft
+	preview         assetPreview
+	chapter         chapters.Page
+	profiles        map[fieldKey]*profileState
+	largePreview    bool
+	sidebar         float32
+	openHex         func(int, int)
+	openText        func(uint16)
+	openScript      func(int, int)
+	openPortrait    func(int)
+	openSupportTalk func(int, int)
+	imageEditor     components.AssetEditor
+	thumbnails      components.Thumbnails
+	defeatView      func(*ui.Context, int, float32)
+	jump            func(records.Kind, int)
+	assets          components.AssetActions
 }
 
 func newForm(
@@ -150,22 +150,11 @@ func (a *form) View(
 								Disabled(a.state.Busy).
 								OnClick(func() { a.openScript(row.ID, 0) })
 						}
-						ui.Checkbox(c, &a.showRaw, locales.Advanced())
 					})
 					a.assetEditor(c, preview)
 					if preview != nil && preview.err != nil {
 						ui.Text(c, components.ErrorText(preview.err)).
 							TextColor(c.Theme().TextMuted)
-					}
-					if a.showRaw && preview != nil &&
-						len(preview.resource.Regions) > 0 {
-						ui.Row(c).Gap(8).Children(func() {
-							for _, region := range preview.resource.Regions {
-								ui.Button(c, fmt.Sprintf("%s · 0x%08X", locales.Label(region.Label), region.Address)).
-									Disabled(a.state.Busy).
-									OnClick(func() { a.openHex(region.Address, region.Length) })
-							}
-						})
 					}
 					if row.TextError != nil {
 						ui.Text(c, locales.TextError()).
@@ -182,7 +171,6 @@ func (a *form) View(
 							a.state,
 							row,
 							max(0, width-sidebar-40),
-							a.showRaw,
 							a.jump,
 							a.openHex,
 							a.openText,
@@ -193,20 +181,6 @@ func (a *form) View(
 					}
 					if kind != records.Chapters || a.chapter.Configuration() {
 						a.recordFields(c, kind, row, table)
-					}
-					if a.showRaw &&
-						(kind != records.Chapters || a.chapter.Configuration()) {
-						data, err := a.state.Session.Bytes.Slice(
-							row.Address,
-							min(table.Stride, 256),
-						)
-						if err == nil {
-							ui.Textf(c, "0x%08X\n% X", row.Address, data).
-								Selectable()
-							ui.Button(c, locales.EditBytes()).
-								Disabled(a.state.Busy).
-								OnClick(func() { a.openHex(row.Address, min(table.Stride, 256)) })
-						}
 					}
 				})
 		})

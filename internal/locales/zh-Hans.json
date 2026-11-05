@@ -1,4 +1,6 @@
 {
+  "shop_patch_parameters": "补丁参数",
+  "open_reference": "打开{target}",
   "text_file_export": "导出筛选文本…",
   "text_file_choose": "重新选择文件…",
   "text_file_skipped": "{count} 条文本不可读取，导出时跳过。",

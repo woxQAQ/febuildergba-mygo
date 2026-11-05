@@ -66,7 +66,6 @@ type Page struct {
 	category       int
 	categoryChoice string
 	query          string
-	advanced       bool
 	showHelp       bool
 	defeat         defeatState
 	tables         []quote.Table
@@ -317,16 +316,7 @@ func (p *Page) detail(c *ui.Context, table quote.Table, entry *tableState) {
 				ui.Text(c, locales.DeployStale()).TextColor(c.Theme().Danger)
 			}
 			ui.Row(c).Wrap().Gap(8).Children(func() {
-				ui.Checkbox(c, &p.advanced, locales.Advanced())
 				ui.Checkbox(c, &p.showHelp, locales.QuoteMatchingRules())
-				if p.advanced {
-					for _, site := range table.Pointers {
-						ui.Button(c.Key(site), fmt.Sprintf("0x%08X", site)).
-							Label(locales.DeployReference()).
-							Disabled(state.Busy).
-							OnClick(func() { p.openHex(site, 4) })
-					}
-				}
 			})
 			if p.showHelp {
 				ui.Text(c, p.tableHelp(table.Kind)).
@@ -351,25 +341,10 @@ func (p *Page) detail(c *ui.Context, table quote.Table, entry *tableState) {
 							360,
 						)
 					}
-					if p.advanced {
-						p.rawRecord(c, row)
-					}
 				})
 			}
 			p.actions(c, entry, stale)
 		})
-	})
-}
-
-func (p *Page) rawRecord(c *ui.Context, row quote.Entry) {
-	ui.Textf(c, "% X", row.Raw).
-		Selectable().
-		Font("monospace").
-		FontSize(components.FontCaption)
-	ui.Row(c).Children(func() {
-		ui.Button(c, locales.QuoteRaw()).
-			Disabled(p.state.Busy || row.Address < 0).
-			OnClick(func() { p.openHex(row.Address, len(row.Raw)) })
 	})
 }
 
@@ -378,7 +353,7 @@ func (p *Page) addButton(
 	entry *tableState,
 	disabled bool,
 ) ui.Element {
-	return ui.Button(c, locales.QuoteAdd()).
+	return components.ActionButton(c, "+", locales.QuoteAdd()).
 		Disabled(disabled || len(entry.rows) >= quote.MaxEntries || p.unit == 0 || p.unit > 255).
 		OnClick(func() {
 			p.state.SetErr(p.addRecord(entry))
@@ -401,7 +376,7 @@ func (p *Page) structure(c *ui.Context, entry *tableState, disabled bool) {
 	index := entry.index()
 	ui.Row(c).Wrap().Gap(6).Children(func() {
 		p.addButton(c, entry, disabled)
-		ui.Button(c, locales.QuoteCopy()).
+		components.ActionButton(c, "⧉", locales.QuoteCopy()).
 			Disabled(disabled || index < 0 || entry.invalid() || len(entry.rows) >= quote.MaxEntries).
 			OnClick(func() {
 				p.state.SetErr(entry.draft.Duplicate(index))
@@ -411,7 +386,7 @@ func (p *Page) structure(c *ui.Context, entry *tableState, disabled bool) {
 					p.selectIndex(entry, index+1)
 				}
 			})
-		ui.Button(c, locales.QuoteDelete()).
+		components.ActionButton(c, "−", locales.QuoteDelete()).
 			Disabled(disabled || index < 0).
 			OnClick(func() {
 				p.state.SetErr(entry.draft.Remove(index))
@@ -598,7 +573,6 @@ func (p *Page) field(
 				&current.reference,
 				value,
 				locales.QuoteEditor()+" / "+label,
-				p.advanced,
 				disabled,
 				func(id uint16) {
 					entry.preview = nil
@@ -708,13 +682,33 @@ func (p *Page) field(
 			}
 			switch field.ID {
 			case quote.Unit, quote.Opponent:
-				ui.Button(c, locales.Jump()).
-					Disabled(p.state.Busy || value == 0 || value > 255).
-					OnClick(func() { p.openRecord(records.Units, int(value)) })
+				caption := fmt.Sprintf("%02X · %s", value, p.unitName(value))
+				disabled := p.state.Busy || value == 0 || value > 255 ||
+					p.name(records.Units, value) == "" || p.openRecord == nil
+				components.ReferenceLink(
+					c,
+					locales.OpenReference(caption),
+					disabled,
+					func() { p.openRecord(records.Units, int(value)) },
+				)
 			case quote.Chapter:
-				ui.Button(c, locales.Jump()).
-					Disabled(p.state.Busy || p.state.Session.Quotes.SpecialChapter(entry.draft.Kind(), value) || value > 255).
-					OnClick(func() { p.openRecord(records.Chapters, int(value)) })
+				caption := fmt.Sprintf(
+					"%02X · %s",
+					value,
+					p.name(records.Chapters, value),
+				)
+				disabled := p.state.Busy || value > 255 ||
+					p.state.Session.Quotes.SpecialChapter(
+						entry.draft.Kind(),
+						value,
+					) ||
+					p.name(records.Chapters, value) == "" || p.openRecord == nil
+				components.ReferenceLink(
+					c,
+					locales.OpenReference(caption),
+					disabled,
+					func() { p.openRecord(records.Chapters, int(value)) },
+				)
 			case quote.Script:
 				ui.Button(c, locales.QuoteScriptBytes()).
 					Disabled(p.state.Busy || value < 0x080000C0 || value >= 0x0A000000).

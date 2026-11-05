@@ -38,7 +38,6 @@ func (v *Page) locationEditor(
 	state *editor.State,
 	row records.Row,
 	width float32,
-	advanced bool,
 	openHex func(int, int),
 	openText func(uint16),
 ) {
@@ -111,7 +110,7 @@ func (v *Page) locationEditor(
 								ui.Text(c, locales.LocationEvents()).
 									Bold().
 									Grow(1)
-								ui.Button(c, locales.LocationCopy()).
+								components.ActionButton(c, "⧉", locales.LocationCopy()).
 									Disabled(state.Busy || stale || len(entry.data.Events()) == 0).
 									OnClick(func() {
 										state.SetErr(entry.data.CopyLocation(
@@ -125,7 +124,7 @@ func (v *Page) locationEditor(
 											entry.location = locationInteraction{}
 										}
 									})
-								ui.Button(c, locales.LocationRemove()).
+								components.ActionButton(c, "−", locales.LocationRemove()).
 									Disabled(state.Busy || stale || len(entry.data.Events()) == 0).
 									OnClick(func() { state.SetErr(entry.removeSelected()) })
 							})
@@ -156,7 +155,6 @@ func (v *Page) locationEditor(
 							c,
 							state,
 							entry,
-							advanced,
 							openHex,
 							openText,
 						)
@@ -179,7 +177,7 @@ func (v *Page) locationTools(
 		MaxWidthPercent(100).
 		AlignItems(ui.Center).
 		Children(func() {
-			ui.Button(c, locales.LocationAdd()).
+			components.ActionButton(c, "+", locales.LocationAdd()).
 				Tooltip(locales.LocationScope()).
 				Disabled(disabled || entry.location.adding).
 				OnClick(func() { entry.location = locationInteraction{adding: true} })
@@ -304,7 +302,6 @@ func (v *Page) locationInspector(
 	c *ui.Context,
 	state *editor.State,
 	entry *eventState,
-	advanced bool,
 	openHex func(int, int),
 	openText func(uint16),
 ) {
@@ -394,33 +391,19 @@ func (v *Page) locationInspector(
 							Disabled(disabled || entry.data.Modified() || condition.Script < 0xC0 || condition.Address == 0 || v.openScript == nil).
 							OnClick(func() { v.openScript(v.chapter, condition.Address+4) })
 					})
-					ui.Collapsible(
-						c.Key("change-script"),
-						locales.LocationChangeScript(),
-						&entry.locationScript,
-						func() {
-							v.conditionScript(c, state, entry, condition)
-						},
-					)
+					ui.Column(c.Key("change-script")).Children(func() {
+						v.conditionScript(c, state, entry, condition)
+					})
 				case event.RewardTarget:
 					v.locationReward(c, state, entry, condition, fields)
 				case event.ShopTarget:
-					v.shopInventory(c, state, entry, condition, advanced)
+					v.shopInventory(c, state, entry, condition)
 				case event.RandomRewardTarget:
 					ui.Text(c, locales.LocationResourceReadonly())
 				case event.NoTarget:
 					ui.Text(c, locales.LocationNativeAction())
 				}
 			})
-			if advanced && condition.Address > 0 {
-				ui.Row(c).Wrap().Gap(8).Children(func() {
-					ui.Textf(c, "0x%08X → 0x%08X", condition.Address, condition.Operand).
-						FontSize(components.FontCaption).
-						Selectable()
-					ui.Button(c, locales.EditBytes()).Disabled(state.Busy).
-						OnClick(func() { openHex(condition.Address, len(condition.Raw)) })
-				})
-			}
 		})
 }
 

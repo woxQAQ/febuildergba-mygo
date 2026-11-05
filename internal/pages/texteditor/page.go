@@ -36,7 +36,6 @@ type Page struct {
 	indexed       bool
 	indexErr      error
 	drafts        map[uint16]*draft
-	showRaw       bool
 	showHelp      bool
 	importFile    func(*text.File, func(*text.Import, string, error))
 	exportFile    func(*text.File, []uint16)
@@ -227,7 +226,6 @@ func (p *Page) editor(c *ui.Context) {
 				FontSize(components.FontTitle).
 				Bold().
 				Grow(1)
-			ui.Checkbox(c, &p.showRaw, locales.RawText())
 			ui.Checkbox(c, &p.showHelp, locales.TextControlReference())
 		})
 		ui.Scroll(c.Key("command-help")).
@@ -253,13 +251,6 @@ func (p *Page) editor(c *ui.Context) {
 				Disabled(p.state.Busy).
 				OnChange(func() { d.preview, d.err = nil, nil }),
 		)
-		raw := value.Raw
-		ui.TextArea(c.Key("raw-text"), &raw).
-			Hidden(!p.showRaw).
-			ReadOnly(true).
-			Height(100).
-			Font("monospace").
-			Label(locales.RawText())
 		if stale {
 			ui.Text(c, locales.TextDraftStale()).TextColor(c.Theme().Danger)
 		} else if !value.Editable {

@@ -104,10 +104,8 @@ func (a *form) textReferenceDraft(key fieldKey) *fieldDraft {
 
 func (a *form) openTextReference(key fieldKey) {
 	switch key.Kind {
-	case records.Units:
+	case records.Units, records.Classes:
 		a.selectProfileTab(key.Kind, key.Record, profileRawTab)
-	case records.Classes:
-		a.showRaw = true
 	}
 	a.textReferenceDraft(key).input.Focus()
 }
@@ -138,7 +136,7 @@ func (a *form) textReferenceField(
 			ui.Text(c, locales.GameInvalidValue()).TextColor(c.Theme().Danger)
 			return
 		}
-		components.TextReference(c, a.state, &draft.reference, uint32(value), a.fieldLabel(kind, field), a.showRaw, false, func(id uint16) {
+		components.TextReference(c, a.state, &draft.reference, uint32(value), a.fieldLabel(kind, field), false, func(id uint16) {
 			a.state.SetErr(a.state.Edit(func() error {
 				return a.state.Session.Records.Set(
 					kind,

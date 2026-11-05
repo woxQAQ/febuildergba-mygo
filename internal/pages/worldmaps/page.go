@@ -46,7 +46,6 @@ type Page struct {
 	openRecord        func(records.Kind, int)
 	openText          func(uint16)
 	openShop          func(shop.Key)
-	openHex           func(int, int)
 	openScript        func(int, int)
 	sidebar           components.Sidebar
 	query             string
@@ -54,7 +53,6 @@ type Page struct {
 	list              ui.ListState
 	rows              []worldmap.Node
 	drafts            map[int]*nodeState
-	advanced, more    bool
 	tab               int
 	nodeCanvas        nodeCanvas
 	routes            routePage
@@ -74,7 +72,6 @@ func New(
 	record func(records.Kind, int),
 	text func(uint16),
 	stock func(shop.Key),
-	hex func(int, int),
 ) *Page {
 	return &Page{
 		state:       state,
@@ -83,7 +80,6 @@ func New(
 		openRecord:  record,
 		openText:    text,
 		openShop:    stock,
-		openHex:     hex,
 		selected:    -1,
 		drafts:      make(map[int]*nodeState),
 		routes: routePage{
@@ -98,7 +94,7 @@ func (p *Page) Reset() {
 	sidebar, openScript := p.sidebar, p.openScript
 	importBackground, exportBackground := p.importBackground, p.exportBackground
 	importRoadTileset, exportRoadTileset := p.importRoadTileset, p.exportRoadTileset
-	*p = *New(p.state, p.openRecord, p.openText, p.openShop, p.openHex)
+	*p = *New(p.state, p.openRecord, p.openText, p.openShop)
 	p.sidebar, p.openScript = sidebar, openScript
 	p.importBackground, p.exportBackground = importBackground, exportBackground
 	p.importRoadTileset, p.exportRoadTileset = importRoadTileset, exportRoadTileset
@@ -250,7 +246,6 @@ func (p *Page) detail(c *ui.Context) {
 					FontSize(components.FontTitle).
 					Bold().
 					Tooltip(locales.WorldmapScope())
-				ui.Checkbox(c, &p.advanced, locales.Advanced())
 			})
 			p.nodeMap(c, entry)
 			ui.Column(c.Key(entry)).Gap(12).Children(func() {
@@ -302,7 +297,6 @@ func (p *Page) detail(c *ui.Context) {
 						&entry.name,
 						uint32(value.Name),
 						locales.WorldmapName(),
-						p.advanced,
 						disabled,
 						func(id uint16) {
 							entry.plan = nil
@@ -344,28 +338,23 @@ func (p *Page) detail(c *ui.Context) {
 					worldmap.EirikaAlternate,
 					worldmap.EphraimAlternate,
 				)
-				ui.Collapsible(
-					c.Key("rules"),
-					locales.WorldmapOtherRules(),
-					&p.more,
-					func() {
-						p.fields(
-							c,
-							entry,
-							disabled,
-							worldmap.UnclearedIcon,
-							worldmap.ClearedIcon,
-						)
-						p.fields(
-							c,
-							entry,
-							disabled,
-							worldmap.Placement,
-							worldmap.Encounters,
-							worldmap.ShipTravel,
-						)
-					},
-				)
+				ui.Column(c.Key("rules")).Gap(8).Children(func() {
+					p.fields(
+						c,
+						entry,
+						disabled,
+						worldmap.UnclearedIcon,
+						worldmap.ClearedIcon,
+					)
+					p.fields(
+						c,
+						entry,
+						disabled,
+						worldmap.Placement,
+						worldmap.Encounters,
+						worldmap.ShipTravel,
+					)
+				})
 				ui.Row(c.Key("shops")).Wrap().Gap(8).Children(func() {
 					for slot, label := range []string{locales.ShopArmory(), locales.ShopVendor(), locales.ShopSecret()} {
 						ui.Button(c.Key(slot), label).
@@ -373,20 +362,6 @@ func (p *Page) detail(c *ui.Context) {
 							OnClick(func() { p.openShop(shop.Key{Origin: shop.WorldMap, ID: node.ID, Slot: slot}) })
 					}
 				})
-				if p.advanced {
-					ui.Row(c).
-						Wrap().
-						Gap(8).
-						AlignItems(ui.Center).
-						Children(func() {
-							ui.Textf(c, "0x%08X", value.Address).
-								Font("monospace").
-								FontSize(components.FontCaption)
-							ui.Button(c, locales.EditBytes()).
-								Disabled(disabled || p.openHex == nil).
-								OnClick(func() { p.openHex(value.Address, worldmap.NodeSize) })
-						})
-				}
 			})
 		})
 }

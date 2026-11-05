@@ -34,7 +34,7 @@ type numberDraft struct {
 }
 type viewState struct {
 	section, eye, mouth, part, zoom int
-	markers, advanced               bool
+	markers                         bool
 	drafts                          map[string]*numberDraft
 	blink, blinkLabel               string
 	blinkValue                      int
@@ -43,7 +43,6 @@ type Page struct {
 	state                    *editor.State
 	actions                  components.AssetActions
 	openRecord               func(records.Kind, int)
-	openHex                  func(int, int)
 	sidebar                  components.Sidebar
 	query                    string
 	selected                 int
@@ -65,13 +64,11 @@ func New(
 	state *editor.State,
 	actions components.AssetActions,
 	openRecord func(records.Kind, int),
-	openHex func(int, int),
 ) *Page {
 	return &Page{
 		state:      state,
 		actions:    actions,
 		openRecord: openRecord,
-		openHex:    openHex,
 		selected:   -1,
 		views:      make(map[int]*viewState),
 		thumbnails: make(map[int]*ui.Bitmap),
@@ -79,8 +76,8 @@ func New(
 }
 
 func (page *Page) Reset() {
-	state, actions, record, hex, sidebar := page.state, page.actions, page.openRecord, page.openHex, page.sidebar
-	*page = *New(state, actions, record, hex)
+	state, actions, record, sidebar := page.state, page.actions, page.openRecord, page.sidebar
+	*page = *New(state, actions, record)
 	page.sidebar = sidebar
 }
 

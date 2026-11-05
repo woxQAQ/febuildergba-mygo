@@ -74,7 +74,7 @@ func (a *form) profileClass(
 		ui.Text(c, locales.Label(id)).
 			FontSize(components.FontCaption).
 			Tooltip(help)
-		ui.Row(c).Gap(6).AlignItems(ui.Center).Children(func() {
+		ui.Row(c).Gap(0).AlignItems(ui.Center).Children(func() {
 			components.TextDraft(
 				a.state,
 				ui.Combobox(c, &draft.text, labels).
@@ -100,12 +100,10 @@ func (a *form) profileClass(
 						}
 					}),
 			)
-			ui.Button(c, locales.Jump()).
-				Height(26).
-				Shrink(0).
-				FontSize(components.FontCaption).
-				Disabled(a.state.Busy || target < 0).
-				OnClick(func() { a.jump(records.Classes, target) })
+			components.ReferenceLink(c, locales.OpenReference(caption),
+				a.state.Busy || target < 0 || a.jump == nil,
+				func() { a.jump(records.Classes, target) },
+			)
 		})
 	})
 }

@@ -88,7 +88,6 @@ func (v *Page) shopInventory(
 	state *editor.State,
 	entry *eventState,
 	condition event.Condition,
-	advanced bool,
 ) {
 	v.shopKind(c, state, entry, condition.Location.ShopKind)
 	inventory, err := entry.data.Shop(entry.selected)
@@ -111,7 +110,6 @@ func (v *Page) shopInventory(
 		state,
 		inventory,
 		state.Busy || !entry.data.Current(state.Session.Events),
-		advanced,
 		func() { entry.preview = nil },
 	)
 }

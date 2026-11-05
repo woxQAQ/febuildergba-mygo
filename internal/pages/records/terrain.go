@@ -197,25 +197,6 @@ func (a *form) profileTerrain(
 							}
 						})
 				})
-			if a.showRaw {
-				ui.Column(c.Key("raw")).Gap(4).Children(func() {
-					for _, table := range tables {
-						ui.Row(c.Key(table.Kind)).
-							Wrap().
-							Gap(8).
-							AlignItems(ui.Center).
-							Children(func() {
-								ui.Textf(c, "%s  0x%08X → 0x%08X", terrainColumn(table.Kind), table.Pointer, table.Address).
-									Font("monospace").
-									FontSize(components.FontCaption)
-								ui.Button(c, locales.EditBytes()).
-									Height(26).
-									Disabled(a.state.Busy || table.Err != nil || table.Empty || a.openHex == nil).
-									OnClick(func() { a.openHex(table.Address, format.Count()) })
-							})
-					}
-				})
-			}
 		})
 }
 
@@ -239,13 +220,6 @@ func (a *form) terrainField(
 	}
 	if table.Kind.Movement() && table.Values[id] == -1 {
 		help = locales.TerrainImpassable() + "\n" + help
-	}
-	if a.showRaw {
-		help += fmt.Sprintf(
-			"\n0x%08X  0x%02X",
-			table.Address+id,
-			table.Values[id]&0xFF,
-		)
 	}
 	control := components.TextDraft(
 		a.state,
@@ -297,11 +271,6 @@ func (a *form) terrainPreview(c *ui.Context, v *terrainState, reload func()) {
 									FontSize(components.FontCaption)
 							}
 						})
-				}
-				if a.showRaw {
-					ui.Textf(c, "0x%08X → 0x%08X", move.Address, move.Destination).
-						Font("monospace").
-						FontSize(components.FontCaption)
 				}
 			}
 			ui.Text(c, locales.TerrainApplyHelp()).

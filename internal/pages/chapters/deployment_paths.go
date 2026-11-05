@@ -189,18 +189,19 @@ func (v *Page) pathEditor(
 	}
 	ui.Row(c).Wrap().Gap(6).Children(func() {
 		for _, action := range []struct {
+			symbol    string
 			label     string
 			enabled   bool
 			run       func() error
 			selection int
 		}{
-			{locales.MoveAdd(), len(steps) < deployment.MaxMovementSteps, func() error { return entry.data.AddPathStep(entry.selected) }, len(steps)},
-			{locales.MoveDuplicate(), len(steps) > 0 && len(steps) < deployment.MaxMovementSteps, func() error { return entry.data.DuplicatePathStep(entry.selected, path.selected) }, path.selected + 1},
-			{locales.MoveRemove(), len(steps) > 0, func() error { return entry.data.RemovePathStep(entry.selected, path.selected) }, max(0, path.selected-1)},
-			{locales.MoveUp(), path.selected > 0, func() error { return entry.data.MovePathStep(entry.selected, path.selected, path.selected-1) }, path.selected - 1},
-			{locales.MoveDown(), path.selected+1 < len(steps), func() error { return entry.data.MovePathStep(entry.selected, path.selected, path.selected+1) }, path.selected + 1},
+			{"+", locales.MoveAdd(), len(steps) < deployment.MaxMovementSteps, func() error { return entry.data.AddPathStep(entry.selected) }, len(steps)},
+			{"⧉", locales.MoveDuplicate(), len(steps) > 0 && len(steps) < deployment.MaxMovementSteps, func() error { return entry.data.DuplicatePathStep(entry.selected, path.selected) }, path.selected + 1},
+			{"−", locales.MoveRemove(), len(steps) > 0, func() error { return entry.data.RemovePathStep(entry.selected, path.selected) }, max(0, path.selected-1)},
+			{"↑", locales.MoveUp(), path.selected > 0, func() error { return entry.data.MovePathStep(entry.selected, path.selected, path.selected-1) }, path.selected - 1},
+			{"↓", locales.MoveDown(), path.selected+1 < len(steps), func() error { return entry.data.MovePathStep(entry.selected, path.selected, path.selected+1) }, path.selected + 1},
 		} {
-			ui.Button(c, action.label).
+			components.ActionButton(c, action.symbol, action.label).
 				Disabled(disabled || !action.enabled).
 				OnClick(func() {
 					state.SetErr(action.run())

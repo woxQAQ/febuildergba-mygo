@@ -17,7 +17,6 @@ func (v *Page) eventDetails(
 	state *editor.State,
 	row records.Row,
 	entry *eventState,
-	advanced bool,
 	jump func(records.Kind, int),
 	openHex func(int, int),
 	openText func(uint16),
@@ -64,23 +63,13 @@ func (v *Page) eventDetails(
 			case entry.data.Table() == event.TalkEvents:
 				v.talkDetails(c, state, entry, condition, jump, openText)
 			default:
-				v.eventScene(c, state, row, entry, events, advanced, jump)
+				v.eventScene(c, state, row, entry, events, jump)
 			}
 			if v.mode != 5 && v.openScript != nil && condition.Address > 0 &&
 				condition.Script >= 0xC0 {
 				ui.Button(c, locales.ScriptEditor()).
 					Disabled(state.Busy).
 					OnClick(func() { v.openScript(row.ID, condition.Address+4) })
-			}
-			if advanced && condition.Address > 0 {
-				ui.Row(c).Gap(8).Wrap().Children(func() {
-					ui.Button(c, locales.EditBytes()).
-						Disabled(state.Busy).
-						OnClick(func() { openHex(condition.Address, len(condition.Raw)) })
-					ui.Textf(c, "0x%08X → 0x%08X · % X", condition.Address, condition.Operand, condition.Raw).
-						Selectable().
-						Font("monospace")
-				})
 			}
 		})
 }
@@ -91,7 +80,6 @@ func (v *Page) eventScene(
 	row records.Row,
 	entry *eventState,
 	events []event.Condition,
-	advanced bool,
 	jump func(records.Kind, int),
 ) {
 	condition := events[entry.selected]
@@ -121,7 +109,7 @@ func (v *Page) eventScene(
 	}
 	if unit != nil {
 		v.unitActions(c, state, unit)
-		v.fields(c, state, unit, advanced, jump)
+		v.fields(c, state, unit, jump)
 	}
 }
 

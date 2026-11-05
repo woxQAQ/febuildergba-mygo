@@ -43,7 +43,7 @@ func TextReference(
 	reference *TextReferenceState,
 	id uint32,
 	label string,
-	raw, disabled bool,
+	disabled bool,
 	choose func(uint16),
 	open func(uint16),
 ) ui.Element {
@@ -73,7 +73,7 @@ func TextReference(
 	}
 	selected := &reference.choice
 	ui.Column(c).Gap(6).Children(func() {
-		ui.Row(c).Wrap().Gap(8).AlignItems(ui.Center).Children(func() {
+		ui.Row(c).Gap(0).AlignItems(ui.Center).Children(func() {
 			control = TextDraft(
 				state,
 				ui.Combobox(c.Key("text-id"), selected, labels).
@@ -87,9 +87,12 @@ func TextReference(
 					}),
 			)
 			if open != nil {
-				ui.Button(c, locales.QuoteOpenText()).
-					Disabled(state.Busy || id == 0 || id > 65535).
-					OnClick(func() { open(uint16(id)) })
+				ReferenceLink(
+					c,
+					locales.QuoteOpenText()+fmt.Sprintf(" %04X", id),
+					state.Busy || id == 0 || id > 65535,
+					func() { open(uint16(id)) },
+				)
 				// #nosec G115 -- Enabled only for bounded IDs.
 			}
 		})
@@ -98,7 +101,7 @@ func TextReference(
 				FontSize(FontCaption).
 				TextColor(c.Theme().Danger)
 		}
-		TextPreview(c, state.Session.Texts, id, raw)
+		TextPreview(c, state.Session.Texts, id)
 	})
 	return control
 }
@@ -127,23 +130,23 @@ func TextReferences(
 		*selected = labels[0]
 	}
 	ui.Column(c).Gap(6).Children(func() {
-		ui.Row(c).Wrap().Gap(8).AlignItems(ui.Center).Children(func() {
+		ui.Row(c).Gap(0).AlignItems(ui.Center).Children(func() {
 			ui.Select(c.Key("text-reference"), selected, labels).
 				Width(240).Grow(1).MinWidth(0).MaxWidthPercent(100).
 				Label(locales.EventTextRefs()).Disabled(state.Busy)
 			id := ids[max(0, slices.Index(labels, *selected))]
-			ui.Button(c, locales.QuoteOpenText()).
-				Disabled(state.Busy || id == 0).
-				OnClick(func() { open(id) })
+			ReferenceLink(c, locales.QuoteOpenText()+fmt.Sprintf(" %04X", id),
+				state.Busy || id == 0 || open == nil, func() { open(id) },
+			)
 		})
 		id := ids[max(0, slices.Index(labels, *selected))]
-		TextPreview(c, state.Session.Texts, uint32(id), false)
+		TextPreview(c, state.Session.Texts, uint32(id))
 	})
 }
 
 // TextPreview uses the decoded reading view without truncation. Long content
 // scrolls inside a bounded surface, including in a surrounding page scroller.
-func TextPreview(c *ui.Context, texts *text.Editor, id uint32, raw bool) {
+func TextPreview(c *ui.Context, texts *text.Editor, id uint32) {
 	if id > 65535 {
 		ui.Text(c, locales.GameInvalidValue()).TextColor(c.Theme().Danger)
 		return
@@ -156,9 +159,6 @@ func TextPreview(c *ui.Context, texts *text.Editor, id uint32, raw bool) {
 		return
 	}
 	body := value.Plain
-	if raw {
-		body = value.Content
-	}
 	if id == 0 {
 		body = locales.QuoteNoText()
 	} else if strings.TrimSpace(body) == "" {
@@ -168,10 +168,7 @@ func TextPreview(c *ui.Context, texts *text.Editor, id uint32, raw bool) {
 		float32(144),
 		max(float32(52), float32(strings.Count(body, "\n")+1)*18+16),
 	)
-	ui.Scroll(c.Key(struct {
-		ID  uint32
-		Raw bool
-	}{id, raw})).
+	ui.Scroll(c.Key(id)).
 		Height(height).Padding(8).Background(c.Theme().Surface).
 		Border(1, c.Theme().Border).Radius(c.Theme().Radius).
 		Label(locales.QuoteReadingPreview()).Children(func() {
