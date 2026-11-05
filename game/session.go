@@ -129,7 +129,9 @@ func Open(path string) (session *Session, err error) {
 			format.terrain,
 			s.terrainSource(),
 		)
-		s.Sprites = sprite.New(context, format.sprites)
+		spriteFormat := format.sprites
+		spriteFormat.ItemIcons = format.icons.Pointer
+		s.Sprites = sprite.New(context, spriteFormat)
 		s.Images = graphics.New(context, map[graphics.Kind]graphics.Backend{
 			graphics.Portrait: format.portraits,
 			graphics.ItemIcon: format.icons,

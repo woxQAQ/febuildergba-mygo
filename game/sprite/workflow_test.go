@@ -55,11 +55,46 @@ func TestRecordSpriteWorkflow(t *testing.T) {
 					t.Fatalf("wrong weapon crop %d", id)
 				}
 			}
+			for index, want := range colors[:7] {
+				icon := s.Sprites.Affinity(index + 1)
+				if icon.Err != nil || icon.Image == nil {
+					t.Fatalf("affinity %d: %v", index+1, icon.Err)
+				}
+				if icon.Image.Bounds() != image.Rect(0, 0, 16, 16) ||
+					icon.Image.RGBAAt(
+						1,
+						0,
+					) != want || icon.Image.RGBAAt(15, 15) != want ||
+					icon.Image.RGBAAt(0, 0).A != 0 {
+					t.Fatalf(
+						"wrong affinity slot, palette or transparency %d",
+						index+1,
+					)
+				}
+			}
+			if empty := s.Sprites.Affinity(
+				0,
+			); empty.Err != nil ||
+				empty.Image != nil {
+				t.Fatal("absent affinity has an icon or error")
+			}
+			for _, id := range []int{-1, 8, 255} {
+				if unknown := s.Sprites.Affinity(
+					id,
+				); unknown.Err == nil ||
+					unknown.Image != nil {
+					t.Fatal("unknown affinity received a native icon")
+				}
+			}
 			if !bytes.Equal(before.Data, s.Document.Snapshot().Data) ||
 				before.Revision != s.Document.State().Revision {
 				t.Fatal("preview changed ROM")
 			}
 			old := s.Sprites.Standing(0)
+			oldAffinity := s.Sprites.Affinity(1)
+			if oldAffinity.Current(testutil.Open(t, f).Sprites) {
+				t.Fatal("affinity preview accepted a different document")
+			}
 			if old.Current(testutil.Open(t, f).Sprites) {
 				t.Fatal("preview accepted a different document")
 			}
@@ -71,8 +106,13 @@ func TestRecordSpriteWorkflow(t *testing.T) {
 			); err != nil {
 				t.Fatal(err)
 			}
-			if old.Current(s.Sprites) {
+			if old.Current(s.Sprites) || oldAffinity.Current(s.Sprites) {
 				t.Fatal("palette edit did not invalidate preview")
+			}
+			changedAffinity := s.Sprites.Affinity(1)
+			if changedAffinity.Err != nil ||
+				changedAffinity.Image.RGBAAt(1, 0) != colors[1] {
+				t.Fatal("affinity weapon palette edit not reflected")
 			}
 			changed := s.Sprites.Standing(0)
 			if changed.Err != nil || changed.Image.RGBAAt(1, 0) != colors[1] {
@@ -86,6 +126,14 @@ func TestRecordSpriteWorkflow(t *testing.T) {
 				!bytes.Equal(old.Image.Pix, restored.Image.Pix) {
 				t.Fatal("undo preview differs")
 			}
+			restoredAffinity := s.Sprites.Affinity(1)
+			if restoredAffinity.Err != nil ||
+				!bytes.Equal(
+					oldAffinity.Image.Pix,
+					restoredAffinity.Image.Pix,
+				) {
+				t.Fatal("undo affinity preview differs")
+			}
 			table := s.Records.Table(records.Classes)
 			if err := s.Records.UseLayout(
 				records.Classes,
@@ -93,13 +141,19 @@ func TestRecordSpriteWorkflow(t *testing.T) {
 			); err != nil {
 				t.Fatal(err)
 			}
-			if restored.Current(s.Sprites) {
+			if restored.Current(s.Sprites) ||
+				restoredAffinity.Current(s.Sprites) {
 				t.Fatal("layout change retained cached interpretation")
+			}
+			if s.Sprites.Affinity(1).Err != nil {
+				t.Fatal("layout change lost readable affinity data")
 			}
 			for _, change := range []rom.Change{
 				{Offset: f.GetPosition("standing_table") + 2, Data: []byte{3, 0}},
 				{Offset: f.GetPosition("standing_table") + 4, Data: []byte{0, 0, 0, 3}},
 				{Offset: f.GetPosition("weapon_data"), Data: []byte{0x10, 0xFF, 0xFF, 0x7F}},
+				{Offset: f.GetPosition("affinity_pointer"), Data: []byte{0, 0, 0, 3}},
+				{Offset: f.GetPosition("affinity_pointer"), Data: []byte{0xE0, 0xFF, 0xFF, 8}},
 			} {
 				if err := s.Document.Apply(
 					s.Document.State().Revision,
@@ -109,7 +163,16 @@ func TestRecordSpriteWorkflow(t *testing.T) {
 					t.Fatal(err)
 				}
 				standing, weapon := s.Sprites.Standing(0), s.Sprites.Weapon(0)
-				if change.Offset == f.GetPosition("weapon_data") {
+				if change.Offset == f.GetPosition("affinity_pointer") {
+					affinity := s.Sprites.Affinity(1)
+					if affinity.Err == nil || affinity.Image != nil ||
+						standing.Err != nil ||
+						weapon.Err != nil {
+						t.Fatal(
+							"damaged affinity pointer was accepted or affected other resources",
+						)
+					}
+				} else if change.Offset == f.GetPosition("weapon_data") {
 					if weapon.Err == nil || weapon.Image != nil {
 						t.Fatal("oversize stream accepted")
 					}

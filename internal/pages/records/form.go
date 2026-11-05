@@ -18,6 +18,7 @@ type form struct {
 	drafts          map[fieldKey]*fieldDraft
 	texts           map[fieldKey]*textDraft
 	preview         assetPreview
+	portraitChoice  *portraitChoice
 	chapter         chapters.Page
 	profiles        map[fieldKey]*profileState
 	largePreview    bool
@@ -78,6 +79,7 @@ func (a *form) Reset() {
 }
 
 func (a *form) ClearDrafts() {
+	a.portraitChoice = nil
 	a.drafts = nil
 	a.texts = nil
 	profiles := a.profiles
@@ -104,6 +106,10 @@ func (a *form) View(
 	sidebar float32,
 ) {
 	a.sidebar = sidebar
+	if choice := a.portraitChoice; choice != nil &&
+		(choice.kind != kind || choice.record != row.ID) {
+		a.portraitChoice = nil
+	}
 	if kind == records.Units || kind == records.Classes {
 		a.profile(c, kind, row, table)
 		return

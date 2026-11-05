@@ -13,9 +13,9 @@ import (
 // Thumbnails caches decoded images, never build-scoped UI elements. Resource
 // stamps invalidate both successful and failed reads after document/layout edits.
 type Thumbnails struct {
-	session           *game.Session
-	portraits         map[int]portraitThumbnail
-	standing, weapons map[int]spriteThumbnail
+	session                       *game.Session
+	portraits                     map[int]portraitThumbnail
+	standing, weapons, affinities map[int]spriteThumbnail
 }
 type portraitThumbnail struct {
 	selection records.PortraitSelection
@@ -45,10 +45,11 @@ func thumbnail(bitmap *image.RGBA, err error) Thumbnail {
 func (t *Thumbnails) prepare(session *game.Session) {
 	if t.session != session {
 		*t = Thumbnails{
-			session:   session,
-			portraits: make(map[int]portraitThumbnail),
-			standing:  make(map[int]spriteThumbnail),
-			weapons:   make(map[int]spriteThumbnail),
+			session:    session,
+			portraits:  make(map[int]portraitThumbnail),
+			standing:   make(map[int]spriteThumbnail),
+			weapons:    make(map[int]spriteThumbnail),
+			affinities: make(map[int]spriteThumbnail),
 		}
 	}
 }
@@ -102,6 +103,18 @@ func (t *Thumbnails) Weapon(session *game.Session, id int) Thumbnail {
 	source := session.Sprites.Weapon(id)
 	result := thumbnail(source.Image, source.Err)
 	t.weapons[id] = spriteThumbnail{source, result}
+	return result
+}
+
+func (t *Thumbnails) Affinity(session *game.Session, id int) Thumbnail {
+	t.prepare(session)
+	if cached, ok := t.affinities[id]; ok &&
+		cached.source.Current(session.Sprites) {
+		return cached.thumbnail
+	}
+	source := session.Sprites.Affinity(id)
+	result := thumbnail(source.Image, source.Err)
+	t.affinities[id] = spriteThumbnail{source, result}
 	return result
 }
 

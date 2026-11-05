@@ -1,4 +1,4 @@
-// Package sprite reads native standing map sprites and weapon-type icons.
+// Package sprite reads native standing map sprites, weapon and affinity icons.
 package sprite
 
 import (
@@ -10,13 +10,15 @@ import (
 	"github.com/woxQAQ/febuildergba-mygo/gba"
 )
 
-// Format holds the confirmed native sprite and weapon-icon locations.
+// Format holds the confirmed native sprite and icon locations.
 // WeaponX/WeaponY are the icon's cell position within the weapon sheet.
+// ItemIcons is the raw item-icon table pointer; affinities use WeaponPalette.
 type Format struct {
 	Standing               []int
 	Palette                int
 	Weapons, WeaponPalette int
 	WeaponX, WeaponY       int
+	ItemIcons              int
 }
 
 type Reader struct {
@@ -64,6 +66,34 @@ func (s *Reader) Weapon(id int) Preview {
 		result.Image, result.Err = s.format.weaponImage(s.image.Data, id)
 	}
 	return result
+}
+
+// Affinity returns the native icon for the seven nonzero affinities. Zero has
+// no icon; unknown values remain distinguishable from an absent affinity.
+func (s *Reader) Affinity(id int) Preview {
+	err := s.refresh()
+	result := Preview{binding: s.binding, Err: err}
+	if err == nil {
+		result.Image, result.Err = s.format.affinityImage(s.image.Data, id)
+	}
+	return result
+}
+
+func (f Format) affinityImage(data []byte, id int) (*image.RGBA, error) {
+	if id == 0 {
+		return nil, nil
+	}
+	if id < 1 || id > 7 || f.ItemIcons < 0xC0 || f.WeaponPalette < 0xC0 {
+		return nil, graphics.ErrImage
+	}
+	base, ok := gba.Pointer(data, f.ItemIcons)
+	palette, palOK := gba.Pointer(data, f.WeaponPalette)
+	at := base + (0x79+id)*128
+	if !ok || !palOK || base < 0xC0 || palette < 0xC0 ||
+		!gba.Within(data, at, 128) || !gba.Within(data, palette, 32) {
+		return nil, graphics.ErrImage
+	}
+	return gba.Tiles4BPP(data[at:at+128], data[palette:palette+32], 16, 16)
 }
 
 func (f Format) standingImage(data []byte, id int) (*image.RGBA, error) {

@@ -1,4 +1,11 @@
 {
+  "portrait_choose": "Change portrait…",
+  "portrait_select": "Choose portrait",
+  "portrait_choose_apply": "Use this portrait",
+  "portrait_inherit_class": "Use default class portrait",
+  "portrait_clear": "No portrait",
+  "portrait_interaction_help": "Click to edit the portrait; right-click to change it. Press Shift+F10 while focused to open the menu.",
+  "portrait_empty_interaction_help": "Click to choose a portrait. Right-click or press Shift+F10 to open the menu.",
   "shop_patch_parameters": "Patch parameters",
   "open_reference": "Open {target}",
   "text_file_export": "Export filtered text…",

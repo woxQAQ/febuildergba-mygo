@@ -46,6 +46,8 @@ FE8 路径使用同一固定提交的 [muctrl.h](https://github.com/FireEmblemUn
 - `StanHash/fe7_us@5c8b3c5e254e00f0f3458b9772c27e1a5a326e3b`：[asm/code.s](https://github.com/StanHash/fe7_us/blob/5c8b3c5e254e00f0f3458b9772c27e1a5a326e3b/asm/code.s) 的 `func_08024D60`（`7F` 掩码、8 字节步长和形状分支）及后续图块复制函数。
 - `FireEmblemUniverse/fireemblem8u@04d1edb163d14bd10777a065697e1a9f17be65f2`：[src/bmudisp.c](https://github.com/FireEmblemUniverse/fireemblem8u/blob/04d1edb163d14bd10777a065697e1a9f17be65f2/src/bmudisp.c) 的 `GetInfo`、`StartUiSMS` 和 `ApplyUnitSpriteImage*`。
 
+属性图标按同一固定旧版 `ImageSystemIconForm.Attribute` 和 `ImageItemIconForm.DrawIconWhereID_UsingWeaponPalette` 核对：非零原生属性使用道具图标 `79 + 属性`，配色使用武器图标调色板。编号规则交叉核对同一固定 FE6 提交的 [src/support.c](https://github.com/StanHash/fe6/blob/f9ea5f67f3f1048ca9836d7350077231ba54b589/src/support.c) 与 [include/constants/icons.h](https://github.com/StanHash/fe6/blob/f9ea5f67f3f1048ca9836d7350077231ba54b589/include/constants/icons.h)、固定 FE7U 的 [asm/code.s](https://github.com/StanHash/fe7_us/blob/5c8b3c5e254e00f0f3458b9772c27e1a5a326e3b/asm/code.s) 中 `func_08026B24`／`func_08026B38`，以及固定 FE8U 的 [src/bmreliance.c](https://github.com/FireEmblemUniverse/fireemblem8u/blob/04d1edb163d14bd10777a065697e1a9f17be65f2/src/bmreliance.c) 中 `GetUnitAffinityIcon`／`GetCharacterAffinityIcon`；零属性不显示图标。
+
 日版入口同时按固定旧版定义和动态 ROM 资源读取核对，不以美版反编译证明所有日版补丁的消费者。格式与读取边界见[图像参考](reference/text-and-images.md#列表缩略图与武器类别图标)。
 
 ## 地图布局

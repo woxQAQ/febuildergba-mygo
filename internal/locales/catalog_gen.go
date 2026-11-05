@@ -34,6 +34,76 @@ type Messages struct{ locale string }
 // source language.
 func In(locale string) Messages { return Messages{locale} }
 
+// PortraitChoose says "Change portrait…"
+// in the language the app shows.
+func PortraitChoose() string { return In(i18n.Locale()).PortraitChoose() }
+
+// PortraitChoose says "Change portrait…"
+// in the language of msgs.
+func (msgs Messages) PortraitChoose() string {
+	return Catalog.Format(msgs.locale, "portrait_choose", nil)
+}
+
+// PortraitSelect says "Choose portrait"
+// in the language the app shows.
+func PortraitSelect() string { return In(i18n.Locale()).PortraitSelect() }
+
+// PortraitSelect says "Choose portrait"
+// in the language of msgs.
+func (msgs Messages) PortraitSelect() string {
+	return Catalog.Format(msgs.locale, "portrait_select", nil)
+}
+
+// PortraitChooseApply says "Use this portrait"
+// in the language the app shows.
+func PortraitChooseApply() string { return In(i18n.Locale()).PortraitChooseApply() }
+
+// PortraitChooseApply says "Use this portrait"
+// in the language of msgs.
+func (msgs Messages) PortraitChooseApply() string {
+	return Catalog.Format(msgs.locale, "portrait_choose_apply", nil)
+}
+
+// PortraitInheritClass says "Use default class portrait"
+// in the language the app shows.
+func PortraitInheritClass() string { return In(i18n.Locale()).PortraitInheritClass() }
+
+// PortraitInheritClass says "Use default class portrait"
+// in the language of msgs.
+func (msgs Messages) PortraitInheritClass() string {
+	return Catalog.Format(msgs.locale, "portrait_inherit_class", nil)
+}
+
+// PortraitClear says "No portrait"
+// in the language the app shows.
+func PortraitClear() string { return In(i18n.Locale()).PortraitClear() }
+
+// PortraitClear says "No portrait"
+// in the language of msgs.
+func (msgs Messages) PortraitClear() string {
+	return Catalog.Format(msgs.locale, "portrait_clear", nil)
+}
+
+// PortraitInteractionHelp says "Click to edit the portrait; right-click to change it. Press Shift+F10 while focused to open the menu."
+// in the language the app shows.
+func PortraitInteractionHelp() string { return In(i18n.Locale()).PortraitInteractionHelp() }
+
+// PortraitInteractionHelp says "Click to edit the portrait; right-click to change it. Press Shift+F10 while focused to open the menu."
+// in the language of msgs.
+func (msgs Messages) PortraitInteractionHelp() string {
+	return Catalog.Format(msgs.locale, "portrait_interaction_help", nil)
+}
+
+// PortraitEmptyInteractionHelp says "Click to choose a portrait. Right-click or press Shift+F10 to open the menu."
+// in the language the app shows.
+func PortraitEmptyInteractionHelp() string { return In(i18n.Locale()).PortraitEmptyInteractionHelp() }
+
+// PortraitEmptyInteractionHelp says "Click to choose a portrait. Right-click or press Shift+F10 to open the menu."
+// in the language of msgs.
+func (msgs Messages) PortraitEmptyInteractionHelp() string {
+	return Catalog.Format(msgs.locale, "portrait_empty_interaction_help", nil)
+}
+
 // ShopPatchParameters says "Patch parameters"
 // in the language the app shows.
 func ShopPatchParameters() string { return In(i18n.Locale()).ShopPatchParameters() }

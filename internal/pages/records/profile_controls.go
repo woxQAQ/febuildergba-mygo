@@ -75,6 +75,17 @@ func (a *form) profileClass(
 			FontSize(components.FontCaption).
 			Tooltip(help)
 		ui.Row(c).Gap(0).AlignItems(ui.Center).Children(func() {
+			if target >= 0 {
+				icon := a.thumbnails.Standing(a.state.Session, target)
+				if icon.Available() {
+					ui.Row(c.Key("class-icon")).
+						Padding(0, 6, 0, 0).
+						Shrink(0).
+						Children(func() {
+							icon.Inline(c, 22, caption)
+						})
+				}
+			}
 			components.TextDraft(
 				a.state,
 				ui.Combobox(c, &draft.text, labels).
@@ -138,28 +149,34 @@ func (a *form) profileEnum(
 	draft := entry.choice(id, value, caption)
 	return ui.Column(c.Key(id)).Gap(4).Children(func() {
 		ui.Text(c, locales.Label(id)).FontSize(components.FontCaption)
-		ui.Select(c, &draft.text, labels).
-			WidthPercent(100).
-			MinWidth(0).
-			Height(26).
-			Label(a.fieldLabel(kind, field)).
-			Disabled(a.state.Busy).
-			OnChange(func() {
-				if index := slices.Index(
-					labels,
-					draft.text,
-				); index >= 0 &&
-					index < len(keys) {
-					a.state.SetErr(a.state.Edit(func() error {
-						return a.state.Session.Records.Set(
-							kind,
-							[]int{row.ID},
-							id,
-							int64(index),
-						)
-					}))
-				}
-			})
+		ui.Row(c).Gap(6).AlignItems(ui.Center).Children(func() {
+			if id == "affinity" {
+				a.thumbnails.Affinity(a.state.Session, int(value)).
+					Inline(c, 16, caption)
+			}
+			ui.Select(c, &draft.text, labels).
+				Grow(1).
+				MinWidth(0).
+				Height(26).
+				Label(a.fieldLabel(kind, field)).
+				Disabled(a.state.Busy).
+				OnChange(func() {
+					if index := slices.Index(
+						labels,
+						draft.text,
+					); index >= 0 &&
+						index < len(keys) {
+						a.state.SetErr(a.state.Edit(func() error {
+							return a.state.Session.Records.Set(
+								kind,
+								[]int{row.ID},
+								id,
+								int64(index),
+							)
+						}))
+					}
+				})
+		})
 	})
 }
 

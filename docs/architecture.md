@@ -14,7 +14,7 @@
 | 编辑有效性     | `game/edit`                                                     | 绑定文档身份、修订和解析设置，冻结完整写入计划；提供原始字节编辑。                                                 |
 | 记录           | `game/records`                                                  | 表与字段、手动布局、单项及批量写入、搬迁、人物与职业规则、资源引用选择。                                           |
 | 文本           | `game/text`                                                     | 文本表、Huffman／anti-Huffman、Shift-JIS、NarrowFont、控制语言、浏览与替换计划。                                   |
-| 原生静态图像   | `game/portrait`、`game/itemicon`、`game/sprite`                 | 头像部件、帧与元数据，道具图标和共享调色板约束，以及只读待机首帧与武器类别图标。                                   |
+| 原生静态图像   | `game/portrait`、`game/itemicon`、`game/sprite`                 | 头像部件、帧与元数据，道具图标和共享调色板约束，以及只读待机首帧、武器类别与属性图标。                             |
 | 图像文件流程   | `game/graphics`                                                 | 通过原生图像后端校验 PNG、组合替换预览与原子写入。                                                                 |
 | 部署           | `game/deployment`                                               | 单位记录、FE8 REDA 路径、草稿与载荷编码，不扫描章节脚本。                                                          |
 | 商店货物       | `game/shop`                                                     | 两字节货物、已确认入口与共享用途；准备／默认／世界地图的独立写入计划，章节提交由事件操作协调。                     |

@@ -1,4 +1,11 @@
 {
+  "portrait_choose": "更换头像…",
+  "portrait_select": "选择头像",
+  "portrait_choose_apply": "使用此头像",
+  "portrait_inherit_class": "沿用默认职业头像",
+  "portrait_clear": "不设置头像",
+  "portrait_interaction_help": "单击编辑头像，右键更换。聚焦后可按 Shift+F10 打开菜单。",
+  "portrait_empty_interaction_help": "单击选择头像，右键或 Shift+F10 打开菜单。",
   "shop_patch_parameters": "补丁参数",
   "open_reference": "打开{target}",
   "text_file_export": "导出筛选文本…",

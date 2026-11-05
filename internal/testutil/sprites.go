@@ -6,21 +6,28 @@ import (
 	"github.com/woxQAQ/febuildergba-mygo/gba"
 )
 
-// AddSpriteResources supplies all three native standing shapes and eight
-// distinct weapon symbols. Later animation frames have a different palette index.
+// AddSpriteResources supplies all three native standing shapes, eight weapon
+// symbols and seven affinity symbols. Affinities share the weapon palette while
+// the ordinary item palette stays distinct. Later standing frames use another index.
 func AddSpriteResources(f *FixtureBuilder, version string) {
 	var site, palette, weapons, weaponPalette, x, y int
+	var icons, iconPalette int
 	switch version {
 	case "FE6":
 		site, palette, weapons, weaponPalette, x, y = 0x21C74, 0x100968, 0x750DC, 0x750E4, 6, 8
+		icons, iconPalette = 0x4CEC, 0x4AC4
 	case "FE7U":
 		site, palette, weapons, weaponPalette, x = 0x24DA0, 0x194594, 0x965F4, 0x90530, 3
+		icons, iconPalette = 0x4E20, 0x4D40
 	case "FE7J":
 		site, palette, weapons, weaponPalette, x = 0x2522C, 0x1900E8, 0x96D78, 0x90E70, 3
+		icons, iconPalette = 0x4CFC, 0x4C1C
 	case "FE8U":
 		site, palette, weapons, weaponPalette, x = 0x26730, 0x59EE20, 0x9DC5C, 0x91178, 3
+		icons, iconPalette = 0x36B4, 0x35D0
 	case "FE8J":
 		site, palette, weapons, weaponPalette, x = 0x266D4, 0x5C7340, 0x9FEFC, 0x93450, 3
+		icons, iconPalette = 0x36D4, 0x351C
 	default:
 		panic("unknown fixture version")
 	}
@@ -73,4 +80,13 @@ func AddSpriteResources(f *FixtureBuilder, version string) {
 		panic(err)
 	}
 	f.WriteAt(0x3C5000, compressed)
+	f.WritePointer(icons, 0x3D0000)
+	f.WritePointer(iconPalette, 0x3DF000)
+	f.MarkPosition("affinity_pointer", icons)
+	for id := 1; id <= 7; id++ {
+		tiles := bytes.Repeat([]byte{byte(id) * 0x11}, 128)
+		tiles[0] &= 0xF0
+		f.WriteAt(0x3D0000+(0x79+id)*128, tiles)
+		f.WriteU16(0x3DF000+id*2, 0x7FFF)
+	}
 }

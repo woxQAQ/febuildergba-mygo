@@ -35,6 +35,7 @@ type (
 	profileState struct {
 		section          int
 		estimate, source bool
+		portrait         ui.Handle
 		targetInput      ui.Handle
 		target           string
 		choices          map[string]*choiceDraft
@@ -119,6 +120,7 @@ func (a *form) profile(
 					}
 				})
 		})
+	a.choosePortrait(c)
 }
 
 func profileTabs(table *records.Table) []profileTab {
@@ -175,34 +177,7 @@ func (a *form) profileIdentity(
 		Gap(12).
 		AlignItems(ui.Start).
 		Children(func() {
-			ui.Column(c.Key("portrait")).
-				Width(136).
-				Shrink(0).
-				Gap(6).
-				Children(func() {
-					ui.Row(c).Gap(8).AlignItems(ui.End).Children(func() {
-						if preview != nil && preview.bitmap != nil {
-							bounds := preview.resource.Image.Bounds()
-							scale := min(float32(1), 96/float32(bounds.Dx()))
-							ui.Image(c, preview.bitmap).
-								Size(float32(bounds.Dx())*scale, float32(bounds.Dy())*scale).
-								Label(row.Name + " " + locales.ImagePreview())
-						} else {
-							ui.Box(c).Size(96, 80).Background(c.Theme().Surface)
-						}
-						if preview != nil && preview.mini != nil {
-							ui.Image(c, preview.mini).
-								Size(32, 32).
-								Label(locales.Label("portrait_mini"))
-						}
-					})
-					if preview != nil && preview.source != nil &&
-						preview.source.Inherited {
-						ui.Textf(c, "%s %04X", locales.Label("portrait_inherit"), preview.ref.ID).
-							FontSize(components.FontCaption).
-							TextColor(c.Theme().TextMuted)
-					}
-				})
+			a.profilePortrait(c, kind, row, entry, preview)
 			ui.Column(c.Key("basic-info")).
 				Basis(360).Grow(1).MinWidth(0).MaxWidthPercent(100).Gap(10).
 				Children(func() {
@@ -253,9 +228,9 @@ func (a *form) profileIdentity(
 									"affinity_light",
 									"affinity_anima",
 								}).
-									Width(92)
+									Width(112)
 							}
-							a.profilePortraitReference(
+							a.profileMiniatureSource(
 								c,
 								kind,
 								row,
@@ -268,35 +243,18 @@ func (a *form) profileIdentity(
 		})
 }
 
-func (a *form) profilePortraitReference(
+func (a *form) profileMiniatureSource(
 	c *ui.Context,
 	kind records.Kind,
 	row records.Row,
 	table *records.Table,
 	preview *assetPreview,
 ) {
-	ui.Column(c.Key("portrait-reference")).
-		Width(96).
-		MinWidth(0).MaxWidthPercent(100).Gap(4).
-		Children(func() {
-			ui.Text(c, locales.Label("portrait_id")).
-				FontSize(components.FontCaption)
-			ui.Row(c).Gap(0).AlignItems(ui.Center).Children(func() {
-				a.profileNumber(c, kind, row, table, "portrait_id", 64)
-				if a.openPortrait != nil {
-					components.ReferenceLink(c,
-						locales.OpenReference(locales.Label("portrait_id")),
-						a.state.Busy || preview == nil || preview.ref.ID == 0,
-						func() { a.openPortrait(preview.ref.ID) },
-					)
-				}
-			})
-		})
 	if kind != records.Units {
 		return
 	}
 	ui.Column(c.Key("mini-reference")).
-		Width(144).
+		Width(120).
 		MaxWidthPercent(100).
 		Gap(4).
 		Children(func() {
