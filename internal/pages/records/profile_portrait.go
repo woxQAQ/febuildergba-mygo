@@ -59,8 +59,12 @@ func (a *form) profilePortrait(
 	}
 	ui.Column(c.Key("portrait")).Width(136).Shrink(0).Gap(6).Children(func() {
 		ui.Row(c).Gap(8).AlignItems(ui.End).Children(func() {
-			ui.ButtonBase(c.Key("portrait-link")).
-				Size(width, height).
+			control := ui.ButtonBase(c.Key("portrait-link")).
+				Size(width+6, height+6).
+				Margin(-3).
+				Padding(2).
+				Radius(3).
+				Border(1, ui.RGBA(0, 0, 0, 0)).
 				Bind(&entry.portrait).
 				FocusRing(true).
 				Label(locales.Label("portrait_id")).
@@ -89,22 +93,31 @@ func (a *form) profilePortrait(
 							a.setProfilePortrait(kind, row.ID, source, 0),
 						)
 					}
-				}).
-				Children(func() {
-					if preview != nil && preview.bitmap != nil {
-						ui.Image(c, preview.bitmap).Size(width, height)
-					} else {
-						ui.Box(c).
-							Size(width, height).
-							Background(c.Theme().Surface).
-							Center().
-							Children(func() {
-								ui.Text(c, placeholder).
-									FontSize(components.FontCaption).
-									TextColor(c.Theme().TextMuted)
-							})
-					}
 				})
+			if control.Hovered() {
+				control.Cursor(ui.CursorPointer).
+					Background(c.Theme().SurfaceHover).
+					BorderColor(c.Theme().Accent)
+			}
+			if control.Pressed() {
+				control.Background(c.Theme().SurfacePressed).
+					BorderColor(c.Theme().AccentPressed)
+			}
+			control.Children(func() {
+				if preview != nil && preview.bitmap != nil {
+					ui.Image(c, preview.bitmap).Size(width, height)
+				} else {
+					ui.Box(c).
+						Size(width, height).
+						Background(c.Theme().Surface).
+						Center().
+						Children(func() {
+							ui.Text(c, placeholder).
+								FontSize(components.FontCaption).
+								TextColor(c.Theme().TextMuted)
+						})
+				}
+			})
 			if preview != nil && preview.mini != nil {
 				ui.Image(c, preview.mini).Size(32, 32).
 					Label(locales.Label("portrait_mini"))
