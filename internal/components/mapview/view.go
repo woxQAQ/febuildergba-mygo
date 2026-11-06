@@ -178,7 +178,6 @@ func (v *View) render(c *ui.Context, overlay Overlay) {
 							"50%",
 							"100%",
 							"200%",
-							"400%",
 						}
 						if !slices.Contains(choices, v.zoomChoice) {
 							v.zoomChoice = choices[0]
@@ -198,7 +197,7 @@ func (v *View) render(c *ui.Context, overlay Overlay) {
 								v.scroll = ui.ScrollState{}
 							})
 					} else {
-						ui.Tabs(c.Key("zoom"), &v.zoom, "50%", "100%", "200%", "400%").
+						ui.Tabs(c.Key("zoom"), &v.zoom, "50%", "100%", "200%").
 							Label(locales.MapZoom())
 						if before != v.zoom {
 							ratio := v.scale() / beforeScale
