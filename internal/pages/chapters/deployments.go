@@ -21,7 +21,6 @@ type entryDraft struct {
 	list                   ui.ListState
 	inputs                 map[inputKey]*numberDraft
 	pathMode               int
-	pathUnitChoice         string
 	paths                  map[int]*pathState
 }
 
@@ -124,13 +123,25 @@ func (v *Page) group(
 	if !slices.Contains(options, selection.choice) {
 		selection.choice = options[selected]
 	}
-	ui.Select(c.Key("deployment-entry"), &selection.choice, options).
-		Label(locales.Deployments() + " / " + locales.DeployEntry()).
-		MaxWidthPercent(100).Disabled(state.Busy).
-		OnChange(func() {
-			if index := slices.Index(options, selection.choice); index >= 0 {
-				selection.pointer = v.resource.Groups[index].Pointer
-			}
+	ui.Row(c.Key("deployment-source")).
+		Wrap().
+		Gap(8).
+		AlignItems(ui.Center).
+		Children(func() {
+			ui.Text(c, locales.DeployEntry()).
+				Bold().
+				Tooltip(locales.DeployScope())
+			ui.Select(c.Key("deployment-entry"), &selection.choice, options).
+				Label(locales.Deployments() + " / " + locales.DeployEntry()).
+				Width(520).MaxWidthPercent(100).Disabled(state.Busy).
+				OnChange(func() {
+					if index := slices.Index(
+						options,
+						selection.choice,
+					); index >= 0 {
+						selection.pointer = v.resource.Groups[index].Pointer
+					}
+				})
 		})
 	for _, group := range v.resource.Groups {
 		if group.Pointer == selection.pointer {
@@ -158,7 +169,6 @@ func (v *Page) actions(
 ) {
 	stale := !entry.data.Current(state.Session.Deployments)
 	disabled := state.Busy || stale
-	v.unitActions(c, state, entry)
 	if stale {
 		ui.Text(c, locales.DeployStale()).TextColor(c.Theme().Danger)
 	}

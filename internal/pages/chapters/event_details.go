@@ -17,6 +17,7 @@ func (v *Page) eventDetails(
 	state *editor.State,
 	row records.Row,
 	entry *eventState,
+	width float32,
 	jump func(records.Kind, int),
 	openHex func(int, int),
 	openText func(uint16),
@@ -63,7 +64,7 @@ func (v *Page) eventDetails(
 			case entry.data.Table() == event.TalkEvents:
 				v.talkDetails(c, state, entry, condition, jump, openText)
 			default:
-				v.eventScene(c, state, row, entry, events, jump)
+				v.eventScene(c, state, row, entry, events, width, jump)
 			}
 			if v.mode != 5 && v.openScript != nil && condition.Address > 0 &&
 				condition.Script >= 0xC0 {
@@ -80,6 +81,7 @@ func (v *Page) eventScene(
 	row records.Row,
 	entry *eventState,
 	events []event.Condition,
+	width float32,
 	jump func(records.Kind, int),
 ) {
 	condition := events[entry.selected]
@@ -91,25 +93,14 @@ func (v *Page) eventScene(
 			unit = &entryDraft{data: units, lastSelected: -1}
 			entry.units[units] = unit
 		}
-		ui.Row(c).Gap(12).AlignItems(ui.Center).Children(func() {
-			ui.Text(c, locales.TurnNewUnits()).
-				Bold().
-				Tooltip(locales.TurnNewHelp())
-			ui.Tabs(c.Key("event-position-mode"), &v.positionMode, locales.DeployStart(), locales.DeployEnd()).
-				Label(locales.DeployPosition()).
-				OnChange(func() { unit.lastSelected = -1 })
-		})
-		v.unitScene(c, state, row, unit, overlay.Regions)
+		ui.Text(c, locales.TurnNewUnits()).Bold().Tooltip(locales.TurnNewHelp())
+		v.unitScene(c, state, row, unit, overlay.Regions, width, jump)
 	} else {
 		v.eventLinks(c, state, condition)
 		v.renderMap(c, state, row, overlay)
 	}
 	if entry.data.Table() == event.AlwaysEvents && condition.Kind == 0x0B {
 		v.areaControls(c, state, entry, condition)
-	}
-	if unit != nil {
-		v.unitActions(c, state, unit)
-		v.fields(c, state, unit, jump)
 	}
 }
 

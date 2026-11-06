@@ -6748,6 +6748,76 @@ func (msgs Messages) DeployEntry() string {
 	return Catalog.Format(msgs.locale, "deploy_entry", nil)
 }
 
+// DeployUnitDetails says "Unit properties"
+// in the language the app shows.
+func DeployUnitDetails() string { return In(i18n.Locale()).DeployUnitDetails() }
+
+// DeployUnitDetails says "Unit properties"
+// in the language of msgs.
+func (msgs Messages) DeployUnitDetails() string {
+	return Catalog.Format(msgs.locale, "deploy_unit_details", nil)
+}
+
+// DeployInheritClass says "Use character's class"
+// in the language the app shows.
+func DeployInheritClass() string { return In(i18n.Locale()).DeployInheritClass() }
+
+// DeployInheritClass says "Use character's class"
+// in the language of msgs.
+func (msgs Messages) DeployInheritClass() string {
+	return Catalog.Format(msgs.locale, "deploy_inherit_class", nil)
+}
+
+// DeployNoReference says "None"
+// in the language the app shows.
+func DeployNoReference() string { return In(i18n.Locale()).DeployNoReference() }
+
+// DeployNoReference says "None"
+// in the language of msgs.
+func (msgs Messages) DeployNoReference() string {
+	return Catalog.Format(msgs.locale, "deploy_no_reference", nil)
+}
+
+// DeployFactionPlayer says "Player"
+// in the language the app shows.
+func DeployFactionPlayer() string { return In(i18n.Locale()).DeployFactionPlayer() }
+
+// DeployFactionPlayer says "Player"
+// in the language of msgs.
+func (msgs Messages) DeployFactionPlayer() string {
+	return Catalog.Format(msgs.locale, "deploy_faction_player", nil)
+}
+
+// DeployFactionAlly says "Ally"
+// in the language the app shows.
+func DeployFactionAlly() string { return In(i18n.Locale()).DeployFactionAlly() }
+
+// DeployFactionAlly says "Ally"
+// in the language of msgs.
+func (msgs Messages) DeployFactionAlly() string {
+	return Catalog.Format(msgs.locale, "deploy_faction_ally", nil)
+}
+
+// DeployFactionEnemy says "Enemy"
+// in the language the app shows.
+func DeployFactionEnemy() string { return In(i18n.Locale()).DeployFactionEnemy() }
+
+// DeployFactionEnemy says "Enemy"
+// in the language of msgs.
+func (msgs Messages) DeployFactionEnemy() string {
+	return Catalog.Format(msgs.locale, "deploy_faction_enemy", nil)
+}
+
+// DeployFactionReserved says "Reserved (3)"
+// in the language the app shows.
+func DeployFactionReserved() string { return In(i18n.Locale()).DeployFactionReserved() }
+
+// DeployFactionReserved says "Reserved (3)"
+// in the language of msgs.
+func (msgs Messages) DeployFactionReserved() string {
+	return Catalog.Format(msgs.locale, "deploy_faction_reserved", nil)
+}
+
 // DeployScope says "Chapter tables and static references in opening, turn, area, objective and talk events. Conditions are not executed. …"
 // in the language the app shows.
 func DeployScope() string { return In(i18n.Locale()).DeployScope() }
@@ -6968,31 +7038,31 @@ func (msgs Messages) DeployMovement() string {
 	return Catalog.Format(msgs.locale, "deploy_movement", nil)
 }
 
-// DeployCharacter says "Character ID"
+// DeployCharacter says "Character"
 // in the language the app shows.
 func DeployCharacter() string { return In(i18n.Locale()).DeployCharacter() }
 
-// DeployCharacter says "Character ID"
+// DeployCharacter says "Character"
 // in the language of msgs.
 func (msgs Messages) DeployCharacter() string {
 	return Catalog.Format(msgs.locale, "deploy_character", nil)
 }
 
-// DeployClass says "Class ID"
+// DeployClass says "Class"
 // in the language the app shows.
 func DeployClass() string { return In(i18n.Locale()).DeployClass() }
 
-// DeployClass says "Class ID"
+// DeployClass says "Class"
 // in the language of msgs.
 func (msgs Messages) DeployClass() string {
 	return Catalog.Format(msgs.locale, "deploy_class", nil)
 }
 
-// DeployLeader says "Leader ID"
+// DeployLeader says "Leader"
 // in the language the app shows.
 func DeployLeader() string { return In(i18n.Locale()).DeployLeader() }
 
-// DeployLeader says "Leader ID"
+// DeployLeader says "Leader"
 // in the language of msgs.
 func (msgs Messages) DeployLeader() string {
 	return Catalog.Format(msgs.locale, "deploy_leader", nil)

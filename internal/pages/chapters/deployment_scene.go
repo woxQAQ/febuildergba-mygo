@@ -100,12 +100,9 @@ func (v *Page) unitList(
 			ui.Textf(c, "%d, %d", point.X, point.Y).FontFeatures("tnum")
 		}
 	}).
-		Height(230).
+		Height(min(180, c.Theme().Space(9)*float32(len(units)+1))).
 		Label(locales.Deployments() + " · " + locales.Name()).
 		Tooltip(locales.DeployPickHelp())
-	ui.Text(c, locales.RecordSummary(len(units))).
-		FontSize(components.FontCaption).
-		TextColor(c.Theme().TextMuted)
 }
 
 func (v *Page) place(
@@ -132,6 +129,8 @@ func (v *Page) unitScene(
 	row records.Row,
 	entry *entryDraft,
 	regions []mapview.Region,
+	width float32,
+	jump func(records.Kind, int),
 ) {
 	units := entry.data.Units()
 	if entry.selected >= len(units) {
@@ -141,6 +140,7 @@ func (v *Page) unitScene(
 	mapOverlay.Regions = regions
 	if entry.selected != entry.lastSelected && entry.selected < len(units) {
 		entry.lastSelected = entry.selected
+		entry.list.ScrollIntoView(entry.selected)
 		if entry.pathMode == 1 {
 			entry.pathState().lastSelected = -1
 		}
@@ -151,24 +151,54 @@ func (v *Page) unitScene(
 		mapOverlay.Focus = new(point)
 	}
 	v.pathOverlay(entry, &mapOverlay, units)
+	mapWidth, inspectorWidth := width, width
+	_, height := c.Size()
+	mapHeight := min(max(240, height-440), 520)
+	if width >= 800 {
+		inspectorWidth = 420
+		mapWidth = width - inspectorWidth - 20
+	} else {
+		mapHeight = min(mapHeight, 280)
+	}
+	mapOverlay.Viewport = image.Pt(int(mapWidth), int(mapHeight))
+	mapOverlay.Tools = func(c *ui.Context) {
+		ui.Tabs(c.Key("position-mode"), &v.positionMode, locales.DeployStart(), locales.DeployEnd()).
+			Label(locales.DeployPosition()).
+			OnChange(func() { entry.lastSelected = -1 })
+	}
 	ui.Row(c.Key("map-and-units")).
 		Wrap().
-		Gap(16).
+		Gap(20).
 		AlignItems(ui.Start).
 		Children(func() {
 			ui.Column(c.Key("map")).
-				Width(420).
+				Width(mapWidth).
 				MaxWidthPercent(100).
-				MinWidth(0).
-				Children(func() {
-					v.renderMap(c, state, row, mapOverlay)
-				})
-			ui.Column(c.Key("units")).
-				MinWidth(280).
-				Grow(1).
+				Shrink(0).
 				Gap(8).
 				Children(func() {
-					v.unitSidebar(c, state, entry, units)
+					v.renderMap(c, state, row, mapOverlay)
+					v.placeActions(c, state, entry)
+					ui.Row(c.Key("unit-list-tools")).
+						Wrap().
+						Gap(8).
+						AlignItems(ui.Center).
+						Children(func() {
+							ui.Text(c, locales.MoveUnits()).Bold().Grow(1)
+							ui.Text(c, locales.RecordSummary(len(units))).
+								FontSize(components.FontCaption).
+								TextColor(c.Theme().TextMuted)
+							v.unitActions(c, state, entry)
+						})
+					v.unitList(c, state, entry, units)
+				})
+			ui.Column(c.Key("unit-inspector")).
+				Width(inspectorWidth).
+				MaxWidthPercent(100).
+				Shrink(0).
+				Gap(10).
+				Children(func() {
+					v.unitSidebar(c, state, entry, units, jump)
 				})
 		})
 }
@@ -207,6 +237,16 @@ func (v *Page) unitActions(
 				entry.paths = nil
 				entry.preview, entry.inputs = nil, nil
 			})
+	})
+}
+
+func (v *Page) placeActions(
+	c *ui.Context,
+	state *editor.State,
+	entry *entryDraft,
+) {
+	disabled := state.Busy || !entry.data.Current(state.Session.Deployments)
+	ui.Row(c.Key("place-unit")).Wrap().Gap(8).Children(func() {
 		point, selected := v.mapView.Selection()
 		ui.Button(c, locales.DeployPlaceStart()).
 			Disabled(disabled || !selected || entry.data.Count() == 0).

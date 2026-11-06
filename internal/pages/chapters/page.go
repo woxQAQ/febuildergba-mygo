@@ -151,24 +151,10 @@ func (v *Page) Render(
 	}
 	if v.mode >= 2 && v.mode <= 5 {
 		table := [...]event.Table{event.TurnEvents, event.AlwaysEvents, event.TalkEvents, event.AlwaysEvents}[v.mode-2]
-		v.eventEditor(c, state, row, table, jump, openHex, openText)
+		v.eventEditor(c, state, row, table, width, jump, openHex, openText)
 		return
 	}
 	ui.Column(c.Key("deployments")).Gap(12).Children(func() {
-		ui.Row(c).Wrap().Gap(12).AlignItems(ui.Center).Children(func() {
-			ui.Text(c, locales.DeployEntry()).
-				Bold().
-				Tooltip(locales.DeployScope())
-			ui.Tabs(c.Key("position-mode"), &v.positionMode, locales.DeployStart(), locales.DeployEnd()).
-				Label(locales.DeployPosition()).
-				OnChange(func() {
-					if selected := v.selections[v.chapter]; selected != nil {
-						if entry := v.entries[selected.pointer]; entry != nil {
-							entry.lastSelected = -1
-						}
-					}
-				})
-		})
 		group, exists := v.group(c, state)
 		if !exists {
 			v.renderMap(c, state, row, mapview.Overlay{})
@@ -185,16 +171,14 @@ func (v *Page) Render(
 		if entry == nil {
 			return
 		}
-		v.unitScene(c, state, row, entry, nil)
 		if len(v.resource.Warnings) > 0 {
 			ui.Text(c, locales.GameIncompleteDeploymentScript()).
 				FontSize(components.FontCaption).
-				TextColor(c.Theme().TextMuted).
 				Tooltip(v.resource.Warnings[0].Error())
 		}
 		v.actions(c, state, group, entry)
 		v.preview(c, state, group, entry, jump)
-		v.fields(c, state, entry, jump)
+		v.unitScene(c, state, row, entry, nil, width, jump)
 	})
 }
 

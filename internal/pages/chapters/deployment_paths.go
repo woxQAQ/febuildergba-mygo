@@ -3,7 +3,6 @@ package chapters
 import (
 	"fmt"
 	"image"
-	"slices"
 	"strings"
 
 	"github.com/egoist/mygo/ui"
@@ -93,53 +92,32 @@ func (v *Page) unitSidebar(
 	state *editor.State,
 	entry *entryDraft,
 	units []deployment.Unit,
+	jump func(records.Kind, int),
 ) {
-	if !entry.data.SupportsPaths() {
-		v.unitList(c, state, entry, units)
-		return
-	}
-	ui.Tabs(c.Key("deployment-sidebar"), &entry.pathMode, locales.MoveUnits(), locales.MovePath()).
-		Label(locales.Deployments() + " / " + locales.MovePath()).
-		OnChange(func() {
-			entry.lastSelected = -1
-			if entry.pathMode == 1 {
-				entry.pathState().lastSelected = -1
-			}
-		})
-	if entry.pathMode == 0 {
-		v.unitList(c, state, entry, units)
-		return
-	}
 	if len(units) == 0 {
-		ui.Text(c, locales.DeployEmpty()).TextColor(c.Theme().TextMuted)
 		return
 	}
-	choices := make([]string, len(units))
-	for index, unit := range units {
-		choices[index] = fmt.Sprintf(
-			"%02X · %s",
-			index,
-			nameOf(state.Session, records.Units, unit.Character),
-		)
-	}
-	if !slices.Contains(choices, entry.pathUnitChoice) ||
-		entry.pathUnitChoice != choices[entry.selected] {
-		entry.pathUnitChoice = choices[entry.selected]
-	}
-	ui.Select(c.Key("path-unit"), &entry.pathUnitChoice, choices).
-		MaxWidthPercent(100).
-		Label(locales.MovePath() + " / " + locales.MoveUnits()).
-		Disabled(state.Busy).
-		OnChange(func() {
-			if index := slices.Index(
-				choices,
-				entry.pathUnitChoice,
-			); index >= 0 {
-				entry.selected = index
+	unit := units[entry.selected]
+	ui.Textf(c, "%02X · %s", entry.selected, nameOf(state.Session, records.Units, unit.Character)).
+		Bold().
+		Tooltip(locales.DeployPositionHelp())
+	if entry.data.SupportsPaths() {
+		ui.Tabs(c.Key("deployment-sidebar"), &entry.pathMode, locales.DeployUnitDetails(), locales.MovePath()).
+			Label(locales.Deployments() + " / " + locales.DeployUnitDetails()).
+			OnChange(func() {
 				entry.lastSelected = -1
-			}
-		})
-	v.pathEditor(c, state, entry)
+				if entry.pathMode == 1 {
+					entry.pathState().lastSelected = -1
+				}
+			})
+	}
+	ui.Column(c.Key(entry.selected)).Gap(10).Children(func() {
+		if entry.pathMode == 1 && entry.data.SupportsPaths() {
+			v.pathEditor(c, state, entry)
+		} else {
+			v.fields(c, state, entry, jump)
+		}
+	})
 }
 
 func (v *Page) pathEditor(
@@ -287,9 +265,4 @@ func (v *Page) pathEditor(
 				})
 		}
 	})
-	ui.Textf(c, "% X", steps[path.selected].Raw).
-		Font("monospace").
-		FontSize(components.FontCaption).
-		Selectable().
-		Tooltip(locales.MoveScope())
 }
