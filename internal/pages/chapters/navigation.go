@@ -24,6 +24,7 @@ func (v *Page) tabs(c *ui.Context, width float32) {
 	follow := v.navigationMode != v.mode || v.navigationWidth != width ||
 		v.navigationLocale != c.Locale()
 	ui.ScrollHorizontal(c.Key("chapter-navigation")).
+		Scrollbars(false).
 		Width(width).
 		MaxWidthPercent(100).
 		Children(func() {
