@@ -140,6 +140,7 @@ func (v *Page) tilesetEditor(
 	c *ui.Context,
 	state *editor.State,
 	row records.Row,
+	width float32,
 	jump func(records.Kind, int),
 ) {
 	entry := v.tilesetDraft(state, row)
@@ -179,7 +180,7 @@ func (v *Page) tilesetEditor(
 			ui.Text(c, locales.DeployStale()).TextColor(c.Theme().Danger)
 		}
 		if entry.imported != nil {
-			v.tilesetImportReview(c, state, entry, jump, reload)
+			v.tilesetImportReview(c, state, entry, width, jump, reload)
 			return
 		}
 		v.tilesetFiles(c, state, row, entry, disabled)
@@ -236,41 +237,52 @@ func (v *Page) tilesetEditor(
 					Disabled(state.Busy).
 					OnClick(reload)
 			})
-		ui.Text(c, locales.MapTilesetHelp()).
-			FontSize(components.FontCaption).
-			TextColor(c.Theme().TextMuted)
-		ui.Row(c.Key("selection")).
-			Wrap().
-			Gap(12).
-			AlignItems(ui.Center).
-			Children(func() {
-				ui.Text(c, locales.MapDefinitionId())
-				ui.Select(c.Key("definition"), &entry.choice, entry.choices).
-					Bind(&entry.editFocus).
-					Label(locales.MapDefinitionId()).Width(140).
-					Disabled(state.Busy).
-					OnChange(func() {
-						if index, err := strconv.ParseInt(
-							entry.choice,
-							0,
-							32,
-						); err == nil {
-							entry.selectDefinition(int(index))
-						}
-					})
-				if entry.brush != nil {
-					ui.Image(c.Key("selected-image"), entry.brush).
-						Size(64, 64).
-						Shrink(0)
-				}
-			})
-		ui.Column(c.Key(entry.selected)).Gap(8).Children(func() {
-			entry.definitionFields(c, state, disabled)
+		mapWorkspace(c, width, func(c *ui.Context) {
+			v.tilesetMap(c, state, entry)
+		}, func(c *ui.Context) {
+			entry.definitionControls(c, state, disabled)
+			v.tilesetPalette(c, state, entry)
 		})
-		v.tilesetImages(c, state, entry)
-		ui.Text(c, locales.MapTilesetDrafts()).
-			FontSize(components.FontCaption).
-			TextColor(c.Theme().TextMuted)
+		if entry.data.Modified() {
+			ui.Text(c, locales.MapTilesetDrafts()).
+				FontSize(components.FontCaption)
+		}
+	})
+}
+
+func (entry *tilesetState) definitionControls(
+	c *ui.Context,
+	state *editor.State,
+	disabled bool,
+) {
+	ui.Row(c.Key("selection")).
+		Wrap().
+		Gap(12).
+		AlignItems(ui.Center).
+		Children(func() {
+			ui.Text(c, locales.MapDefinitionId()).
+				Tooltip(locales.MapTilesetHelp())
+			ui.Select(c.Key("definition"), &entry.choice, entry.choices).
+				Bind(&entry.editFocus).
+				Label(locales.MapDefinitionId()).Width(140).
+				Disabled(state.Busy).
+				OnChange(func() {
+					if index, err := strconv.ParseInt(
+						entry.choice,
+						0,
+						32,
+					); err == nil {
+						entry.selectDefinition(int(index))
+					}
+				})
+			if entry.brush != nil {
+				ui.Image(c.Key("selected-image"), entry.brush).
+					Size(64, 64).
+					Shrink(0)
+			}
+		})
+	ui.Column(c.Key(entry.selected)).Gap(8).Children(func() {
+		entry.definitionFields(c, state, disabled)
 	})
 }
 
@@ -278,53 +290,48 @@ func (v *Page) tilesetImages(
 	c *ui.Context,
 	state *editor.State,
 	entry *tilesetState,
+	width float32,
 ) {
-	ui.Row(c.Key("previews")).
-		Wrap().
-		Gap(16).
-		AlignItems(ui.Start).
-		Children(func() {
-			ui.Column(c.Key("tileset")).
-				Width(514).
-				MaxWidthPercent(100).
-				Gap(6).
-				Children(func() {
-					if entry.tilesetErr != nil {
-						ui.Text(c, components.ErrorText(entry.tilesetErr)).
-							TextColor(c.Theme().Danger)
-					} else {
-						entry.palette(c, state.Busy)
-						if index := int(
-							entry.tile.Tile >> 2,
-						); index != entry.selected {
-							entry.selectDefinition(index)
-						}
-					}
-				})
-			ui.Column(c.Key("map")).
-				Width(360).
-				Grow(1).
-				MaxWidthPercent(100).
-				Children(func() {
-					entry.view.Render(
-						c,
-						entry.image,
-						entry.mapErr,
-						mapview.Overlay{Choose: func(point image.Point) {
-							if !state.Busy {
-								if cell, ok := entry.image.Cell(
-									point.X,
-									point.Y,
-								); ok {
-									entry.selectDefinition(
-										int(cell.Tile >> 2),
-									)
-								}
-							}
-						}},
-					)
-				})
-		})
+	mapWorkspace(c, width, func(c *ui.Context) {
+		v.tilesetMap(c, state, entry)
+	}, func(c *ui.Context) {
+		v.tilesetPalette(c, state, entry)
+	})
+}
+
+func (v *Page) tilesetPalette(
+	c *ui.Context,
+	state *editor.State,
+	entry *tilesetState,
+) {
+	if entry.tilesetErr != nil {
+		ui.Text(c, components.ErrorText(entry.tilesetErr)).
+			TextColor(c.Theme().Danger)
+		return
+	}
+	entry.palette(c, state.Busy)
+	if index := int(entry.tile.Tile >> 2); index != entry.selected {
+		entry.selectDefinition(index)
+	}
+}
+
+func (v *Page) tilesetMap(
+	c *ui.Context,
+	state *editor.State,
+	entry *tilesetState,
+) {
+	entry.view.Render(
+		c,
+		entry.image,
+		entry.mapErr,
+		mapview.Overlay{Choose: func(point image.Point) {
+			if !state.Busy {
+				if cell, ok := entry.image.Cell(point.X, point.Y); ok {
+					entry.selectDefinition(int(cell.Tile >> 2))
+				}
+			}
+		}},
+	)
 }
 
 func (v *Page) tilesetFiles(
@@ -390,6 +397,7 @@ func (v *Page) tilesetImportReview(
 	c *ui.Context,
 	state *editor.State,
 	entry *tilesetState,
+	width float32,
 	jump func(records.Kind, int),
 	reload func(),
 ) {
@@ -406,7 +414,7 @@ func (v *Page) tilesetImportReview(
 			entry.imported, entry.err = nil, nil
 			entry.filesFocus.Focus(c)
 		})
-		v.tilesetImages(c, state, next)
+		v.tilesetImages(c, state, next, width)
 	})
 }
 
@@ -443,7 +451,7 @@ func (s *tilesetState) definitionFields(
 			func(value int) error { return s.data.SetTerrain(index, value) },
 		)
 	})
-	ui.Row(c.Key("parts")).Wrap().Gap(12).Children(func() {
+	ui.Grid(c.Key("parts")).Columns(2).Gap(12).Children(func() {
 		for i, part := range definition.Parts {
 			ui.Column(c.Key(i)).
 				Width(250).
@@ -541,7 +549,7 @@ func (s *tilesetState) definitionNumber(
 	control := components.TextDraft(
 		state,
 		ui.TextInput(c.Key("value"), &field.text).
-			Width(82).
+			Width(64).
 			TextAlign(ui.End).
 			FontFeatures("tnum").Label(label).Disabled(disabled).
 			OnChange(func() {

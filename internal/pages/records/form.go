@@ -181,11 +181,12 @@ func (a *form) View(
 							a.openHex,
 							a.openText,
 							a.openScript,
+							func(c *ui.Context) { a.chapterFields(c, row, table) },
 						)
 					} else {
 						a.descriptionEditors(c, kind, row, table)
 					}
-					if kind != records.Chapters || a.chapter.Configuration() {
+					if kind != records.Chapters {
 						a.recordFields(c, kind, row, table)
 					}
 				})

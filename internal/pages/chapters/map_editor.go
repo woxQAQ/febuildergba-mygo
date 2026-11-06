@@ -100,6 +100,7 @@ func (v *Page) mapEditor(
 	c *ui.Context,
 	state *editor.State,
 	row records.Row,
+	width float32,
 	jump func(records.Kind, int),
 	openHex func(int, int),
 ) {
@@ -151,26 +152,11 @@ func (v *Page) mapEditor(
 						v.mode = 9
 					})
 			})
-			ui.Row(c.Key("map-workspace")).
-				Wrap().
-				Gap(16).
-				AlignItems(ui.Start).
-				Children(func() {
-					ui.Column(c.Key("map-drawing")).
-						Width(360).
-						Grow(1).
-						MaxWidthPercent(100).
-						Children(func() {
-							entry.drawing(c, state, disabled)
-						})
-					ui.Column(c.Key("map-palette")).
-						Width(514).
-						MaxWidthPercent(100).
-						Gap(6).
-						Children(func() {
-							entry.palette(c, disabled)
-						})
-				})
+			mapWorkspace(c, width, func(c *ui.Context) {
+				entry.drawing(c, state, disabled)
+			}, func(c *ui.Context) {
+				entry.palette(c, disabled)
+			})
 		})
 }
 

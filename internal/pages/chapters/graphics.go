@@ -129,6 +129,7 @@ func (v *Page) graphicsEditor(
 	c *ui.Context,
 	state *editor.State,
 	row records.Row,
+	width float32,
 	jump func(records.Kind, int),
 ) {
 	group, entry := v.graphicsDraft(state, row)
@@ -184,12 +185,14 @@ func (v *Page) graphicsEditor(
 				})
 			ui.Row(c.Key("files")).Wrap().Gap(8).Children(func() {
 				ui.Button(c.Key("export"), locales.MapGraphicsExport()).
+					Tooltip(locales.MapGraphicsFormat()).
 					Disabled(state.Busy || stale || entry.source.PaletteCount() == 0 || v.exportGraphics == nil).
 					OnClick(func() {
 						bank, _ := strconv.Atoi(entry.bank)
 						v.exportGraphics(entry.source, bank)
 					})
 				ui.Button(c.Key("import"), locales.MapGraphicsImport()).
+					Tooltip(locales.MapGraphicsFormat()).
 					Bind(&entry.filesFocus).
 					Disabled(state.Busy || stale || v.importGraphics == nil || entry.withPalette && entry.source.PaletteCount() == 0).
 					OnClick(func() {
@@ -236,9 +239,6 @@ func (v *Page) graphicsEditor(
 					Disabled(state.Busy).
 					OnClick(func() { v.reloadGraphics(c, state, row, group, entry) })
 			})
-			ui.Text(c, locales.MapGraphicsFormat()).
-				FontSize(components.FontCaption).
-				TextColor(c.Theme().TextMuted)
 			ui.Textf(
 				c,
 				"%s: %d",
@@ -253,70 +253,69 @@ func (v *Page) graphicsEditor(
 				ui.Text(c, locales.MapGraphicsUnchanged()).
 					FontSize(components.FontCaption)
 			}
-			ui.Text(c, locales.MapGraphicsDrafts()).
-				FontSize(components.FontCaption).
-				TextColor(c.Theme().TextMuted)
 			if entry.draft != nil {
+				ui.Text(c, locales.MapGraphicsDrafts()).
+					FontSize(components.FontCaption)
 				v.graphicsReview(c, state, row, group, entry, jump)
 			}
-			if count := entry.source.PaletteCount(); count > 0 {
-				choices := make([]string, count)
-				for index := range choices {
-					choices[index] = strconv.Itoa(index)
-				}
-				ui.Row(c.Key("bank-row")).
-					Wrap().
-					Gap(8).
-					AlignItems(ui.Center).
-					Children(func() {
-						ui.Text(c, locales.MapGraphicsDisplayBank())
-						ui.Select(c.Key("display-bank"), &entry.bank, choices).
-							Label(locales.MapGraphicsDisplayBank()).Width(100).
-							Disabled(state.Busy)
-					})
-			}
 			entry.prepare()
-			if entry.sheetErr != nil {
-				ui.Text(c, components.ErrorText(entry.sheetErr)).
-					TextColor(c.Theme().Danger)
-			} else {
-				ui.Scroll(c.Key("sheet-scroll")).
-					Height(float32(min(360, entry.sheetHeight+2))).
-					Children(func() {
-						ui.Image(c.Key("sheet"), entry.sheet).
-							Size(256, float32(entry.sheetHeight)).
-							Shrink(0).
-							Label(locales.MapGraphicsSheet())
-					})
-			}
-			if stale {
-				return
-			}
-			ui.Tabs(c.Key("preview-tone"), &entry.tone, locales.MapPaletteNormal(), locales.MapPaletteFog()).
-				Label(locales.MapPalettePreviewTone()).
-				Disabled(state.Busy)
-			ui.Row(c.Key("previews")).
-				Wrap().
-				Gap(16).
-				AlignItems(ui.Start).
-				Children(func() {
-					ui.Column(c.Key("tileset")).
-						Width(514).
-						MaxWidthPercent(100).
+			mapWorkspace(c, width, func(c *ui.Context) {
+				if !stale {
+					entry.view.Render(
+						c,
+						entry.image,
+						entry.render.MapErr,
+						mapview.Overlay{},
+					)
+				}
+			}, func(c *ui.Context) {
+				if count := entry.source.PaletteCount(); count > 0 {
+					choices := make([]string, count)
+					for index := range choices {
+						choices[index] = strconv.Itoa(index)
+					}
+					ui.Row(c.Key("bank-row")).
+						Wrap().
+						Gap(8).
+						AlignItems(ui.Center).
 						Children(func() {
-							if entry.render.TilesetErr != nil {
-								ui.Text(c, components.ErrorText(entry.render.TilesetErr)).
-									TextColor(c.Theme().Danger)
-							} else {
-								entry.palette(c, state.Busy)
-							}
+							ui.Text(c, locales.MapGraphicsDisplayBank())
+							ui.Select(c.Key("display-bank"), &entry.bank, choices).
+								Label(locales.MapGraphicsDisplayBank()).
+								Width(100).
+								Disabled(state.Busy)
 						})
-					ui.Column(c.Key("map")).
-						Width(360).
-						Grow(1).
+				}
+				entry.prepare()
+				if entry.sheetErr != nil {
+					ui.Text(c, components.ErrorText(entry.sheetErr)).
+						TextColor(c.Theme().Danger)
+				} else {
+					ui.Scroll(c.Key("sheet-scroll")).
+						Width(258).
 						MaxWidthPercent(100).
-						Children(func() { entry.view.Render(c, entry.image, entry.render.MapErr, mapview.Overlay{}) })
-				})
+						Height(float32(min(360, entry.sheetHeight+2))).
+						Children(func() {
+							ui.Image(c.Key("sheet"), entry.sheet).
+								Size(256, float32(entry.sheetHeight)).
+								Shrink(0).
+								Label(locales.MapGraphicsSheet())
+						})
+				}
+				if stale {
+					return
+				}
+				ui.Tabs(c.Key("preview-tone"), &entry.tone, locales.MapPaletteNormal(), locales.MapPaletteFog()).
+					Label(locales.MapPalettePreviewTone()).
+					Tooltip(locales.MapPalettePreviewTone()).
+					Disabled(state.Busy)
+				if entry.render.TilesetErr != nil {
+					ui.Text(c, components.ErrorText(entry.render.TilesetErr)).
+						TextColor(c.Theme().Danger)
+				} else {
+					entry.palette(c, state.Busy)
+				}
+			})
 		})
 	})
 }

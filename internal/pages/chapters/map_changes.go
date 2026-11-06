@@ -177,6 +177,7 @@ func (v *Page) mapChangesEditor(
 	c *ui.Context,
 	state *editor.State,
 	row records.Row,
+	width float32,
 	jump func(records.Kind, int),
 ) {
 	entry := v.changeDraft(state, row.ID)
@@ -257,10 +258,6 @@ func (v *Page) mapChangesEditor(
 						TextColor(c.Theme().TextMuted)
 				}
 			})
-			v.changeRows(c, state, entry, disabled)
-			if len(entry.data.Entries()) > 0 {
-				entry.properties(c, state, disabled)
-			}
 			ui.Row(c).Wrap().Gap(12).AlignItems(ui.Center).Children(func() {
 				ui.Tabs(c.Key("change-tools"), &entry.tool, locales.MapBrush(), locales.MapRectangle(), locales.MapEyedropper(), locales.MapPan()).
 					Label(locales.MapTools()).
@@ -282,22 +279,15 @@ func (v *Page) mapChangesEditor(
 					FontSize(components.FontCaption).
 					TextColor(c.Theme().TextMuted)
 			}
-			ui.Row(c.Key("change-workspace")).
-				Wrap().
-				Gap(16).
-				AlignItems(ui.Start).
-				Children(func() {
-					ui.Column(c.Key("change-drawing")).
-						Width(360).
-						Grow(1).
-						MaxWidthPercent(100).
-						Children(func() { entry.drawing(c, state, disabled || entry.pending()) })
-					ui.Column(c.Key("change-palette")).
-						Width(514).
-						MaxWidthPercent(100).
-						Gap(6).
-						Children(func() { entry.palette(c, disabled || entry.pending()) })
-				})
+			mapWorkspace(c, width, func(c *ui.Context) {
+				entry.drawing(c, state, disabled || entry.pending())
+			}, func(c *ui.Context) {
+				v.changeRows(c, state, entry, disabled)
+				if len(entry.data.Entries()) > 0 {
+					entry.properties(c, state, disabled)
+				}
+				entry.palette(c, disabled || entry.pending())
+			})
 			ui.Checkbox(c, &entry.showReferences, locales.MapChangesReferences()).
 				Disabled(disabled || entry.pending()).
 				OnChange(func() {
@@ -328,9 +318,8 @@ func (v *Page) changeRows(
 		entry.list.Selected = &entry.selected
 		entry.list.Key = func(index int) any { return index }
 		columns := []ui.TableColumn{
-			{ID: "id", Title: locales.MapChangeId(), Width: 70, Fixed: true},
+			{ID: "id", Title: locales.MapChangeId(), Width: 48, Fixed: true},
 			{ID: "bounds", Title: locales.MapImpactBounds()},
-			{ID: "address", Title: locales.RomAddress()},
 		}
 		ui.Table(c.Key("changes"), &entry.list, columns, len(rows), func(index, column int) {
 			change := rows[index]
@@ -346,10 +335,6 @@ func (v *Page) changeRows(
 					change.Bounds.Dx(),
 					change.Bounds.Dy(),
 				)
-			case 2:
-				if change.Address != 0 {
-					text = fmt.Sprintf("0x%08X", change.Address)
-				}
 			}
 			ui.Text(c, text).SingleLine().FontFeatures("tnum")
 		}).

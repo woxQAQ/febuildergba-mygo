@@ -311,13 +311,15 @@ func (a *form) inlineField(
 			(f.ID == "objective_text_id" || f.ID == "objective_detail_text_id") {
 			help += "\n" + locales.ChapterObjectiveHelp()
 		}
-		ui.Text(c, label).
-			SingleLine().
+		caption := ui.Text(c, label).
 			MaxWidth(140).
 			MinWidth(0).
 			Grow(1).
 			Tooltip(help).
 			OnClick(func() { a.focusField(key) })
+		if kind != records.Chapters {
+			caption.SingleLine()
+		}
 		value, err := a.state.Session.Records.Value(kind, row.ID, f.ID)
 		if err != nil {
 			ui.Text(c, components.ErrorText(err))

@@ -52,19 +52,8 @@ func (v *Page) locationEditor(
 	entry.selected = min(entry.selected, max(0, len(entry.data.Events())-1))
 	stale := !entry.data.Current(state.Session.Events)
 	if stale || state.Busy ||
-		(entry.location.moving && entry.location.target != entry.selected) {
+		entry.location.moving && entry.location.target != entry.selected {
 		entry.location = locationInteraction{}
-	}
-	wide := width >= 760
-	mapWidth, inspectorWidth := width, width
-	if wide {
-		inspectorWidth = 320
-		mapWidth = width - inspectorWidth - 20
-	}
-	_, height := c.Size()
-	mapHeight := min(max(240, height-490), 560)
-	if !wide {
-		mapHeight = min(mapHeight, 240)
 	}
 	ui.Column(c.Key(key)).Gap(12).Children(func() {
 		if stale {
@@ -77,92 +66,56 @@ func (v *Page) locationEditor(
 				func() { entry.location = locationInteraction{} },
 			)
 		}
-		ui.Row(c.Key("workspace")).
-			Wrap().
-			Gap(20).
-			AlignItems(ui.Start).
-			Children(func() {
-				ui.Column(c.Key("location-map")).
-					Width(mapWidth).
-					MaxWidthPercent(100).
-					Shrink(0).
-					Gap(10).
-					Children(func() {
-						overlay := v.locationOverlay(state, entry)
-						overlay.Tools = func(c *ui.Context) { v.locationTools(c, state, entry) }
-						if entry.location.adding {
-							overlay.Prompt = locales.LocationChoosePosition()
-						} else if entry.location.moving {
-							overlay.Prompt = locales.LocationMovePosition(
-								fmt.Sprintf("%02X", entry.location.target),
-							)
-						}
-						overlay.Viewport = image.Pt(
-							int(mapWidth),
-							int(mapHeight),
-						)
-						v.renderMap(c, state, row, overlay)
-						ui.Row(c).
-							Wrap().
-							Gap(8).
-							AlignItems(ui.Center).
-							Children(func() {
-								ui.Text(c, locales.LocationEvents()).
-									Bold().
-									Grow(1)
-								components.ActionButton(c, "⧉", locales.LocationCopy()).
-									Disabled(state.Busy || stale || len(entry.data.Events()) == 0).
-									OnClick(func() {
-										state.SetErr(entry.data.CopyLocation(
-											entry.selected,
-										))
-										if state.Err == nil {
-											entry.selected = len(
-												entry.data.Events(),
-											) - 1
-											entry.preview, entry.lastSelected = nil, -1
-											entry.location = locationInteraction{}
-										}
-									})
-								components.ActionButton(c, "−", locales.LocationRemove()).
-									Disabled(state.Busy || stale || len(entry.data.Events()) == 0).
-									OnClick(func() { state.SetErr(entry.removeSelected()) })
-							})
-						v.eventTable(
-							c,
-							entry,
-							entry.data.Events(),
-							state.Session,
-						)
-					})
-				inspector := ui.Column(c.Key("location-inspector")).
-					Width(inspectorWidth).
-					MaxWidthPercent(100).
-					Shrink(0).
-					Gap(16).
-					BorderColor(c.Theme().Border)
-				if wide {
-					inspector.Padding(0, 0, 0, 16).BorderWidth(0, 0, 0, 1)
-				} else {
-					inspector.Padding(16, 0, 0, 0).BorderWidth(1, 0, 0, 0)
-				}
-				inspector.Children(func() {
-					if len(entry.data.Events()) == 0 {
-						ui.Text(c, locales.LocationEmpty()).
-							TextColor(c.Theme().TextMuted)
-					} else {
-						v.locationInspector(
-							c,
-							state,
-							entry,
-							openHex,
-							openText,
-						)
-					}
-					v.eventActions(c, state, row, entry)
-				})
-			})
+		mapWorkspace(c, width, func(c *ui.Context) {
+			overlay := v.locationOverlay(state, entry)
+			overlay.Tools = func(c *ui.Context) { v.locationTools(c, state, entry) }
+			if entry.location.adding {
+				overlay.Prompt = locales.LocationChoosePosition()
+			} else if entry.location.moving {
+				overlay.Prompt = locales.LocationMovePosition(
+					fmt.Sprintf("%02X", entry.location.target),
+				)
+			}
+			v.renderMap(c, state, row, overlay)
+		}, func(c *ui.Context) {
+			v.locationRows(c, state, entry, stale)
+			if len(entry.data.Events()) == 0 {
+				ui.Text(c, locales.LocationEmpty()).
+					TextColor(c.Theme().TextMuted)
+			} else {
+				v.locationInspector(c, state, entry, openHex, openText)
+			}
+			v.eventActions(c, state, row, entry)
+		})
 	})
+}
+
+func (v *Page) locationRows(
+	c *ui.Context,
+	state *editor.State,
+	entry *eventState,
+	stale bool,
+) {
+	if len(entry.data.Events()) == 0 {
+		return
+	}
+	ui.Row(c).Wrap().Gap(8).AlignItems(ui.Center).Children(func() {
+		ui.Text(c, locales.LocationEvents()).Bold().Grow(1)
+		components.ActionButton(c, "⧉", locales.LocationCopy()).
+			Disabled(state.Busy || stale).
+			OnClick(func() {
+				state.SetErr(entry.data.CopyLocation(entry.selected))
+				if state.Err == nil {
+					entry.selected = len(entry.data.Events()) - 1
+					entry.preview, entry.lastSelected = nil, -1
+					entry.location = locationInteraction{}
+				}
+			})
+		components.ActionButton(c, "−", locales.LocationRemove()).
+			Disabled(state.Busy || stale).
+			OnClick(func() { state.SetErr(entry.removeSelected()) })
+	})
+	v.eventTable(c, entry, entry.data.Events(), state.Session)
 }
 
 func (v *Page) locationTools(
@@ -308,7 +261,6 @@ func (v *Page) locationInspector(
 	condition := entry.data.Events()[entry.selected]
 	disabled := state.Busy || !entry.data.Current(state.Session.Events)
 	ui.Textf(c, "%02X  %s", entry.selected, locationCaption(condition)).
-		FontSize(components.FontSectionTitle).
 		Bold()
 	fields := entry.data.Fields(entry.selected)
 	ui.Column(c.Key(fmt.Sprintf("location-%d", entry.selected))).

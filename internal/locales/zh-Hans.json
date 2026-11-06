@@ -955,7 +955,7 @@
   "map_selection": "选中的地图格子",
   "map_tile": "图块",
   "map_terrain": "地形",
-  "map_choose_cell": "单击选格，拖动或滚动平移。",
+  "map_choose_cell": "单击选格，横向拖动或滚动平移。",
   "map_preview_scope": "静态基础地图，不模拟迷雾、动画及事件地图变化。部署视图叠加当前组的记录序号。",
   "map_resource_error": "无法读取{resource}。请检查资源 ID 或数据；章节配置仍可编辑。",
   "game_invalid_map": "无法读取地图资源或布局。章节配置仍可编辑。",

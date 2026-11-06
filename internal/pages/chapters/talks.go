@@ -69,7 +69,7 @@ func (v *Page) talkCharacter(
 	components.TextDraft(
 		state,
 		ui.Combobox(c.Key("value"), &input.text, choices).
-			Width(180).
+			Width(180).Grow(1).MinWidth(0).
 			MaxWidthPercent(100).
 			Label(locales.TalkEvents()+" / "+locales.Label(field.ID)).
 			Disabled(state.Busy || !entry.data.Current(state.Session.Events)).
@@ -89,22 +89,9 @@ func (v *Page) talkDetails(
 	state *editor.State,
 	entry *eventState,
 	condition event.Condition,
-	jump func(records.Kind, int),
 	openText func(uint16),
 ) {
 	fields := entry.data.Fields(entry.selected)
-	ui.Row(c).Wrap().Gap(8).Children(func() {
-		for _, field := range fields {
-			if field.ID != event.TalkInitiator &&
-				field.ID != event.TalkTarget {
-				continue
-			}
-			value, _ := entry.data.Value(entry.selected, field.ID)
-			ui.Button(c, locales.Jump()+" · "+characterCaption(state.Session, int(value), false)).
-				Disabled(state.Busy || value == 0).
-				OnClick(func() { jump(records.Units, int(value)) })
-		}
-	})
 	if len(fields) > 0 && condition.Flag == 0 {
 		ui.Text(c, locales.TalkRepeat()).
 			FontSize(components.FontCaption).

@@ -9600,11 +9600,11 @@ func (msgs Messages) MapTerrain() string {
 	return Catalog.Format(msgs.locale, "map_terrain", nil)
 }
 
-// MapChooseCell says "Click to select a cell; drag or scroll to pan."
+// MapChooseCell says "Click to select a cell; drag or scroll horizontally to pan."
 // in the language the app shows.
 func MapChooseCell() string { return In(i18n.Locale()).MapChooseCell() }
 
-// MapChooseCell says "Click to select a cell; drag or scroll to pan."
+// MapChooseCell says "Click to select a cell; drag or scroll horizontally to pan."
 // in the language of msgs.
 func (msgs Messages) MapChooseCell() string {
 	return Catalog.Format(msgs.locale, "map_choose_cell", nil)

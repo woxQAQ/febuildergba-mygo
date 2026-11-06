@@ -14,7 +14,6 @@ func (v *View) inspectInput(
 	v.stroke = nil
 	if dx, dy, dragging := canvas.Dragged(); dragging {
 		v.scroll.X -= dx
-		v.scroll.Y -= dy
 		if dx != 0 || dy != 0 {
 			v.panning = true
 			canvas.Cursor(ui.CursorGrabbing)

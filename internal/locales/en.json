@@ -955,7 +955,7 @@
   "map_selection": "Selected map cell",
   "map_tile": "Tile",
   "map_terrain": "Terrain",
-  "map_choose_cell": "Click to select a cell; drag or scroll to pan.",
+  "map_choose_cell": "Click to select a cell; drag or scroll horizontally to pan.",
   "map_preview_scope": "Static base map before fog, animations and event changes. The deployment view overlays the selected group’s record numbers.",
   "map_resource_error": "Cannot read {resource}. Check its resource ID or data; chapter configuration remains editable.",
   "game_invalid_map": "The map resources or layout could not be read. Chapter configuration remains editable.",

@@ -120,6 +120,7 @@ func (v *Page) paletteEditor(
 	c *ui.Context,
 	state *editor.State,
 	row records.Row,
+	width float32,
 	jump func(records.Kind, int),
 ) {
 	entry := v.paletteDraft(state, row)
@@ -151,10 +152,12 @@ func (v *Page) paletteEditor(
 		replacement := &entry.replacements[entry.section]
 		ui.Row(c.Key("files")).Wrap().Gap(8).Children(func() {
 			ui.Button(c.Key("export"), locales.MapPaletteExport()).
+				Tooltip(locales.MapPaletteFormat()).
 				Bind(&entry.filesFocus).
 				Disabled(state.Busy || stale || v.exportPalette == nil).
 				OnClick(func() { v.exportPalette(entry.source, section) })
 			ui.Button(c.Key("import"), locales.MapPaletteImport()).
+				Tooltip(locales.MapPaletteFormat()).
 				Disabled(state.Busy || stale || v.importPalette == nil).
 				OnClick(func() {
 					source, session := entry.source, state.Session
@@ -196,9 +199,6 @@ func (v *Page) paletteEditor(
 					next.filesFocus.Focus(c)
 				})
 		})
-		ui.Text(c, locales.MapPaletteFormat()).
-			FontSize(components.FontCaption).
-			TextColor(c.Theme().TextMuted)
 		if replacement.err != nil {
 			ui.Text(c, components.ErrorText(replacement.err)).
 				TextColor(c.Theme().Danger)
@@ -215,37 +215,33 @@ func (v *Page) paletteEditor(
 			v.paletteReview(c, state, row, entry, replacement, jump)
 		}
 		entry.prepare()
-		ui.Image(c.Key("palette-chart"), entry.chart).
-			Size(256, float32(entry.chartHeight)).
-			Shrink(0).Label(locales.MapPaletteChart())
-		if stale {
-			return
-		}
-		ui.Tabs(c.Key("preview-tone"), &entry.tone, locales.MapPaletteNormal(), locales.MapPaletteFog()).
-			Label(locales.MapPalettePreviewTone()).
-			Disabled(state.Busy)
-		ui.Row(c.Key("previews")).
-			Wrap().
-			Gap(16).
-			AlignItems(ui.Start).
-			Children(func() {
-				ui.Column(c.Key("tileset")).
-					Width(514).
-					MaxWidthPercent(100).
-					Children(func() {
-						if entry.render.TilesetErr != nil {
-							ui.Text(c, components.ErrorText(entry.render.TilesetErr)).
-								TextColor(c.Theme().Danger)
-						} else {
-							entry.palette(c, state.Busy)
-						}
-					})
-				ui.Column(c.Key("map")).
-					Width(360).
-					Grow(1).
-					MaxWidthPercent(100).
-					Children(func() { entry.view.Render(c, entry.image, entry.render.MapErr, mapview.Overlay{}) })
-			})
+		mapWorkspace(c, width, func(c *ui.Context) {
+			if !stale {
+				entry.view.Render(
+					c,
+					entry.image,
+					entry.render.MapErr,
+					mapview.Overlay{},
+				)
+			}
+		}, func(c *ui.Context) {
+			ui.Image(c.Key("palette-chart"), entry.chart).
+				Size(256, float32(entry.chartHeight)).
+				Shrink(0).Label(locales.MapPaletteChart())
+			if stale {
+				return
+			}
+			ui.Tabs(c.Key("preview-tone"), &entry.tone, locales.MapPaletteNormal(), locales.MapPaletteFog()).
+				Label(locales.MapPalettePreviewTone()).
+				Tooltip(locales.MapPalettePreviewTone()).
+				Disabled(state.Busy)
+			if entry.render.TilesetErr != nil {
+				ui.Text(c, components.ErrorText(entry.render.TilesetErr)).
+					TextColor(c.Theme().Danger)
+			} else {
+				entry.palette(c, state.Busy)
+			}
+		})
 	})
 }
 

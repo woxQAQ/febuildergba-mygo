@@ -27,6 +27,9 @@ type Page struct {
 	resource               event.Deployments
 	err                    error
 	mode, positionMode     int
+	navigationMode         int
+	navigationWidth        float32
+	navigationLocale       string
 	mapView                mapview.View
 	entries                map[int]*entryDraft
 	selections             map[int]*chapterSelection
@@ -109,36 +112,34 @@ func (v *Page) Render(
 	openHex func(int, int),
 	openText func(uint16),
 	openScript func(int, int),
+	configuration func(*ui.Context),
 ) {
 	v.load(state, row)
 	v.openScript = openScript
-	ui.Tabs(c.Key("chapter-mode"), &v.mode, locales.DeployConfiguration(), locales.Deployments(), locales.TurnEvents(), locales.AreaEvents(), locales.TalkEvents(), locales.Objectives(), locales.MapEditor(), locales.MapChangesEditor(), locales.LocationEvents(), locales.MapTilesetEditor(), locales.MapPaletteEditor(), locales.MapGraphicsEditor()).
-		Label(locales.Chapters()).
-		Wrap().
-		OnChange(func() { v.resourceEpoch++ })
+	v.tabs(c, width)
 	for key, entry := range v.events {
 		if v.mode != 8 || key.chapter != row.ID {
 			entry.location = locationInteraction{}
 		}
 	}
 	if v.mode == 6 {
-		v.mapEditor(c, state, row, jump, openHex)
+		v.mapEditor(c, state, row, width, jump, openHex)
 		return
 	}
 	if v.mode == 7 {
-		v.mapChangesEditor(c, state, row, jump)
+		v.mapChangesEditor(c, state, row, width, jump)
 		return
 	}
 	if v.mode == 11 {
-		v.graphicsEditor(c, state, row, jump)
+		v.graphicsEditor(c, state, row, width, jump)
 		return
 	}
 	if v.mode == 10 {
-		v.paletteEditor(c, state, row, jump)
+		v.paletteEditor(c, state, row, width, jump)
 		return
 	}
 	if v.mode == 9 {
-		v.tilesetEditor(c, state, row, jump)
+		v.tilesetEditor(c, state, row, width, jump)
 		return
 	}
 	if v.mode == 8 {
@@ -146,12 +147,18 @@ func (v *Page) Render(
 		return
 	}
 	if v.Configuration() {
-		v.renderMap(c, state, row, mapview.Overlay{})
+		mapWorkspace(c, width, func(c *ui.Context) {
+			v.renderMap(c, state, row, mapview.Overlay{})
+		}, func(c *ui.Context) {
+			if configuration != nil {
+				configuration(c)
+			}
+		})
 		return
 	}
 	if v.mode >= 2 && v.mode <= 5 {
 		table := [...]event.Table{event.TurnEvents, event.AlwaysEvents, event.TalkEvents, event.AlwaysEvents}[v.mode-2]
-		v.eventEditor(c, state, row, table, width, jump, openHex, openText)
+		v.eventEditor(c, state, row, table, width, jump, openText)
 		return
 	}
 	ui.Column(c.Key("deployments")).Gap(12).Children(func() {

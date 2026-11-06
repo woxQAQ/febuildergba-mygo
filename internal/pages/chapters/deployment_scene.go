@@ -120,21 +120,16 @@ func (v *Page) place(
 	entry.preview, entry.inputs = nil, nil
 }
 
-func (v *Page) unitScene(
-	c *ui.Context,
-	state *editor.State,
-	row records.Row,
+func (v *Page) unitMap(
 	entry *entryDraft,
 	regions []mapview.Region,
-	width float32,
-	jump func(records.Kind, int),
-) {
+) mapview.Overlay {
 	units := entry.data.Units()
 	if entry.selected >= len(units) {
 		entry.selected = max(0, len(units)-1)
 	}
-	mapOverlay := v.overlay(entry, units)
-	mapOverlay.Regions = regions
+	overlay := v.overlay(entry, units)
+	overlay.Regions = regions
 	if entry.selected != entry.lastSelected && entry.selected < len(units) {
 		entry.lastSelected = entry.selected
 		entry.list.ScrollIntoView(entry.selected)
@@ -145,57 +140,54 @@ func (v *Page) unitScene(
 		if v.positionMode == 1 {
 			point = units[entry.selected].End
 		}
-		mapOverlay.Focus = new(point)
+		overlay.Focus = new(point)
 	}
-	v.pathOverlay(entry, &mapOverlay, units)
-	mapWidth := max(160, (width-16)*0.45)
-	inspectorWidth := max(280, width-mapWidth-16)
-	mapOverlay.FullHeight = true
-	mapOverlay.Tools = func(c *ui.Context) {
+	v.pathOverlay(entry, &overlay, units)
+	overlay.Tools = func(c *ui.Context) {
 		ui.Tabs(c.Key("position-mode"), &v.positionMode, locales.DeployStart(), locales.DeployEnd()).
 			Label(locales.DeployPosition()).
 			OnChange(func() { entry.lastSelected = -1 })
 	}
-	ui.ScrollHorizontal(c.Key("deployment-workspace")).
-		Width(width).
-		MaxWidthPercent(100).
+	return overlay
+}
+
+func (v *Page) unitScene(
+	c *ui.Context,
+	state *editor.State,
+	row records.Row,
+	entry *entryDraft,
+	regions []mapview.Region,
+	width float32,
+	jump func(records.Kind, int),
+) {
+	mapWorkspace(c, width, func(c *ui.Context) {
+		v.renderMap(c, state, row, v.unitMap(entry, regions))
+		v.placeActions(c, state, entry)
+	}, func(c *ui.Context) {
+		v.unitInspector(c, state, entry, jump)
+	})
+}
+
+func (v *Page) unitInspector(
+	c *ui.Context,
+	state *editor.State,
+	entry *entryDraft,
+	jump func(records.Kind, int),
+) {
+	units := entry.data.Units()
+	ui.Row(c.Key("unit-list-tools")).
+		Wrap().
+		Gap(6).
+		AlignItems(ui.Center).
 		Children(func() {
-			ui.Row(c.Key("map-and-units")).
-				Width(mapWidth + inspectorWidth + 16).
-				Gap(16).
-				AlignItems(ui.Start).
-				Children(func() {
-					ui.Column(c.Key("map")).
-						Width(mapWidth).
-						Shrink(0).
-						Gap(8).
-						Children(func() {
-							v.renderMap(c, state, row, mapOverlay)
-							v.placeActions(c, state, entry)
-						})
-					ui.Column(c.Key("unit-inspector")).
-						Width(inspectorWidth).
-						Shrink(0).
-						Gap(10).
-						Children(func() {
-							ui.Row(c.Key("unit-list-tools")).
-								Wrap().
-								Gap(6).
-								AlignItems(ui.Center).
-								Children(func() {
-									ui.Text(c, locales.MoveUnits()).
-										Bold().
-										Grow(1)
-									ui.Text(c, locales.RecordSummary(len(units))).
-										FontSize(components.FontCaption).
-										TextColor(c.Theme().TextMuted)
-									v.unitActions(c, state, entry)
-								})
-							v.unitList(c, state, entry, units)
-							v.unitSidebar(c, state, entry, units, jump)
-						})
-				})
+			ui.Text(c, locales.MoveUnits()).Bold().Grow(1)
+			ui.Text(c, locales.RecordSummary(len(units))).
+				FontSize(components.FontCaption).
+				TextColor(c.Theme().TextMuted)
+			v.unitActions(c, state, entry)
 		})
+	v.unitList(c, state, entry, units)
+	v.unitSidebar(c, state, entry, units, jump)
 }
 
 func (v *Page) unitActions(

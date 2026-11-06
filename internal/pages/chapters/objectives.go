@@ -63,7 +63,6 @@ func (v *Page) objectiveSummary(
 	state *editor.State,
 	row records.Row,
 	entry *eventState,
-	openHex func(int, int),
 	openText func(uint16),
 ) {
 	ui.Row(c).Wrap().Gap(8).AlignItems(ui.Center).Children(func() {
@@ -88,10 +87,20 @@ func (v *Page) objectiveSummary(
 			if ref.Kind != event.ChapterEndingScript {
 				continue
 			}
-			ui.Button(c, scriptCaption(ref)).
-				Tooltip(locales.ObjectiveScope()).
-				Disabled(state.Busy).
-				OnClick(func() { openHex(ref.Address, 4) })
+			pointer := 0
+			if sources, err := state.Session.Events.ScriptEntries(
+				row.ID,
+			); err == nil {
+				for _, source := range sources {
+					if source.Address == ref.Address {
+						pointer = source.Pointer
+						break
+					}
+				}
+			}
+			ui.Button(c, scriptCaption(ref)).Tooltip(locales.ObjectiveScope()).
+				Disabled(state.Busy || pointer == 0 || v.openScript == nil).
+				OnClick(func() { v.openScript(row.ID, pointer) })
 		}
 	})
 }
@@ -134,7 +143,6 @@ func (v *Page) objectiveDetails(
 	state *editor.State,
 	entry *eventState,
 	condition event.Condition,
-	openHex func(int, int),
 	openText func(uint16),
 ) {
 	if condition.Kind == 1 || condition.Rout {
@@ -146,26 +154,14 @@ func (v *Page) objectiveDetails(
 					message = locales.ObjectiveZeroAlways()
 				}
 			}
-			ui.Text(c, message).
-				FontSize(components.FontCaption).
-				TextColor(c.Theme().TextMuted)
-		}
-		if condition.Rout {
-			ui.Text(c, locales.ObjectiveRoutHelp()).
-				FontSize(components.FontCaption).
-				TextColor(c.Theme().TextMuted)
+			ui.Text(c, message).FontSize(components.FontCaption)
 		}
 	}
 	ui.Row(c).Wrap().Gap(8).Children(func() {
 		if condition.Script >= 0xC0 {
-			ui.Button(c, locales.ObjectiveOpenScript()).Disabled(state.Busy).
-				OnClick(func() {
-					if v.openScript != nil && condition.Address > 0 {
-						v.openScript(v.chapter, condition.Address+4)
-					} else {
-						openHex(condition.Script, 4)
-					}
-				})
+			ui.Button(c, locales.ObjectiveOpenScript()).
+				Disabled(state.Busy || entry.data.Modified() || entry.invalid() || condition.Address == 0 || v.openScript == nil).
+				OnClick(func() { v.openScript(v.chapter, condition.Address+4) })
 		}
 		if condition.Script == 1 {
 			ui.Text(c, locales.ObjectiveFlagOnly()).
@@ -217,13 +213,12 @@ func (v *Page) conditionScript(
 		!slices.Contains(captions, input.text) {
 		input.text, input.value = selected, int64(condition.Script)
 	}
-	ui.Row(c).Wrap().Gap(8).AlignItems(ui.Center).Children(func() {
+	ui.Column(c).Width(400).MaxWidthPercent(100).Gap(4).Children(func() {
 		ui.Text(c, label)
 		components.TextDraft(
 			state,
 			ui.Combobox(c.Key("objective-script"), &input.text, captions).
-				Width(400).
-				MaxWidthPercent(100).
+				WidthPercent(100).MinWidth(0).
 				Label(v.labelsFor(entry.data.Table()).title+" / "+label).
 				Tooltip(help).
 				Disabled(state.Busy || !entry.data.Current(state.Session.Events)).

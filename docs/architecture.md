@@ -51,6 +51,8 @@
 | `internal/pages/records/text.go`、`internal/pages/records/assets.go`                                                       | 名称和描述共用的文本草稿、预览与提交，以及图像缓存、预览与编辑入口。                               |
 | `internal/pages/chapters/page.go`、`internal/pages/chapters/deployments.go`、`internal/pages/chapters/deployment_scene.go` | 页面组合、部署选择与提交，以及部署在地图上的展示和位置交互。                                       |
 
+章节标签导航与地图工作区分别由 `internal/pages/chapters/navigation.go`、`internal/pages/chapters/workspace.go` 维护；配置字段仍由 `internal/pages/records/chapter_fields.go` 持有输入和历史，通过渲染回调放入章节工作区，不把记录表单状态移入地图组件。
+
 导入命名见 [AGENTS](../AGENTS.md#实现边界)；例如同时引用领域 `records` 与记录页面 `records` 时，页面使用 `recordspage` 别名。
 
 领域行为测试跟随所属包，跨资源协调测试位于 `chapter`，根 `game` 只保留会话装配等整体工作流。测试通过公开操作验证行为，共享样本构造位于 `internal/testutil`；具体归属和约束见[测试说明](../tests/README.md)。

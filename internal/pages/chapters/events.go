@@ -211,7 +211,6 @@ func (v *Page) eventEditor(
 	table event.Table,
 	width float32,
 	jump func(records.Kind, int),
-	openHex func(int, int),
 	openText func(uint16),
 ) {
 	key := eventKey{row.ID, table}
@@ -242,47 +241,53 @@ func (v *Page) eventEditor(
 		}
 	}
 	ui.Column(c.Key(key)).Gap(12).Children(func() {
-		if objective {
-			v.objectiveSummary(c, state, row, entry, openHex, openText)
-		}
-		v.eventTable(c, entry, events, state.Session)
-		ui.Row(c).Wrap().Gap(8).Children(func() {
-			if objective {
-				v.objectiveAdd(c, state, entry)
-			} else {
-				ui.Button(c, labels.add).
-					Tooltip(labels.scope).
-					Disabled(disabled).
-					OnClick(func() {
-						state.SetErr(entry.data.Add(state.Session.Events))
-						entry.selected = len(entry.data.Events()) - 1
-						entry.preview = nil
-					})
-			}
-			ui.Button(c, labels.remove).
-				Disabled(disabled || len(events) == 0).
-				OnClick(func() {
-					state.SetErr(entry.removeSelected())
-				})
-		})
 		if stale {
 			ui.Text(c, locales.DeployStale()).TextColor(c.Theme().Danger)
 		}
-		if len(events) > 0 {
-			v.eventDetails(
-				c,
-				state,
-				row,
-				entry,
-				width,
-				jump,
-				openHex,
-				openText,
-			)
-		} else if table != event.TalkEvents && !objective {
-			v.renderMap(c, state, row, mapview.Overlay{})
+		controls := func(c *ui.Context) {
+			if objective {
+				v.objectiveSummary(c, state, row, entry, openText)
+			}
+			ui.Row(c).Wrap().Gap(6).AlignItems(ui.Center).Children(func() {
+				ui.Text(c, labels.title).Bold().Grow(1)
+				if objective {
+					v.objectiveAdd(c, state, entry)
+				} else {
+					ui.Button(c, labels.add).
+						Tooltip(labels.scope).
+						Disabled(disabled).
+						OnClick(func() {
+							state.SetErr(entry.data.Add(state.Session.Events))
+							entry.selected = len(entry.data.Events()) - 1
+							entry.preview = nil
+						})
+				}
+				components.ActionButton(c, "−", labels.remove).
+					Disabled(disabled || len(events) == 0).
+					OnClick(func() { state.SetErr(entry.removeSelected()) })
+			})
+			v.eventTable(c, entry, events, state.Session)
+			if len(events) > 0 {
+				v.eventDetails(c, state, row, entry, jump, openText)
+			}
+			v.eventActions(c, state, row, entry)
 		}
-		v.eventActions(c, state, row, entry)
+		if table == event.TalkEvents || objective {
+			controls(c)
+		} else {
+			mapWorkspace(c, width, func(c *ui.Context) {
+				if len(events) > 0 {
+					v.eventScene(c, state, row, entry)
+				} else {
+					v.renderMap(
+						c,
+						state,
+						row,
+						mapview.Overlay{},
+					)
+				}
+			}, controls)
+		}
 	})
 }
 
@@ -298,13 +303,13 @@ func (v *Page) eventTable(
 	entry.list.Selected = &entry.selected
 	entry.list.Key = func(index int) any { return index }
 	columns := []ui.TableColumn{
-		{ID: "index", Title: "#", Width: 44, Fixed: true},
+		{ID: "index", Title: "#", Width: 30, Fixed: true},
 		{ID: "condition", Title: locales.TurnInterval()},
 		{ID: "phase", Title: locales.TurnPhase()},
 		{
 			ID:    "flag",
 			Title: locales.Label(event.EventFlag),
-			Width: 100,
+			Width: 76,
 			Fixed: true,
 		},
 	}
@@ -315,7 +320,6 @@ func (v *Page) eventTable(
 	if location {
 		columns[1].Title = locales.LocationType()
 		columns[2].Title = locales.DeployPosition()
-		columns[3].Width = 120
 	}
 	if talk {
 		columns[1].Title = locales.Label(event.TalkInitiator)
@@ -385,7 +389,6 @@ func (v *Page) eventLinks(
 	if len(condition.Warnings) > 0 {
 		ui.Text(c, locales.GameIncompleteDeploymentScript()).
 			FontSize(components.FontCaption).
-			TextColor(c.Theme().TextMuted).
 			Tooltip(condition.Warnings[0].Error())
 	}
 	ui.Row(c).Wrap().Gap(8).Children(func() {
