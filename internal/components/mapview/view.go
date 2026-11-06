@@ -40,6 +40,9 @@ type Overlay struct {
 	// Viewport opts into a canvas fitted to this size in logical pixels.
 	// A zero size retains the compact map preview.
 	Viewport image.Point
+	// FullHeight shows the complete scaled map without the preview's height cap
+	// when Viewport is zero. Vertical scrolling belongs to the page.
+	FullHeight bool
 }
 
 type View struct {
@@ -231,7 +234,10 @@ func (v *View) render(c *ui.Context, overlay Overlay) {
 		)*scale, float32(
 			v.resource.Height*16,
 		)*scale
-		viewWidth, viewHeight := width+2, min(height+2, 360)
+		viewWidth, viewHeight := width+2, height+2
+		if !overlay.FullHeight {
+			viewHeight = min(viewHeight, 360)
+		}
 		if v.viewport.X > 0 {
 			viewWidth, viewHeight = float32(v.viewport.X), float32(v.viewport.Y)
 		}

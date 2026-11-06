@@ -7248,21 +7248,21 @@ func (msgs Messages) DeployAi4() string {
 	return Catalog.Format(msgs.locale, "deploy_ai_4", nil)
 }
 
-// DeployStart says "Start positions"
+// DeployStart says "Start"
 // in the language the app shows.
 func DeployStart() string { return In(i18n.Locale()).DeployStart() }
 
-// DeployStart says "Start positions"
+// DeployStart says "Start"
 // in the language of msgs.
 func (msgs Messages) DeployStart() string {
 	return Catalog.Format(msgs.locale, "deploy_start", nil)
 }
 
-// DeployEnd says "End positions"
+// DeployEnd says "End"
 // in the language the app shows.
 func DeployEnd() string { return In(i18n.Locale()).DeployEnd() }
 
-// DeployEnd says "End positions"
+// DeployEnd says "End"
 // in the language of msgs.
 func (msgs Messages) DeployEnd() string {
 	return Catalog.Format(msgs.locale, "deploy_end", nil)

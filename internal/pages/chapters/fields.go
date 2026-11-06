@@ -33,87 +33,106 @@ func (v *Page) fields(
 	entry *entryDraft,
 	jump func(records.Kind, int),
 ) {
-	for _, group := range []string{records.GroupGeneral, "deploy_position", "items", "deploy_ai"} {
-		var fields []deployment.Field
-		for _, field := range entry.data.Fields() {
-			if field.Group == group ||
-				group == "deploy_position" &&
-					field.Group == records.GroupAdvanced {
-				fields = append(fields, field)
-			}
-		}
-		ui.Column(c.Key(group)).Gap(6).Children(func() {
-			ui.Text(c, locales.Label(group)).Bold()
-			if group == "deploy_position" {
-				v.positionFields(c, state, entry, fields)
-				return
-			}
-			ui.Row(c).Wrap().Gap(8).AlignItems(ui.Center).Children(func() {
-				for _, field := range fields {
-					kind := records.Kind("")
-					switch field.ID {
-					case "deploy_character", "deploy_leader":
-						kind = records.Units
-					case "deploy_class":
-						kind = records.Classes
-					case "deploy_item_1",
-						"deploy_item_2",
-						"deploy_item_3",
-						"deploy_item_4":
-						kind = records.Items
+	ui.Row(c.Key("unit-fields")).
+		Wrap().
+		Gap(16).
+		AlignItems(ui.Start).
+		Children(func() {
+			for _, group := range []string{records.GroupGeneral, "deploy_position", "items", "deploy_ai"} {
+				var fields []deployment.Field
+				for _, field := range entry.data.Fields() {
+					if field.Group == group ||
+						group == "deploy_position" &&
+							field.Group == records.GroupAdvanced {
+						fields = append(fields, field)
 					}
-					if kind != "" {
-						ui.Row(c.Key(field.ID)).Width(420).MaxWidthPercent(100).
-							Gap(6).AlignItems(ui.Center).Children(func() {
-							ui.Text(c, locales.Label(field.ID)).
-								Width(76).
-								Shrink(0)
-							v.unitReference(c, state, entry, field, kind, jump)
-						})
-						continue
-					}
-					ui.Row(c.Key(field.ID)).
-						Gap(6).
-						AlignItems(ui.Center).
-						Children(func() {
-							if field.ID == "deploy_autolevel" {
-								value, _ := entry.data.Value(
-									entry.selected,
-									field.ID,
-								)
-								enabled := value != 0
-								ui.Checkbox(c.Key("value"), &enabled, locales.Label(field.ID)).
-									Label(locales.Deployments() + " / " + locales.Label(field.ID)).
-									Tooltip(locales.DeployPositionHelp()).
-									Disabled(state.Busy || !entry.data.Current(state.Session.Deployments)).
-									OnClick(func() {
-										var value int64
-										if enabled {
-											value = 1
-										}
-										state.SetErr(
-											entry.data.Set(
-												entry.selected,
-												field.ID,
-												value,
-											),
-										)
-										entry.preview = nil
-									})
-								return
-							}
-							ui.Text(c, locales.Label(field.ID)).
-								Tooltip(locales.DeployPositionHelp())
-							if field.ID == "deploy_faction" {
-								v.unitFaction(c, state, entry, field)
-							} else {
-								v.number(c, state, entry, field)
-							}
-						})
 				}
-			})
+				groupWidth := float32(360)
+				switch group {
+				case "deploy_position":
+					groupWidth = 280
+				case "deploy_ai":
+					groupWidth = 256
+				}
+				ui.Column(c.Key(group)).
+					Width(groupWidth).
+					MaxWidthPercent(100).
+					Gap(6).
+					Children(func() {
+						ui.Text(c, locales.Label(group)).Bold()
+						if group == "deploy_position" {
+							v.positionFields(c, state, entry, fields)
+							return
+						}
+						ui.Row(c).
+							Wrap().
+							Gap(8).
+							AlignItems(ui.Center).
+							Children(func() {
+								for _, field := range fields {
+									v.unitField(c, state, entry, field, jump)
+								}
+							})
+					})
+			}
 		})
+}
+
+func (v *Page) unitField(
+	c *ui.Context,
+	state *editor.State,
+	entry *entryDraft,
+	field deployment.Field,
+	jump func(records.Kind, int),
+) {
+	kind := records.Kind("")
+	switch field.ID {
+	case "deploy_character", "deploy_leader":
+		kind = records.Units
+	case "deploy_class":
+		kind = records.Classes
+	case "deploy_item_1", "deploy_item_2", "deploy_item_3", "deploy_item_4":
+		kind = records.Items
 	}
+	if kind != "" {
+		ui.Row(c.Key(field.ID)).
+			WidthPercent(100).
+			Gap(6).
+			AlignItems(ui.Center).
+			Children(func() {
+				ui.Text(c, locales.Label(field.ID)).Width(60).Shrink(0)
+				v.unitReference(c, state, entry, field, kind, jump)
+			})
+		return
+	}
+	ui.Row(c.Key(field.ID)).Gap(6).AlignItems(ui.Center).Children(func() {
+		if field.ID == "deploy_autolevel" {
+			value, _ := entry.data.Value(entry.selected, field.ID)
+			enabled := value != 0
+			ui.Checkbox(c.Key("value"), &enabled, locales.Label(field.ID)).
+				Label(locales.Deployments() + " / " + locales.Label(field.ID)).
+				Tooltip(locales.DeployPositionHelp()).
+				Disabled(state.Busy || !entry.data.Current(state.Session.Deployments)).
+				OnClick(func() {
+					var value int64
+					if enabled {
+						value = 1
+					}
+					state.SetErr(
+						entry.data.Set(entry.selected, field.ID, value),
+					)
+					entry.preview = nil
+				})
+			return
+		}
+		ui.Text(c, locales.Label(field.ID)).
+			Tooltip(locales.DeployPositionHelp())
+		if field.ID == "deploy_faction" {
+			v.unitFaction(c, state, entry, field)
+		} else {
+			v.number(c, state, entry, field)
+		}
+	})
 }
 
 func (v *Page) positionFields(
@@ -128,7 +147,7 @@ func (v *Page) positionFields(
 	} {
 		ui.Row(c.Key(pair.x)).Gap(6).AlignItems(ui.Center).Children(func() {
 			ui.Text(c, pair.label).
-				Width(104).
+				Width(76).
 				Shrink(0).
 				Tooltip(locales.DeployPositionHelp())
 			for _, field := range fields {
@@ -155,7 +174,7 @@ func (v *Page) positionFields(
 		}
 		ui.Row(c.Key(field.ID)).Gap(6).AlignItems(ui.Center).Children(func() {
 			ui.Text(c, locales.Label(field.ID)).
-				Width(104).
+				Width(76).
 				Tooltip(locales.DeployPositionHelp())
 			v.number(c, state, entry, field)
 		})
@@ -211,6 +230,7 @@ func (v *Page) unitReference(
 	components.TextDraft(state,
 		ui.Combobox(c.Key("value"), &draft.text, choices).
 			Grow(1).MinWidth(0).Height(26).
+			Tooltip(draft.text).
 			Label(locales.Deployments()+" / "+locales.Label(field.ID)).
 			Disabled(state.Busy || !entry.data.Current(state.Session.Deployments)).
 			OnChange(func() {

@@ -219,11 +219,10 @@ func (v *Page) pathEditor(
 	}
 	ui.Row(c).Wrap().Gap(12).Children(func() {
 		for _, field := range entry.data.MovementFields() {
-			ui.Row(c.Key(field.ID)).
-				Width(190).
+			ui.Column(c.Key(field.ID)).
+				Width(132).
 				MaxWidthPercent(100).
-				Gap(6).
-				AlignItems(ui.Center).
+				Gap(4).
 				Children(func() {
 					help := locales.MoveScope()
 					switch field.ID {
@@ -235,7 +234,6 @@ func (v *Page) pathEditor(
 						help = locales.MoveConfigHelp()
 					}
 					ui.Text(c, locales.Label(field.ID)).
-						Grow(1).
 						Tooltip(help)
 					unit, node := entry.selected, path.selected
 					value, _ := entry.data.PathValue(unit, node, field.ID)
