@@ -282,9 +282,14 @@ func (page *Page) canvas(c *ui.Context, p *portrait.Portrait, v *viewState) {
 		Background(c.Theme().Surface).
 		Label(locales.ImagePreview())
 	if !v.markers || len(p.Fields) == 0 || page.state.Busy {
+		page.drag = nil
 		return
 	}
 	canvas.Cursor(ui.CursorCrosshair)
+	// A press the system canceled reverts the preview; it is not a release.
+	if canvas.PressCanceled() {
+		page.drag = nil
+	}
 	if dx, dy, dragging := canvas.Dragged(); dragging {
 		if page.drag == nil {
 			x, y, over := canvas.PointerPosition()

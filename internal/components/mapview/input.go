@@ -12,6 +12,12 @@ func (v *View) inspectInput(
 	choose func(image.Point),
 ) {
 	v.stroke = nil
+	// A press the system canceled ends the pan without a release; the
+	// completed viewport movement stays.
+	if canvas.PressCanceled() {
+		v.panning = false
+		return
+	}
 	if dx, dy, dragging := canvas.Dragged(); dragging {
 		v.scroll.X -= dx
 		if dx != 0 || dy != 0 {

@@ -64,12 +64,22 @@ func (v *View) finishStroke(canvas ui.Element, drawing *Drawing) {
 	if len(v.stroke) == 0 {
 		return
 	}
+	// A press the system canceled discards the unfinished stroke; it is
+	// not a release.
+	if canvas.PressCanceled() {
+		v.stroke = nil
+		return
+	}
 	// Consume the release notice so changes made after the toolbar was
-	// built are visible in this frame as well.
-	canvas.Clicked()
-	canvas.DragEnded()
+	// built are visible in this frame as well. Only a real click or
+	// release commits; the stroke is dropped otherwise.
+	clicked := canvas.Clicked()
+	_, _, released := canvas.DragEnded()
 	points := slices.Clone(v.stroke)
 	v.stroke = nil
+	if !clicked && !released {
+		return
+	}
 	if drawing.Commit != nil {
 		drawing.Commit(points)
 	}
