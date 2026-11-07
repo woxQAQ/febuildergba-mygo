@@ -117,7 +117,12 @@ func ExternalChangeBanner(c *ui.Context, state *editor.State, reload func()) {
 		})
 }
 
-func StatusBar(c *ui.Context, state *editor.State, run func()) {
+func StatusBar(
+	c *ui.Context,
+	state *editor.State,
+	run func(),
+	details func(*ui.Context),
+) {
 	document := state.Session.Document.State()
 	ui.Row(c).
 		Padding(8, 16).
@@ -128,7 +133,14 @@ func StatusBar(c *ui.Context, state *editor.State, run func()) {
 		Children(func() {
 			ui.Textf(c, "%s  %.2f MiB", state.Session.Version(), float64(document.Size)/(1<<20)).
 				TextColor(c.Theme().TextMuted)
-			ui.Box(c).Grow(1)
+			ui.Column(c.Key("status-details")).
+				Grow(1).
+				MinWidth(0).
+				Children(func() {
+					if details != nil {
+						details(c)
+					}
+				})
 			status := locales.Ready()
 			if document.Dirty {
 				status = locales.Dirty()

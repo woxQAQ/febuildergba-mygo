@@ -10600,6 +10600,96 @@ func (msgs Messages) TableLayout() string {
 	return Catalog.Format(msgs.locale, "table_layout", nil)
 }
 
+// TableStartAddress says "Start address"
+// in the language the app shows.
+func TableStartAddress() string { return In(i18n.Locale()).TableStartAddress() }
+
+// TableStartAddress says "Start address"
+// in the language of msgs.
+func (msgs Messages) TableStartAddress() string {
+	return Catalog.Format(msgs.locale, "table_start_address", nil)
+}
+
+// LayoutPendingScope says "Changes this window’s interpretation and clears unapplied inputs."
+// in the language the app shows.
+func LayoutPendingScope() string { return In(i18n.Locale()).LayoutPendingScope() }
+
+// LayoutPendingScope says "Changes this window’s interpretation and clears unapplied inputs."
+// in the language of msgs.
+func (msgs Messages) LayoutPendingScope() string {
+	return Catalog.Format(msgs.locale, "layout_pending_scope", nil)
+}
+
+// TableLayoutStale says "The data changed. Your input is retained; cancel to read the current layout."
+// in the language the app shows.
+func TableLayoutStale() string { return In(i18n.Locale()).TableLayoutStale() }
+
+// TableLayoutStale says "The data changed. Your input is retained; cancel to read the current layout."
+// in the language of msgs.
+func (msgs Messages) TableLayoutStale() string {
+	return Catalog.Format(msgs.locale, "table_layout_stale", nil)
+}
+
+// TableMoveSource says "Source address"
+// in the language the app shows.
+func TableMoveSource() string { return In(i18n.Locale()).TableMoveSource() }
+
+// TableMoveSource says "Source address"
+// in the language of msgs.
+func (msgs Messages) TableMoveSource() string {
+	return Catalog.Format(msgs.locale, "table_move_source", nil)
+}
+
+// TableMoveTarget says "Destination address"
+// in the language the app shows.
+func TableMoveTarget() string { return In(i18n.Locale()).TableMoveTarget() }
+
+// TableMoveTarget says "Destination address"
+// in the language of msgs.
+func (msgs Messages) TableMoveTarget() string {
+	return Catalog.Format(msgs.locale, "table_move_target", nil)
+}
+
+// TableMoveLength says "Bytes to copy"
+// in the language the app shows.
+func TableMoveLength() string { return In(i18n.Locale()).TableMoveLength() }
+
+// TableMoveLength says "Bytes to copy"
+// in the language of msgs.
+func (msgs Messages) TableMoveLength() string {
+	return Catalog.Format(msgs.locale, "table_move_length", nil)
+}
+
+// TableMoveReferences says "Confirmed entries to update"
+// in the language the app shows.
+func TableMoveReferences() string { return In(i18n.Locale()).TableMoveReferences() }
+
+// TableMoveReferences says "Confirmed entries to update"
+// in the language of msgs.
+func (msgs Messages) TableMoveReferences() string {
+	return Catalog.Format(msgs.locale, "table_move_references", nil)
+}
+
+// TableMoveSize says "ROM size after move"
+// in the language the app shows.
+func TableMoveSize() string { return In(i18n.Locale()).TableMoveSize() }
+
+// TableMoveSize says "ROM size after move"
+// in the language of msgs.
+func (msgs Messages) TableMoveSize() string {
+	return Catalog.Format(msgs.locale, "table_move_size", nil)
+}
+
+// PreviewMoveAgain says "Preview again"
+// in the language the app shows.
+func PreviewMoveAgain() string { return In(i18n.Locale()).PreviewMoveAgain() }
+
+// PreviewMoveAgain says "Preview again"
+// in the language of msgs.
+func (msgs Messages) PreviewMoveAgain() string {
+	return Catalog.Format(msgs.locale, "preview_move_again", nil)
+}
+
 // AutomaticLayout says "Automatic layout"
 // in the language the app shows.
 func AutomaticLayout() string { return In(i18n.Locale()).AutomaticLayout() }
@@ -10660,11 +10750,11 @@ func (msgs Messages) RecordCount() string {
 	return Catalog.Format(msgs.locale, "record_count", nil)
 }
 
-// UseLayout says "Use layout"
+// UseLayout says "Apply layout"
 // in the language the app shows.
 func UseLayout() string { return In(i18n.Locale()).UseLayout() }
 
-// UseLayout says "Use layout"
+// UseLayout says "Apply layout"
 // in the language of msgs.
 func (msgs Messages) UseLayout() string {
 	return Catalog.Format(msgs.locale, "use_layout", nil)
@@ -10700,11 +10790,11 @@ func (msgs Messages) MoveTableScope() string {
 	return Catalog.Format(msgs.locale, "move_table_scope", nil)
 }
 
-// PreviewMove says "Preview move"
+// PreviewMove says "Move…"
 // in the language the app shows.
 func PreviewMove() string { return In(i18n.Locale()).PreviewMove() }
 
-// PreviewMove says "Preview move"
+// PreviewMove says "Move…"
 // in the language of msgs.
 func (msgs Messages) PreviewMove() string {
 	return Catalog.Format(msgs.locale, "preview_move", nil)
@@ -10718,18 +10808,6 @@ func ApplyMove() string { return In(i18n.Locale()).ApplyMove() }
 // in the language of msgs.
 func (msgs Messages) ApplyMove() string {
 	return Catalog.Format(msgs.locale, "apply_move", nil)
-}
-
-// MoveSummary says "{source} → {target}\n{bytes} bytes · {references} confirmed references\nROM size after move: {size} bytes"
-// in the language the app shows.
-func MoveSummary(source string, target string, bytes int, references int, size int) string {
-	return In(i18n.Locale()).MoveSummary(source, target, bytes, references, size)
-}
-
-// MoveSummary says "{source} → {target}\n{bytes} bytes · {references} confirmed references\nROM size after move: {size} bytes"
-// in the language of msgs.
-func (msgs Messages) MoveSummary(source string, target string, bytes int, references int, size int) string {
-	return Catalog.Format(msgs.locale, "move_summary", map[string]any{"source": source, "target": target, "bytes": bytes, "references": references, "size": size})
 }
 
 // SpaceInvalidRange says "The declared free space is invalid or overlaps protected data. No changes were applied."

@@ -6,167 +6,405 @@ import (
 
 	"github.com/egoist/mygo/ui"
 
+	"github.com/woxQAQ/febuildergba-mygo/game"
 	"github.com/woxQAQ/febuildergba-mygo/game/edit"
 	"github.com/woxQAQ/febuildergba-mygo/game/records"
 	"github.com/woxQAQ/febuildergba-mygo/internal/components"
+	"github.com/woxQAQ/febuildergba-mygo/internal/editor"
 	"github.com/woxQAQ/febuildergba-mygo/internal/input"
 	"github.com/woxQAQ/febuildergba-mygo/internal/locales"
 	"github.com/woxQAQ/febuildergba-mygo/rom"
 )
 
+// tableOrigin keeps interpretation drafts and move reviews bound to their table.
+type tableOrigin struct {
+	session  *game.Session
+	revision uint64
+	layout   records.Layout
+	manual   bool
+}
+
+func tableOriginFor(state *editor.State, table *records.Table) tableOrigin {
+	return tableOrigin{
+		state.Session,
+		state.Session.Document.State().Revision,
+		table.Layout,
+		table.Manual,
+	}
+}
+
+func (source tableOrigin) current(
+	state *editor.State,
+	table *records.Table,
+) bool {
+	return table != nil && source.session == state.Session &&
+		source.revision == state.Session.Document.State().Revision &&
+		source.layout == table.Layout &&
+		source.manual == table.Manual
+}
+
 type layoutDraft struct {
-	show, initialized      bool
+	source                 tableOrigin
 	address, stride, count string
 	err                    error
-	move                   *records.MovePlan
+	inputs                 [3]ui.Handle
+	moveButton             ui.Handle
+	move                   *tableMoveReview
+}
+
+type tableMoveReview struct {
+	open   bool
+	source tableOrigin
+	plan   *records.MovePlan
+	err    error
+}
+
+func (draft *layoutDraft) dirty() bool {
+	return draft.address != fmt.Sprintf(
+		"0x%08X",
+		draft.source.layout.Address,
+	) ||
+		draft.stride != strconv.Itoa(draft.source.layout.Stride) ||
+		draft.count != strconv.Itoa(draft.source.layout.Count)
+}
+
+func (draft *layoutDraft) read(state *editor.State, table *records.Table) {
+	draft.source = tableOriginFor(state, table)
+	draft.address = fmt.Sprintf("0x%08X", table.Address)
+	draft.stride = strconv.Itoa(table.Stride)
+	draft.count = strconv.Itoa(table.Count)
+	draft.err = nil
+}
+
+func (draft *layoutDraft) parse() (records.Layout, error) {
+	address, err := input.ParseAddress(draft.address)
+	if err != nil {
+		return records.Layout{}, err
+	}
+	stride, e1 := input.ParseInteger(draft.stride)
+	count, e2 := input.ParseInteger(draft.count)
+	if e1 != nil || e2 != nil || address%4 != 0 || stride < 4 ||
+		stride > rom.MaxSize ||
+		stride%4 != 0 ||
+		count < 1 ||
+		count > 256 {
+		return records.Layout{}, edit.ErrLayout
+	}
+	return records.Layout{
+		Address: address,
+		Stride:  int(stride),
+		Count:   int(count),
+	}, nil
 }
 
 func (a *Page) tableLayout(c *ui.Context) {
-	p := &a.panes[a.tab]
+	pane := &a.panes[a.tab]
 	table := a.state.Session.Records.Table(records.Kinds[a.tab])
 	if table == nil {
 		return
 	}
-	ui.Checkbox(c, &p.layout.show, locales.TableLayout())
-	if !p.layout.show {
-		return
+	draft := &pane.layout
+	if draft.source.session == nil ||
+		!draft.dirty() && !draft.source.current(a.state, table) {
+		draft.read(a.state, table)
 	}
-	if !p.layout.initialized {
-		p.layout.address = fmt.Sprintf("%08X", table.Address)
-		p.layout.stride = strconv.Itoa(table.Stride)
-		p.layout.count = strconv.Itoa(table.Count)
-		p.layout.initialized = true
-	}
-	mode := "automatic_layout"
-	if table.Manual {
-		mode = "manual_layout"
-	}
-	ui.Text(c, locales.Label(mode)).
-		FontSize(components.FontCaption).
-		TextColor(c.Theme().TextMuted)
-	ui.Text(c, locales.LayoutScope()).FontSize(components.FontCaption)
-	ui.Field(c, locales.RomAddress(), func() {
-		components.TextDraft(
-			a.state,
-			ui.TextInput(c, &p.layout.address).Disabled(a.state.Busy),
-		)
-	})
-	ui.Grid(c).Columns(2).Gap(8).Children(func() {
-		ui.Field(c, locales.RecordSize(), func() {
-			components.TextDraft(
-				a.state,
-				ui.TextInput(c, &p.layout.stride).Disabled(a.state.Busy),
-			)
-		})
-		ui.Field(c, locales.RecordCount(), func() {
-			components.TextDraft(
-				a.state,
-				ui.TextInput(c, &p.layout.count).Disabled(a.state.Busy),
-			)
-		})
-	})
-	kind := table.Kind
-	ui.Row(c).Gap(6).Children(func() {
-		ui.Button(c, locales.UseLayout()).
-			Disabled(a.state.Busy).
-			OnClick(func() {
-				address, err := input.ParseAddress(p.layout.address)
-				if err != nil {
-					p.layout.err = err
-					return
-				}
-				stride, e1 := input.ParseInteger(p.layout.stride)
-				count, e2 := input.ParseInteger(p.layout.count)
-				if e1 != nil || e2 != nil || stride < 4 ||
-					stride > rom.MaxSize ||
-					count < 1 ||
-					count > 256 {
-					p.layout.err = edit.ErrLayout
-					return
-				}
-				p.layout.err = a.state.Session.Records.UseLayout(
-					kind,
-					records.Layout{
-						Address: address,
-						Stride:  int(stride),
-						Count:   int(count),
+	ui.Column(c.Key("table-layout")).
+		MinWidth(0).
+		Gap(6).
+		Label(locales.TableLayout()).
+		Children(func() {
+			_, parseErr := draft.parse()
+			current := draft.source.current(a.state, table)
+			ui.Row(c).Wrap().Gap(12).AlignItems(ui.Center).Children(func() {
+				fields := []struct {
+					label string
+					value *string
+					width float32
+					help  string
+				}{
+					{
+						locales.TableStartAddress(),
+						&draft.address,
+						112,
+						locales.RomAddress(),
 					},
-				)
-				a.state.Report("editor.operation", p.layout.err)
-				if p.layout.err == nil {
-					p.layout.move = nil
-					p.chosen.Clear()
-					p.selected = 0
-					a.form.ClearDrafts()
-					a.state.HistoryEpoch++
+					{
+						locales.RecordSize(),
+						&draft.stride,
+						44,
+						locales.LayoutScope(),
+					},
+					{
+						locales.RecordCount(),
+						&draft.count,
+						44,
+						locales.LayoutScope(),
+					},
+				}
+				for index, field := range fields {
+					ui.Row(c.Key(index)).
+						Gap(6).
+						AlignItems(ui.Center).
+						Children(func() {
+							ui.Text(c, field.label).
+								FontSize(components.FontCaption).
+								TextColor(c.Theme().TextMuted).
+								OnClick(func() { draft.inputs[index].Focus(c) })
+							components.TextDraft(
+								a.state,
+								ui.TextInput(c, field.value).
+									Width(field.width).
+									Height(24).
+									Padding(3, 6).Bind(&draft.inputs[index]).
+									Label(field.label).
+									Tooltip(field.help).
+									FontFeatures("tnum").TextAlign(ui.End).
+									Disabled(a.state.Busy).
+									OnChange(func() { draft.err = nil }).
+									OnSubmit(func() { a.applyTableLayout(c) }),
+							)
+						})
+				}
+				ui.Row(c).Wrap().Gap(8).AlignItems(ui.Center).Children(func() {
+					mode := locales.AutomaticLayout()
+					if table.Manual {
+						mode = locales.ManualLayout()
+					}
+					ui.Text(c, mode).
+						FontSize(components.FontCaption).
+						TextColor(c.Theme().TextMuted).
+						Tooltip(locales.LayoutScope())
+					if table.Manual {
+						ui.Button(c, locales.ResetLayout()).
+							Disabled(a.state.Busy).
+							OnClick(func() {
+								a.state.Session.Records.UseAutomaticLayout(
+									table.Kind,
+								)
+								a.tableLayoutChanged()
+								draft.read(
+									a.state,
+									a.state.Session.Records.Table(table.Kind),
+								)
+								draft.inputs[0].Focus(c)
+							})
+					}
+					ui.Button(c, locales.PreviewMove()).Bind(&draft.moveButton).
+						Disabled(a.state.Busy || table.Manual || table.Err != nil || draft.dirty()).
+						Tooltip(locales.MoveTableScope()).
+						OnClick(func() { a.previewTableMove() })
+				})
+				if draft.dirty() {
+					ui.Row(c).Gap(8).Children(func() {
+						ui.PrimaryButton(c, locales.UseLayout()).
+							Disabled(a.state.Busy || !current || parseErr != nil).
+							Tooltip(locales.LayoutPendingScope()).
+							OnClick(func() { a.applyTableLayout(c) })
+						ui.Button(c, locales.Cancel()).Disabled(a.state.Busy).
+							OnClick(func() { draft.read(a.state, table); draft.inputs[0].Focus(c) })
+					})
 				}
 			})
-		ui.Button(c, locales.ResetLayout()).
-			Disabled(a.state.Busy || !table.Manual).
-			OnClick(func() {
-				a.state.Session.Records.UseAutomaticLayout(kind)
-				p.layout.initialized = false
-				p.layout.move = nil
-				p.layout.err = nil
-				p.selected = 0
-				p.chosen.Clear()
-				a.form.ClearDrafts()
-				a.state.HistoryEpoch++
-			})
-	})
-	if p.layout.err != nil {
-		ui.Text(c, components.ErrorText(p.layout.err)).
-			FontSize(components.FontCaption)
-	}
-	a.tableMove(c, table, p)
-}
-
-func (a *Page) tableMove(c *ui.Context, table *records.Table, p *pane) {
-	ui.Text(c, locales.MoveTable())
-	ui.Text(c, locales.MoveTableScope()).
-		FontSize(components.FontCaption).
-		TextColor(c.Theme().TextMuted)
-	ui.Button(c, locales.PreviewMove()).
-		Disabled(a.state.Busy || table.Manual || table.Err != nil).
-		OnClick(func() {
-			p.layout.move, p.layout.err = a.state.Session.Records.PlanTableMove(
-				table.Kind,
-				nil,
-			)
-			a.state.Report("editor.operation", p.layout.err)
-		})
-	move := p.layout.move
-	if move == nil {
-		return
-	}
-	ui.Text(c, locales.MoveSummary(
-		fmt.Sprintf(
-			"0x%08X",
-			move.Source(),
-		),
-		fmt.Sprintf("0x%08X", move.Destination()),
-		move.Length(),
-		move.ReferenceCount(),
-		move.Size(),
-	)).FontSize(components.FontCaption)
-	stale := move.Revision() != a.state.Session.Document.State().Revision
-	if stale {
-		ui.Text(c, components.ErrorText(rom.ErrStale)).
-			FontSize(components.FontCaption)
-	}
-	ui.Button(c, locales.ApplyMove()).
-		Disabled(a.state.Busy || table.Manual || stale).
-		OnClick(func() {
-			p.layout.err = a.state.Edit(
-				func() error { return a.state.Session.Records.ApplyTableMove(move) },
-			)
-			if p.layout.err == nil {
-				p.layout.move = nil
-				p.layout.initialized = false
-				p.chosen.Clear()
-				p.selected = 0
-				a.form.ClearDrafts()
-				a.state.HistoryEpoch++
+			if draft.dirty() {
+				c.OnShortcut(
+					0,
+					ui.KeyEscape,
+					func() { draft.read(a.state, table); draft.inputs[0].Focus(c) },
+				)
+				if !current {
+					ui.Text(c, locales.TableLayoutStale()).
+						FontSize(components.FontCaption).
+						TextColor(c.Theme().Danger)
+					return
+				}
+				if parseErr != nil {
+					ui.Text(c, components.ErrorText(parseErr)).
+						FontSize(components.FontCaption).
+						TextColor(c.Theme().Danger)
+					return
+				}
+			}
+			if draft.err != nil {
+				ui.Text(c, components.ErrorText(draft.err)).
+					FontSize(components.FontCaption).
+					TextColor(c.Theme().Danger)
 			}
 		})
+	a.tableMove(c, table)
+}
+
+func (a *Page) applyTableLayout(c *ui.Context) {
+	if a.state.Busy {
+		return
+	}
+	pane := &a.panes[a.tab]
+	table := a.state.Session.Records.Table(records.Kinds[a.tab])
+	draft := &pane.layout
+	if !draft.source.current(a.state, table) {
+		draft.err = rom.ErrStale
+		return
+	}
+	layout, err := draft.parse()
+	if err != nil {
+		draft.err = err
+		return
+	}
+	if layout == table.Layout {
+		draft.read(a.state, table)
+		return
+	}
+	draft.err = a.state.Session.Records.UseLayout(table.Kind, layout)
+	a.state.Report("editor.operation", draft.err)
+	if draft.err != nil {
+		return
+	}
+	a.tableLayoutChanged()
+	draft.read(a.state, a.state.Session.Records.Table(table.Kind))
+	draft.inputs[0].Focus(c)
+}
+
+func (a *Page) tableLayoutChanged() {
+	pane := &a.panes[a.tab]
+	pane.layout.move = nil
+	pane.selected = 0
+	pane.chosen.Clear()
+	pane.initialized = false
+	pane.list = ui.ListState{}
+	a.form.ClearDrafts()
+	a.state.HistoryEpoch++
+}
+
+func (a *Page) previewTableMove() {
+	if a.state.Busy {
+		return
+	}
+	table := a.state.Session.Records.Table(records.Kinds[a.tab])
+	draft := &a.panes[a.tab].layout
+	if table == nil || table.Manual || table.Err != nil || draft.dirty() {
+		return
+	}
+	plan, err := a.state.Session.Records.PlanTableMove(table.Kind, nil)
+	draft.err = err
+	a.state.Report("editor.operation", err)
+	if err != nil {
+		return
+	}
+	draft.move = &tableMoveReview{
+		open:   true,
+		source: tableOriginFor(a.state, table),
+		plan:   plan,
+	}
+}
+
+func (a *Page) closeTableMove(c *ui.Context) {
+	draft := &a.panes[a.tab].layout
+	draft.move = nil
+	draft.moveButton.Focus(c)
+}
+
+func (a *Page) tableMove(c *ui.Context, table *records.Table) {
+	draft := &a.panes[a.tab].layout
+	review := draft.move
+	if review == nil {
+		return
+	}
+	width, height := c.Size()
+	modal := ui.Modal(c.Key(review), &review.open, func() {
+		ui.Column(c).
+			Width(min(float32(560), max(float32(0), width-64))).
+			Gap(14).
+			Children(func() {
+				ui.Text(c, locales.MoveTable()).
+					FontSize(components.FontPanelTitle).
+					Bold()
+				current := review.source.current(a.state, table)
+				ui.Scroll(c).
+					MaxHeight(max(float32(100), height-240)).
+					Gap(12).
+					Children(func() {
+						ui.Text(c, locales.MoveTableScope())
+						ui.Grid(c).Columns(2).Gap(8).Children(func() {
+							fields := []struct{ label, value string }{
+								{
+									locales.TableMoveSource(),
+									fmt.Sprintf("0x%08X", review.plan.Source()),
+								},
+								{
+									locales.TableMoveTarget(),
+									fmt.Sprintf(
+										"0x%08X",
+										review.plan.Destination(),
+									),
+								},
+								{
+									locales.TableMoveLength(),
+									strconv.Itoa(review.plan.Length()),
+								},
+								{
+									locales.TableMoveReferences(),
+									strconv.Itoa(review.plan.ReferenceCount()),
+								},
+								{
+									locales.TableMoveSize(),
+									fmt.Sprintf(
+										"%.2f MiB",
+										float64(review.plan.Size())/(1<<20),
+									),
+								},
+							}
+							for _, field := range fields {
+								ui.Text(c, field.label).
+									TextColor(c.Theme().TextMuted)
+								ui.Text(c, field.value).
+									FontFeatures("tnum").
+									Selectable()
+							}
+						})
+						if !current {
+							ui.Text(c, components.ErrorText(rom.ErrStale)).
+								TextColor(c.Theme().Danger)
+						}
+						if review.err != nil {
+							ui.Text(c, components.ErrorText(review.err)).
+								TextColor(c.Theme().Danger)
+						}
+					})
+				ui.Row(c).Wrap().Gap(8).Children(func() {
+					ui.PrimaryButton(c, locales.ApplyMove()).
+						Disabled(a.state.Busy || !current).
+						OnClick(func() {
+							if !review.source.current(
+								a.state,
+								a.state.Session.Records.Table(table.Kind),
+							) {
+								review.err = rom.ErrStale
+								return
+							}
+							review.err = a.state.Edit(
+								func() error { return a.state.Session.Records.ApplyTableMove(review.plan) },
+							)
+							if review.err != nil {
+								return
+							}
+							a.tableLayoutChanged()
+							draft.read(
+								a.state,
+								a.state.Session.Records.Table(table.Kind),
+							)
+							draft.moveButton.Focus(c)
+						})
+					if !current {
+						ui.Button(c, locales.PreviewMoveAgain()).
+							Disabled(a.state.Busy || table.Manual || table.Err != nil).
+							OnClick(func() { a.previewTableMove() })
+					}
+					ui.Button(c, locales.Cancel()).
+						Disabled(a.state.Busy).
+						OnClick(func() { a.closeTableMove(c) })
+				})
+			})
+	})
+	if modal.Dismissed() {
+		a.closeTableMove(c)
+	}
 }

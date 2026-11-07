@@ -91,9 +91,15 @@ func (a *Page) Deactivate() {
 	a.form.textChoice = nil
 	a.icons.target = nil
 	a.cancelIconEdit()
+	for index := range a.panes {
+		a.panes[index].layout.move = nil
+	}
 }
 
 func (a *Page) View(c *ui.Context, tab int) {
+	if a.tab != tab {
+		a.panes[a.tab].layout.move = nil
+	}
 	a.tab = tab
 	if records.Kinds[tab] != records.Items {
 		a.icons.target = nil
@@ -127,6 +133,15 @@ func (a *Page) View(c *ui.Context, tab int) {
 			}
 		},
 	)
+}
+
+// Footer supplies table controls to the application status bar.
+func (a *Page) Footer(c *ui.Context) {
+	if a.state.Session == nil ||
+		(records.Kinds[a.tab] == records.Items && a.itemMode == itemIconTable) {
+		return
+	}
+	a.tableLayout(c)
 }
 
 func (a *Page) details(c *ui.Context) {
@@ -190,7 +205,6 @@ func (a *Page) records(c *ui.Context) {
 			pane.initialized = false
 			pane.list = ui.ListState{}
 		}
-		a.tableLayout(c)
 		rows := a.rows()
 		if pane.selected >= len(rows) {
 			pane.selected = 0
@@ -276,6 +290,9 @@ func (a *Page) OpenDeployment(chapter, site int) {
 }
 
 func (a *Page) Open(kind records.Kind, id int) {
+	for index := range a.panes {
+		a.panes[index].layout.move = nil
+	}
 	if kind == records.Items {
 		a.itemMode = itemRecords
 		a.icons.target = nil

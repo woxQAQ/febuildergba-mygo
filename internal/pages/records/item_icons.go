@@ -78,6 +78,7 @@ func (a *Page) itemNavigation(c *ui.Context) {
 				Label(locales.ItemNavigation()).
 				OnChange(func() {
 					a.form.textChoice = nil
+					a.panes[a.tab].layout.move = nil
 					if a.itemMode == itemRecords {
 						a.icons.target = nil
 						a.cancelIconEdit()
@@ -423,6 +424,7 @@ func (a *Page) openItemIcon(icon, item int) {
 		return
 	}
 	a.cancelIconEdit()
+	a.panes[a.tab].layout.move = nil
 	a.itemMode = itemIconTable
 	a.form.textChoice = nil
 	a.icons.query = ""

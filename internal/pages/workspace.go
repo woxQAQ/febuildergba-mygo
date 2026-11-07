@@ -401,7 +401,11 @@ func (w *Workspace) View(c *ui.Context) {
 		default:
 			w.records.View(c, w.tab)
 		}
-		components.StatusBar(c, state, w.Actions.Run)
+		components.StatusBar(c, state, w.Actions.Run, func(c *ui.Context) {
+			if w.tab < len(records.Kinds) {
+				w.records.Footer(c)
+			}
+		})
 	})
 	history := state.History()
 	context := struct {
