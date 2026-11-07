@@ -23,32 +23,33 @@ type draft struct {
 }
 
 type Page struct {
-	state         *editor.State
-	openRecord    func(records.Kind, int)
-	sidebar       components.Sidebar
-	query         string
-	lastQuery     string
-	selected      int
-	list          ui.ListState
-	entries       []text.Entry
-	rows          []text.Entry
-	revision      uint64
-	indexed       bool
-	indexErr      error
-	drafts        map[uint16]*draft
-	showHelp      bool
-	importFile    func(*text.File, func(*text.Import, string, error))
-	exportFile    func(*text.File, []uint16)
-	fileEpoch     uint64
-	fileDraft     *text.Import
-	filePlan      *text.ImportPlan
-	fileErr       error
-	fileRows      []text.FileEntry
-	fileSelection int
-	fileList      ui.ListState
-	filesFocus    ui.Handle
-	fileName      string
-	reviewFocus   ui.Handle
+	state          *editor.State
+	openRecord     func(records.Kind, int)
+	sidebar        components.Sidebar
+	query          string
+	lastQuery      string
+	selected       int
+	list           ui.ListState
+	entries        []text.Entry
+	rows           []text.Entry
+	revision       uint64
+	indexed        bool
+	indexErr       error
+	drafts         map[uint16]*draft
+	showHelp       bool
+	importFile     func(*text.File, func(*text.Import, string, error))
+	exportFile     func(*text.File, []uint16)
+	fileEpoch      uint64
+	fileDraft      *text.Import
+	filePlan       *text.ImportPlan
+	fileErr        error
+	fileRows       []text.FileEntry
+	fileComparison *comparison
+	fileSelection  int
+	fileList       ui.ListState
+	filesFocus     ui.Handle
+	fileName       string
+	reviewFocus    ui.Handle
 }
 
 func New(state *editor.State, openRecord func(records.Kind, int)) *Page {
