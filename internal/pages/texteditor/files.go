@@ -6,6 +6,7 @@ import (
 	"strings"
 
 	"github.com/egoist/mygo/ui"
+	"github.com/egoist/mygo/ui/editor"
 
 	"github.com/woxQAQ/febuildergba-mygo/game/edit"
 	"github.com/woxQAQ/febuildergba-mygo/game/records"
@@ -48,6 +49,7 @@ func (p *Page) chooseFile() {
 			return
 		}
 		p.fileDraft, p.fileName, p.fileRows = draft, name, draft.Entries()
+		p.fileComparison = nil
 		p.fileSelection, p.fileList = 0, ui.ListState{}
 		p.filePlan, p.fileErr = session.Texts.PlanImport(draft)
 		if p.filePlan != nil {
@@ -109,6 +111,7 @@ func (p *Page) fileActions(c *ui.Context) {
 
 func (p *Page) closeFileReview(c *ui.Context) {
 	p.fileDraft, p.filePlan, p.fileRows, p.fileErr = nil, nil, nil, nil
+	p.fileComparison = nil
 	p.fileName = ""
 	p.fileEpoch++
 	p.filesFocus.Focus(c)
@@ -122,6 +125,71 @@ func fileRowStatus(row text.FileEntry) string {
 		return locales.TextFileChanged()
 	}
 	return locales.TextFileUnchanged()
+}
+
+// comparison is the read-only comparison state of the selected import entry:
+// it keeps identity by import source, entry and Before/After strings, and
+// preserves the DiffView scroll position and text selection across builds.
+// The buffers are display copies of Before/After, never a source of truth
+// for the import, the document or history.
+type comparison struct {
+	source        *text.Import
+	id            uint16
+	before, after string
+	diff          *editor.DiffState
+}
+
+// comparisonSplitWidth is the available logical width in DIP at which the
+// comparison lays the two texts side by side instead of unified. The
+// fileReview scroll view pads its content by 12 on each side.
+const comparisonSplitWidth = 760
+
+// comparisonFor returns the comparison state of the selected entry,
+// rebuilding the buffers and DiffState only when the import, entry or the
+// actual strings change. Both sides stay read-only, without hunk actions,
+// and the full texts are never collapsed.
+func (p *Page) comparisonFor(row text.FileEntry) *editor.DiffState {
+	cmp := p.fileComparison
+	if cmp == nil || cmp.source != p.fileDraft || cmp.id != row.ID ||
+		cmp.before != row.Before || cmp.after != row.After {
+		cmp = &comparison{
+			source: p.fileDraft,
+			id:     row.ID,
+			before: row.Before,
+			after:  row.After,
+			diff: &editor.DiffState{
+				Old:             editor.NewBuffer(row.Before),
+				New:             editor.NewBuffer(row.After),
+				Editable:        false,
+				HunkActions:     false,
+				Wrap:            true,
+				ExpandUnchanged: true,
+			},
+		}
+		p.fileComparison = cmp
+	}
+	return cmp.diff
+}
+
+// comparisonView presents the full Before/After of the selected entry as a
+// DiffView: side by side on wide windows and unified on narrow ones, in a
+// bounded height that scrolls internally so the full texts stay reachable.
+// Theme and font size follow the window defaults.
+func (p *Page) comparisonView(c *ui.Context, row text.FileEntry) {
+	diff := p.comparisonFor(row)
+	width, _ := c.Size()
+	if width-24 >= comparisonSplitWidth {
+		diff.Layout = editor.DiffSplit
+		ui.Row(c.Key("sides")).Gap(12).Children(func() {
+			ui.Text(c.Key("before"), locales.Before()).Bold().Grow(1)
+			ui.Text(c.Key("after"), locales.After()).Bold().Grow(1)
+		})
+	} else {
+		diff.Layout = editor.DiffUnified
+		ui.Text(c.Key("sides"), locales.Before()+" → "+locales.After()).
+			Bold()
+	}
+	editor.DiffView(c.Key("comparison"), diff).FillWidth().Height(240)
 }
 
 func (p *Page) fileReview(c *ui.Context) {
@@ -246,36 +314,7 @@ func (p *Page) fileReview(c *ui.Context) {
 						TextColor(c.Theme().Danger)
 				}
 				ui.Column(c.Key(row.ID)).Gap(8).Children(func() {
-					ui.Row(c.Key("comparison")).
-						Wrap().
-						Gap(12).
-						AlignItems(ui.Start).
-						Children(func() {
-							ui.Column(c.Key("before-column")).
-								Width(360).
-								Grow(1).
-								MaxWidthPercent(100).
-								Gap(6).
-								Children(func() {
-									ui.Text(c, locales.Before()).Bold()
-									before := row.Before
-									ui.TextArea(c.Key("before"), &before).
-										ReadOnly(true).
-										Height(140).Label(locales.Before())
-								})
-							ui.Column(c.Key("after-column")).
-								Width(360).
-								Grow(1).
-								MaxWidthPercent(100).
-								Gap(6).
-								Children(func() {
-									ui.Text(c, locales.After()).Bold()
-									after := row.After
-									ui.TextArea(c.Key("after"), &after).
-										ReadOnly(true).
-										Height(140).Label(locales.After())
-								})
-						})
+					p.comparisonView(c, row)
 					if p.filePlan != nil && row.Changed {
 						ui.Text(c, locales.TextEditSummary(fmt.Sprintf("0x%04X", row.ID), len(row.Uses))).
 							FontSize(components.FontCaption)
