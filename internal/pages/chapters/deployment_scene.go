@@ -181,9 +181,6 @@ func (v *Page) unitInspector(
 		AlignItems(ui.Center).
 		Children(func() {
 			ui.Text(c, locales.MoveUnits()).Bold().Grow(1)
-			ui.Text(c, locales.RecordSummary(len(units))).
-				FontSize(components.FontCaption).
-				TextColor(c.Theme().TextMuted)
 			v.unitActions(c, state, entry)
 		})
 	v.unitList(c, state, entry, units)

@@ -3,7 +3,7 @@ package chapters
 import (
 	"fmt"
 	"image"
-	"strings"
+	"slices"
 
 	"github.com/egoist/mygo/ui"
 
@@ -18,6 +18,12 @@ import (
 type pathState struct {
 	selected, lastSelected int
 	list                   ui.ListState
+	focus                  ui.Handle
+	field                  string
+	cells                  components.NumberCells
+	// Stable row IDs keep cell drafts attached to segments through reordering.
+	rows    []uint64
+	nextRow uint64
 }
 
 func (entry *entryDraft) pathState() *pathState {
@@ -29,21 +35,26 @@ func (entry *entryDraft) pathState() *pathState {
 		path = &pathState{lastSelected: -1}
 		entry.paths[entry.selected] = path
 	}
-	path.selected = min(
-		path.selected,
-		max(0, len(entry.data.Path(entry.selected))-1),
-	)
+	count := len(entry.data.Path(entry.selected))
+	for len(path.rows) < count {
+		path.rows = append(path.rows, path.newRow())
+	}
+	path.rows = path.rows[:count]
+	path.selected = max(0, min(path.selected, count-1))
 	return path
+}
+
+func (path *pathState) newRow() uint64 {
+	path.nextRow++
+	return path.nextRow
+}
+
+func pathInputKey(unit int, row uint64, field string) inputKey {
+	return inputKey{unit, fmt.Sprintf("path/%d/%s", row, field)}
 }
 
 func (entry *entryDraft) pathChanged() {
 	entry.preview = nil
-	for key := range entry.inputs {
-		if key.index == entry.selected &&
-			strings.HasPrefix(key.field, "path/") {
-			delete(entry.inputs, key)
-		}
-	}
 	entry.pathState().lastSelected = -1
 }
 
@@ -97,10 +108,6 @@ func (v *Page) unitSidebar(
 	if len(units) == 0 {
 		return
 	}
-	unit := units[entry.selected]
-	ui.Textf(c, "%02X · %s", entry.selected, nameOf(state.Session, records.Units, unit.Character)).
-		Bold().
-		Tooltip(locales.DeployPositionHelp())
 	if entry.data.SupportsPaths() {
 		ui.Tabs(c.Key("deployment-sidebar"), &entry.pathMode, locales.DeployUnitDetails(), locales.MovePath()).
 			Label(locales.Deployments() + " / " + locales.DeployUnitDetails()).
@@ -127,140 +134,286 @@ func (v *Page) pathEditor(
 ) {
 	path := entry.pathState()
 	steps := entry.data.Path(entry.selected)
+	fields := entry.data.MovementFields()
 	disabled := state.Busy || !entry.data.Current(state.Session.Deployments)
 	if len(steps) > 0 {
-		path.list.Selected = &path.selected
-		path.list.Key = func(index int) any { return index }
-		columns := []ui.TableColumn{
-			{ID: "step", Title: "#", Width: 34, Fixed: true},
-			{ID: "position", Title: locales.DeployPosition()},
-			{ID: "sync", Title: locales.Label(deployment.MoveSyncUnit)},
-			{
-				ID:    "delay",
-				Title: locales.Label(deployment.MoveDelay),
-				Width: 86,
-				Fixed: true,
-			},
+		if path.field == "" {
+			path.field = fields[0].ID
 		}
-		ui.Table(c.Key("path-steps"), &path.list, columns, len(steps), func(index, column int) {
-			step := steps[index]
-			switch column {
-			case 0:
-				ui.Textf(c, "%02X", index).FontFeatures("tnum")
-			case 1:
-				ui.Textf(c, "%d, %d", step.Position.X, step.Position.Y).
-					FontFeatures("tnum")
-			case 2:
-				if step.SyncUnit != 0 {
-					ui.Text(c, characterCaption(state.Session, step.SyncUnit, false)).
-						SingleLine()
-				}
-			case 3:
-				ui.Textf(c, "%d", step.Delay).FontFeatures("tnum")
+		path.list.Selected = &path.selected
+		path.list.Key = func(index int) any { return path.rows[index] }
+		columns := []ui.TableColumn{
+			{ID: "step", Title: "#", Width: 34, Fixed: true, Align: ui.End},
+		}
+		for _, field := range fields {
+			title, width := locales.Label(field.ID), float32(100)
+			switch field.ID {
+			case deployment.MoveX:
+				title, width = "X", 72
+			case deployment.MoveY:
+				title, width = "Y", 72
+			case deployment.MoveConfig, deployment.MoveSyncUnit:
+				width = 88
+			case deployment.MoveSyncStep:
+				width = 104
 			}
+			columns = append(
+				columns,
+				ui.TableColumn{
+					ID:       field.ID,
+					Title:    title,
+					Width:    width,
+					MinWidth: width,
+					Align:    ui.End,
+				},
+			)
+		}
+		columns = append(
+			columns,
+			ui.TableColumn{ID: "place", Width: 36, Fixed: true},
+		)
+		begin := func() {
+			if path.selected < 0 || path.selected >= len(path.rows) {
+				return
+			}
+			for _, field := range fields {
+				if field.ID == path.field {
+					path.cells.Begin(
+						pathInputKey(
+							entry.selected,
+							path.rows[path.selected],
+							field.ID,
+						),
+					)
+					return
+				}
+			}
+		}
+		ui.Table(c.Key("path-steps"), &path.list, columns, len(steps), func(node, column int) {
+			if column == 0 {
+				ui.Textf(c, "%02X", node).FontFeatures("tnum")
+				return
+			}
+			if column > len(fields) {
+				point, selected := v.mapView.Selection()
+				components.ActionButton(c, "⌖", fmt.Sprintf("%s %02X", locales.MovePlace(), node)).
+					Disabled(disabled || !selected).
+					OnClick(func() { state.SetErr(entry.placePathStep(node, point)) })
+				return
+			}
+			v.pathCell(c, state, entry, node, fields[column-1])
 		}).
-			Height(min(144, c.Theme().Space(9)*float32(len(steps)+1))).
+			Height(min(360, c.Theme().Space(9)+float32(len(steps))*38)).
+			Bind(&path.focus).
 			Label(locales.MoveSteps()).
-			Tooltip(locales.MoveScope())
+			OnSubmit(begin).
+			OnShortcut(0, ui.KeyF2, begin).
+			OnShortcut(0, ui.KeyLeft, func() { path.moveField(fields, -1) }).
+			OnShortcut(0, ui.KeyRight, func() { path.moveField(fields, 1) })
 	} else {
 		ui.Text(c, locales.MoveEmpty()).TextColor(c.Theme().TextMuted)
 	}
 	ui.Row(c).Wrap().Gap(6).Children(func() {
 		for _, action := range []struct {
-			symbol    string
-			label     string
-			enabled   bool
-			run       func() error
-			selection int
+			symbol  string
+			label   string
+			enabled bool
+			run     func() error
 		}{
-			{"+", locales.MoveAdd(), len(steps) < deployment.MaxMovementSteps, func() error { return entry.data.AddPathStep(entry.selected) }, len(steps)},
-			{"⧉", locales.MoveDuplicate(), len(steps) > 0 && len(steps) < deployment.MaxMovementSteps, func() error { return entry.data.DuplicatePathStep(entry.selected, path.selected) }, path.selected + 1},
-			{"−", locales.MoveRemove(), len(steps) > 0, func() error { return entry.data.RemovePathStep(entry.selected, path.selected) }, max(0, path.selected-1)},
-			{"↑", locales.MoveUp(), path.selected > 0, func() error { return entry.data.MovePathStep(entry.selected, path.selected, path.selected-1) }, path.selected - 1},
-			{"↓", locales.MoveDown(), path.selected+1 < len(steps), func() error { return entry.data.MovePathStep(entry.selected, path.selected, path.selected+1) }, path.selected + 1},
+			{"+", locales.MoveAdd(), len(steps) < deployment.MaxMovementSteps, entry.addPathStep},
+			{"⧉", locales.MoveDuplicate(), len(steps) > 0 && len(steps) < deployment.MaxMovementSteps, entry.duplicatePathStep},
+			{"−", locales.MoveRemove(), len(steps) > 0, entry.removePathStep},
+			{"↑", locales.MoveUp(), path.selected > 0, func() error { return entry.movePathStep(path.selected - 1) }},
+			{"↓", locales.MoveDown(), path.selected+1 < len(steps), func() error { return entry.movePathStep(path.selected + 1) }},
 		} {
 			components.ActionButton(c, action.symbol, action.label).
 				Disabled(disabled || !action.enabled).
-				OnClick(func() {
-					state.SetErr(action.run())
-					if state.Err == nil {
-						path.selected = action.selection
-						entry.pathChanged()
-					}
-				})
+				OnClick(func() { state.SetErr(action.run()) })
 		}
-		point, selected := v.mapView.Selection()
-		ui.Button(c, locales.MovePlace()).
-			Disabled(disabled || !selected || len(steps) == 0).
-			OnClick(func() {
-				if state.SetErr(entry.data.SetPathField(
-					entry.selected,
-					path.selected,
-					deployment.MoveX,
-					int64(point.X),
-				)); state.Err == nil {
-					state.SetErr(entry.data.SetPathField(
-						entry.selected,
-						path.selected,
-						deployment.MoveY,
-						int64(point.Y),
-					))
-				}
-				entry.pathChanged()
-			})
 	})
 	if len(steps) > deployment.MaxMovementSteps {
 		ui.Text(c, locales.MoveLimit()).
 			FontSize(components.FontCaption).
 			TextColor(c.Theme().Danger)
 	}
-	if len(steps) == 0 {
-		return
-	}
-	ui.Row(c).Wrap().Gap(12).Children(func() {
-		for _, field := range entry.data.MovementFields() {
-			ui.Column(c.Key(field.ID)).
-				Width(132).
-				MaxWidthPercent(100).
-				Gap(4).
-				Children(func() {
-					help := locales.MoveScope()
-					switch field.ID {
-					case deployment.MoveSyncUnit, deployment.MoveSyncStep:
-						help = locales.MoveSyncHelp()
-					case deployment.MoveDelay:
-						help = locales.MoveDelayHelp()
-					case deployment.MoveConfig:
-						help = locales.MoveConfigHelp()
-					}
-					ui.Text(c, locales.Label(field.ID)).
-						Tooltip(help)
-					unit, node := entry.selected, path.selected
-					value, _ := entry.data.PathValue(unit, node, field.ID)
-					deploymentNumber(
-						c,
-						state,
-						entry,
-						field,
-						inputKey{
-							unit,
-							fmt.Sprintf("path/%d/%s", node, field.ID),
-						},
-						value,
-						func(value int64) error {
-							err := entry.data.SetPathField(
-								unit,
-								node,
-								field.ID,
-								value,
-							)
-							if err == nil {
-								path.lastSelected = -1
-							}
-							return err
-						},
-					)
-				})
+}
+
+func (v *Page) flushPathCells(c *ui.Context) {
+	flush := func(entry *entryDraft) {
+		for _, path := range entry.paths {
+			path.cells.Flush(c)
 		}
-	})
+	}
+	for _, entry := range v.entries {
+		flush(entry)
+	}
+	for _, event := range v.events {
+		for _, entry := range event.units {
+			flush(entry)
+		}
+	}
+}
+
+func (entry *entryDraft) pendingPathInput() bool {
+	for _, path := range entry.paths {
+		if path.cells.Pending() {
+			return true
+		}
+	}
+	return false
+}
+
+func (path *pathState) moveField(fields []deployment.Field, direction int) {
+	index := slices.IndexFunc(
+		fields,
+		func(field deployment.Field) bool { return field.ID == path.field },
+	)
+	path.field = fields[(index+direction+len(fields))%len(fields)].ID
+}
+
+func (v *Page) pathCell(
+	c *ui.Context,
+	state *editor.State,
+	entry *entryDraft,
+	node int,
+	field deployment.Field,
+) {
+	path := entry.pathState()
+	unit, row := entry.selected, path.rows[node]
+	value, _ := entry.data.PathValue(unit, node, field.ID)
+	help := locales.MoveScope()
+	switch field.ID {
+	case deployment.MoveSyncUnit, deployment.MoveSyncStep:
+		help = locales.MoveSyncHelp()
+	case deployment.MoveDelay:
+		help = locales.MoveDelayHelp()
+	case deployment.MoveConfig:
+		help = locales.MoveConfigHelp()
+	}
+	canEdit := func() bool { return !state.Busy && entry.data.Current(state.Session.Deployments) }
+	if canEdit() {
+		help = locales.MoveEditCellHelp() + "\n" + help
+	}
+	components.TextDraft(state, path.cells.Cell(c, components.NumberCell{
+		Key:   pathInputKey(unit, row, field.ID),
+		Value: value,
+		Min:   field.Min,
+		Max:   field.Max,
+		Label: fmt.Sprintf(
+			"%s %02X / %s",
+			locales.MovePath(),
+			node,
+			locales.Label(field.ID),
+		),
+		Help:     help,
+		Focus:    &path.focus,
+		Selected: path.selected == node && path.field == field.ID,
+		CanEdit:  canEdit,
+		Select:   func() { path.selected, path.field = node, field.ID },
+		Changed:  func() { entry.preview = nil },
+		Set: func(value int64) error {
+			index := slices.Index(path.rows, row)
+			err := entry.data.SetPathField(unit, index, field.ID, value)
+			state.SetErr(err)
+			if err == nil {
+				entry.preview = nil
+				path.lastSelected = -1
+			}
+			return err
+		},
+	}))
+}
+
+func (entry *entryDraft) addPathStep() error {
+	path := entry.pathState()
+	if err := entry.data.AddPathStep(entry.selected); err != nil {
+		return err
+	}
+	path.rows = append(path.rows, path.newRow())
+	path.selected = len(path.rows) - 1
+	entry.pathChanged()
+	return nil
+}
+
+func (entry *entryDraft) duplicatePathStep() error {
+	path := entry.pathState()
+	if err := entry.data.DuplicatePathStep(
+		entry.selected,
+		path.selected,
+	); err != nil {
+		return err
+	}
+	source := path.rows[path.selected]
+	row := path.newRow()
+	for _, field := range entry.data.MovementFields() {
+		path.cells.Copy(
+			pathInputKey(entry.selected, source, field.ID),
+			pathInputKey(entry.selected, row, field.ID),
+		)
+	}
+	path.selected++
+	path.rows = slices.Insert(path.rows, path.selected, row)
+	entry.pathChanged()
+	return nil
+}
+
+func (entry *entryDraft) removePathStep() error {
+	path := entry.pathState()
+	if err := entry.data.RemovePathStep(
+		entry.selected,
+		path.selected,
+	); err != nil {
+		return err
+	}
+	row := path.rows[path.selected]
+	for _, field := range entry.data.MovementFields() {
+		path.cells.Forget(pathInputKey(entry.selected, row, field.ID))
+	}
+	path.rows = slices.Delete(path.rows, path.selected, path.selected+1)
+	path.selected = min(path.selected, max(0, len(path.rows)-1))
+	entry.pathChanged()
+	return nil
+}
+
+func (entry *entryDraft) movePathStep(to int) error {
+	path := entry.pathState()
+	if err := entry.data.MovePathStep(
+		entry.selected,
+		path.selected,
+		to,
+	); err != nil {
+		return err
+	}
+	row := path.rows[path.selected]
+	path.rows = slices.Delete(path.rows, path.selected, path.selected+1)
+	path.rows = slices.Insert(path.rows, to, row)
+	path.selected = to
+	entry.pathChanged()
+	return nil
+}
+
+func (entry *entryDraft) placePathStep(node int, point image.Point) error {
+	for _, field := range []struct {
+		id    string
+		value int
+	}{{deployment.MoveX, point.X}, {deployment.MoveY, point.Y}} {
+		if err := entry.data.SetPathField(
+			entry.selected,
+			node,
+			field.id,
+			int64(field.value),
+		); err != nil {
+			return err
+		}
+		entry.pathState().cells.Forget(
+			pathInputKey(
+				entry.selected,
+				entry.pathState().rows[node],
+				field.id,
+			),
+		)
+	}
+	entry.pathState().selected = node
+	entry.pathChanged()
+	return nil
 }

@@ -35,6 +35,7 @@ type tilesetState struct {
 	choices                 []string
 	revision                uint64
 	address                 int
+	generation              uint64
 	err, mapErr, tilesetErr error
 	editFocus, reviewFocus  ui.Handle
 	historyFocus            ui.Handle
@@ -107,6 +108,7 @@ func (v *Page) tilesetDraft(
 }
 
 func (s *tilesetState) refresh() {
+	s.generation++
 	s.preview = nil
 	s.tileset, s.tilesetErr = s.data.Tileset()
 	s.image, s.mapErr = s.data.Preview()
@@ -136,12 +138,12 @@ func (s *tilesetState) selectDefinition(index int) {
 	}
 }
 
-func (v *Page) tilesetEditor(
+func (v *Page) tilesetControls(
 	c *ui.Context,
 	state *editor.State,
 	row records.Row,
-	width float32,
 	jump func(records.Kind, int),
+	selectDefinition func(int),
 ) {
 	entry := v.tilesetDraft(state, row)
 	reload := func() {
@@ -161,7 +163,7 @@ func (v *Page) tilesetEditor(
 		if entry.data == nil {
 			ui.Text(c, components.ErrorText(entry.err)).
 				TextColor(c.Theme().Danger)
-			ui.Button(c, locales.MapReload()).
+			ui.Button(c, locales.MapTilesetReload()).
 				Disabled(state.Busy).
 				OnClick(reload)
 			return
@@ -180,7 +182,7 @@ func (v *Page) tilesetEditor(
 			ui.Text(c, locales.DeployStale()).TextColor(c.Theme().Danger)
 		}
 		if entry.imported != nil {
-			v.tilesetImportReview(c, state, entry, width, jump, reload)
+			v.tilesetImportReview(c, state, entry, jump, reload)
 			return
 		}
 		v.tilesetFiles(c, state, row, entry, disabled)
@@ -193,7 +195,7 @@ func (v *Page) tilesetEditor(
 						fields.invalid() {
 						ui.Button(c.Key(index), fmt.Sprintf("0x%03X", index)).
 							Disabled(state.Busy).
-							OnClick(func() { entry.selectDefinition(index); entry.editFocus.Focus(c) })
+							OnClick(func() { selectDefinition(index); entry.editFocus.Focus(c) })
 					}
 				}
 			})
@@ -233,16 +235,11 @@ func (v *Page) tilesetEditor(
 							entry.reviewFocus.Focus(c)
 						}
 					})
-				ui.Button(c.Key("reload"), locales.MapReload()).
+				ui.Button(c.Key("reload"), locales.MapTilesetReload()).
 					Disabled(state.Busy).
 					OnClick(reload)
 			})
-		mapWorkspace(c, width, func(c *ui.Context) {
-			v.tilesetMap(c, state, entry)
-		}, func(c *ui.Context) {
-			entry.definitionControls(c, state, disabled)
-			v.tilesetPalette(c, state, entry)
-		})
+		entry.definitionControls(c, state, disabled, selectDefinition)
 		if entry.data.Modified() {
 			ui.Text(c, locales.MapTilesetDrafts()).
 				FontSize(components.FontCaption)
@@ -254,6 +251,7 @@ func (entry *tilesetState) definitionControls(
 	c *ui.Context,
 	state *editor.State,
 	disabled bool,
+	selectDefinition func(int),
 ) {
 	ui.Row(c.Key("selection")).
 		Wrap().
@@ -272,7 +270,7 @@ func (entry *tilesetState) definitionControls(
 						0,
 						32,
 					); err == nil {
-						entry.selectDefinition(int(index))
+						selectDefinition(int(index))
 					}
 				})
 			if entry.brush != nil {
@@ -284,35 +282,6 @@ func (entry *tilesetState) definitionControls(
 	ui.Column(c.Key(entry.selected)).Gap(8).Children(func() {
 		entry.definitionFields(c, state, disabled)
 	})
-}
-
-func (v *Page) tilesetImages(
-	c *ui.Context,
-	state *editor.State,
-	entry *tilesetState,
-	width float32,
-) {
-	mapWorkspace(c, width, func(c *ui.Context) {
-		v.tilesetMap(c, state, entry)
-	}, func(c *ui.Context) {
-		v.tilesetPalette(c, state, entry)
-	})
-}
-
-func (v *Page) tilesetPalette(
-	c *ui.Context,
-	state *editor.State,
-	entry *tilesetState,
-) {
-	if entry.tilesetErr != nil {
-		ui.Text(c, components.ErrorText(entry.tilesetErr)).
-			TextColor(c.Theme().Danger)
-		return
-	}
-	entry.palette(c, state.Busy)
-	if index := int(entry.tile.Tile >> 2); index != entry.selected {
-		entry.selectDefinition(index)
-	}
 }
 
 func (v *Page) tilesetMap(
@@ -356,7 +325,7 @@ func (v *Page) tilesetFiles(
 						if state.Session != session ||
 							v.tilesetDrafts[row.ID] != entry ||
 							v.chapter != row.ID ||
-							v.mode != 9 ||
+							v.mode() != mapMode ||
 							v.resourceEpoch != epoch ||
 							!source.Current(session.Maps) {
 							return
@@ -397,7 +366,6 @@ func (v *Page) tilesetImportReview(
 	c *ui.Context,
 	state *editor.State,
 	entry *tilesetState,
-	width float32,
 	jump func(records.Kind, int),
 	reload func(),
 ) {
@@ -414,7 +382,6 @@ func (v *Page) tilesetImportReview(
 			entry.imported, entry.err = nil, nil
 			entry.filesFocus.Focus(c)
 		})
-		v.tilesetImages(c, state, next, width)
 	})
 }
 

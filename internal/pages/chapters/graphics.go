@@ -211,7 +211,7 @@ func (v *Page) graphicsEditor(
 									group.entries[slot] != entry ||
 									group.slot != slot ||
 									v.chapter != row.ID ||
-									v.mode != 11 ||
+									v.mode() != graphicsMode ||
 									v.resourceEpoch != epoch ||
 									!source.Current(e) {
 									return

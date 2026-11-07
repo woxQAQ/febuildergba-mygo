@@ -26,14 +26,13 @@ type Page struct {
 	chapter, address       int
 	resource               event.Deployments
 	err                    error
-	mode, positionMode     int
-	navigationMode         int
-	navigationWidth        float32
-	navigationLocale       string
+	positionMode           int
+	navigation             chapterNavigation
 	mapView                mapview.View
 	entries                map[int]*entryDraft
 	selections             map[int]*chapterSelection
 	events                 map[eventKey]*eventState
+	triggers               map[int]*triggerState
 	openScript             func(int, int)
 	mapDrafts              map[int]*mapState
 	changeDrafts           map[int]*mapChangesState
@@ -57,8 +56,6 @@ func (v *Page) Deactivate() {
 	}
 }
 
-func (v *Page) Configuration() bool { return v.mode == 0 }
-
 func (v *Page) Reset() {
 	*v = Page{
 		importTileset:  v.importTileset,
@@ -78,6 +75,7 @@ func (v *Page) load(state *editor.State, row records.Row) {
 			entries:        make(map[int]*entryDraft),
 			selections:     make(map[int]*chapterSelection),
 			events:         make(map[eventKey]*eventState),
+			triggers:       make(map[int]*triggerState),
 			mapDrafts:      make(map[int]*mapState),
 			changeDrafts:   make(map[int]*mapChangesState),
 			tilesetDrafts:  make(map[int]*tilesetState),
@@ -115,38 +113,32 @@ func (v *Page) Render(
 	configuration func(*ui.Context),
 ) {
 	v.load(state, row)
+	v.flushPathCells(c)
 	v.openScript = openScript
 	v.tabs(c, width)
+	mode := v.mode()
 	for key, entry := range v.events {
-		if v.mode != 8 || key.chapter != row.ID {
+		if mode != locationMode || key.chapter != row.ID {
 			entry.location = locationInteraction{}
 		}
 	}
-	if v.mode == 6 {
+	switch mode {
+	case mapMode:
 		v.mapEditor(c, state, row, width, jump, openHex)
 		return
-	}
-	if v.mode == 7 {
+	case mapChangesMode:
 		v.mapChangesEditor(c, state, row, width, jump)
 		return
-	}
-	if v.mode == 11 {
+	case graphicsMode:
 		v.graphicsEditor(c, state, row, width, jump)
 		return
-	}
-	if v.mode == 10 {
+	case paletteMode:
 		v.paletteEditor(c, state, row, width, jump)
 		return
-	}
-	if v.mode == 9 {
-		v.tilesetEditor(c, state, row, width, jump)
-		return
-	}
-	if v.mode == 8 {
+	case locationMode:
 		v.locationEditor(c, state, row, width, openHex, openText)
 		return
-	}
-	if v.Configuration() {
+	case configurationMode:
 		mapWorkspace(c, width, func(c *ui.Context) {
 			v.renderMap(c, state, row, mapview.Overlay{})
 		}, func(c *ui.Context) {
@@ -155,10 +147,11 @@ func (v *Page) Render(
 			}
 		})
 		return
-	}
-	if v.mode >= 2 && v.mode <= 5 {
-		table := [...]event.Table{event.TurnEvents, event.AlwaysEvents, event.TalkEvents, event.AlwaysEvents}[v.mode-2]
-		v.eventEditor(c, state, row, table, width, jump, openText)
+	case triggerMode:
+		v.triggerEditor(c, state, row, width, jump, openText)
+		return
+	case talkMode:
+		v.talkEditor(c, state, row, jump, openText)
 		return
 	}
 	ui.Column(c.Key("deployments")).Gap(12).Children(func() {

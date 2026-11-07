@@ -11,7 +11,6 @@ import (
 	"github.com/woxQAQ/febuildergba-mygo/game/records"
 	"github.com/woxQAQ/febuildergba-mygo/game/shop"
 	"github.com/woxQAQ/febuildergba-mygo/internal/components"
-	"github.com/woxQAQ/febuildergba-mygo/internal/components/mapview"
 	"github.com/woxQAQ/febuildergba-mygo/internal/components/shopview"
 	"github.com/woxQAQ/febuildergba-mygo/internal/editor"
 	"github.com/woxQAQ/febuildergba-mygo/internal/locales"
@@ -23,17 +22,18 @@ type eventKey struct {
 }
 
 type eventState struct {
-	data                         *event.ConditionDraft
-	preview                      *event.ConditionPlan
-	selected, lastSelected, view int
-	list                         ui.ListState
-	inputs                       map[inputKey]*numberDraft
-	units                        map[*deployment.Draft]*entryDraft
-	generations                  map[*deployment.Draft]uint64
-	textChoices                  []dialogueChoice
-	textReference                string
-	location                     locationInteraction
-	shops                        map[*shop.Draft]*shopview.View
+	data                   *event.ConditionDraft
+	preview                *event.ConditionPlan
+	selected, lastSelected int
+	list                   ui.ListState
+	inputs                 map[inputKey]*numberDraft
+	units                  map[*deployment.Draft]*entryDraft
+	generations            map[*deployment.Draft]uint64
+	textChoices            []dialogueChoice
+	textReference          string
+	location               locationInteraction
+	positionFocus          ui.Handle
+	shops                  map[*shop.Draft]*shopview.View
 }
 
 type eventLabels struct{ title, add, remove, scope, preview, reload, apply, previewScope, help string }
@@ -52,19 +52,6 @@ func (v *Page) labelsFor(table event.Table) eventLabels {
 			help:         locales.LocationHelp(),
 		}
 	}
-	if v.mode == 5 {
-		return eventLabels{
-			title:        locales.Objectives(),
-			add:          locales.ObjectiveAddBoss(),
-			remove:       locales.TalkRemove(),
-			scope:        locales.ObjectiveScope(),
-			preview:      locales.ObjectivePreview(),
-			reload:       locales.ObjectiveReload(),
-			apply:        locales.ObjectiveApply(),
-			previewScope: locales.ObjectivePreviewScope(),
-			help:         locales.ObjectiveFlagHelp(),
-		}
-	}
 	if table == event.TalkEvents {
 		return eventLabels{
 			title:        locales.TalkEvents(),
@@ -80,13 +67,13 @@ func (v *Page) labelsFor(table event.Table) eventLabels {
 	}
 	if table == event.AlwaysEvents {
 		return eventLabels{
-			title:        locales.AreaEvents(),
+			title:        locales.ChapterAlwaysConditions(),
 			add:          locales.AreaAdd(),
 			remove:       locales.AreaRemove(),
 			scope:        locales.AreaScope(),
-			preview:      locales.AreaPreview(),
-			reload:       locales.AreaReload(),
-			apply:        locales.AreaApply(),
+			preview:      locales.ChapterConditionsPreview(),
+			reload:       locales.ChapterConditionsReload(),
+			apply:        locales.ChapterConditionsApply(),
 			previewScope: locales.AreaPreviewScope(),
 			help:         locales.AreaConditionHelp(),
 		}
@@ -109,7 +96,14 @@ func (v *Page) eventDraft(
 	key eventKey,
 ) (*eventState, error) {
 	entry := v.events[key]
-	if entry != nil && !entry.data.Modified() && !entry.invalid() &&
+	pendingCell := false
+	if entry != nil {
+		for _, unit := range entry.units {
+			pendingCell = pendingCell || unit.pendingPathInput()
+		}
+	}
+	if entry != nil && !pendingCell && !entry.data.Modified() &&
+		!entry.invalid() &&
 		!entry.data.Current(state.Session.Events) {
 		delete(v.events, key)
 		entry = nil
@@ -204,90 +198,50 @@ func phaseLabel(value int) string {
 	}
 }
 
-func (v *Page) eventEditor(
+func (v *Page) talkEditor(
 	c *ui.Context,
 	state *editor.State,
 	row records.Row,
-	table event.Table,
-	width float32,
 	jump func(records.Kind, int),
 	openText func(uint16),
 ) {
-	key := eventKey{row.ID, table}
-	objective := v.mode == 5
+	key := eventKey{row.ID, event.TalkEvents}
 	entry, err := v.eventDraft(state, key)
 	if err != nil {
 		ui.Text(c, components.ErrorText(err)).
 			TextColor(c.Theme().Danger).
 			Tooltip(err.Error())
-		if table != event.TalkEvents && !objective {
-			v.renderMap(c, state, row, mapview.Overlay{})
-		}
 		return
 	}
-	labels := v.labelsFor(table)
+	labels := v.labelsFor(event.TalkEvents)
 	stale := !entry.data.Current(state.Session.Events)
-	disabled := state.Busy || stale
 	events := entry.data.Events()
 	entry.selected = min(entry.selected, max(0, len(events)-1))
-	if entry.view != v.mode {
-		entry.view = v.mode
-		for i, condition := range events {
-			if (objective && (condition.Kind == 1 || condition.Rout)) ||
-				(!objective && table == event.AlwaysEvents && condition.Kind == 11) {
-				entry.selected = i
-				break
-			}
-		}
-	}
 	ui.Column(c.Key(key)).Gap(12).Children(func() {
 		if stale {
 			ui.Text(c, locales.DeployStale()).TextColor(c.Theme().Danger)
 		}
-		controls := func(c *ui.Context) {
-			if objective {
-				v.objectiveSummary(c, state, row, entry, openText)
-			}
-			ui.Row(c).Wrap().Gap(6).AlignItems(ui.Center).Children(func() {
-				ui.Text(c, labels.title).Bold().Grow(1)
-				if objective {
-					v.objectiveAdd(c, state, entry)
-				} else {
-					ui.Button(c, labels.add).
-						Tooltip(labels.scope).
-						Disabled(disabled).
-						OnClick(func() {
-							state.SetErr(entry.data.Add(state.Session.Events))
-							entry.selected = len(entry.data.Events()) - 1
-							entry.preview = nil
-						})
-				}
-				components.ActionButton(c, "−", labels.remove).
-					Disabled(disabled || len(events) == 0).
-					OnClick(func() { state.SetErr(entry.removeSelected()) })
-			})
-			v.eventTable(c, entry, events, state.Session)
-			if len(events) > 0 {
-				v.eventDetails(c, state, row, entry, jump, openText)
-			}
-			v.eventActions(c, state, row, entry)
+		ui.Row(c).Wrap().Gap(6).AlignItems(ui.Center).Children(func() {
+			ui.Text(c, labels.title).Bold().Grow(1)
+			ui.Button(c, labels.add).Tooltip(labels.scope).
+				Disabled(state.Busy || stale).
+				OnClick(func() {
+					if state.SetErr(
+						entry.data.Add(state.Session.Events),
+					); state.Err == nil {
+						entry.selected = len(entry.data.Events()) - 1
+						entry.preview = nil
+					}
+				})
+			components.ActionButton(c, "−", labels.remove).
+				Disabled(state.Busy || stale || len(events) == 0).
+				OnClick(func() { state.SetErr(entry.removeSelected()) })
+		})
+		v.eventTable(c, entry, events, state.Session)
+		if len(events) > 0 {
+			v.eventDetails(c, state, row, entry, jump, openText)
 		}
-		if table == event.TalkEvents || objective {
-			controls(c)
-		} else {
-			mapWorkspace(c, width, func(c *ui.Context) {
-				if len(events) > 0 {
-					v.eventScene(c, state, row, entry)
-				} else {
-					v.renderMap(
-						c,
-						state,
-						row,
-						mapview.Overlay{},
-					)
-				}
-			}, controls)
-		}
+		v.eventActions(c, state, row, entry)
 	})
 }
 
@@ -313,8 +267,6 @@ func (v *Page) eventTable(
 			Fixed: true,
 		},
 	}
-	objective := v.mode == 5
-	area := entry.data.Table() == event.AlwaysEvents
 	talk := entry.data.Table() == event.TalkEvents
 	location := entry.data.Table() == event.LocationEvents
 	if location {
@@ -325,14 +277,6 @@ func (v *Page) eventTable(
 		columns[1].Title = locales.Label(event.TalkInitiator)
 		columns[2].Title = locales.Label(event.TalkTarget)
 	}
-	if area {
-		columns[1].Title = locales.AreaRange()
-		columns[2].Title = locales.AreaScript()
-	}
-	if objective {
-		columns[1].Title = locales.ObjectiveCondition()
-		columns[2].Title = locales.ObjectiveEvent()
-	}
 	ui.Table(c.Key("conditions"), &entry.list, columns, len(events), func(index, column int) {
 		condition := events[index]
 		switch column {
@@ -340,19 +284,11 @@ func (v *Page) eventTable(
 			ui.Textf(c, "%02X", index).FontFeatures("tnum")
 		case 1:
 			switch {
-			case objective:
-				ui.Text(c, objectiveConditionCaption(condition)).SingleLine()
 			case location:
 				ui.Text(c, locationCaption(condition)).SingleLine()
 			case talk && len(entry.data.Fields(index)) > 0:
 				ui.Text(c, characterCaption(session, condition.Initiator, len(entry.data.Fields(index)) > 3)).
 					SingleLine()
-			case area && condition.Kind == 0x0B:
-				ui.Textf(c, "%d,%d → %d,%d", condition.X1, condition.Y1, condition.X2, condition.Y2).
-					FontFeatures("tnum")
-			case entry.data.Table() == event.TurnEvents && condition.Kind == 2:
-				ui.Text(c, turnInterval(condition.Start, condition.End)).
-					FontFeatures("tnum")
 			default:
 				ui.Textf(c, "0x%02X", condition.Kind)
 			}
@@ -368,7 +304,7 @@ func (v *Page) eventTable(
 			case talk && len(entry.data.Fields(index)) > 0:
 				ui.Text(c, characterCaption(session, condition.Target, false)).
 					SingleLine()
-			case area || talk:
+			case talk:
 				ui.Textf(c, "0x%08X", condition.Script).FontFeatures("tnum")
 			default:
 				ui.Text(c, phaseLabel(condition.Phase))
@@ -410,7 +346,7 @@ func (v *Page) eventLinks(
 					v.selections[v.chapter] = &chapterSelection{
 						pointer: group.Pointer,
 					}
-					v.mode = 1
+					v.selectMode(deploymentMode)
 				})
 		}
 	})
@@ -508,7 +444,6 @@ func (v *Page) eventActions(
 				if err == nil {
 					v.events[key] = &eventState{
 						data:         fresh,
-						view:         v.mode,
 						selected:     entry.selected,
 						lastSelected: -1,
 						units: make(

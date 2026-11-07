@@ -3402,14 +3402,24 @@ func (msgs Messages) LocationCopy() string {
 	return Catalog.Format(msgs.locale, "location_copy", nil)
 }
 
-// LocationPlace says "Set position"
+// LocationPlace says "Pick on map"
 // in the language the app shows.
 func LocationPlace() string { return In(i18n.Locale()).LocationPlace() }
 
-// LocationPlace says "Set position"
+// LocationPlace says "Pick on map"
 // in the language of msgs.
 func (msgs Messages) LocationPlace() string {
 	return Catalog.Format(msgs.locale, "location_place", nil)
+}
+
+// LocationCancelPosition says "Cancel picking"
+// in the language the app shows.
+func LocationCancelPosition() string { return In(i18n.Locale()).LocationCancelPosition() }
+
+// LocationCancelPosition says "Cancel picking"
+// in the language of msgs.
+func (msgs Messages) LocationCancelPosition() string {
+	return Catalog.Format(msgs.locale, "location_cancel_position", nil)
 }
 
 // LocationRemove says "Delete location"
@@ -3462,11 +3472,11 @@ func (msgs Messages) LocationChoosePosition() string {
 	return Catalog.Format(msgs.locale, "location_choose_position", nil)
 }
 
-// LocationMovePosition says "Choose a new tile for location {id}. Esc cancels."
+// LocationMovePosition says "Click a new tile for location {id} on the map to the left. Esc cancels."
 // in the language the app shows.
 func LocationMovePosition(id string) string { return In(i18n.Locale()).LocationMovePosition(id) }
 
-// LocationMovePosition says "Choose a new tile for location {id}. Esc cancels."
+// LocationMovePosition says "Click a new tile for location {id} on the map to the left. Esc cancels."
 // in the language of msgs.
 func (msgs Messages) LocationMovePosition(id string) string {
 	return Catalog.Format(msgs.locale, "location_move_position", map[string]any{"id": id})
@@ -3842,11 +3852,11 @@ func (msgs Messages) MoveDown() string {
 	return Catalog.Format(msgs.locale, "move_down", nil)
 }
 
-// MovePlace says "Set step position"
+// MovePlace says "Use selected map tile"
 // in the language the app shows.
 func MovePlace() string { return In(i18n.Locale()).MovePlace() }
 
-// MovePlace says "Set step position"
+// MovePlace says "Use selected map tile"
 // in the language of msgs.
 func (msgs Messages) MovePlace() string {
 	return Catalog.Format(msgs.locale, "move_place", nil)
@@ -3860,6 +3870,16 @@ func MoveEmpty() string { return In(i18n.Locale()).MoveEmpty() }
 // in the language of msgs.
 func (msgs Messages) MoveEmpty() string {
 	return Catalog.Format(msgs.locale, "move_empty", nil)
+}
+
+// MoveEditCellHelp says "Double-click a cell or select it and press F2/Enter to edit. Enter confirms; Esc cancels."
+// in the language the app shows.
+func MoveEditCellHelp() string { return In(i18n.Locale()).MoveEditCellHelp() }
+
+// MoveEditCellHelp says "Double-click a cell or select it and press F2/Enter to edit. Enter confirms; Esc cancels."
+// in the language of msgs.
+func (msgs Messages) MoveEditCellHelp() string {
+	return Catalog.Format(msgs.locale, "move_edit_cell_help", nil)
 }
 
 // MoveScope says "FE8 REDA steps use absolute destinations. Lines join encoded targets; terrain routing and landing adjustments are det…"
@@ -9090,6 +9110,16 @@ func (msgs Messages) MapTilesetEditor() string {
 	return Catalog.Format(msgs.locale, "map_tileset_editor", nil)
 }
 
+// MapTilesetReload says "Discard tile definition drafts and reload"
+// in the language the app shows.
+func MapTilesetReload() string { return In(i18n.Locale()).MapTilesetReload() }
+
+// MapTilesetReload says "Discard tile definition drafts and reload"
+// in the language of msgs.
+func (msgs Messages) MapTilesetReload() string {
+	return Catalog.Format(msgs.locale, "map_tileset_reload", nil)
+}
+
 // MapEditTileDefinition says "Edit selected tile definition"
 // in the language the app shows.
 func MapEditTileDefinition() string { return In(i18n.Locale()).MapEditTileDefinition() }
@@ -9648,6 +9678,86 @@ func Chapters() string { return In(i18n.Locale()).Chapters() }
 // in the language of msgs.
 func (msgs Messages) Chapters() string {
 	return Catalog.Format(msgs.locale, "chapters", nil)
+}
+
+// ChapterTriggers says "Triggers"
+// in the language the app shows.
+func ChapterTriggers() string { return In(i18n.Locale()).ChapterTriggers() }
+
+// ChapterTriggers says "Triggers"
+// in the language of msgs.
+func (msgs Messages) ChapterTriggers() string {
+	return Catalog.Format(msgs.locale, "chapter_triggers", nil)
+}
+
+// ChapterAlwaysConditions says "Persistent conditions"
+// in the language the app shows.
+func ChapterAlwaysConditions() string { return In(i18n.Locale()).ChapterAlwaysConditions() }
+
+// ChapterAlwaysConditions says "Persistent conditions"
+// in the language of msgs.
+func (msgs Messages) ChapterAlwaysConditions() string {
+	return Catalog.Format(msgs.locale, "chapter_always_conditions", nil)
+}
+
+// ChapterTriggerCondition says "Trigger condition"
+// in the language the app shows.
+func ChapterTriggerCondition() string { return In(i18n.Locale()).ChapterTriggerCondition() }
+
+// ChapterTriggerCondition says "Trigger condition"
+// in the language of msgs.
+func (msgs Messages) ChapterTriggerCondition() string {
+	return Catalog.Format(msgs.locale, "chapter_trigger_condition", nil)
+}
+
+// ChapterTriggerType says "Type"
+// in the language the app shows.
+func ChapterTriggerType() string { return In(i18n.Locale()).ChapterTriggerType() }
+
+// ChapterTriggerType says "Type"
+// in the language of msgs.
+func (msgs Messages) ChapterTriggerType() string {
+	return Catalog.Format(msgs.locale, "chapter_trigger_type", nil)
+}
+
+// ChapterTriggerNewType says "New trigger type"
+// in the language the app shows.
+func ChapterTriggerNewType() string { return In(i18n.Locale()).ChapterTriggerNewType() }
+
+// ChapterTriggerNewType says "New trigger type"
+// in the language of msgs.
+func (msgs Messages) ChapterTriggerNewType() string {
+	return Catalog.Format(msgs.locale, "chapter_trigger_new_type", nil)
+}
+
+// ChapterConditionsPreview says "Preview persistent conditions"
+// in the language the app shows.
+func ChapterConditionsPreview() string { return In(i18n.Locale()).ChapterConditionsPreview() }
+
+// ChapterConditionsPreview says "Preview persistent conditions"
+// in the language of msgs.
+func (msgs Messages) ChapterConditionsPreview() string {
+	return Catalog.Format(msgs.locale, "chapter_conditions_preview", nil)
+}
+
+// ChapterConditionsReload says "Discard persistent condition drafts and reload"
+// in the language the app shows.
+func ChapterConditionsReload() string { return In(i18n.Locale()).ChapterConditionsReload() }
+
+// ChapterConditionsReload says "Discard persistent condition drafts and reload"
+// in the language of msgs.
+func (msgs Messages) ChapterConditionsReload() string {
+	return Catalog.Format(msgs.locale, "chapter_conditions_reload", nil)
+}
+
+// ChapterConditionsApply says "Apply persistent conditions"
+// in the language the app shows.
+func ChapterConditionsApply() string { return In(i18n.Locale()).ChapterConditionsApply() }
+
+// ChapterConditionsApply says "Apply persistent conditions"
+// in the language of msgs.
+func (msgs Messages) ChapterConditionsApply() string {
+	return Catalog.Format(msgs.locale, "chapter_conditions_apply", nil)
 }
 
 // ChapterMap says "Map and event resources"
@@ -13904,11 +14014,11 @@ func (msgs Messages) AreaRemove() string {
 	return Catalog.Format(msgs.locale, "area_remove", nil)
 }
 
-// AreaScope says "Edit area triggers in the general condition list. Area and objective views share one draft and are applied together. …"
+// AreaScope says "Edit area triggers in the general condition list. Area, flag and rout conditions share one draft and are applied toge…"
 // in the language the app shows.
 func AreaScope() string { return In(i18n.Locale()).AreaScope() }
 
-// AreaScope says "Edit area triggers in the general condition list. Area and objective views share one draft and are applied together. …"
+// AreaScope says "Edit area triggers in the general condition list. Area, flag and rout conditions share one draft and are applied toge…"
 // in the language of msgs.
 func (msgs Messages) AreaScope() string {
 	return Catalog.Format(msgs.locale, "area_scope", nil)
@@ -14354,11 +14464,11 @@ func (msgs Messages) ObjectiveAddFailure() string {
 	return Catalog.Format(msgs.locale, "objective_add_failure", nil)
 }
 
-// ObjectiveScope says "Conditions are checked in their original order. Other victory entries and engine rules remain active. Area and object…"
+// ObjectiveScope says "Conditions are checked in their original order. Other victory entries and engine rules remain active. Area, flag and …"
 // in the language the app shows.
 func ObjectiveScope() string { return In(i18n.Locale()).ObjectiveScope() }
 
-// ObjectiveScope says "Conditions are checked in their original order. Other victory entries and engine rules remain active. Area and object…"
+// ObjectiveScope says "Conditions are checked in their original order. Other victory entries and engine rules remain active. Area, flag and …"
 // in the language of msgs.
 func (msgs Messages) ObjectiveScope() string {
 	return Catalog.Format(msgs.locale, "objective_scope", nil)

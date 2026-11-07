@@ -105,39 +105,6 @@ func (v *Page) objectiveSummary(
 	})
 }
 
-func (v *Page) objectiveAdd(
-	c *ui.Context,
-	state *editor.State,
-	entry *eventState,
-) {
-	for _, item := range []struct {
-		template    event.ObjectiveTemplate
-		label, help string
-		kind        event.EventScriptKind
-	}{
-		{event.BossVictory, locales.ObjectiveAddBoss(), locales.ObjectiveBossHelp(), event.ChapterEndingScript},
-		{event.RoutVictory, locales.ObjectiveAddRout(), locales.ObjectiveRoutHelp(), event.ChapterEndingScript},
-		{event.FlagFailure, locales.ObjectiveAddFailure(), locales.ObjectiveFailureHelp(), event.GameOverScript},
-	} {
-		available := slices.ContainsFunc(
-			entry.data.Scripts(),
-			func(ref event.EventScriptRef) bool { return ref.Kind == item.kind },
-		)
-		ui.Button(c.Key(item.template), item.label).Tooltip(item.help).
-			Disabled(state.Busy || !entry.data.Current(state.Session.Events) || !available).
-			OnClick(func() {
-				state.SetErr(entry.data.AddObjective(
-					state.Session.Events,
-					item.template,
-				))
-				if state.Err == nil {
-					entry.selected = len(entry.data.Events()) - 1
-				}
-				entry.preview = nil
-			})
-	}
-}
-
 func (v *Page) objectiveDetails(
 	c *ui.Context,
 	state *editor.State,

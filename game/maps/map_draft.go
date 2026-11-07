@@ -9,6 +9,7 @@ import (
 	"github.com/woxQAQ/febuildergba-mygo/game/edit"
 	"github.com/woxQAQ/febuildergba-mygo/game/records"
 	"github.com/woxQAQ/febuildergba-mygo/gba"
+	"github.com/woxQAQ/febuildergba-mygo/rom"
 )
 
 type mapLayoutChange struct {
@@ -91,6 +92,18 @@ func (d *Draft) CanUndo() bool { return d.cursor > 0 }
 func (d *Draft) CanRedo() bool { return d.cursor < len(d.history) }
 
 func (d *Draft) Preview() (Preview, error) { return d.resources.preview(d.content) }
+
+// PreviewWithTileset renders the layout and definitions from the same chapter
+// input together. Neither draft nor its independent write plan is changed.
+func (d *Draft) PreviewWithTileset(definitions *TilesetDraft) (Preview, error) {
+	if d == nil || definitions == nil || d.binding != definitions.binding ||
+		d.chapter != definitions.chapter {
+		return Preview{}, rom.ErrStale
+	}
+	resources := d.resources
+	resources.config = definitions.content
+	return resources.preview(d.content)
+}
 
 func (d *Draft) Cell(x, y int) (Cell, bool) {
 	if x < 0 || y < 0 || x >= d.width || y >= d.height {

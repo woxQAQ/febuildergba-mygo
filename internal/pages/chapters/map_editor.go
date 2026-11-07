@@ -25,6 +25,11 @@ type mapPainter struct {
 	restoreFocus, historyActive bool
 }
 
+type mapRenderKey struct {
+	definitions                            *maps.TilesetDraft
+	layoutGeneration, definitionGeneration uint64
+}
+
 type mapState struct {
 	mapPainter
 
@@ -32,6 +37,8 @@ type mapState struct {
 	preview                                 *maps.Plan
 	revision                                uint64
 	address                                 int
+	generation                              uint64
+	renderKey                               mapRenderKey
 	err                                     error
 	resizing, details                       bool
 	editFocus, reviewFocus, historyFocus    ui.Handle
@@ -75,6 +82,7 @@ func (v *Page) mapDraft(state *editor.State, row records.Row) *mapState {
 }
 
 func (entry *mapState) refresh() {
+	entry.generation++
 	entry.preview = nil
 	entry.image, entry.err = entry.data.Preview()
 	entry.resizeWidth, entry.resizeHeight = strconv.Itoa(
@@ -105,10 +113,26 @@ func (v *Page) mapEditor(
 	openHex func(int, int),
 ) {
 	entry := v.mapDraft(state, row)
-	if entry.err != nil {
-		ui.Text(c, components.ErrorText(entry.err)).
-			Tooltip(entry.err.Error()).
-			TextColor(c.Theme().Danger)
+	definitions := v.tilesetDraft(state, row)
+	selectDefinition := func(index int) {
+		current := v.tilesetDraft(state, row)
+		if current.data == nil || index < 0 || index >= current.data.Count() {
+			return
+		}
+		current.selectDefinition(index)
+		entry.tile, entry.brush = current.tile, current.brush
+	}
+	if entry.data == nil {
+		mapWorkspace(c, width, func(c *ui.Context) {
+			if definitions.data != nil {
+				v.tilesetMap(c, state, definitions)
+			} else {
+				ui.Text(c, components.ErrorText(entry.err)).
+					TextColor(c.Theme().Danger)
+			}
+		}, func(c *ui.Context) {
+			v.tilesetControls(c, state, row, jump, selectDefinition)
+		})
 		return
 	}
 	stale := !entry.data.Current(state.Session.Maps)
@@ -116,6 +140,13 @@ func (v *Page) mapEditor(
 	if entry.restoreFocus {
 		entry.editFocus.Focus(c)
 		entry.restoreFocus = false
+	}
+	previewDefinitions := definitions
+	if definitions.imported != nil {
+		previewDefinitions = definitions.imported
+	}
+	if !stale && previewDefinitions.data.Current(state.Session.Maps) {
+		entry.composeDefinitions(previewDefinitions)
 	}
 	ui.Column(c.Key("map-editor")).
 		Bind(&entry.historyFocus).
@@ -140,24 +171,45 @@ func (v *Page) mapEditor(
 				ui.Image(c, entry.brush).Size(32, 32).Shrink(0)
 				ui.Textf(c, "%s 0x%04X · %s 0x%02X", locales.MapTile(), entry.tile.Tile, locales.MapTerrain(), entry.tile.Terrain).
 					FontFeatures("tnum")
-				ui.Button(c.Key("tile-definition"), locales.MapEditTileDefinition()).
-					Disabled(state.Busy).
-					OnClick(func() {
-						definition := v.tilesetDraft(state, row)
-						if definition.data != nil {
-							definition.selectDefinition(
-								int(entry.tile.Tile >> 2),
-							)
-						}
-						v.mode = 9
-					})
 			})
 			mapWorkspace(c, width, func(c *ui.Context) {
-				entry.drawing(c, state, disabled)
+				entry.drawing(c, state, disabled || entry.err != nil)
 			}, func(c *ui.Context) {
 				entry.palette(c, disabled)
+				if definitions.data != nil &&
+					int(entry.tile.Tile>>2) != definitions.selected {
+					definitions.selectDefinition(int(entry.tile.Tile >> 2))
+				}
+				ui.Text(c, locales.MapTilesetEditor()).Bold()
+				v.tilesetControls(c, state, row, jump, selectDefinition)
 			})
 		})
+}
+
+func (entry *mapState) composeDefinitions(definitions *tilesetState) {
+	key := mapRenderKey{
+		definitions.data,
+		entry.generation,
+		definitions.generation,
+	}
+	if entry.renderKey == key {
+		return
+	}
+	entry.renderKey = key
+	entry.image, entry.err = entry.data.PreviewWithTileset(definitions.data)
+	entry.tileset, entry.bitmap = definitions.tileset, definitions.bitmap
+	for position, cell := range entry.tileset.Cells {
+		if cell.Tile == entry.tile.Tile {
+			entry.choose(
+				entry.tileset,
+				image.Pt(
+					position%entry.tileset.Width,
+					position/entry.tileset.Width,
+				),
+			)
+			break
+		}
+	}
 }
 
 func (entry *mapState) drawing(
@@ -168,7 +220,7 @@ func (entry *mapState) drawing(
 	entry.view.Render(
 		c.Key("drawing"),
 		entry.image,
-		nil,
+		entry.err,
 		mapview.Overlay{Drawing: &mapview.Drawing{
 			Tool:    mapview.Tool(entry.tool),
 			Enabled: !disabled,

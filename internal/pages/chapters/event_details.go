@@ -2,6 +2,7 @@ package chapters
 
 import (
 	"fmt"
+	"image"
 
 	"github.com/egoist/mygo/ui"
 
@@ -22,12 +23,14 @@ func (v *Page) eventDetails(
 ) {
 	events := entry.data.Events()
 	condition := events[entry.selected]
+	objective := entry.data.Table() == event.AlwaysEvents &&
+		condition.Kind != 0x0B
 	ui.Column(c.Key(fmt.Sprintf("condition-%d", entry.selected))).
 		Gap(8).
 		Children(func() {
 			v.eventFields(c, state, entry, jump)
 			switch {
-			case v.mode == 5:
+			case objective:
 				v.objectiveDetails(
 					c,
 					state,
@@ -46,7 +49,8 @@ func (v *Page) eventDetails(
 					v.unitInspector(c, state, unit, jump)
 				}
 			}
-			if v.mode != 5 && v.openScript != nil && condition.Address > 0 &&
+			if !objective && v.openScript != nil &&
+				condition.Address > 0 &&
 				condition.Script >= 0xC0 {
 				ui.Row(c).Children(func() {
 					ui.Button(c, locales.ScriptEditor()).Disabled(state.Busy).
@@ -74,10 +78,17 @@ func (v *Page) eventScene(
 	state *editor.State,
 	row records.Row,
 	entry *eventState,
+	selected func(),
 ) {
 	events := entry.data.Events()
 	condition := events[entry.selected]
 	overlay := areaOverlay(entry, events)
+	if choose := overlay.Choose; choose != nil {
+		overlay.Choose = func(point image.Point) {
+			choose(point)
+			selected()
+		}
+	}
 	if unit := v.eventUnit(entry); unit != nil {
 		v.renderMap(c, state, row, v.unitMap(unit, overlay.Regions))
 		v.placeActions(c, state, unit)

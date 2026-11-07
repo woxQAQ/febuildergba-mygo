@@ -149,7 +149,7 @@ func (v *Page) OpenMapChange(state *editor.State, chapter, id int) {
 	for _, row := range table.Rows {
 		if row.ID == chapter {
 			v.load(state, row)
-			v.mode = 7
+			v.selectMode(mapChangesMode)
 			entry := v.changeDraft(state, chapter)
 			if entry.err != nil {
 				state.SetErr(entry.err)

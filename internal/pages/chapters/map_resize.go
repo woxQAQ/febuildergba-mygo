@@ -212,10 +212,10 @@ func (v *Page) mapImpacts(
 							)
 							jump(records.Chapters, item.Chapter)
 						case maps.TriggerLocation:
-							v.mode = 8
+							v.selectMode(locationMode)
 							jump(records.Chapters, item.Chapter)
 						case maps.TriggerArea:
-							v.mode = 3
+							v.selectMode(triggerMode)
 							jump(records.Chapters, item.Chapter)
 						case maps.ScriptPosition, maps.ScriptPath:
 							v.openScript(item.Chapter, item.Reference)

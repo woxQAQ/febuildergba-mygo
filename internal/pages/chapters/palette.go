@@ -160,7 +160,7 @@ func (v *Page) paletteEditor(
 				Tooltip(locales.MapPaletteFormat()).
 				Disabled(state.Busy || stale || v.importPalette == nil).
 				OnClick(func() {
-					source, session := entry.source, state.Session
+					source, session, epoch := entry.source, state.Session, v.resourceEpoch
 					v.importPalette(
 						source,
 						section,
@@ -168,7 +168,8 @@ func (v *Page) paletteEditor(
 							if state.Session != session ||
 								v.paletteDrafts[row.ID] != entry ||
 								v.chapter != row.ID ||
-								v.mode != 10 ||
+								v.mode() != paletteMode ||
+								v.resourceEpoch != epoch ||
 								entry.section != int(section) ||
 								!source.Current(e) {
 								return

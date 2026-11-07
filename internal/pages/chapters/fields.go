@@ -314,7 +314,7 @@ func deploymentNumber(
 	key inputKey,
 	value int64,
 	set func(int64) error,
-) {
+) ui.Element {
 	if entry.inputs == nil {
 		entry.inputs = make(map[inputKey]*numberDraft)
 	}
@@ -332,6 +332,7 @@ func deploymentNumber(
 		ui.TextInput(c.Key("value"), &draft.text).
 			Width(58).Height(26).Padding(3, 6).
 			FontFeatures("tnum").TextAlign(ui.End).
+			TextColor(c.Theme().Text).
 			Label(locales.Deployments()+" / "+locales.Label(field.ID)).
 			Disabled(state.Busy || !entry.data.Current(state.Session.Deployments)).
 			OnChange(func() {
@@ -359,6 +360,7 @@ func deploymentNumber(
 		)
 		control.Error(message).Tooltip(message)
 	}
+	return control
 }
 
 func (v *Page) eventNumber(

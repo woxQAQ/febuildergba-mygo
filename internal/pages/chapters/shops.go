@@ -38,7 +38,7 @@ func (v *Page) OpenShop(state *editor.State, chapter, location int) {
 			state.SetErr(edit.ErrField)
 			return
 		}
-		v.mode = 8
+		v.selectMode(locationMode)
 		entry.selected = location
 		entry.list.ScrollTo(location, ui.Center)
 		return

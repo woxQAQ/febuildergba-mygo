@@ -38,7 +38,7 @@ func (v *Page) OpenDeployment(state *editor.State, chapter, site int) {
 	for _, row := range table.Rows {
 		if row.ID == chapter {
 			v.load(state, row)
-			v.mode = 1
+			v.selectMode(deploymentMode)
 			v.selections[chapter] = &chapterSelection{pointer: site}
 			return
 		}
@@ -52,6 +52,7 @@ func (v *Page) draft(
 ) *entryDraft {
 	entry := v.entries[group.Pointer]
 	if entry != nil && !entry.data.Modified() && !entry.invalid() &&
+		!entry.pendingPathInput() &&
 		!entry.data.Current(state.Session.Deployments) {
 		delete(v.entries, group.Pointer)
 		entry = nil
@@ -153,6 +154,11 @@ func (v *Page) group(
 }
 
 func (e *entryDraft) invalid() bool {
+	for _, path := range e.paths {
+		if path.cells.Invalid() {
+			return true
+		}
+	}
 	for _, input := range e.inputs {
 		if input.invalid {
 			return true

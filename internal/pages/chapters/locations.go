@@ -63,18 +63,19 @@ func (v *Page) locationEditor(
 			c.OnShortcut(
 				0,
 				ui.KeyEscape,
-				func() { entry.location = locationInteraction{} },
+				func() {
+					if entry.location.moving {
+						entry.positionFocus.Focus(c)
+					}
+					entry.location = locationInteraction{}
+				},
 			)
 		}
 		mapWorkspace(c, width, func(c *ui.Context) {
-			overlay := v.locationOverlay(state, entry)
+			overlay := v.locationOverlay(c, state, entry)
 			overlay.Tools = func(c *ui.Context) { v.locationTools(c, state, entry) }
 			if entry.location.adding {
 				overlay.Prompt = locales.LocationChoosePosition()
-			} else if entry.location.moving {
-				overlay.Prompt = locales.LocationMovePosition(
-					fmt.Sprintf("%02X", entry.location.target),
-				)
 			}
 			v.renderMap(c, state, row, overlay)
 		}, func(c *ui.Context) {
@@ -157,11 +158,11 @@ func (v *Page) locationTools(
 					OnChange(func() { entry.location.kind = max(0, slices.Index(labels, entry.location.template)) })
 				if v.mapErr != nil {
 					ui.Button(c, locales.LocationAddOrigin()).OnClick(func() {
-						v.placeLocation(state, entry, image.Point{})
+						v.placeLocation(c, state, entry, image.Point{})
 					})
 				}
 			}
-			if entry.location.adding || entry.location.moving {
+			if entry.location.adding {
 				ui.Button(c, locales.Cancel()).
 					OnClick(func() { entry.location = locationInteraction{} })
 			}
@@ -169,6 +170,7 @@ func (v *Page) locationTools(
 }
 
 func (v *Page) placeLocation(
+	c *ui.Context,
 	state *editor.State,
 	entry *eventState,
 	point image.Point,
@@ -206,10 +208,14 @@ func (v *Page) placeLocation(
 	delete(entry.inputs, inputKey{index, event.LocationX})
 	delete(entry.inputs, inputKey{index, event.LocationY})
 	entry.selected, entry.lastSelected, entry.preview = index, -1, nil
+	if entry.location.moving {
+		entry.positionFocus.Focus(c)
+	}
 	entry.location = locationInteraction{}
 }
 
 func (v *Page) locationOverlay(
+	c *ui.Context,
 	state *editor.State,
 	entry *eventState,
 ) mapview.Overlay {
@@ -233,7 +239,7 @@ func (v *Page) locationOverlay(
 	}
 	overlay.Choose = func(point image.Point) {
 		if entry.location.adding || entry.location.moving {
-			v.placeLocation(state, entry, point)
+			v.placeLocation(c, state, entry, point)
 			return
 		}
 		var matches []int
@@ -272,9 +278,24 @@ func (v *Page) locationInspector(
 			} else {
 				ui.Row(c).Gap(8).AlignItems(ui.Center).Children(func() {
 					ui.Text(c, locales.DeployPosition()).Bold().Grow(1)
-					ui.Button(c, locales.LocationPlace()).
-						Disabled(disabled || entry.location.moving).
-						OnClick(func() { entry.location = locationInteraction{moving: true, target: entry.selected} })
+					label := locales.LocationPlace()
+					if entry.location.moving {
+						label = locales.LocationCancelPosition()
+					}
+					ui.Button(c.Key("pick-position"), label).
+						Bind(&entry.positionFocus).
+						Width(160).
+						Disabled(disabled || v.mapErr != nil).
+						OnClick(func() {
+							if entry.location.moving {
+								entry.location = locationInteraction{}
+							} else {
+								entry.location = locationInteraction{
+									moving: true,
+									target: entry.selected,
+								}
+							}
+						})
 				})
 				ui.Row(c).Wrap().Gap(16).Children(func() {
 					for _, field := range fields[:2] {
@@ -291,6 +312,14 @@ func (v *Page) locationInspector(
 							})
 					}
 				})
+				if entry.location.moving {
+					ui.Text(
+						c.Key("position-prompt"),
+						locales.LocationMovePosition(
+							fmt.Sprintf("%02X", entry.location.target),
+						),
+					)
+				}
 				ui.Row(c.Key(event.EventFlag)).
 					Gap(8).
 					AlignItems(ui.Center).

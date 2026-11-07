@@ -3,6 +3,7 @@ package maps_test
 import (
 	"bytes"
 	"errors"
+	"image"
 	"image/color"
 	"testing"
 
@@ -113,6 +114,53 @@ func TestTilesetDefinitionEditingWorkflow(t *testing.T) {
 					)
 				}
 			}
+			if err := layout.Stroke(
+				[]image.Point{{X: 1, Y: 0}},
+				0,
+			); err != nil {
+				t.Fatal(err)
+			}
+			combined, err := layout.PreviewWithTileset(draft)
+			if err != nil || combined.Cells[1].Tile != 0 ||
+				combined.Cells[1].Terrain != 0x7F ||
+				combined.Image.RGBAAt(16, 0) != (color.RGBA{255, 0, 255, 255}) {
+				t.Fatal(
+					"layout and definition edits were not rendered together",
+					err,
+				)
+			}
+			layoutOnly, err := layout.Preview()
+			if err != nil || layoutOnly.Cells[1].Terrain != 1 {
+				t.Fatal(
+					"composing the preview changed the layout's source definitions",
+					err,
+				)
+			}
+			definitionOnly, err := draft.Preview()
+			if err != nil || definitionOnly.Cells[1].Tile != 4 {
+				t.Fatal(
+					"composing the preview changed the definition draft's layout",
+					err,
+				)
+			}
+			otherChapter, err := s.Maps.NewTilesetDraft(1)
+			if err != nil {
+				t.Fatal(err)
+			}
+			if _, err := layout.PreviewWithTileset(
+				otherChapter,
+			); !errors.Is(
+				err,
+				rom.ErrStale,
+			) {
+				t.Fatal(
+					"combined preview accepted another chapter's resources",
+					err,
+				)
+			}
+			if !layout.Undo() || layout.Modified() {
+				t.Fatal("combined preview changed layout history")
+			}
 			plan, err := s.Maps.PlanTileset(draft)
 			if err != nil {
 				t.Fatal(err)
@@ -148,6 +196,18 @@ func TestTilesetDefinitionEditingWorkflow(t *testing.T) {
 				len(after.Data) != at+plan.Length() ||
 				layout.Current(s.Maps) {
 				t.Fatal("pointer/size/stamp")
+			}
+			freshDefinitions, err := s.Maps.NewTilesetDraft(0)
+			if err != nil {
+				t.Fatal(err)
+			}
+			if _, err := layout.PreviewWithTileset(
+				freshDefinitions,
+			); !errors.Is(
+				err,
+				rom.ErrStale,
+			) {
+				t.Fatal("combined preview mixed document revisions", err)
 			}
 			decoded, err := gba.DecompressLZ77(after.Data[at:], 0x2400)
 			want := bytes.Clone(original)
