@@ -161,11 +161,11 @@ func (a *form) itemNumberGrid(
 			for _, field := range fields {
 				ui.Column(c.Key(field.ID)).MinWidth(0).Gap(4).Children(func() {
 					label := locales.Label(field.ID)
-					ui.Text(c, label).
+					caption := ui.Text(c, label).
+						Label(a.fieldLabel(records.Items, field)).
 						SingleLine().
 						FontSize(components.FontCaption).
-						Tooltip(label).
-						OnClick(func() { a.focusField(fieldKey{records.Items, row.ID, field.ID}) })
+						Tooltip(label)
 					value, err := a.state.Session.Records.Value(
 						records.Items,
 						row.ID,
@@ -179,6 +179,7 @@ func (a *form) itemNumberGrid(
 					components.TextDraft(
 						a.state,
 						a.numberField(c, records.Items, row, field, value).
+							LabelledBy(caption).
 							WidthPercent(100).
 							MinWidth(0),
 					)

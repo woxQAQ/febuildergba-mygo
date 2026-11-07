@@ -304,7 +304,6 @@ func (a *form) inlineField(
 		return
 	}
 	ui.Row(c.Key(f.ID)).Gap(6).MinHeight(28).Children(func() {
-		key := fieldKey{kind, row.ID, f.ID}
 		label := locales.Label(f.ID)
 		help := label
 		if kind == records.Chapters &&
@@ -312,11 +311,11 @@ func (a *form) inlineField(
 			help += "\n" + locales.ChapterObjectiveHelp()
 		}
 		caption := ui.Text(c, label).
+			Label(a.fieldLabel(kind, f)).
 			MaxWidth(140).
 			MinWidth(0).
 			Grow(1).
-			Tooltip(help).
-			OnClick(func() { a.focusField(key) })
+			Tooltip(help)
 		if kind != records.Chapters {
 			caption.SingleLine()
 		}
@@ -325,7 +324,10 @@ func (a *form) inlineField(
 			ui.Text(c, components.ErrorText(err))
 			return
 		}
-		a.numberField(c, kind, row, f, value).Width(inputWidth).Shrink(0)
+		a.numberField(c, kind, row, f, value).
+			LabelledBy(caption).
+			Width(inputWidth).
+			Shrink(0)
 		switch {
 		case f.Reference != "":
 			caption := fmt.Sprintf(
