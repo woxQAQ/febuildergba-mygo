@@ -18,7 +18,7 @@
 | [001](001-upgrade-mygo-0.8.3.md)            | 固定 v0.8.3，适配手势取消                | P1／M           | 无                         | DONE（原生交互复核未执行，见计划步骤 3 记录） |
 | [004](004-use-native-search-and-choices.md) | 三处列表搜索与地图取值使用合适的标准控件 | P2／S–M         | 无，v0.7.4 已有 API        | DONE |
 | [005](005-preview-text-import-diff.md)      | 试用只读文本导入差异比较                 | P2／M           | 无，v0.7.4 已有 API        | DONE |
-| [002](002-bind-field-labels.md)             | 以 LabelledBy 关联记录字段标签           | P2／S           | 001，或已具备该 API 的分支 | TODO |
+| [002](002-bind-field-labels.md)             | 以 LabelledBy 关联记录字段标签           | P2／S           | 001，或已具备该 API 的分支 | DONE |
 | [003](003-focus-history-spike.md)           | 验证默认文本焦点与显式领域历史归属       | P2／M，先 spike | 001，或已具备该 API 的分支 | TODO |
 
 S、M 是包含有界复核的粗略工作量；spike 指先做有限试验，用实际行为决定是否采纳候选。编号保持稳定，不表示 004／005 必须等 003 完成。状态仅表示这些任务的实施情况，不复制产品功能覆盖状态。
