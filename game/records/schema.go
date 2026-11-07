@@ -84,6 +84,9 @@ type Format struct {
 	Protected   func([]byte) []space.Range
 	// The generation's named variants, selected by the version file.
 	Traits               []RecordTrait
+	ItemTraits           []RecordTrait
+	ItemUseEffects       []ItemChoice
+	ItemWeaponEffects    []ItemChoice
 	WeaponThresholds     []int64
 	Terrain              terrain.Format
 	ClassAnimationOffset int

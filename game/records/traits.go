@@ -11,6 +11,7 @@ import (
 type RecordTrait struct {
 	Bit         int
 	Label, Help string
+	Group       string
 	Known       bool
 }
 
@@ -52,10 +53,15 @@ var commonTraits = []string{
 }
 
 func (s *Editor) RecordTraits(kind Kind) []RecordTrait {
-	if kind != Units && kind != Classes {
+	s.Refresh()
+	switch kind {
+	case Units, Classes:
+		return slices.Clone(s.definition.Traits)
+	case Items:
+		return slices.Clone(s.definition.ItemTraits)
+	default:
 		return nil
 	}
-	return slices.Clone(s.definition.Traits)
 }
 
 func commonTraitTable() []RecordTrait {

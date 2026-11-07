@@ -24,61 +24,61 @@
 
 版本前提、旧版依据与详细限制：[ROM 与记录参考](reference/rom-editing.md#基础编辑与原生界面)。
 
-| ID                                                | 能力                       | 实现状态 | 范围与缺口                                 |
-| ------------------------------------------------- | -------------------------- | -------- | ------------------------------------------ |
-| <a id="rom-open"></a>rom.open                     | 识别并打开 ROM             | 已实现   | 五版标头及最小长度；不认证自定义布局       |
-| <a id="rom-noop"></a>rom.noop                     | 无修改保存                 | 已实现   | 原字节保留                                 |
-| <a id="rom-history"></a>rom.history               | 修改、撤销、重做及保存点   | 已实现   | 所有已接入编辑共用文档历史                 |
-| <a id="rom-save"></a>rom.save                     | 保存、另存、备份及失败处理 | 已实现   | 快照、备份、替换；备份不自动清理           |
-| <a id="rom-save-snapshot"></a>rom.save-snapshot   | 保存期间保持文档可读       | 已实现   | I/O 不持有状态锁，新修改保持未保存         |
-| <a id="rom-external"></a>rom.external             | 检测外部修改               | 部分实现 | 保存与聚焦时检查；持续监视未实现           |
-| <a id="rom-isolation"></a>rom.isolation           | 独立文档与历史             | 已实现   | 每窗口独立会话                             |
-| <a id="fe8u-repoint"></a>fe8u.repoint             | 按实际指针定位搬迁表       | 已实现   | 实际表指针；单表失败隔离                   |
-| <a id="fe8u-units"></a>fe8u.units                 | 人物基础字段               | 部分实现 | 基础字段；补丁扩展未完整覆盖               |
-| <a id="fe8u-classes"></a>fe8u.classes             | 职业基础字段               | 部分实现 | 基础字段与原生移动／地形表；动画编辑待接入 |
-| <a id="fe8u-items"></a>fe8u.items                 | 道具基础字段               | 部分实现 | 基础字段；补丁扩展未完整覆盖               |
-| <a id="fe8u-batch"></a>fe8u.batch                 | 多选预览与批量应用         | 已实现   | 一次历史；搜索改变清空多选                 |
-| <a id="fe8u-references"></a>fe8u.references       | 关联职业跳转               | 部分实现 | 正向跳转；全局反向引用待实现               |
-| <a id="fe8u-names"></a>fe8u.names                 | 名称读取                   | 部分实现 | 已有窄字库映射；其他字库待接入             |
-| <a id="fe8u-patches"></a>fe8u.patches             | 布局相关补丁识别           | 部分实现 | 已知布局特征；补丁管理未实现               |
-| <a id="fe8u-asset-preview"></a>fe8u.asset-preview | 头像、职业卡及图标预览     | 已实现   | 标准素材读写；扩展头像只读                 |
-| <a id="fe8u-layout"></a>fe8u.layout               | 手动表定位                 | 已实现   | 只影响当前窗口解析                         |
-| <a id="fe8u-raw"></a>fe8u.raw                     | 固定长度字节编辑           | 已实现   | 固定长度、文档身份与修订检查               |
-| <a id="emulator-launch"></a>emulator.launch       | 保存后打开模拟器           | 已实现   | 可执行文件、PATH、macOS bundle             |
-| <a id="emulator-warp"></a>emulator.warp           | 跳转指定章节               | 待实现   | RAM 注入、版本及章节状态待适配             |
+| ID                                                | 能力                       | 实现状态 | 范围与缺口                                                                                                                                                    |
+| ------------------------------------------------- | -------------------------- | -------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| <a id="rom-open"></a>rom.open                     | 识别并打开 ROM             | 已实现   | 五版标头及最小长度；不认证自定义布局                                                                                                                          |
+| <a id="rom-noop"></a>rom.noop                     | 无修改保存                 | 已实现   | 原字节保留                                                                                                                                                    |
+| <a id="rom-history"></a>rom.history               | 修改、撤销、重做及保存点   | 已实现   | 所有已接入编辑共用文档历史                                                                                                                                    |
+| <a id="rom-save"></a>rom.save                     | 保存、另存、备份及失败处理 | 已实现   | 快照、备份、替换；备份不自动清理                                                                                                                              |
+| <a id="rom-save-snapshot"></a>rom.save-snapshot   | 保存期间保持文档可读       | 已实现   | I/O 不持有状态锁，新修改保持未保存                                                                                                                            |
+| <a id="rom-external"></a>rom.external             | 检测外部修改               | 部分实现 | 保存与聚焦时检查；持续监视未实现                                                                                                                              |
+| <a id="rom-isolation"></a>rom.isolation           | 独立文档与历史             | 已实现   | 每窗口独立会话                                                                                                                                                |
+| <a id="fe8u-repoint"></a>fe8u.repoint             | 按实际指针定位搬迁表       | 已实现   | 实际表指针；单表失败隔离                                                                                                                                      |
+| <a id="fe8u-units"></a>fe8u.units                 | 人物基础字段               | 部分实现 | 基础字段；补丁扩展未完整覆盖                                                                                                                                  |
+| <a id="fe8u-classes"></a>fe8u.classes             | 职业基础字段               | 部分实现 | 基础字段与原生移动／地形表；动画编辑待接入                                                                                                                    |
+| <a id="fe8u-items"></a>fe8u.items                 | 道具基础字段               | 部分实现 | 基础字段；原生类型／等级／射程预设及自定义编号；22 个已确认特性位并保留未知位，按版本搜索选择使用／武器效果，原版使用分派仍受道具 ID 约束，补丁扩展未完整覆盖 |
+| <a id="fe8u-batch"></a>fe8u.batch                 | 多选预览与批量应用         | 已实现   | 一次历史；搜索改变清空多选                                                                                                                                    |
+| <a id="fe8u-references"></a>fe8u.references       | 关联职业跳转               | 部分实现 | 正向跳转；全局反向引用待实现                                                                                                                                  |
+| <a id="fe8u-names"></a>fe8u.names                 | 名称读取                   | 部分实现 | 已有窄字库映射；其他字库待接入                                                                                                                                |
+| <a id="fe8u-patches"></a>fe8u.patches             | 布局相关补丁识别           | 部分实现 | 已知布局特征；补丁管理未实现                                                                                                                                  |
+| <a id="fe8u-asset-preview"></a>fe8u.asset-preview | 头像、职业卡及图标预览     | 已实现   | 标准素材读写；扩展头像只读                                                                                                                                    |
+| <a id="fe8u-layout"></a>fe8u.layout               | 手动表定位                 | 已实现   | 只影响当前窗口解析                                                                                                                                            |
+| <a id="fe8u-raw"></a>fe8u.raw                     | 固定长度字节编辑           | 已实现   | 固定长度、文档身份与修订检查                                                                                                                                  |
+| <a id="emulator-launch"></a>emulator.launch       | 保存后打开模拟器           | 已实现   | 可执行文件、PATH、macOS bundle                                                                                                                                |
+| <a id="emulator-warp"></a>emulator.warp           | 跳转指定章节               | 待实现   | RAM 注入、版本及章节状态待适配                                                                                                                                |
 
 ## FE8J／FE6 基础版本适配
 
 版本前提、旧版依据与详细限制：[版本参考](reference/rom-editing.md#fe8jfe6-基础版本适配)。
 
-| ID                                                          | 能力                 | 实现状态 | 范围与缺口                              |
-| ----------------------------------------------------------- | -------------------- | -------- | --------------------------------------- |
-| <a id="fe8j-units"></a>fe8j.units                           | 人物基础字段         | 已实现   | ROMFE8JP、UnitForm                      |
-| <a id="fe8j-classes"></a>fe8j.classes                       | 职业基础字段         | 已实现   | ROMFE8JP、ClassForm                     |
-| <a id="fe8j-items"></a>fe8j.items                           | 道具基础字段         | 已实现   | ROMFE8JP、ItemForm                      |
-| <a id="fe8j-names"></a>fe8j.names                           | 名称读取与搜索       | 已实现   | FETextDecode、FETextEncode              |
-| <a id="fe8j-assets"></a>fe8j.assets                         | 头像、职业卡及图标   | 已实现   | ImagePortraitForm、ImageItemIconForm    |
-| <a id="fe6-units"></a>fe6.units                             | 人物基础字段         | 已实现   | ROMFE6JP、UnitFE6Form                   |
-| <a id="fe6-classes"></a>fe6.classes                         | 职业基础字段         | 已实现   | ROMFE6JP、ClassFE6Form                  |
-| <a id="fe6-items"></a>fe6.items                             | 道具基础字段         | 已实现   | ROMFE6JP、ItemFE6Form                   |
-| <a id="fe6-names"></a>fe6.names                             | 名称读取与搜索       | 已实现   | FETextDecode、FETextEncode              |
-| <a id="fe6-assets"></a>fe6.assets                           | 头像、职业卡及图标   | 已实现   | ImagePortraitFE6Form、ImageItemIconForm |
-| <a id="adapters-shared-history"></a>adapters.shared-history | 多版本共用编辑与历史 | 已实现   | 文档、布局、原始区域                    |
+| ID                                                          | 能力                 | 实现状态 | 范围与缺口                                                                                                                                                             |
+| ----------------------------------------------------------- | -------------------- | -------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| <a id="fe8j-units"></a>fe8j.units                           | 人物基础字段         | 已实现   | ROMFE8JP、UnitForm                                                                                                                                                     |
+| <a id="fe8j-classes"></a>fe8j.classes                       | 职业基础字段         | 已实现   | ROMFE8JP、ClassForm                                                                                                                                                    |
+| <a id="fe8j-items"></a>fe8j.items                           | 道具基础字段         | 已实现   | ROMFE8JP、ItemForm；原生类型／等级／射程预设及自定义编号，22 个已确认特性位并保留未知位，按版本搜索选择使用／武器效果，原版使用分派仍受道具 ID 约束                    |
+| <a id="fe8j-names"></a>fe8j.names                           | 名称读取与搜索       | 已实现   | FETextDecode、FETextEncode                                                                                                                                             |
+| <a id="fe8j-assets"></a>fe8j.assets                         | 头像、职业卡及图标   | 已实现   | ImagePortraitForm、ImageItemIconForm                                                                                                                                   |
+| <a id="fe6-units"></a>fe6.units                             | 人物基础字段         | 已实现   | ROMFE6JP、UnitFE6Form                                                                                                                                                  |
+| <a id="fe6-classes"></a>fe6.classes                         | 职业基础字段         | 已实现   | ROMFE6JP、ClassFE6Form                                                                                                                                                 |
+| <a id="fe6-items"></a>fe6.items                             | 道具基础字段         | 已实现   | ROMFE6JP、ItemFE6Form；原生类型／等级／射程预设及自定义编号，无武器经验字段，15 个已确认特性位并保留未知位，按版本搜索选择使用／武器效果，原版使用分派仍受道具 ID 约束 |
+| <a id="fe6-names"></a>fe6.names                             | 名称读取与搜索       | 已实现   | FETextDecode、FETextEncode                                                                                                                                             |
+| <a id="fe6-assets"></a>fe6.assets                           | 头像、职业卡及图标   | 已实现   | ImagePortraitFE6Form、ImageItemIconForm                                                                                                                                |
+| <a id="adapters-shared-history"></a>adapters.shared-history | 多版本共用编辑与历史 | 已实现   | 文档、布局、原始区域                                                                                                                                                   |
 
 ## FE7U／FE7J 基础版本适配
 
 版本前提、旧版依据与详细限制：[版本参考](reference/rom-editing.md#fe7ufe7j-基础版本适配)。
 
-| ID                                            | 能力                             | 实现状态 | 范围与缺口                              |
-| --------------------------------------------- | -------------------------------- | -------- | --------------------------------------- |
-| <a id="fe7-units"></a>fe7.units               | 人物基础字段                     | 已实现   | FE7U／FE7J；52 字节                     |
-| <a id="fe7-classes"></a>fe7.classes           | 职业基础字段                     | 已实现   | FE7U／FE7J；84 字节                     |
-| <a id="fe7-items"></a>fe7.items               | 道具基础字段                     | 已实现   | FE7U／FE7J；36 字节                     |
-| <a id="fe7u-names"></a>fe7u.names             | 名称读取与搜索                   | 已实现   | FE7U；Huffman 根／树指针在 0x6B8／0x6BC |
-| <a id="fe7j-names"></a>fe7j.names             | 名称读取与搜索                   | 已实现   | FE7J；Shift-JIS 与 FE7 专属名字形       |
-| <a id="fe7u-assets"></a>fe7u.assets           | 头像、职业卡及图标               | 已实现   | FE7U；28 字节头像记录                   |
-| <a id="fe7j-assets"></a>fe7j.assets           | 头像、职业卡及图标               | 已实现   | FE7J；28 字节头像记录                   |
-| <a id="fe7-shared-edits"></a>fe7.shared-edits | 批量、手动布局、原始数据及表搬迁 | 已实现   | 共用会话与文档操作                      |
+| ID                                            | 能力                             | 实现状态 | 范围与缺口                                                                                                                                           |
+| --------------------------------------------- | -------------------------------- | -------- | ---------------------------------------------------------------------------------------------------------------------------------------------------- |
+| <a id="fe7-units"></a>fe7.units               | 人物基础字段                     | 已实现   | FE7U／FE7J；52 字节                                                                                                                                  |
+| <a id="fe7-classes"></a>fe7.classes           | 职业基础字段                     | 已实现   | FE7U／FE7J；84 字节                                                                                                                                  |
+| <a id="fe7-items"></a>fe7.items               | 道具基础字段                     | 已实现   | FE7U／FE7J；36 字节；原生类型／等级／射程预设及自定义编号，22 个已确认特性位并保留未知位，按版本搜索选择使用／武器效果，原版使用分派仍受道具 ID 约束 |
+| <a id="fe7u-names"></a>fe7u.names             | 名称读取与搜索                   | 已实现   | FE7U；Huffman 根／树指针在 0x6B8／0x6BC                                                                                                              |
+| <a id="fe7j-names"></a>fe7j.names             | 名称读取与搜索                   | 已实现   | FE7J；Shift-JIS 与 FE7 专属名字形                                                                                                                    |
+| <a id="fe7u-assets"></a>fe7u.assets           | 头像、职业卡及图标               | 已实现   | FE7U；28 字节头像记录                                                                                                                                |
+| <a id="fe7j-assets"></a>fe7j.assets           | 头像、职业卡及图标               | 已实现   | FE7J；28 字节头像记录                                                                                                                                |
+| <a id="fe7-shared-edits"></a>fe7.shared-edits | 批量、手动布局、原始数据及表搬迁 | 已实现   | 共用会话与文档操作                                                                                                                                   |
 
 ## 空间分配与表搬迁
 
@@ -153,13 +153,14 @@
 
 版本前提、旧版依据与详细限制：[PNG 格式与写入](reference/text-and-images.md#五版静态素材-png-读写)。
 
-| ID                   | 能力                             | 实现状态 | 范围与缺口                          |
-| -------------------- | -------------------------------- | -------- | ----------------------------------- |
-| image.png            | PNG 导出与替换预览               | 已实现   | 五版；已有图标、普通头像及职业卡    |
-| image.palette        | 调色板与透明色                   | 已实现   | GBA 4bpp、BGR555                    |
-| image.portrait-sheet | 静态头像及眼睛、嘴部、小头像图块 | 已实现   | FE7／FE8；FE6 独立布局              |
-| image.write          | 原子追加与资源入口更新           | 已实现   | 默认末尾追加；32 MiB 上限           |
-| image.bounds         | 写入及验证边界                   | 已实现   | 原生写入；MUG_EXCEED／HALFBODY 只读 |
+| ID                    | 能力                             | 实现状态 | 范围与缺口                                                                                               |
+| --------------------- | -------------------------------- | -------- | -------------------------------------------------------------------------------------------------------- |
+| image.item-icon-table | 道具图标表与引用选择             | 已实现   | 五版原生槽位、编号／使用者搜索、使用者列表导航；同道具页切换，PNG 操作位于图标详情；自定义引擎扩展未接入 |
+| image.png             | PNG 导出与替换预览               | 已实现   | 五版；已有图标、普通头像及职业卡                                                                         |
+| image.palette         | 调色板与透明色                   | 已实现   | GBA 4bpp、BGR555                                                                                         |
+| image.portrait-sheet  | 静态头像及眼睛、嘴部、小头像图块 | 已实现   | FE7／FE8；FE6 独立布局                                                                                   |
+| image.write           | 原子追加与资源入口更新           | 已实现   | 默认末尾追加；32 MiB 上限                                                                                |
+| image.bounds          | 写入及验证边界                   | 已实现   | 原生写入；MUG_EXCEED／HALFBODY 只读                                                                      |
 
 ## 五版章节配置
 

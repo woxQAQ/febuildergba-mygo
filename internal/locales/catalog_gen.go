@@ -11352,6 +11352,1638 @@ func (msgs Messages) Items() string {
 	return Catalog.Format(msgs.locale, "items", nil)
 }
 
+// ItemTraitsUsage says "Use rules"
+// in the language the app shows.
+func ItemTraitsUsage() string { return In(i18n.Locale()).ItemTraitsUsage() }
+
+// ItemTraitsUsage says "Use rules"
+// in the language of msgs.
+func (msgs Messages) ItemTraitsUsage() string {
+	return Catalog.Format(msgs.locale, "item_traits_usage", nil)
+}
+
+// ItemTraitsCombat says "Battle effects"
+// in the language the app shows.
+func ItemTraitsCombat() string { return In(i18n.Locale()).ItemTraitsCombat() }
+
+// ItemTraitsCombat says "Battle effects"
+// in the language of msgs.
+func (msgs Messages) ItemTraitsCombat() string {
+	return Catalog.Format(msgs.locale, "item_traits_combat", nil)
+}
+
+// ItemTraitsRestrictions says "Equipment restrictions"
+// in the language the app shows.
+func ItemTraitsRestrictions() string { return In(i18n.Locale()).ItemTraitsRestrictions() }
+
+// ItemTraitsRestrictions says "Equipment restrictions"
+// in the language of msgs.
+func (msgs Messages) ItemTraitsRestrictions() string {
+	return Catalog.Format(msgs.locale, "item_traits_restrictions", nil)
+}
+
+// ItemTraitsHelp says "Each change edits one attribute bit on this item. Character, class and effect rules remain independent."
+// in the language the app shows.
+func ItemTraitsHelp() string { return In(i18n.Locale()).ItemTraitsHelp() }
+
+// ItemTraitsHelp says "Each change edits one attribute bit on this item. Character, class and effect rules remain independent."
+// in the language of msgs.
+func (msgs Messages) ItemTraitsHelp() string {
+	return Catalog.Format(msgs.locale, "item_traits_help", nil)
+}
+
+// ItemUnknownTraits says "Unexplained attribute bits: {value} (preserved)"
+// in the language the app shows.
+func ItemUnknownTraits(value string) string { return In(i18n.Locale()).ItemUnknownTraits(value) }
+
+// ItemUnknownTraits says "Unexplained attribute bits: {value} (preserved)"
+// in the language of msgs.
+func (msgs Messages) ItemUnknownTraits(value string) string {
+	return Catalog.Format(msgs.locale, "item_unknown_traits", map[string]any{"value": value})
+}
+
+// ItemTraitWeapon says "Weapon"
+// in the language the app shows.
+func ItemTraitWeapon() string { return In(i18n.Locale()).ItemTraitWeapon() }
+
+// ItemTraitWeapon says "Weapon"
+// in the language of msgs.
+func (msgs Messages) ItemTraitWeapon() string {
+	return Catalog.Format(msgs.locale, "item_trait_weapon", nil)
+}
+
+// ItemTraitWeaponHelp says "Marks an equippable weapon. EXP, equipment locks and other native rules still apply."
+// in the language the app shows.
+func ItemTraitWeaponHelp() string { return In(i18n.Locale()).ItemTraitWeaponHelp() }
+
+// ItemTraitWeaponHelp says "Marks an equippable weapon. EXP, equipment locks and other native rules still apply."
+// in the language of msgs.
+func (msgs Messages) ItemTraitWeaponHelp() string {
+	return Catalog.Format(msgs.locale, "item_trait_weapon_help", nil)
+}
+
+// ItemTraitMagic says "Magic attack"
+// in the language the app shows.
+func ItemTraitMagic() string { return In(i18n.Locale()).ItemTraitMagic() }
+
+// ItemTraitMagic says "Magic attack"
+// in the language of msgs.
+func (msgs Messages) ItemTraitMagic() string {
+	return Catalog.Format(msgs.locale, "item_trait_magic", nil)
+}
+
+// ItemTraitMagicHelp says "Enables native magic-attack rules, normally targeting resistance and respecting silence."
+// in the language the app shows.
+func ItemTraitMagicHelp() string { return In(i18n.Locale()).ItemTraitMagicHelp() }
+
+// ItemTraitMagicHelp says "Enables native magic-attack rules, normally targeting resistance and respecting silence."
+// in the language of msgs.
+func (msgs Messages) ItemTraitMagicHelp() string {
+	return Catalog.Format(msgs.locale, "item_trait_magic_help", nil)
+}
+
+// ItemTraitStaff says "Staff"
+// in the language the app shows.
+func ItemTraitStaff() string { return In(i18n.Locale()).ItemTraitStaff() }
+
+// ItemTraitStaff says "Staff"
+// in the language of msgs.
+func (msgs Messages) ItemTraitStaff() string {
+	return Catalog.Format(msgs.locale, "item_trait_staff", nil)
+}
+
+// ItemTraitStaffHelp says "Marks a staff for native use checks. Its use effect and engine rules determine its action."
+// in the language the app shows.
+func ItemTraitStaffHelp() string { return In(i18n.Locale()).ItemTraitStaffHelp() }
+
+// ItemTraitStaffHelp says "Marks a staff for native use checks. Its use effect and engine rules determine its action."
+// in the language of msgs.
+func (msgs Messages) ItemTraitStaffHelp() string {
+	return Catalog.Format(msgs.locale, "item_trait_staff_help", nil)
+}
+
+// ItemTraitUnbreakable says "Unbreakable"
+// in the language the app shows.
+func ItemTraitUnbreakable() string { return In(i18n.Locale()).ItemTraitUnbreakable() }
+
+// ItemTraitUnbreakable says "Unbreakable"
+// in the language of msgs.
+func (msgs Messages) ItemTraitUnbreakable() string {
+	return Catalog.Format(msgs.locale, "item_trait_unbreakable", nil)
+}
+
+// ItemTraitUnbreakableHelp says "Uses the native unbreakable rules instead of consuming ordinary durability."
+// in the language the app shows.
+func ItemTraitUnbreakableHelp() string { return In(i18n.Locale()).ItemTraitUnbreakableHelp() }
+
+// ItemTraitUnbreakableHelp says "Uses the native unbreakable rules instead of consuming ordinary durability."
+// in the language of msgs.
+func (msgs Messages) ItemTraitUnbreakableHelp() string {
+	return Catalog.Format(msgs.locale, "item_trait_unbreakable_help", nil)
+}
+
+// ItemTraitUnsellable says "Unsellable"
+// in the language the app shows.
+func ItemTraitUnsellable() string { return In(i18n.Locale()).ItemTraitUnsellable() }
+
+// ItemTraitUnsellable says "Unsellable"
+// in the language of msgs.
+func (msgs Messages) ItemTraitUnsellable() string {
+	return Catalog.Format(msgs.locale, "item_trait_unsellable", nil)
+}
+
+// ItemTraitUnsellableHelp says "Prevents selling this item in native shops."
+// in the language the app shows.
+func ItemTraitUnsellableHelp() string { return In(i18n.Locale()).ItemTraitUnsellableHelp() }
+
+// ItemTraitUnsellableHelp says "Prevents selling this item in native shops."
+// in the language of msgs.
+func (msgs Messages) ItemTraitUnsellableHelp() string {
+	return Catalog.Format(msgs.locale, "item_trait_unsellable_help", nil)
+}
+
+// ItemTraitBrave says "Brave attacks"
+// in the language the app shows.
+func ItemTraitBrave() string { return In(i18n.Locale()).ItemTraitBrave() }
+
+// ItemTraitBrave says "Brave attacks"
+// in the language of msgs.
+func (msgs Messages) ItemTraitBrave() string {
+	return Catalog.Format(msgs.locale, "item_trait_brave", nil)
+}
+
+// ItemTraitBraveHelp says "Attacks twice per attack opportunity. Follow-up attacks use their separate rules."
+// in the language the app shows.
+func ItemTraitBraveHelp() string { return In(i18n.Locale()).ItemTraitBraveHelp() }
+
+// ItemTraitBraveHelp says "Attacks twice per attack opportunity. Follow-up attacks use their separate rules."
+// in the language of msgs.
+func (msgs Messages) ItemTraitBraveHelp() string {
+	return Catalog.Format(msgs.locale, "item_trait_brave_help", nil)
+}
+
+// ItemTraitMagicSword says "Magic sword"
+// in the language the app shows.
+func ItemTraitMagicSword() string { return In(i18n.Locale()).ItemTraitMagicSword() }
+
+// ItemTraitMagicSword says "Magic sword"
+// in the language of msgs.
+func (msgs Messages) ItemTraitMagicSword() string {
+	return Catalog.Format(msgs.locale, "item_trait_magic_sword", nil)
+}
+
+// ItemTraitMagicSwordHelp says "Enables native magic-sword handling. Damage, criticals and weapon EXP also depend on the weapon and distance."
+// in the language the app shows.
+func ItemTraitMagicSwordHelp() string { return In(i18n.Locale()).ItemTraitMagicSwordHelp() }
+
+// ItemTraitMagicSwordHelp says "Enables native magic-sword handling. Damage, criticals and weapon EXP also depend on the weapon and distance."
+// in the language of msgs.
+func (msgs Messages) ItemTraitMagicSwordHelp() string {
+	return Catalog.Format(msgs.locale, "item_trait_magic_sword_help", nil)
+}
+
+// ItemTraitNoCounter says "Prevent counterattacks"
+// in the language the app shows.
+func ItemTraitNoCounter() string { return In(i18n.Locale()).ItemTraitNoCounter() }
+
+// ItemTraitNoCounter says "Prevent counterattacks"
+// in the language of msgs.
+func (msgs Messages) ItemTraitNoCounter() string {
+	return Catalog.Format(msgs.locale, "item_trait_no_counter", nil)
+}
+
+// ItemTraitNoCounterHelp says "In native battles, this bit on either weapon prevents the defending unit from counterattacking."
+// in the language the app shows.
+func ItemTraitNoCounterHelp() string { return In(i18n.Locale()).ItemTraitNoCounterHelp() }
+
+// ItemTraitNoCounterHelp says "In native battles, this bit on either weapon prevents the defending unit from counterattacking."
+// in the language of msgs.
+func (msgs Messages) ItemTraitNoCounterHelp() string {
+	return Catalog.Format(msgs.locale, "item_trait_no_counter_help", nil)
+}
+
+// ItemTraitReaver says "Reverse weapon triangle"
+// in the language the app shows.
+func ItemTraitReaver() string { return In(i18n.Locale()).ItemTraitReaver() }
+
+// ItemTraitReaver says "Reverse weapon triangle"
+// in the language of msgs.
+func (msgs Messages) ItemTraitReaver() string {
+	return Catalog.Format(msgs.locale, "item_trait_reaver", nil)
+}
+
+// ItemTraitReaverHelp says "Reverses the native weapon triangle. Hit and power adjustments follow the game version."
+// in the language the app shows.
+func ItemTraitReaverHelp() string { return In(i18n.Locale()).ItemTraitReaverHelp() }
+
+// ItemTraitReaverHelp says "Reverses the native weapon triangle. Hit and power adjustments follow the game version."
+// in the language of msgs.
+func (msgs Messages) ItemTraitReaverHelp() string {
+	return Catalog.Format(msgs.locale, "item_trait_reaver_help", nil)
+}
+
+// ItemTraitUnrepairable says "Unrepairable"
+// in the language the app shows.
+func ItemTraitUnrepairable() string { return In(i18n.Locale()).ItemTraitUnrepairable() }
+
+// ItemTraitUnrepairable says "Unrepairable"
+// in the language of msgs.
+func (msgs Messages) ItemTraitUnrepairable() string {
+	return Catalog.Format(msgs.locale, "item_trait_unrepairable", nil)
+}
+
+// ItemTraitUnrepairableHelp says "Excludes the item from native repair-staff eligibility."
+// in the language the app shows.
+func ItemTraitUnrepairableHelp() string { return In(i18n.Locale()).ItemTraitUnrepairableHelp() }
+
+// ItemTraitUnrepairableHelp says "Excludes the item from native repair-staff eligibility."
+// in the language of msgs.
+func (msgs Messages) ItemTraitUnrepairableHelp() string {
+	return Catalog.Format(msgs.locale, "item_trait_unrepairable_help", nil)
+}
+
+// ItemTraitSwordLock says "Swordfighter lock"
+// in the language the app shows.
+func ItemTraitSwordLock() string { return In(i18n.Locale()).ItemTraitSwordLock() }
+
+// ItemTraitSwordLock says "Swordfighter lock"
+// in the language of msgs.
+func (msgs Messages) ItemTraitSwordLock() string {
+	return Catalog.Format(msgs.locale, "item_trait_sword_lock", nil)
+}
+
+// ItemTraitSwordLockHelp says "Requires the matching swordfighter lock on the character or current class; class names are not consulted."
+// in the language the app shows.
+func ItemTraitSwordLockHelp() string { return In(i18n.Locale()).ItemTraitSwordLockHelp() }
+
+// ItemTraitSwordLockHelp says "Requires the matching swordfighter lock on the character or current class; class names are not consulted."
+// in the language of msgs.
+func (msgs Messages) ItemTraitSwordLockHelp() string {
+	return Catalog.Format(msgs.locale, "item_trait_sword_lock_help", nil)
+}
+
+// ItemTraitNegateFlying says "Negate flying effectiveness"
+// in the language the app shows.
+func ItemTraitNegateFlying() string { return In(i18n.Locale()).ItemTraitNegateFlying() }
+
+// ItemTraitNegateFlying says "Negate flying effectiveness"
+// in the language of msgs.
+func (msgs Messages) ItemTraitNegateFlying() string {
+	return Catalog.Format(msgs.locale, "item_trait_negate_flying", nil)
+}
+
+// ItemTraitNegateFlyingHelp says "Carrying the item participates in native flying-effectiveness negation; the engine’s effectiveness lists determine …"
+// in the language the app shows.
+func ItemTraitNegateFlyingHelp() string { return In(i18n.Locale()).ItemTraitNegateFlyingHelp() }
+
+// ItemTraitNegateFlyingHelp says "Carrying the item participates in native flying-effectiveness negation; the engine’s effectiveness lists determine …"
+// in the language of msgs.
+func (msgs Messages) ItemTraitNegateFlyingHelp() string {
+	return Catalog.Format(msgs.locale, "item_trait_negate_flying_help", nil)
+}
+
+// ItemTraitDragonLock says "Dragon lock"
+// in the language the app shows.
+func ItemTraitDragonLock() string { return In(i18n.Locale()).ItemTraitDragonLock() }
+
+// ItemTraitDragonLock says "Dragon lock"
+// in the language of msgs.
+func (msgs Messages) ItemTraitDragonLock() string {
+	return Catalog.Format(msgs.locale, "item_trait_dragon_lock", nil)
+}
+
+// ItemTraitDragonLockHelp says "Requires the native dragon lock on the character or class. This branch bypasses the ordinary weapon-EXP check."
+// in the language the app shows.
+func ItemTraitDragonLockHelp() string { return In(i18n.Locale()).ItemTraitDragonLockHelp() }
+
+// ItemTraitDragonLockHelp says "Requires the native dragon lock on the character or class. This branch bypasses the ordinary weapon-EXP check."
+// in the language of msgs.
+func (msgs Messages) ItemTraitDragonLockHelp() string {
+	return Catalog.Format(msgs.locale, "item_trait_dragon_lock_help", nil)
+}
+
+// ItemTraitRoyLock says "Roy lock"
+// in the language the app shows.
+func ItemTraitRoyLock() string { return In(i18n.Locale()).ItemTraitRoyLock() }
+
+// ItemTraitRoyLock says "Roy lock"
+// in the language of msgs.
+func (msgs Messages) ItemTraitRoyLock() string {
+	return Catalog.Format(msgs.locale, "item_trait_roy_lock", nil)
+}
+
+// ItemTraitRoyLockHelp says "Requires the native Roy weapon-lock flag on the character or class."
+// in the language the app shows.
+func ItemTraitRoyLockHelp() string { return In(i18n.Locale()).ItemTraitRoyLockHelp() }
+
+// ItemTraitRoyLockHelp says "Requires the native Roy weapon-lock flag on the character or class."
+// in the language of msgs.
+func (msgs Messages) ItemTraitRoyLockHelp() string {
+	return Catalog.Format(msgs.locale, "item_trait_roy_lock_help", nil)
+}
+
+// ItemTraitZephielLock says "Zephiel lock"
+// in the language the app shows.
+func ItemTraitZephielLock() string { return In(i18n.Locale()).ItemTraitZephielLock() }
+
+// ItemTraitZephielLock says "Zephiel lock"
+// in the language of msgs.
+func (msgs Messages) ItemTraitZephielLock() string {
+	return Catalog.Format(msgs.locale, "item_trait_zephiel_lock", nil)
+}
+
+// ItemTraitZephielLockHelp says "Requires the native Zephiel weapon-lock flag on the character or class."
+// in the language the app shows.
+func ItemTraitZephielLockHelp() string { return In(i18n.Locale()).ItemTraitZephielLockHelp() }
+
+// ItemTraitZephielLockHelp says "Requires the native Zephiel weapon-lock flag on the character or class."
+// in the language of msgs.
+func (msgs Messages) ItemTraitZephielLockHelp() string {
+	return Catalog.Format(msgs.locale, "item_trait_zephiel_lock_help", nil)
+}
+
+// ItemTraitWeaponLock1 says "Weapon lock 1"
+// in the language the app shows.
+func ItemTraitWeaponLock1() string { return In(i18n.Locale()).ItemTraitWeaponLock1() }
+
+// ItemTraitWeaponLock1 says "Weapon lock 1"
+// in the language of msgs.
+func (msgs Messages) ItemTraitWeaponLock1() string {
+	return Catalog.Format(msgs.locale, "item_trait_weapon_lock_1", nil)
+}
+
+// ItemTraitWeaponLock1Help says "Requires the matching native weapon-lock-1 flag on the character or class."
+// in the language the app shows.
+func ItemTraitWeaponLock1Help() string { return In(i18n.Locale()).ItemTraitWeaponLock1Help() }
+
+// ItemTraitWeaponLock1Help says "Requires the matching native weapon-lock-1 flag on the character or class."
+// in the language of msgs.
+func (msgs Messages) ItemTraitWeaponLock1Help() string {
+	return Catalog.Format(msgs.locale, "item_trait_weapon_lock_1_help", nil)
+}
+
+// ItemTraitDisplayPrf says "Display Prf"
+// in the language the app shows.
+func ItemTraitDisplayPrf() string { return In(i18n.Locale()).ItemTraitDisplayPrf() }
+
+// ItemTraitDisplayPrf says "Display Prf"
+// in the language of msgs.
+func (msgs Messages) ItemTraitDisplayPrf() string {
+	return Catalog.Format(msgs.locale, "item_trait_display_prf", nil)
+}
+
+// ItemTraitDisplayPrfHelp says "Participates in Prf display when required EXP is zero. This bit alone does not restrict who can equip the item."
+// in the language the app shows.
+func ItemTraitDisplayPrfHelp() string { return In(i18n.Locale()).ItemTraitDisplayPrfHelp() }
+
+// ItemTraitDisplayPrfHelp says "Participates in Prf display when required EXP is zero. This bit alone does not restrict who can equip the item."
+// in the language of msgs.
+func (msgs Messages) ItemTraitDisplayPrfHelp() string {
+	return Catalog.Format(msgs.locale, "item_trait_display_prf_help", nil)
+}
+
+// ItemTraitNegateCritical says "Negate criticals"
+// in the language the app shows.
+func ItemTraitNegateCritical() string { return In(i18n.Locale()).ItemTraitNegateCritical() }
+
+// ItemTraitNegateCritical says "Negate criticals"
+// in the language of msgs.
+func (msgs Messages) ItemTraitNegateCritical() string {
+	return Catalog.Format(msgs.locale, "item_trait_negate_critical", nil)
+}
+
+// ItemTraitNegateCriticalHelp says "Carrying this item sets the opponent’s effective critical rate to zero in native battles."
+// in the language the app shows.
+func ItemTraitNegateCriticalHelp() string { return In(i18n.Locale()).ItemTraitNegateCriticalHelp() }
+
+// ItemTraitNegateCriticalHelp says "Carrying this item sets the opponent’s effective critical rate to zero in native battles."
+// in the language of msgs.
+func (msgs Messages) ItemTraitNegateCriticalHelp() string {
+	return Catalog.Format(msgs.locale, "item_trait_negate_critical_help", nil)
+}
+
+// ItemTraitSealed says "Require unsealing"
+// in the language the app shows.
+func ItemTraitSealed() string { return In(i18n.Locale()).ItemTraitSealed() }
+
+// ItemTraitSealed says "Require unsealing"
+// in the language of msgs.
+func (msgs Messages) ItemTraitSealed() string {
+	return Catalog.Format(msgs.locale, "item_trait_sealed", nil)
+}
+
+// ItemTraitSealedHelp says "Requires the per-weapon-type unsealing record to match the character ID. Changing this bit does not alter that record."
+// in the language the app shows.
+func ItemTraitSealedHelp() string { return In(i18n.Locale()).ItemTraitSealedHelp() }
+
+// ItemTraitSealedHelp says "Requires the per-weapon-type unsealing record to match the character ID. Changing this bit does not alter that record."
+// in the language of msgs.
+func (msgs Messages) ItemTraitSealedHelp() string {
+	return Catalog.Format(msgs.locale, "item_trait_sealed_help", nil)
+}
+
+// ItemTraitNegateDefense says "Ignore defenses"
+// in the language the app shows.
+func ItemTraitNegateDefense() string { return In(i18n.Locale()).ItemTraitNegateDefense() }
+
+// ItemTraitNegateDefense says "Ignore defenses"
+// in the language of msgs.
+func (msgs Messages) ItemTraitNegateDefense() string {
+	return Catalog.Format(msgs.locale, "item_trait_negate_defense", nil)
+}
+
+// ItemTraitNegateDefenseHelp says "Enables native defense/resistance negation, subject to special battle branches such as magic swords."
+// in the language the app shows.
+func ItemTraitNegateDefenseHelp() string { return In(i18n.Locale()).ItemTraitNegateDefenseHelp() }
+
+// ItemTraitNegateDefenseHelp says "Enables native defense/resistance negation, subject to special battle branches such as magic swords."
+// in the language of msgs.
+func (msgs Messages) ItemTraitNegateDefenseHelp() string {
+	return Catalog.Format(msgs.locale, "item_trait_negate_defense_help", nil)
+}
+
+// ItemTraitEliwoodLock says "Eliwood lock"
+// in the language the app shows.
+func ItemTraitEliwoodLock() string { return In(i18n.Locale()).ItemTraitEliwoodLock() }
+
+// ItemTraitEliwoodLock says "Eliwood lock"
+// in the language of msgs.
+func (msgs Messages) ItemTraitEliwoodLock() string {
+	return Catalog.Format(msgs.locale, "item_trait_eliwood_lock", nil)
+}
+
+// ItemTraitEliwoodLockHelp says "Requires the native Eliwood weapon-lock flag on the character or class."
+// in the language the app shows.
+func ItemTraitEliwoodLockHelp() string { return In(i18n.Locale()).ItemTraitEliwoodLockHelp() }
+
+// ItemTraitEliwoodLockHelp says "Requires the native Eliwood weapon-lock flag on the character or class."
+// in the language of msgs.
+func (msgs Messages) ItemTraitEliwoodLockHelp() string {
+	return Catalog.Format(msgs.locale, "item_trait_eliwood_lock_help", nil)
+}
+
+// ItemTraitHectorLock says "Hector lock"
+// in the language the app shows.
+func ItemTraitHectorLock() string { return In(i18n.Locale()).ItemTraitHectorLock() }
+
+// ItemTraitHectorLock says "Hector lock"
+// in the language of msgs.
+func (msgs Messages) ItemTraitHectorLock() string {
+	return Catalog.Format(msgs.locale, "item_trait_hector_lock", nil)
+}
+
+// ItemTraitHectorLockHelp says "Requires the native Hector weapon-lock flag on the character or class."
+// in the language the app shows.
+func ItemTraitHectorLockHelp() string { return In(i18n.Locale()).ItemTraitHectorLockHelp() }
+
+// ItemTraitHectorLockHelp says "Requires the native Hector weapon-lock flag on the character or class."
+// in the language of msgs.
+func (msgs Messages) ItemTraitHectorLockHelp() string {
+	return Catalog.Format(msgs.locale, "item_trait_hector_lock_help", nil)
+}
+
+// ItemTraitLynLock says "Lyn lock"
+// in the language the app shows.
+func ItemTraitLynLock() string { return In(i18n.Locale()).ItemTraitLynLock() }
+
+// ItemTraitLynLock says "Lyn lock"
+// in the language of msgs.
+func (msgs Messages) ItemTraitLynLock() string {
+	return Catalog.Format(msgs.locale, "item_trait_lyn_lock", nil)
+}
+
+// ItemTraitLynLockHelp says "Requires the native Lyn weapon-lock flag on the character or class."
+// in the language the app shows.
+func ItemTraitLynLockHelp() string { return In(i18n.Locale()).ItemTraitLynLockHelp() }
+
+// ItemTraitLynLockHelp says "Requires the native Lyn weapon-lock flag on the character or class."
+// in the language of msgs.
+func (msgs Messages) ItemTraitLynLockHelp() string {
+	return Catalog.Format(msgs.locale, "item_trait_lyn_lock_help", nil)
+}
+
+// ItemTraitAthosLock says "Athos lock"
+// in the language the app shows.
+func ItemTraitAthosLock() string { return In(i18n.Locale()).ItemTraitAthosLock() }
+
+// ItemTraitAthosLock says "Athos lock"
+// in the language of msgs.
+func (msgs Messages) ItemTraitAthosLock() string {
+	return Catalog.Format(msgs.locale, "item_trait_athos_lock", nil)
+}
+
+// ItemTraitAthosLockHelp says "Requires the native Athos weapon-lock flag on the character or class."
+// in the language the app shows.
+func ItemTraitAthosLockHelp() string { return In(i18n.Locale()).ItemTraitAthosLockHelp() }
+
+// ItemTraitAthosLockHelp says "Requires the native Athos weapon-lock flag on the character or class."
+// in the language of msgs.
+func (msgs Messages) ItemTraitAthosLockHelp() string {
+	return Catalog.Format(msgs.locale, "item_trait_athos_lock_help", nil)
+}
+
+// ItemTraitMonsterLock says "Monster lock"
+// in the language the app shows.
+func ItemTraitMonsterLock() string { return In(i18n.Locale()).ItemTraitMonsterLock() }
+
+// ItemTraitMonsterLock says "Monster lock"
+// in the language of msgs.
+func (msgs Messages) ItemTraitMonsterLock() string {
+	return Catalog.Format(msgs.locale, "item_trait_monster_lock", nil)
+}
+
+// ItemTraitMonsterLockHelp says "Requires the native monster lock on the character or class. This branch bypasses the ordinary weapon-EXP check."
+// in the language the app shows.
+func ItemTraitMonsterLockHelp() string { return In(i18n.Locale()).ItemTraitMonsterLockHelp() }
+
+// ItemTraitMonsterLockHelp says "Requires the native monster lock on the character or class. This branch bypasses the ordinary weapon-EXP check."
+// in the language of msgs.
+func (msgs Messages) ItemTraitMonsterLockHelp() string {
+	return Catalog.Format(msgs.locale, "item_trait_monster_lock_help", nil)
+}
+
+// ItemTraitEirikaLock says "Eirika lock"
+// in the language the app shows.
+func ItemTraitEirikaLock() string { return In(i18n.Locale()).ItemTraitEirikaLock() }
+
+// ItemTraitEirikaLock says "Eirika lock"
+// in the language of msgs.
+func (msgs Messages) ItemTraitEirikaLock() string {
+	return Catalog.Format(msgs.locale, "item_trait_eirika_lock", nil)
+}
+
+// ItemTraitEirikaLockHelp says "Requires the native Eirika weapon-lock flag on the character or class."
+// in the language the app shows.
+func ItemTraitEirikaLockHelp() string { return In(i18n.Locale()).ItemTraitEirikaLockHelp() }
+
+// ItemTraitEirikaLockHelp says "Requires the native Eirika weapon-lock flag on the character or class."
+// in the language of msgs.
+func (msgs Messages) ItemTraitEirikaLockHelp() string {
+	return Catalog.Format(msgs.locale, "item_trait_eirika_lock_help", nil)
+}
+
+// ItemTraitEphraimLock says "Ephraim lock"
+// in the language the app shows.
+func ItemTraitEphraimLock() string { return In(i18n.Locale()).ItemTraitEphraimLock() }
+
+// ItemTraitEphraimLock says "Ephraim lock"
+// in the language of msgs.
+func (msgs Messages) ItemTraitEphraimLock() string {
+	return Catalog.Format(msgs.locale, "item_trait_ephraim_lock", nil)
+}
+
+// ItemTraitEphraimLockHelp says "Requires the native Ephraim weapon-lock flag on the character or class."
+// in the language the app shows.
+func ItemTraitEphraimLockHelp() string { return In(i18n.Locale()).ItemTraitEphraimLockHelp() }
+
+// ItemTraitEphraimLockHelp says "Requires the native Ephraim weapon-lock flag on the character or class."
+// in the language of msgs.
+func (msgs Messages) ItemTraitEphraimLockHelp() string {
+	return Catalog.Format(msgs.locale, "item_trait_ephraim_lock_help", nil)
+}
+
+// ItemTraitWeaponLock6 says "Weapon lock 6"
+// in the language the app shows.
+func ItemTraitWeaponLock6() string { return In(i18n.Locale()).ItemTraitWeaponLock6() }
+
+// ItemTraitWeaponLock6 says "Weapon lock 6"
+// in the language of msgs.
+func (msgs Messages) ItemTraitWeaponLock6() string {
+	return Catalog.Format(msgs.locale, "item_trait_weapon_lock_6", nil)
+}
+
+// ItemTraitWeaponLock6Help says "Requires native weapon lock 6 on the character or class. Ordinary FE8 items do not use this lock."
+// in the language the app shows.
+func ItemTraitWeaponLock6Help() string { return In(i18n.Locale()).ItemTraitWeaponLock6Help() }
+
+// ItemTraitWeaponLock6Help says "Requires native weapon lock 6 on the character or class. Ordinary FE8 items do not use this lock."
+// in the language of msgs.
+func (msgs Messages) ItemTraitWeaponLock6Help() string {
+	return Catalog.Format(msgs.locale, "item_trait_weapon_lock_6_help", nil)
+}
+
+// ItemTraitWeaponLock7 says "Weapon lock 7"
+// in the language the app shows.
+func ItemTraitWeaponLock7() string { return In(i18n.Locale()).ItemTraitWeaponLock7() }
+
+// ItemTraitWeaponLock7 says "Weapon lock 7"
+// in the language of msgs.
+func (msgs Messages) ItemTraitWeaponLock7() string {
+	return Catalog.Format(msgs.locale, "item_trait_weapon_lock_7", nil)
+}
+
+// ItemTraitWeaponLock7Help says "Requires native weapon lock 7 on the character or class. Ordinary FE8 items do not use this lock."
+// in the language the app shows.
+func ItemTraitWeaponLock7Help() string { return In(i18n.Locale()).ItemTraitWeaponLock7Help() }
+
+// ItemTraitWeaponLock7Help says "Requires native weapon lock 7 on the character or class. Ordinary FE8 items do not use this lock."
+// in the language of msgs.
+func (msgs Messages) ItemTraitWeaponLock7Help() string {
+	return Catalog.Format(msgs.locale, "item_trait_weapon_lock_7_help", nil)
+}
+
+// ItemUseEffectScope says "Native use also depends on the item ID; changing this code alone does not change its action."
+// in the language the app shows.
+func ItemUseEffectScope() string { return In(i18n.Locale()).ItemUseEffectScope() }
+
+// ItemUseEffectScope says "Native use also depends on the item ID; changing this code alone does not change its action."
+// in the language of msgs.
+func (msgs Messages) ItemUseEffectScope() string {
+	return Catalog.Format(msgs.locale, "item_use_effect_scope", nil)
+}
+
+// ItemUseEffectUnused says "Reserved native purpose without confirmed usable handling; changing the code does not install a handler."
+// in the language the app shows.
+func ItemUseEffectUnused() string { return In(i18n.Locale()).ItemUseEffectUnused() }
+
+// ItemUseEffectUnused says "Reserved native purpose without confirmed usable handling; changing the code does not install a handler."
+// in the language of msgs.
+func (msgs Messages) ItemUseEffectUnused() string {
+	return Catalog.Format(msgs.locale, "item_use_effect_unused", nil)
+}
+
+// ItemUseEffectNone says "No use-effect marker"
+// in the language the app shows.
+func ItemUseEffectNone() string { return In(i18n.Locale()).ItemUseEffectNone() }
+
+// ItemUseEffectNone says "No use-effect marker"
+// in the language of msgs.
+func (msgs Messages) ItemUseEffectNone() string {
+	return Catalog.Format(msgs.locale, "item_use_effect_none", nil)
+}
+
+// ItemUseEffectBindingBlade says "Binding Blade healing"
+// in the language the app shows.
+func ItemUseEffectBindingBlade() string { return In(i18n.Locale()).ItemUseEffectBindingBlade() }
+
+// ItemUseEffectBindingBlade says "Binding Blade healing"
+// in the language of msgs.
+func (msgs Messages) ItemUseEffectBindingBlade() string {
+	return Catalog.Format(msgs.locale, "item_use_effect_binding_blade", nil)
+}
+
+// ItemUseEffectHeal says "Heal staff"
+// in the language the app shows.
+func ItemUseEffectHeal() string { return In(i18n.Locale()).ItemUseEffectHeal() }
+
+// ItemUseEffectHeal says "Heal staff"
+// in the language of msgs.
+func (msgs Messages) ItemUseEffectHeal() string {
+	return Catalog.Format(msgs.locale, "item_use_effect_heal", nil)
+}
+
+// ItemUseEffectMend says "Mend staff"
+// in the language the app shows.
+func ItemUseEffectMend() string { return In(i18n.Locale()).ItemUseEffectMend() }
+
+// ItemUseEffectMend says "Mend staff"
+// in the language of msgs.
+func (msgs Messages) ItemUseEffectMend() string {
+	return Catalog.Format(msgs.locale, "item_use_effect_mend", nil)
+}
+
+// ItemUseEffectRecover says "Recover staff"
+// in the language the app shows.
+func ItemUseEffectRecover() string { return In(i18n.Locale()).ItemUseEffectRecover() }
+
+// ItemUseEffectRecover says "Recover staff"
+// in the language of msgs.
+func (msgs Messages) ItemUseEffectRecover() string {
+	return Catalog.Format(msgs.locale, "item_use_effect_recover", nil)
+}
+
+// ItemUseEffectPhysic says "Physic staff"
+// in the language the app shows.
+func ItemUseEffectPhysic() string { return In(i18n.Locale()).ItemUseEffectPhysic() }
+
+// ItemUseEffectPhysic says "Physic staff"
+// in the language of msgs.
+func (msgs Messages) ItemUseEffectPhysic() string {
+	return Catalog.Format(msgs.locale, "item_use_effect_physic", nil)
+}
+
+// ItemUseEffectFortify says "Fortify staff"
+// in the language the app shows.
+func ItemUseEffectFortify() string { return In(i18n.Locale()).ItemUseEffectFortify() }
+
+// ItemUseEffectFortify says "Fortify staff"
+// in the language of msgs.
+func (msgs Messages) ItemUseEffectFortify() string {
+	return Catalog.Format(msgs.locale, "item_use_effect_fortify", nil)
+}
+
+// ItemUseEffectWarp says "Warp staff"
+// in the language the app shows.
+func ItemUseEffectWarp() string { return In(i18n.Locale()).ItemUseEffectWarp() }
+
+// ItemUseEffectWarp says "Warp staff"
+// in the language of msgs.
+func (msgs Messages) ItemUseEffectWarp() string {
+	return Catalog.Format(msgs.locale, "item_use_effect_warp", nil)
+}
+
+// ItemUseEffectRescue says "Rescue staff"
+// in the language the app shows.
+func ItemUseEffectRescue() string { return In(i18n.Locale()).ItemUseEffectRescue() }
+
+// ItemUseEffectRescue says "Rescue staff"
+// in the language of msgs.
+func (msgs Messages) ItemUseEffectRescue() string {
+	return Catalog.Format(msgs.locale, "item_use_effect_rescue", nil)
+}
+
+// ItemUseEffectRestore says "Restore staff"
+// in the language the app shows.
+func ItemUseEffectRestore() string { return In(i18n.Locale()).ItemUseEffectRestore() }
+
+// ItemUseEffectRestore says "Restore staff"
+// in the language of msgs.
+func (msgs Messages) ItemUseEffectRestore() string {
+	return Catalog.Format(msgs.locale, "item_use_effect_restore", nil)
+}
+
+// ItemUseEffectSilence says "Silence staff"
+// in the language the app shows.
+func ItemUseEffectSilence() string { return In(i18n.Locale()).ItemUseEffectSilence() }
+
+// ItemUseEffectSilence says "Silence staff"
+// in the language of msgs.
+func (msgs Messages) ItemUseEffectSilence() string {
+	return Catalog.Format(msgs.locale, "item_use_effect_silence", nil)
+}
+
+// ItemUseEffectSleep says "Sleep staff"
+// in the language the app shows.
+func ItemUseEffectSleep() string { return In(i18n.Locale()).ItemUseEffectSleep() }
+
+// ItemUseEffectSleep says "Sleep staff"
+// in the language of msgs.
+func (msgs Messages) ItemUseEffectSleep() string {
+	return Catalog.Format(msgs.locale, "item_use_effect_sleep", nil)
+}
+
+// ItemUseEffectTorchStaff says "Torch staff"
+// in the language the app shows.
+func ItemUseEffectTorchStaff() string { return In(i18n.Locale()).ItemUseEffectTorchStaff() }
+
+// ItemUseEffectTorchStaff says "Torch staff"
+// in the language of msgs.
+func (msgs Messages) ItemUseEffectTorchStaff() string {
+	return Catalog.Format(msgs.locale, "item_use_effect_torch_staff", nil)
+}
+
+// ItemUseEffectHammerne says "Hammerne staff"
+// in the language the app shows.
+func ItemUseEffectHammerne() string { return In(i18n.Locale()).ItemUseEffectHammerne() }
+
+// ItemUseEffectHammerne says "Hammerne staff"
+// in the language of msgs.
+func (msgs Messages) ItemUseEffectHammerne() string {
+	return Catalog.Format(msgs.locale, "item_use_effect_hammerne", nil)
+}
+
+// ItemUseEffectWatch says "Watch staff (unused)"
+// in the language the app shows.
+func ItemUseEffectWatch() string { return In(i18n.Locale()).ItemUseEffectWatch() }
+
+// ItemUseEffectWatch says "Watch staff (unused)"
+// in the language of msgs.
+func (msgs Messages) ItemUseEffectWatch() string {
+	return Catalog.Format(msgs.locale, "item_use_effect_watch", nil)
+}
+
+// ItemUseEffectBerserk says "Berserk staff"
+// in the language the app shows.
+func ItemUseEffectBerserk() string { return In(i18n.Locale()).ItemUseEffectBerserk() }
+
+// ItemUseEffectBerserk says "Berserk staff"
+// in the language of msgs.
+func (msgs Messages) ItemUseEffectBerserk() string {
+	return Catalog.Format(msgs.locale, "item_use_effect_berserk", nil)
+}
+
+// ItemUseEffectUnlock says "Unlock staff"
+// in the language the app shows.
+func ItemUseEffectUnlock() string { return In(i18n.Locale()).ItemUseEffectUnlock() }
+
+// ItemUseEffectUnlock says "Unlock staff"
+// in the language of msgs.
+func (msgs Messages) ItemUseEffectUnlock() string {
+	return Catalog.Format(msgs.locale, "item_use_effect_unlock", nil)
+}
+
+// ItemUseEffectBarrier says "Barrier staff"
+// in the language the app shows.
+func ItemUseEffectBarrier() string { return In(i18n.Locale()).ItemUseEffectBarrier() }
+
+// ItemUseEffectBarrier says "Barrier staff"
+// in the language of msgs.
+func (msgs Messages) ItemUseEffectBarrier() string {
+	return Catalog.Format(msgs.locale, "item_use_effect_barrier", nil)
+}
+
+// ItemUseEffectSecretBook says "Skill boost (Secret Book)"
+// in the language the app shows.
+func ItemUseEffectSecretBook() string { return In(i18n.Locale()).ItemUseEffectSecretBook() }
+
+// ItemUseEffectSecretBook says "Skill boost (Secret Book)"
+// in the language of msgs.
+func (msgs Messages) ItemUseEffectSecretBook() string {
+	return Catalog.Format(msgs.locale, "item_use_effect_secret_book", nil)
+}
+
+// ItemUseEffectGoddessIcon says "Luck boost (Goddess Icon)"
+// in the language the app shows.
+func ItemUseEffectGoddessIcon() string { return In(i18n.Locale()).ItemUseEffectGoddessIcon() }
+
+// ItemUseEffectGoddessIcon says "Luck boost (Goddess Icon)"
+// in the language of msgs.
+func (msgs Messages) ItemUseEffectGoddessIcon() string {
+	return Catalog.Format(msgs.locale, "item_use_effect_goddess_icon", nil)
+}
+
+// ItemUseEffectAngelicRobe says "Max HP boost (Angelic Robe)"
+// in the language the app shows.
+func ItemUseEffectAngelicRobe() string { return In(i18n.Locale()).ItemUseEffectAngelicRobe() }
+
+// ItemUseEffectAngelicRobe says "Max HP boost (Angelic Robe)"
+// in the language of msgs.
+func (msgs Messages) ItemUseEffectAngelicRobe() string {
+	return Catalog.Format(msgs.locale, "item_use_effect_angelic_robe", nil)
+}
+
+// ItemUseEffectDragonshield says "Defense boost (Dragonshield)"
+// in the language the app shows.
+func ItemUseEffectDragonshield() string { return In(i18n.Locale()).ItemUseEffectDragonshield() }
+
+// ItemUseEffectDragonshield says "Defense boost (Dragonshield)"
+// in the language of msgs.
+func (msgs Messages) ItemUseEffectDragonshield() string {
+	return Catalog.Format(msgs.locale, "item_use_effect_dragonshield", nil)
+}
+
+// ItemUseEffectEnergyRing says "Power boost (Energy Ring)"
+// in the language the app shows.
+func ItemUseEffectEnergyRing() string { return In(i18n.Locale()).ItemUseEffectEnergyRing() }
+
+// ItemUseEffectEnergyRing says "Power boost (Energy Ring)"
+// in the language of msgs.
+func (msgs Messages) ItemUseEffectEnergyRing() string {
+	return Catalog.Format(msgs.locale, "item_use_effect_energy_ring", nil)
+}
+
+// ItemUseEffectSpeedwing says "Speed boost (Speedwing)"
+// in the language the app shows.
+func ItemUseEffectSpeedwing() string { return In(i18n.Locale()).ItemUseEffectSpeedwing() }
+
+// ItemUseEffectSpeedwing says "Speed boost (Speedwing)"
+// in the language of msgs.
+func (msgs Messages) ItemUseEffectSpeedwing() string {
+	return Catalog.Format(msgs.locale, "item_use_effect_speedwing", nil)
+}
+
+// ItemUseEffectTalisman says "Resistance boost (Talisman)"
+// in the language the app shows.
+func ItemUseEffectTalisman() string { return In(i18n.Locale()).ItemUseEffectTalisman() }
+
+// ItemUseEffectTalisman says "Resistance boost (Talisman)"
+// in the language of msgs.
+func (msgs Messages) ItemUseEffectTalisman() string {
+	return Catalog.Format(msgs.locale, "item_use_effect_talisman", nil)
+}
+
+// ItemUseEffectBoots says "Movement boost (Boots)"
+// in the language the app shows.
+func ItemUseEffectBoots() string { return In(i18n.Locale()).ItemUseEffectBoots() }
+
+// ItemUseEffectBoots says "Movement boost (Boots)"
+// in the language of msgs.
+func (msgs Messages) ItemUseEffectBoots() string {
+	return Catalog.Format(msgs.locale, "item_use_effect_boots", nil)
+}
+
+// ItemUseEffectBodyRing says "Constitution boost (Body Ring)"
+// in the language the app shows.
+func ItemUseEffectBodyRing() string { return In(i18n.Locale()).ItemUseEffectBodyRing() }
+
+// ItemUseEffectBodyRing says "Constitution boost (Body Ring)"
+// in the language of msgs.
+func (msgs Messages) ItemUseEffectBodyRing() string {
+	return Catalog.Format(msgs.locale, "item_use_effect_body_ring", nil)
+}
+
+// ItemUseEffectHeroCrest says "Promotion (Hero Crest)"
+// in the language the app shows.
+func ItemUseEffectHeroCrest() string { return In(i18n.Locale()).ItemUseEffectHeroCrest() }
+
+// ItemUseEffectHeroCrest says "Promotion (Hero Crest)"
+// in the language of msgs.
+func (msgs Messages) ItemUseEffectHeroCrest() string {
+	return Catalog.Format(msgs.locale, "item_use_effect_hero_crest", nil)
+}
+
+// ItemUseEffectKnightCrest says "Promotion (Knight Crest)"
+// in the language the app shows.
+func ItemUseEffectKnightCrest() string { return In(i18n.Locale()).ItemUseEffectKnightCrest() }
+
+// ItemUseEffectKnightCrest says "Promotion (Knight Crest)"
+// in the language of msgs.
+func (msgs Messages) ItemUseEffectKnightCrest() string {
+	return Catalog.Format(msgs.locale, "item_use_effect_knight_crest", nil)
+}
+
+// ItemUseEffectOrionsBolt says "Promotion (Orion’s Bolt)"
+// in the language the app shows.
+func ItemUseEffectOrionsBolt() string { return In(i18n.Locale()).ItemUseEffectOrionsBolt() }
+
+// ItemUseEffectOrionsBolt says "Promotion (Orion’s Bolt)"
+// in the language of msgs.
+func (msgs Messages) ItemUseEffectOrionsBolt() string {
+	return Catalog.Format(msgs.locale, "item_use_effect_orions_bolt", nil)
+}
+
+// ItemUseEffectElysianWhip says "Promotion (Elysian Whip)"
+// in the language the app shows.
+func ItemUseEffectElysianWhip() string { return In(i18n.Locale()).ItemUseEffectElysianWhip() }
+
+// ItemUseEffectElysianWhip says "Promotion (Elysian Whip)"
+// in the language of msgs.
+func (msgs Messages) ItemUseEffectElysianWhip() string {
+	return Catalog.Format(msgs.locale, "item_use_effect_elysian_whip", nil)
+}
+
+// ItemUseEffectGuidingRing says "Promotion (Guiding Ring)"
+// in the language the app shows.
+func ItemUseEffectGuidingRing() string { return In(i18n.Locale()).ItemUseEffectGuidingRing() }
+
+// ItemUseEffectGuidingRing says "Promotion (Guiding Ring)"
+// in the language of msgs.
+func (msgs Messages) ItemUseEffectGuidingRing() string {
+	return Catalog.Format(msgs.locale, "item_use_effect_guiding_ring", nil)
+}
+
+// ItemUseEffectChestKey says "Chest key"
+// in the language the app shows.
+func ItemUseEffectChestKey() string { return In(i18n.Locale()).ItemUseEffectChestKey() }
+
+// ItemUseEffectChestKey says "Chest key"
+// in the language of msgs.
+func (msgs Messages) ItemUseEffectChestKey() string {
+	return Catalog.Format(msgs.locale, "item_use_effect_chest_key", nil)
+}
+
+// ItemUseEffectDoorKey says "Door key"
+// in the language the app shows.
+func ItemUseEffectDoorKey() string { return In(i18n.Locale()).ItemUseEffectDoorKey() }
+
+// ItemUseEffectDoorKey says "Door key"
+// in the language of msgs.
+func (msgs Messages) ItemUseEffectDoorKey() string {
+	return Catalog.Format(msgs.locale, "item_use_effect_door_key", nil)
+}
+
+// ItemUseEffectBridgeKey says "Bridge key"
+// in the language the app shows.
+func ItemUseEffectBridgeKey() string { return In(i18n.Locale()).ItemUseEffectBridgeKey() }
+
+// ItemUseEffectBridgeKey says "Bridge key"
+// in the language of msgs.
+func (msgs Messages) ItemUseEffectBridgeKey() string {
+	return Catalog.Format(msgs.locale, "item_use_effect_bridge_key", nil)
+}
+
+// ItemUseEffectLockpick says "Lockpick"
+// in the language the app shows.
+func ItemUseEffectLockpick() string { return In(i18n.Locale()).ItemUseEffectLockpick() }
+
+// ItemUseEffectLockpick says "Lockpick"
+// in the language of msgs.
+func (msgs Messages) ItemUseEffectLockpick() string {
+	return Catalog.Format(msgs.locale, "item_use_effect_lockpick", nil)
+}
+
+// ItemUseEffectVulnerary says "Vulnerary"
+// in the language the app shows.
+func ItemUseEffectVulnerary() string { return In(i18n.Locale()).ItemUseEffectVulnerary() }
+
+// ItemUseEffectVulnerary says "Vulnerary"
+// in the language of msgs.
+func (msgs Messages) ItemUseEffectVulnerary() string {
+	return Catalog.Format(msgs.locale, "item_use_effect_vulnerary", nil)
+}
+
+// ItemUseEffectElixir says "Elixir"
+// in the language the app shows.
+func ItemUseEffectElixir() string { return In(i18n.Locale()).ItemUseEffectElixir() }
+
+// ItemUseEffectElixir says "Elixir"
+// in the language of msgs.
+func (msgs Messages) ItemUseEffectElixir() string {
+	return Catalog.Format(msgs.locale, "item_use_effect_elixir", nil)
+}
+
+// ItemUseEffectPureWater says "Pure Water"
+// in the language the app shows.
+func ItemUseEffectPureWater() string { return In(i18n.Locale()).ItemUseEffectPureWater() }
+
+// ItemUseEffectPureWater says "Pure Water"
+// in the language of msgs.
+func (msgs Messages) ItemUseEffectPureWater() string {
+	return Catalog.Format(msgs.locale, "item_use_effect_pure_water", nil)
+}
+
+// ItemUseEffectTorchItem says "Torch item"
+// in the language the app shows.
+func ItemUseEffectTorchItem() string { return In(i18n.Locale()).ItemUseEffectTorchItem() }
+
+// ItemUseEffectTorchItem says "Torch item"
+// in the language of msgs.
+func (msgs Messages) ItemUseEffectTorchItem() string {
+	return Catalog.Format(msgs.locale, "item_use_effect_torch_item", nil)
+}
+
+// ItemUseEffectAntitoxin says "Antitoxin"
+// in the language the app shows.
+func ItemUseEffectAntitoxin() string { return In(i18n.Locale()).ItemUseEffectAntitoxin() }
+
+// ItemUseEffectAntitoxin says "Antitoxin"
+// in the language of msgs.
+func (msgs Messages) ItemUseEffectAntitoxin() string {
+	return Catalog.Format(msgs.locale, "item_use_effect_antitoxin", nil)
+}
+
+// ItemUseEffectTinaStaff says "Tina’s staff"
+// in the language the app shows.
+func ItemUseEffectTinaStaff() string { return In(i18n.Locale()).ItemUseEffectTinaStaff() }
+
+// ItemUseEffectTinaStaff says "Tina’s staff"
+// in the language of msgs.
+func (msgs Messages) ItemUseEffectTinaStaff() string {
+	return Catalog.Format(msgs.locale, "item_use_effect_tina_staff", nil)
+}
+
+// ItemUseEffectMine says "Mine"
+// in the language the app shows.
+func ItemUseEffectMine() string { return In(i18n.Locale()).ItemUseEffectMine() }
+
+// ItemUseEffectMine says "Mine"
+// in the language of msgs.
+func (msgs Messages) ItemUseEffectMine() string {
+	return Catalog.Format(msgs.locale, "item_use_effect_mine", nil)
+}
+
+// ItemUseEffectLightRune says "Light Rune"
+// in the language the app shows.
+func ItemUseEffectLightRune() string { return In(i18n.Locale()).ItemUseEffectLightRune() }
+
+// ItemUseEffectLightRune says "Light Rune"
+// in the language of msgs.
+func (msgs Messages) ItemUseEffectLightRune() string {
+	return Catalog.Format(msgs.locale, "item_use_effect_light_rune", nil)
+}
+
+// ItemUseEffectIronRune says "Iron Rune"
+// in the language the app shows.
+func ItemUseEffectIronRune() string { return In(i18n.Locale()).ItemUseEffectIronRune() }
+
+// ItemUseEffectIronRune says "Iron Rune"
+// in the language of msgs.
+func (msgs Messages) ItemUseEffectIronRune() string {
+	return Catalog.Format(msgs.locale, "item_use_effect_iron_rune", nil)
+}
+
+// ItemUseEffectFillasMight says "Filla’s Might"
+// in the language the app shows.
+func ItemUseEffectFillasMight() string { return In(i18n.Locale()).ItemUseEffectFillasMight() }
+
+// ItemUseEffectFillasMight says "Filla’s Might"
+// in the language of msgs.
+func (msgs Messages) ItemUseEffectFillasMight() string {
+	return Catalog.Format(msgs.locale, "item_use_effect_fillas_might", nil)
+}
+
+// ItemUseEffectNinissGrace says "Ninis’s Grace"
+// in the language the app shows.
+func ItemUseEffectNinissGrace() string { return In(i18n.Locale()).ItemUseEffectNinissGrace() }
+
+// ItemUseEffectNinissGrace says "Ninis’s Grace"
+// in the language of msgs.
+func (msgs Messages) ItemUseEffectNinissGrace() string {
+	return Catalog.Format(msgs.locale, "item_use_effect_niniss_grace", nil)
+}
+
+// ItemUseEffectThorsIre says "Thor’s Ire"
+// in the language the app shows.
+func ItemUseEffectThorsIre() string { return In(i18n.Locale()).ItemUseEffectThorsIre() }
+
+// ItemUseEffectThorsIre says "Thor’s Ire"
+// in the language of msgs.
+func (msgs Messages) ItemUseEffectThorsIre() string {
+	return Catalog.Format(msgs.locale, "item_use_effect_thors_ire", nil)
+}
+
+// ItemUseEffectSetsLitany says "Set’s Litany"
+// in the language the app shows.
+func ItemUseEffectSetsLitany() string { return In(i18n.Locale()).ItemUseEffectSetsLitany() }
+
+// ItemUseEffectSetsLitany says "Set’s Litany"
+// in the language of msgs.
+func (msgs Messages) ItemUseEffectSetsLitany() string {
+	return Catalog.Format(msgs.locale, "item_use_effect_sets_litany", nil)
+}
+
+// ItemUseEffectEarthSeal says "Promotion (Earth Seal)"
+// in the language the app shows.
+func ItemUseEffectEarthSeal() string { return In(i18n.Locale()).ItemUseEffectEarthSeal() }
+
+// ItemUseEffectEarthSeal says "Promotion (Earth Seal)"
+// in the language of msgs.
+func (msgs Messages) ItemUseEffectEarthSeal() string {
+	return Catalog.Format(msgs.locale, "item_use_effect_earth_seal", nil)
+}
+
+// ItemUseEffectAfasDrops says "Growth bonus (Afa’s Drops)"
+// in the language the app shows.
+func ItemUseEffectAfasDrops() string { return In(i18n.Locale()).ItemUseEffectAfasDrops() }
+
+// ItemUseEffectAfasDrops says "Growth bonus (Afa’s Drops)"
+// in the language of msgs.
+func (msgs Messages) ItemUseEffectAfasDrops() string {
+	return Catalog.Format(msgs.locale, "item_use_effect_afas_drops", nil)
+}
+
+// ItemUseEffectHeavenSeal says "Promotion (Heaven Seal)"
+// in the language the app shows.
+func ItemUseEffectHeavenSeal() string { return In(i18n.Locale()).ItemUseEffectHeavenSeal() }
+
+// ItemUseEffectHeavenSeal says "Promotion (Heaven Seal)"
+// in the language of msgs.
+func (msgs Messages) ItemUseEffectHeavenSeal() string {
+	return Catalog.Format(msgs.locale, "item_use_effect_heaven_seal", nil)
+}
+
+// ItemUseEffectFellContract says "Promotion (Fell Contract)"
+// in the language the app shows.
+func ItemUseEffectFellContract() string { return In(i18n.Locale()).ItemUseEffectFellContract() }
+
+// ItemUseEffectFellContract says "Promotion (Fell Contract)"
+// in the language of msgs.
+func (msgs Messages) ItemUseEffectFellContract() string {
+	return Catalog.Format(msgs.locale, "item_use_effect_fell_contract", nil)
+}
+
+// ItemUseEffectOceanSeal says "Promotion (Ocean Seal)"
+// in the language the app shows.
+func ItemUseEffectOceanSeal() string { return In(i18n.Locale()).ItemUseEffectOceanSeal() }
+
+// ItemUseEffectOceanSeal says "Promotion (Ocean Seal)"
+// in the language of msgs.
+func (msgs Messages) ItemUseEffectOceanSeal() string {
+	return Catalog.Format(msgs.locale, "item_use_effect_ocean_seal", nil)
+}
+
+// ItemUseEffectMasterSeal says "Promotion (Master Seal)"
+// in the language the app shows.
+func ItemUseEffectMasterSeal() string { return In(i18n.Locale()).ItemUseEffectMasterSeal() }
+
+// ItemUseEffectMasterSeal says "Promotion (Master Seal)"
+// in the language of msgs.
+func (msgs Messages) ItemUseEffectMasterSeal() string {
+	return Catalog.Format(msgs.locale, "item_use_effect_master_seal", nil)
+}
+
+// ItemUseEffectMetisTome says "Growth bonus (Metis’s Tome)"
+// in the language the app shows.
+func ItemUseEffectMetisTome() string { return In(i18n.Locale()).ItemUseEffectMetisTome() }
+
+// ItemUseEffectMetisTome says "Growth bonus (Metis’s Tome)"
+// in the language of msgs.
+func (msgs Messages) ItemUseEffectMetisTome() string {
+	return Catalog.Format(msgs.locale, "item_use_effect_metis_tome", nil)
+}
+
+// ItemUseEffectLunarBrace says "Promotion (Lunar Brace)"
+// in the language the app shows.
+func ItemUseEffectLunarBrace() string { return In(i18n.Locale()).ItemUseEffectLunarBrace() }
+
+// ItemUseEffectLunarBrace says "Promotion (Lunar Brace)"
+// in the language of msgs.
+func (msgs Messages) ItemUseEffectLunarBrace() string {
+	return Catalog.Format(msgs.locale, "item_use_effect_lunar_brace", nil)
+}
+
+// ItemUseEffectSolarBrace says "Promotion (Solar Brace)"
+// in the language the app shows.
+func ItemUseEffectSolarBrace() string { return In(i18n.Locale()).ItemUseEffectSolarBrace() }
+
+// ItemUseEffectSolarBrace says "Promotion (Solar Brace)"
+// in the language of msgs.
+func (msgs Messages) ItemUseEffectSolarBrace() string {
+	return Catalog.Format(msgs.locale, "item_use_effect_solar_brace", nil)
+}
+
+// ItemUseEffectJunaFruit says "Level reduction (Juna Fruit)"
+// in the language the app shows.
+func ItemUseEffectJunaFruit() string { return In(i18n.Locale()).ItemUseEffectJunaFruit() }
+
+// ItemUseEffectJunaFruit says "Level reduction (Juna Fruit)"
+// in the language of msgs.
+func (msgs Messages) ItemUseEffectJunaFruit() string {
+	return Catalog.Format(msgs.locale, "item_use_effect_juna_fruit", nil)
+}
+
+// ItemWeaponEffectNone says "No added effect"
+// in the language the app shows.
+func ItemWeaponEffectNone() string { return In(i18n.Locale()).ItemWeaponEffectNone() }
+
+// ItemWeaponEffectNone says "No added effect"
+// in the language of msgs.
+func (msgs Messages) ItemWeaponEffectNone() string {
+	return Catalog.Format(msgs.locale, "item_weapon_effect_none", nil)
+}
+
+// ItemWeaponEffectPoison says "Poison"
+// in the language the app shows.
+func ItemWeaponEffectPoison() string { return In(i18n.Locale()).ItemWeaponEffectPoison() }
+
+// ItemWeaponEffectPoison says "Poison"
+// in the language of msgs.
+func (msgs Messages) ItemWeaponEffectPoison() string {
+	return Catalog.Format(msgs.locale, "item_weapon_effect_poison", nil)
+}
+
+// ItemWeaponEffectPoisonHelp says "Applies poison on a hit under native battle rules, with engine exceptions for some targets."
+// in the language the app shows.
+func ItemWeaponEffectPoisonHelp() string { return In(i18n.Locale()).ItemWeaponEffectPoisonHelp() }
+
+// ItemWeaponEffectPoisonHelp says "Applies poison on a hit under native battle rules, with engine exceptions for some targets."
+// in the language of msgs.
+func (msgs Messages) ItemWeaponEffectPoisonHelp() string {
+	return Catalog.Format(msgs.locale, "item_weapon_effect_poison_help", nil)
+}
+
+// ItemWeaponEffectDrain says "HP drain"
+// in the language the app shows.
+func ItemWeaponEffectDrain() string { return In(i18n.Locale()).ItemWeaponEffectDrain() }
+
+// ItemWeaponEffectDrain says "HP drain"
+// in the language of msgs.
+func (msgs Messages) ItemWeaponEffectDrain() string {
+	return Catalog.Format(msgs.locale, "item_weapon_effect_drain", nil)
+}
+
+// ItemWeaponEffectDrainHelp says "Restores the attacker’s HP by the damage dealt, capped at maximum HP."
+// in the language the app shows.
+func ItemWeaponEffectDrainHelp() string { return In(i18n.Locale()).ItemWeaponEffectDrainHelp() }
+
+// ItemWeaponEffectDrainHelp says "Restores the attacker’s HP by the damage dealt, capped at maximum HP."
+// in the language of msgs.
+func (msgs Messages) ItemWeaponEffectDrainHelp() string {
+	return Catalog.Format(msgs.locale, "item_weapon_effect_drain_help", nil)
+}
+
+// ItemWeaponEffectLeaveOneHp says "Leave 1 HP (FE6)"
+// in the language the app shows.
+func ItemWeaponEffectLeaveOneHp() string { return In(i18n.Locale()).ItemWeaponEffectLeaveOneHp() }
+
+// ItemWeaponEffectLeaveOneHp says "Leave 1 HP (FE6)"
+// in the language of msgs.
+func (msgs Messages) ItemWeaponEffectLeaveOneHp() string {
+	return Catalog.Format(msgs.locale, "item_weapon_effect_leave_one_hp", nil)
+}
+
+// ItemWeaponEffectLeaveOneHpHelp says "FE6 Eclipse computes special damage from the target’s current HP minus one; branches such as magic swords may overr…"
+// in the language the app shows.
+func ItemWeaponEffectLeaveOneHpHelp() string {
+	return In(i18n.Locale()).ItemWeaponEffectLeaveOneHpHelp()
+}
+
+// ItemWeaponEffectLeaveOneHpHelp says "FE6 Eclipse computes special damage from the target’s current HP minus one; branches such as magic swords may overr…"
+// in the language of msgs.
+func (msgs Messages) ItemWeaponEffectLeaveOneHpHelp() string {
+	return Catalog.Format(msgs.locale, "item_weapon_effect_leave_one_hp_help", nil)
+}
+
+// ItemWeaponEffectHalveHp says "Halve HP"
+// in the language the app shows.
+func ItemWeaponEffectHalveHp() string { return In(i18n.Locale()).ItemWeaponEffectHalveHp() }
+
+// ItemWeaponEffectHalveHp says "Halve HP"
+// in the language of msgs.
+func (msgs Messages) ItemWeaponEffectHalveHp() string {
+	return Catalog.Format(msgs.locale, "item_weapon_effect_halve_hp", nil)
+}
+
+// ItemWeaponEffectHalveHpHelp says "FE7/FE8 Eclipse uses special half-HP damage, with native hit, critical and target-specific handling."
+// in the language the app shows.
+func ItemWeaponEffectHalveHpHelp() string { return In(i18n.Locale()).ItemWeaponEffectHalveHpHelp() }
+
+// ItemWeaponEffectHalveHpHelp says "FE7/FE8 Eclipse uses special half-HP damage, with native hit, critical and target-specific handling."
+// in the language of msgs.
+func (msgs Messages) ItemWeaponEffectHalveHpHelp() string {
+	return Catalog.Format(msgs.locale, "item_weapon_effect_halve_hp_help", nil)
+}
+
+// ItemWeaponEffectDevil says "Devil recoil"
+// in the language the app shows.
+func ItemWeaponEffectDevil() string { return In(i18n.Locale()).ItemWeaponEffectDevil() }
+
+// ItemWeaponEffectDevil says "Devil recoil"
+// in the language of msgs.
+func (msgs Messages) ItemWeaponEffectDevil() string {
+	return Catalog.Format(msgs.locale, "item_weapon_effect_devil", nil)
+}
+
+// ItemWeaponEffectDevilHelp says "May apply the attack’s damage to the attacker using this game’s native recoil check."
+// in the language the app shows.
+func ItemWeaponEffectDevilHelp() string { return In(i18n.Locale()).ItemWeaponEffectDevilHelp() }
+
+// ItemWeaponEffectDevilHelp says "May apply the attack’s damage to the attacker using this game’s native recoil check."
+// in the language of msgs.
+func (msgs Messages) ItemWeaponEffectDevilHelp() string {
+	return Catalog.Format(msgs.locale, "item_weapon_effect_devil_help", nil)
+}
+
+// ItemWeaponEffectPetrify says "Petrify"
+// in the language the app shows.
+func ItemWeaponEffectPetrify() string { return In(i18n.Locale()).ItemWeaponEffectPetrify() }
+
+// ItemWeaponEffectPetrify says "Petrify"
+// in the language of msgs.
+func (msgs Messages) ItemWeaponEffectPetrify() string {
+	return Catalog.Format(msgs.locale, "item_weapon_effect_petrify", nil)
+}
+
+// ItemWeaponEffectPetrifyHelp says "Applies FE8 petrification on a hit; the resulting status depends on native target and faction rules."
+// in the language the app shows.
+func ItemWeaponEffectPetrifyHelp() string { return In(i18n.Locale()).ItemWeaponEffectPetrifyHelp() }
+
+// ItemWeaponEffectPetrifyHelp says "Applies FE8 petrification on a hit; the resulting status depends on native target and faction rules."
+// in the language of msgs.
+func (msgs Messages) ItemWeaponEffectPetrifyHelp() string {
+	return Catalog.Format(msgs.locale, "item_weapon_effect_petrify_help", nil)
+}
+
+// ItemIconTable says "Item icons"
+// in the language the app shows.
+func ItemIconTable() string { return In(i18n.Locale()).ItemIconTable() }
+
+// ItemIconTable says "Item icons"
+// in the language of msgs.
+func (msgs Messages) ItemIconTable() string {
+	return Catalog.Format(msgs.locale, "item_icon_table", nil)
+}
+
+// ItemNavigation says "Item list type"
+// in the language the app shows.
+func ItemNavigation() string { return In(i18n.Locale()).ItemNavigation() }
+
+// ItemNavigation says "Item list type"
+// in the language of msgs.
+func (msgs Messages) ItemNavigation() string {
+	return Catalog.Format(msgs.locale, "item_navigation", nil)
+}
+
+// ItemIconSearch says "Search icon ID or item name"
+// in the language the app shows.
+func ItemIconSearch() string { return In(i18n.Locale()).ItemIconSearch() }
+
+// ItemIconSearch says "Search icon ID or item name"
+// in the language of msgs.
+func (msgs Messages) ItemIconSearch() string {
+	return Catalog.Format(msgs.locale, "item_icon_search", nil)
+}
+
+// ItemIconUses says "Items using this icon"
+// in the language the app shows.
+func ItemIconUses() string { return In(i18n.Locale()).ItemIconUses() }
+
+// ItemIconUses says "Items using this icon"
+// in the language of msgs.
+func (msgs Messages) ItemIconUses() string {
+	return Catalog.Format(msgs.locale, "item_icon_uses", nil)
+}
+
+// ItemIconUnused says "No item references"
+// in the language the app shows.
+func ItemIconUnused() string { return In(i18n.Locale()).ItemIconUnused() }
+
+// ItemIconUnused says "No item references"
+// in the language of msgs.
+func (msgs Messages) ItemIconUnused() string {
+	return Catalog.Format(msgs.locale, "item_icon_unused", nil)
+}
+
+// ItemIconUnknownUses says "Item references unavailable"
+// in the language the app shows.
+func ItemIconUnknownUses() string { return In(i18n.Locale()).ItemIconUnknownUses() }
+
+// ItemIconUnknownUses says "Item references unavailable"
+// in the language of msgs.
+func (msgs Messages) ItemIconUnknownUses() string {
+	return Catalog.Format(msgs.locale, "item_icon_unknown_uses", nil)
+}
+
+// ItemIconUseFor says "Use for {name}"
+// in the language the app shows.
+func ItemIconUseFor(name string) string { return In(i18n.Locale()).ItemIconUseFor(name) }
+
+// ItemIconUseFor says "Use for {name}"
+// in the language of msgs.
+func (msgs Messages) ItemIconUseFor(name string) string {
+	return Catalog.Format(msgs.locale, "item_icon_use_for", map[string]any{"name": name})
+}
+
+// ItemIconReturn says "Return to item"
+// in the language the app shows.
+func ItemIconReturn() string { return In(i18n.Locale()).ItemIconReturn() }
+
+// ItemIconReturn says "Return to item"
+// in the language of msgs.
+func (msgs Messages) ItemIconReturn() string {
+	return Catalog.Format(msgs.locale, "item_icon_return", nil)
+}
+
+// ItemIconOpenHelp says "Locate this icon in the sidebar table and choose an icon for this item."
+// in the language the app shows.
+func ItemIconOpenHelp() string { return In(i18n.Locale()).ItemIconOpenHelp() }
+
+// ItemIconOpenHelp says "Locate this icon in the sidebar table and choose an icon for this item."
+// in the language of msgs.
+func (msgs Messages) ItemIconOpenHelp() string {
+	return Catalog.Format(msgs.locale, "item_icon_open_help", nil)
+}
+
+// ItemTypeItem says "Item"
+// in the language the app shows.
+func ItemTypeItem() string { return In(i18n.Locale()).ItemTypeItem() }
+
+// ItemTypeItem says "Item"
+// in the language of msgs.
+func (msgs Messages) ItemTypeItem() string {
+	return Catalog.Format(msgs.locale, "item_type_item", nil)
+}
+
+// ItemOtherSettings says "Identifiers and image"
+// in the language the app shows.
+func ItemOtherSettings() string { return In(i18n.Locale()).ItemOtherSettings() }
+
+// ItemOtherSettings says "Identifiers and image"
+// in the language of msgs.
+func (msgs Messages) ItemOtherSettings() string {
+	return Catalog.Format(msgs.locale, "item_other_settings", nil)
+}
+
+// ItemCustomValue says "Custom ({value})"
+// in the language the app shows.
+func ItemCustomValue(value string) string { return In(i18n.Locale()).ItemCustomValue(value) }
+
+// ItemCustomValue says "Custom ({value})"
+// in the language of msgs.
+func (msgs Messages) ItemCustomValue(value string) string {
+	return Catalog.Format(msgs.locale, "item_custom_value", map[string]any{"value": value})
+}
+
+// ItemCustomCode says "Custom code…"
+// in the language the app shows.
+func ItemCustomCode() string { return In(i18n.Locale()).ItemCustomCode() }
+
+// ItemCustomCode says "Custom code…"
+// in the language of msgs.
+func (msgs Messages) ItemCustomCode() string {
+	return Catalog.Format(msgs.locale, "item_custom_code", nil)
+}
+
+// ItemUsePresets says "Use presets"
+// in the language the app shows.
+func ItemUsePresets() string { return In(i18n.Locale()).ItemUsePresets() }
+
+// ItemUsePresets says "Use presets"
+// in the language of msgs.
+func (msgs Messages) ItemUsePresets() string {
+	return Catalog.Format(msgs.locale, "item_use_presets", nil)
+}
+
+// ItemRange says "Range"
+// in the language the app shows.
+func ItemRange() string { return In(i18n.Locale()).ItemRange() }
+
+// ItemRange says "Range"
+// in the language of msgs.
+func (msgs Messages) ItemRange() string {
+	return Catalog.Format(msgs.locale, "item_range", nil)
+}
+
+// ItemRankNone says "No rank requirement"
+// in the language the app shows.
+func ItemRankNone() string { return In(i18n.Locale()).ItemRankNone() }
+
+// ItemRankNone says "No rank requirement"
+// in the language of msgs.
+func (msgs Messages) ItemRankNone() string {
+	return Catalog.Format(msgs.locale, "item_rank_none", nil)
+}
+
+// ItemRangeNone says "No range"
+// in the language the app shows.
+func ItemRangeNone() string { return In(i18n.Locale()).ItemRangeNone() }
+
+// ItemRangeNone says "No range"
+// in the language of msgs.
+func (msgs Messages) ItemRangeNone() string {
+	return Catalog.Format(msgs.locale, "item_range_none", nil)
+}
+
+// ItemRangeMagic says "Scales with magic"
+// in the language the app shows.
+func ItemRangeMagic() string { return In(i18n.Locale()).ItemRangeMagic() }
+
+// ItemRangeMagic says "Scales with magic"
+// in the language of msgs.
+func (msgs Messages) ItemRangeMagic() string {
+	return Catalog.Format(msgs.locale, "item_range_magic", nil)
+}
+
+// ItemRangeAll says "All targets"
+// in the language the app shows.
+func ItemRangeAll() string { return In(i18n.Locale()).ItemRangeAll() }
+
+// ItemRangeAll says "All targets"
+// in the language of msgs.
+func (msgs Messages) ItemRangeAll() string {
+	return Catalog.Format(msgs.locale, "item_range_all", nil)
+}
+
+// ItemChooseText says "Choose {field}"
+// in the language the app shows.
+func ItemChooseText(field string) string { return In(i18n.Locale()).ItemChooseText(field) }
+
+// ItemChooseText says "Choose {field}"
+// in the language of msgs.
+func (msgs Messages) ItemChooseText(field string) string {
+	return Catalog.Format(msgs.locale, "item_choose_text", map[string]any{"field": field})
+}
+
+// ItemTextActions says "{field} actions"
+// in the language the app shows.
+func ItemTextActions(field string) string { return In(i18n.Locale()).ItemTextActions(field) }
+
+// ItemTextActions says "{field} actions"
+// in the language of msgs.
+func (msgs Messages) ItemTextActions(field string) string {
+	return Catalog.Format(msgs.locale, "item_text_actions", map[string]any{"field": field})
+}
+
+// ItemChangeText says "Change text…"
+// in the language the app shows.
+func ItemChangeText() string { return In(i18n.Locale()).ItemChangeText() }
+
+// ItemChangeText says "Change text…"
+// in the language of msgs.
+func (msgs Messages) ItemChangeText() string {
+	return Catalog.Format(msgs.locale, "item_change_text", nil)
+}
+
+// ItemTextSearch says "Search text or hexadecimal ID"
+// in the language the app shows.
+func ItemTextSearch() string { return In(i18n.Locale()).ItemTextSearch() }
+
+// ItemTextSearch says "Search text or hexadecimal ID"
+// in the language of msgs.
+func (msgs Messages) ItemTextSearch() string {
+	return Catalog.Format(msgs.locale, "item_text_search", nil)
+}
+
+// ItemUseText says "Use this text"
+// in the language the app shows.
+func ItemUseText() string { return In(i18n.Locale()).ItemUseText() }
+
+// ItemUseText says "Use this text"
+// in the language of msgs.
+func (msgs Messages) ItemUseText() string {
+	return Catalog.Format(msgs.locale, "item_use_text", nil)
+}
+
+// ItemClearText says "Use no text"
+// in the language the app shows.
+func ItemClearText() string { return In(i18n.Locale()).ItemClearText() }
+
+// ItemClearText says "Use no text"
+// in the language of msgs.
+func (msgs Messages) ItemClearText() string {
+	return Catalog.Format(msgs.locale, "item_clear_text", nil)
+}
+
+// ItemTextDiscardDraft says "Changing the text discards this field’s unapplied edits."
+// in the language the app shows.
+func ItemTextDiscardDraft() string { return In(i18n.Locale()).ItemTextDiscardDraft() }
+
+// ItemTextDiscardDraft says "Changing the text discards this field’s unapplied edits."
+// in the language of msgs.
+func (msgs Messages) ItemTextDiscardDraft() string {
+	return Catalog.Format(msgs.locale, "item_text_discard_draft", nil)
+}
+
 // Search says "Search names or IDs"
 // in the language the app shows.
 func Search() string { return In(i18n.Locale()).Search() }

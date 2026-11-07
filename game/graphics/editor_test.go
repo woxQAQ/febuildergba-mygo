@@ -50,7 +50,7 @@ func TestAssetReplacementWorkflows(t *testing.T) {
 						0,
 						255,
 					}
-					wantUses := 2
+					wantUses := 1
 					if ref.Kind == graphics.Portrait {
 						ink, wantInk = color.RGBA{
 							123,

@@ -19,6 +19,8 @@ type form struct {
 	texts           map[fieldKey]*textDraft
 	preview         assetPreview
 	portraitChoice  *portraitChoice
+	textChoice      *itemTextChoice
+	itemChoices     map[fieldKey]*itemFieldChoice
 	chapter         chapters.Page
 	profiles        map[fieldKey]*profileState
 	largePreview    bool
@@ -27,12 +29,11 @@ type form struct {
 	openText        func(uint16)
 	openScript      func(int, int)
 	openPortrait    func(int)
+	openItemIcon    func(int, int)
 	openSupportTalk func(int, int)
-	imageEditor     components.AssetEditor
 	thumbnails      components.Thumbnails
 	defeatView      func(*ui.Context, int, float32)
 	jump            func(records.Kind, int)
-	assets          components.AssetActions
 }
 
 func newForm(
@@ -40,14 +41,12 @@ func newForm(
 	openHex func(int, int),
 	openText func(uint16),
 	jump func(records.Kind, int),
-	assets components.AssetActions,
 ) *form {
 	return &form{
 		state:    state,
 		openHex:  openHex,
 		openText: openText,
 		jump:     jump,
-		assets:   assets,
 	}
 }
 
@@ -73,13 +72,14 @@ func (a *form) Reset() {
 	a.ClearDrafts()
 	a.profiles = nil
 	a.preview = assetPreview{}
-	a.imageEditor = components.AssetEditor{}
 	a.thumbnails = components.Thumbnails{}
 	a.chapter.Reset()
 }
 
 func (a *form) ClearDrafts() {
 	a.portraitChoice = nil
+	a.textChoice = nil
+	a.itemChoices = nil
 	a.drafts = nil
 	a.texts = nil
 	profiles := a.profiles
@@ -106,12 +106,20 @@ func (a *form) View(
 	sidebar float32,
 ) {
 	a.sidebar = sidebar
+	if choice := a.textChoice; choice != nil &&
+		(kind != records.Items || choice.key.Record != row.ID) {
+		a.textChoice = nil
+	}
 	if choice := a.portraitChoice; choice != nil &&
 		(choice.kind != kind || choice.record != row.ID) {
 		a.portraitChoice = nil
 	}
 	if kind == records.Units || kind == records.Classes {
 		a.profile(c, kind, row, table)
+		return
+	}
+	if kind == records.Items {
+		a.item(c, row, table)
 		return
 	}
 	preview := a.previewFor(kind, row.ID)
@@ -157,7 +165,6 @@ func (a *form) View(
 								OnClick(func() { a.openScript(row.ID, 0) })
 						}
 					})
-					a.assetEditor(c, preview)
 					if preview != nil && preview.err != nil {
 						ui.Text(c, components.ErrorText(preview.err)).
 							TextColor(c.Theme().TextMuted)

@@ -79,6 +79,10 @@ func (s *Editor) ImageReferences(
 		)
 
 		for _, row := range table.Rows {
+			// The native no-item sentinel does not display an icon.
+			if table.Kind == Items && row.ID == 0 {
+				continue
+			}
 			for _, field := range table.Fields {
 				if field.Asset == ref.Kind &&
 					field.Value(data, row.Address) == int64(ref.ID) {

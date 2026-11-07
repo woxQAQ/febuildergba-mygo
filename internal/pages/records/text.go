@@ -136,16 +136,25 @@ func (a *form) textReferenceField(
 			ui.Text(c, locales.GameInvalidValue()).TextColor(c.Theme().Danger)
 			return
 		}
-		components.TextReference(c, a.state, &draft.reference, uint32(value), a.fieldLabel(kind, field), false, func(id uint16) {
-			a.state.SetErr(a.state.Edit(func() error {
-				return a.state.Session.Records.Set(
-					kind,
-					[]int{row.ID},
-					field.ID,
-					int64(id),
-				)
-			}))
-		}, a.openText).
+		components.TextReference(
+			c,
+			a.state,
+			&draft.reference,
+			uint32(value),
+			a.fieldLabel(kind, field),
+			false,
+			func(id uint16) {
+				a.state.SetErr(a.state.Edit(func() error {
+					return a.state.Session.Records.Set(
+						kind,
+						[]int{row.ID},
+						field.ID,
+						int64(id),
+					)
+				}))
+			},
+			a.openText,
+		).
 			Bind(&draft.input)
 	})
 }
@@ -167,76 +176,94 @@ func (a *form) descriptions(
 	height float32,
 ) {
 	for _, field := range table.Fields {
-		if field.Text != text.Description {
-			continue
+		if field.Text == text.Description {
+			a.descriptionEditor(c, kind, row, field, height)
 		}
-		value, err := a.state.Session.Records.Text(kind, row.ID, field.ID)
-		key := fieldKey{Kind: kind, Record: row.ID, Field: field.ID}
-		draft := a.textDraftFor(key, value.ID, value.Content)
-		label := locales.Label(strings.TrimSuffix(field.ID, "_id"))
-		ui.Column(c.Key(field.ID + "-editor")).Gap(6).Children(func() {
-			if err == nil && value.ID == 0 {
-				ui.Row(c).Wrap().Gap(8).AlignItems(ui.Center).Children(func() {
-					ui.Text(c, label).Bold().Grow(1)
+	}
+}
+
+func (a *form) descriptionEditor(
+	c *ui.Context,
+	kind records.Kind,
+	row records.Row,
+	field records.Field,
+	height float32,
+) ui.Element {
+	value, err := a.state.Session.Records.Text(kind, row.ID, field.ID)
+	key := fieldKey{Kind: kind, Record: row.ID, Field: field.ID}
+	draft := a.textDraftFor(key, value.ID, value.Content)
+	label := locales.Label(strings.TrimSuffix(field.ID, "_id"))
+	return ui.Column(c.Key(field.ID + "-editor")).Gap(6).Children(func() {
+		if err == nil && value.ID == 0 {
+			ui.Row(c).Wrap().Gap(8).AlignItems(ui.Center).Children(func() {
+				ui.Text(c, label).Bold().Grow(1)
+				if kind == records.Items {
+					a.itemTextAction(c, key, label, 0)
+				} else {
 					ui.Button(c, locales.ChooseTextId()).
 						Disabled(a.state.Busy).
 						OnClick(func() { a.openTextReference(key) })
-				})
-				return
-			}
-			if height > 64 {
-				ui.Text(c, label).Bold()
-			}
-			unavailable := err != nil || !value.Editable
-			components.TextDraft(
-				a.state,
-				ui.TextArea(c, &draft.text).
-					Height(height).
-					Label(label).
-					Tooltip(locales.DescriptionEditScope()).
-					ReadOnly(unavailable).
+				}
+			})
+			return
+		}
+		if kind == records.Items {
+			ui.Row(c).Gap(8).AlignItems(ui.Center).Children(func() {
+				ui.Text(c, label).Bold().Grow(1)
+				a.itemTextAction(c, key, label, value.ID)
+			})
+		} else if height > 64 {
+			ui.Text(c, label).Bold()
+		}
+		unavailable := err != nil || !value.Editable
+		components.TextDraft(
+			a.state,
+			ui.TextArea(c, &draft.text).
+				Height(height).
+				Label(label).
+				Tooltip(locales.DescriptionEditScope()).
+				ReadOnly(unavailable).
+				Disabled(a.state.Busy).
+				OnChange(func() {
+					draft.preview, draft.err = nil, nil
+				}),
+		)
+		if draft.text != value.Content {
+			ui.Row(c).Gap(8).Children(func() {
+				ui.Button(c, locales.PreviewText()).
+					Disabled(a.state.Busy || unavailable).
+					OnClick(func() {
+						draft.preview, draft.err = a.state.Session.Records.PlanTextEdit(
+							kind,
+							row.ID,
+							field.ID,
+							draft.text,
+						)
+						a.state.Report("editor.operation", draft.err)
+					})
+				ui.Button(c, locales.Cancel()).
 					Disabled(a.state.Busy).
-					OnChange(func() {
-						draft.preview, draft.err = nil, nil
-					}),
-			)
-			if draft.text != value.Content {
-				ui.Row(c).Gap(8).Children(func() {
-					ui.Button(c, locales.PreviewText()).
-						Disabled(a.state.Busy || unavailable).
-						OnClick(func() {
-							draft.preview, draft.err = a.state.Session.Records.PlanTextEdit(
-								kind,
-								row.ID,
-								field.ID,
-								draft.text,
-							)
-							a.state.Report("editor.operation", draft.err)
-						})
-					ui.Button(c, locales.Cancel()).
-						Disabled(a.state.Busy).
-						OnClick(func() {
-							draft.text, draft.preview, draft.err = value.Content, nil, nil
-						})
-				})
-			}
-			switch {
-			case err != nil:
-				ui.Text(c, components.ErrorText(err)).
-					FontSize(components.FontCaption).
-					TextColor(c.Theme().Danger)
-			case !value.Editable:
-				ui.Text(c, components.ErrorText(value.ReadOnlyReason)).
-					FontSize(components.FontCaption).
-					TextColor(c.Theme().TextMuted)
-			}
-			if draft.err != nil {
-				ui.Text(c, components.ErrorText(draft.err)).
-					TextColor(c.Theme().Danger)
-			}
-			a.textPreview(c, key, draft, locales.ApplyText())
-		})
-	}
+					OnClick(func() {
+						draft.text, draft.preview, draft.err = value.Content, nil, nil
+					})
+			})
+		}
+		switch {
+		case err != nil:
+			ui.Text(c, components.ErrorText(err)).
+				FontSize(components.FontCaption).
+				TextColor(c.Theme().Danger)
+		case !value.Editable:
+			ui.Text(c, components.ErrorText(value.ReadOnlyReason)).
+				FontSize(components.FontCaption).
+				TextColor(c.Theme().TextMuted)
+		}
+		if draft.err != nil {
+			ui.Text(c, components.ErrorText(draft.err)).
+				TextColor(c.Theme().Danger)
+		}
+		a.textPreview(c, key, draft, locales.ApplyText())
+	})
 }
 
 func (a *form) nameEditor(
@@ -248,7 +275,11 @@ func (a *form) nameEditor(
 	draft := a.textDraftFor(key, row.NameID, row.Name)
 	return ui.Column(c.Key("name-editor")).Gap(6).Children(func() {
 		unavailable := row.NameID == 0 || row.TextError != nil
-		ui.Row(c).Gap(8).Children(func() {
+		ui.Row(c).Gap(8).AlignItems(ui.Center).Children(func() {
+			if kind == records.Items && row.NameID == 0 {
+				a.itemTextAction(c, key, locales.Name(), 0)
+				return
+			}
 			components.TextDraft(
 				a.state,
 				ui.TextInput(c, &draft.text).
@@ -263,7 +294,9 @@ func (a *form) nameEditor(
 						draft.preview, draft.err = nil, nil
 					}),
 			)
-			if row.NameID == 0 {
+			if kind == records.Items {
+				a.itemTextAction(c, key, locales.Name(), row.NameID)
+			} else if row.NameID == 0 {
 				ui.Button(c, locales.ChooseTextId()).
 					Disabled(a.state.Busy).
 					OnClick(func() { a.openTextReference(key) })

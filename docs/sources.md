@@ -30,6 +30,45 @@
 
 FE8 路径使用同一固定提交的 [muctrl.h](https://github.com/FireEmblemUniverse/fireemblem8u/blob/04d1edb163d14bd10777a065697e1a9f17be65f2/include/muctrl.h) 和 [muctrl.c](https://github.com/FireEmblemUniverse/fireemblem8u/blob/04d1edb163d14bd10777a065697e1a9f17be65f2/src/muctrl.c)，核对 `REDA`、`CopyEventMoveREDAs`、`MuCtr_ExecREDA_807A358` 的绝对目标、缓冲区和等待语义；条件事件参考 [eventinfo.c](https://github.com/FireEmblemUniverse/fireemblem8u/blob/04d1edb163d14bd10777a065697e1a9f17be65f2/src/eventinfo.c) 中的 `EvCheck02_TURN` 等执行逻辑。
 
+## 道具类型、等级与射程
+
+道具表字段与旧版入口按固定基线 `8e3557912ddab708d11bf85ad311b41bb6630fd1` 的 `ItemForm.cs`／`ItemForm.Designer.cs`、`ItemFE6Form.cs`／`ItemFE6Form.Designer.cs` 以及五版 `ROMFE*` 核对。原生语义交叉核对：
+
+- `StanHash/fe6@f9ea5f67f3f1048ca9836d7350077231ba54b589`：[include/item.h](https://github.com/StanHash/fe6/blob/f9ea5f67f3f1048ca9836d7350077231ba54b589/include/item.h) 的 `ITEM_KIND_*`，以及 [src/item.c](https://github.com/StanHash/fe6/blob/f9ea5f67f3f1048ca9836d7350077231ba54b589/src/item.c) 的 `GetItemMinRange`／`GetItemMaxRange`／`GetItemRangeString`。
+- `FireEmblemUniverse/fireemblem8u@04d1edb163d14bd10777a065697e1a9f17be65f2`：[include/bmitem.h](https://github.com/FireEmblemUniverse/fireemblem8u/blob/04d1edb163d14bd10777a065697e1a9f17be65f2/include/bmitem.h) 的 `ITYPE_*`／`WPN_EXP_*`，以及 [src/bmitem.c](https://github.com/FireEmblemUniverse/fireemblem8u/blob/04d1edb163d14bd10777a065697e1a9f17be65f2/src/bmitem.c) 的 `GetItemRequiredExp`／`GetItemMinRange`／`GetItemMaxRange` 与射程字符串分支。
+
+保留当前版本的等级门槛声明。`10` 的随魔力范围不统一假定计算公式，`FF` 保留全体编码；其他编号由自定义输入保留，不由原版预设推断补丁行为。固定五版样本验证原生字节、其他字段保留及历史，格式边界见[道具字段预设](reference/rom-editing.md#道具字段预设)。
+
+## 道具效果
+
+固定旧版提交 `8e3557912ddab708d11bf85ad311b41bb6630fd1` 的 `ItemForm.cs`／`ItemFE6Form.cs` 从 `bin/Debug/config/data/item_staff_use_effect_FE6.en.txt`、`item_staff_use_effect_FE7.en.txt`、`item_staff_use_effect_FE8.en.txt`、`item_weapon_effect_ALL.en.txt` 和 `item_weapon_effect_FE8.en.txt` 读取选项。旧版 `PreLoadResource_item_staff_use_effect` 对 IER 单独追加 `37`／`38`，不属于原生编号表；问号项保持未确认。实际消费者交叉核对：
+
+- `StanHash/fe6@f9ea5f67f3f1048ca9836d7350077231ba54b589`：[src/item.c](https://github.com/StanHash/fe6/blob/f9ea5f67f3f1048ca9836d7350077231ba54b589/src/item.c) 的 `GetItemEffect`／`GetItemWeaponEffect`，[src/itemuse.c](https://github.com/StanHash/fe6/blob/f9ea5f67f3f1048ca9836d7350077231ba54b589/src/itemuse.c) 的 `CanUnitUseItem` 与 [src/battle.c](https://github.com/StanHash/fe6/blob/f9ea5f67f3f1048ca9836d7350077231ba54b589/src/battle.c) 的 `ComputeBattleUnitSpecialWeaponStats`／`BattleGenerateHitEffects`。FE6 Eclipse 以目标当前生命减 1 计算；恶魔反噬使用本版概率。
+- `StanHash/fe7_us@5c8b3c5e254e00f0f3458b9772c27e1a5a326e3b`：[asm/code.s](https://github.com/StanHash/fe7_us/blob/5c8b3c5e254e00f0f3458b9772c27e1a5a326e3b/asm/code.s) 的 `GetItemEffect`／`GetItemWeaponEffect`、`func_08022530`（使用菜单判定）、`func_08026CD0`（按道具 ID 跳转），以及 `func_08028EEC` 对效果 `3` 的 `(HP+1)>>1` 处理。
+- `FireEmblemUniverse/fireemblem8u@04d1edb163d14bd10777a065697e1a9f17be65f2`：[include/bmitem.h](https://github.com/FireEmblemUniverse/fireemblem8u/blob/04d1edb163d14bd10777a065697e1a9f17be65f2/include/bmitem.h) 的 `WPN_EFFECT_*`，[src/data_items.c](https://github.com/FireEmblemUniverse/fireemblem8u/blob/04d1edb163d14bd10777a065697e1a9f17be65f2/src/data_items.c) 的 `useEffectId`，[src/bmmenu.c](https://github.com/FireEmblemUniverse/fireemblem8u/blob/04d1edb163d14bd10777a065697e1a9f17be65f2/src/bmmenu.c) 的 `ItemSubMenu_IsUseAvailable`，[src/bmitemuse.c](https://github.com/FireEmblemUniverse/fireemblem8u/blob/04d1edb163d14bd10777a065697e1a9f17be65f2/src/bmitemuse.c) 的 `CanUnitUseItem` 及按 `GetItemIndex` 分派的使用操作；[src/bmbattle.c](https://github.com/FireEmblemUniverse/fireemblem8u/blob/04d1edb163d14bd10777a065697e1a9f17be65f2/src/bmbattle.c) 的特殊伤害和命中效果确认半血、吸血、反噬与石化。原版 Latona 没有普通 `useEffectId` 标记仍有按道具 ID 的独立处理，不添加 IER 的 Latona 代码来替代它。
+
+日版沿用固定旧版对应世代的编号表与版本字段布局，不据美版源码推断补丁消费者。格式及编辑边界见[道具效果](reference/rom-editing.md#道具效果)。
+
+## 道具特性
+
+固定旧版基线 `8e3557912ddab708d11bf85ad311b41bb6630fd1` 的 `ItemForm.cs`／`ItemFE6Form.cs` 通过 `InputFormRef.LoadCheckboxesResource` 读取 `bin/Debug/config/data/item_checkbox_FE6.en.txt`、`item_checkbox_FE7.en.txt`、`item_checkbox_FE8.en.txt`。这些定义区分角色锁、Prf 显示和补丁预留位；旧版不明确的标签另按实际消费者核对：
+
+- `StanHash/fe6@f9ea5f67f3f1048ca9836d7350077231ba54b589`：[include/item.h](https://github.com/StanHash/fe6/blob/f9ea5f67f3f1048ca9836d7350077231ba54b589/include/item.h) 的 `ITEM_ATTR_*` 与 [src/item.c](https://github.com/StanHash/fe6/blob/f9ea5f67f3f1048ca9836d7350077231ba54b589/src/item.c) 的 `CanUnitUseWeapon`／`IsItemRepairable`，确认低 15 位及 FE6 独立的罗伊、龙族和塞菲尔限制。
+- `StanHash/fe7_us@5c8b3c5e254e00f0f3458b9772c27e1a5a326e3b`：[asm/code.s](https://github.com/StanHash/fe7_us/blob/5c8b3c5e254e00f0f3458b9772c27e1a5a326e3b/asm/code.s) 的 `CanUnitUseWeapon`、`IsItemRepairable`、`BreakItemSealForPid` 和 `func_08017178`。修复排除掩码 `0x608` 确认第 9 位，解封分支按武器类型与人物 ID 查询运行时记录；不将旧版的“Unusable”直接解释为永久禁止使用。
+- `FireEmblemUniverse/fireemblem8u@04d1edb163d14bd10777a065697e1a9f17be65f2`：[include/bmitem.h](https://github.com/FireEmblemUniverse/fireemblem8u/blob/04d1edb163d14bd10777a065697e1a9f17be65f2/include/bmitem.h) 的 `IA_*`；[src/bmitem.c](https://github.com/FireEmblemUniverse/fireemblem8u/blob/04d1edb163d14bd10777a065697e1a9f17be65f2/src/bmitem.c) 的 `CanUnitUseWeapon`、`GetItemDisplayRankString`、`IsItemHammernable`、`IsItemUnsealedForUnit`；[src/bmbattle.c](https://github.com/FireEmblemUniverse/fireemblem8u/blob/04d1edb163d14bd10777a065697e1a9f17be65f2/src/bmbattle.c) 的 `BattleInitTargetCanCounter`、`ComputeBattleUnitEffectiveCritRate` 与 `ComputeBattleUnitSpecialWeaponStats`。飞行及必杀无效依据持有物判定；Prf 位不单独限制装备；魔法剑和无视防御仍有特殊分支。
+
+日版使用固定旧版的对应世代定义和版本字段布局，不据美版源码推断未识别补丁。第 22–31 位及 FE6 第 15–21 位保留未解释状态；旧版被动加成、双倍武器三角及自定义武器锁等补丁预留位不自动赋予原生语义。写入边界见[道具特性](reference/rom-editing.md#道具特性)。
+
+## 道具图标与空道具
+
+原生图标表槽位与道具编号分别解释；不能因为两者都有零值就将它们视为同一哨兵。
+
+- `StanHash/fe6@f9ea5f67f3f1048ca9836d7350077231ba54b589` 的 [src/item.c](https://github.com/StanHash/fe6/blob/f9ea5f67f3f1048ca9836d7350077231ba54b589/src/item.c) 中 `GetItemIcon` 对空道具返回 `ICON_NONE`，否则读取道具记录的图标字段。
+- `StanHash/fe7_us@5c8b3c5e254e00f0f3458b9772c27e1a5a326e3b` 的 [asm/code.s](https://github.com/StanHash/fe7_us/blob/5c8b3c5e254e00f0f3458b9772c27e1a5a326e3b/asm/code.s) 中 `GetItemIcon`（`08017400`）先检查空道具，返回 -1；非空道具按记录 +1D 字节读取图标编号。
+- `FireEmblemUniverse/fireemblem8u@04d1edb163d14bd10777a065697e1a9f17be65f2` 的 [src/bmitem.c](https://github.com/FireEmblemUniverse/fireemblem8u/blob/04d1edb163d14bd10777a065697e1a9f17be65f2/src/bmitem.c) 中 `GetItemIconId` 对空道具返回 -1；[src/data_items.c](https://github.com/FireEmblemUniverse/fireemblem8u/blob/04d1edb163d14bd10777a065697e1a9f17be65f2/src/data_items.c) 分别声明 `ITEM_NONE` 与 `ITEM_SWORD_IRON`，后者的图标为 00；`ITEM_DANCE` 和部分占位条目也使用图标 00。
+
+图标使用者查询及 PNG 共享用途排除原生无道具记录 0，保留图标 0 和其他记录的实际引用；不依据名称、全零内容或已知道具清单过滤。该规则适用于当前原生适配，自定义引擎变更需另行确认。
+
 ## 文本文件
 
 固定旧版基线的 `TextForm.cs` 中 `Export_Click`／`Import_Click` 进入 `ToolTranslateROM.cs` 的 `ExportallText`／`ReadTextDataDic`／`WriteText`。`ExportText` 写 `[十六进制 ID]` 和正文，`ReadTextDataDic` 用物理行组成正文，忽略空行、注释及其他游戏语言行；`WriteText` 去除最后追加的一次物理换行。`TranslateTextUtil.cs` 的 `IsTextIDCode` 和 `U.cs` 的 `OtherLangLine`／`ClipComment` 提供标题及 `{J}`／`{U}`／`//` 规则。`TextForm.ConvertFEditorToEscape` 和 `TextEscape.cs` 的固定表提供原生 `@NNNN`、FEditor 参数、位置别名及 `[N]`／`[X]` 的处理依据。

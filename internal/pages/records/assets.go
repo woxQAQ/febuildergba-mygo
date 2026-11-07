@@ -4,6 +4,7 @@ import (
 	"github.com/egoist/mygo/ui"
 
 	"github.com/woxQAQ/febuildergba-mygo/game/graphics"
+	"github.com/woxQAQ/febuildergba-mygo/game/itemicon"
 	"github.com/woxQAQ/febuildergba-mygo/game/portrait"
 	"github.com/woxQAQ/febuildergba-mygo/game/records"
 )
@@ -45,6 +46,7 @@ type assetPreview struct {
 	bitmap   *ui.Bitmap
 	err      error
 	source   *portrait.RecordPreview
+	icons    itemicon.Table
 	mini     *ui.Bitmap
 	kind     records.Kind
 	id       int
@@ -54,37 +56,28 @@ func (a *form) previewFor(kind records.Kind, id int) *assetPreview {
 	if kind == records.Units || kind == records.Classes {
 		return a.profilePreview(kind, id)
 	}
-	table := a.state.Session.Records.Table(kind)
-	if table == nil {
+	if kind != records.Items {
 		return nil
 	}
-	for _, field := range table.Fields {
-		if field.Asset == "" {
-			continue
-		}
-		value, err := a.state.Session.Records.Value(kind, id, field.ID)
-		if err != nil {
-			return nil
-		}
-		ref := graphics.Ref{Kind: field.Asset, ID: int(value)}
-		revision := a.state.Session.Document.State().Revision
-		p := &a.preview
-		if !p.loaded || p.revision != revision || p.ref != ref {
-			*p = assetPreview{loaded: true, revision: revision, ref: ref}
-			p.resource, p.err = a.state.Session.Images.Preview(ref)
-			if p.resource.Image != nil {
-				p.bitmap = ui.NewBitmap(p.resource.Image)
-				p.bitmap.Pixelated()
-			}
-		}
-		return p
+	value, err := a.state.Session.Records.Value(records.Items, id, "icon_id")
+	if err != nil {
+		return nil
 	}
-	return nil
-}
-
-func (a *form) assetEditor(c *ui.Context, preview *assetPreview) {
-	if preview == nil || preview.bitmap == nil {
-		return
+	ref := graphics.Ref{Kind: graphics.ItemIcon, ID: int(value)}
+	preview := &a.preview
+	if preview.loaded && preview.ref == ref &&
+		preview.icons.Current(a.state.Session.ItemIcons) {
+		return preview
 	}
-	a.imageEditor.Render(c, a.state, preview.ref, a.assets)
+	*preview = assetPreview{
+		loaded: true,
+		ref:    ref,
+		icons:  a.state.Session.ItemIcons.Table(),
+	}
+	preview.resource, preview.err = a.state.Session.ItemIcons.Preview(ref.ID)
+	if preview.resource.Image != nil {
+		preview.bitmap = ui.NewBitmap(preview.resource.Image)
+		preview.bitmap.Pixelated()
+	}
+	return preview
 }

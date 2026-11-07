@@ -33,6 +33,9 @@ type Page struct {
 	form       *form
 	thumbnails components.Thumbnails
 	selectKind func(records.Kind)
+	itemMode   int
+	icons      itemIconState
+	assets     components.AssetActions
 }
 
 func New(
@@ -45,9 +48,11 @@ func New(
 	a := &Page{
 		state:      state,
 		selectKind: selectKind,
+		assets:     assets,
 		panes:      make([]pane, len(records.Kinds)),
 	}
-	a.form = newForm(state, openHex, openText, a.Open, assets)
+	a.form = newForm(state, openHex, openText, a.Open)
+	a.form.openItemIcon = a.openItemIcon
 	return a
 }
 
@@ -75,16 +80,27 @@ func (a *Page) SetMapGraphicsActions(
 func (a *Page) Reset() {
 	a.panes = make([]pane, len(records.Kinds))
 	a.tab = 0
+	a.itemMode = 0
+	a.icons = itemIconState{generation: a.icons.generation + 1}
 	a.form.Reset()
 	a.thumbnails = components.Thumbnails{}
 }
 
-func (a *Page) Deactivate() { a.form.chapter.Deactivate() }
+func (a *Page) Deactivate() {
+	a.form.chapter.Deactivate()
+	a.form.textChoice = nil
+	a.icons.target = nil
+	a.cancelIconEdit()
+}
 
 func (a *Page) View(c *ui.Context, tab int) {
 	a.tab = tab
+	if records.Kinds[tab] != records.Items {
+		a.icons.target = nil
+		a.cancelIconEdit()
+	}
 	if records.Kinds[tab] != records.Chapters {
-		a.Deactivate()
+		a.form.chapter.Deactivate()
 	}
 	pane := &a.panes[tab]
 	initial := float32(330)
@@ -95,8 +111,21 @@ func (a *Page) View(c *ui.Context, tab int) {
 	pane.sidebar.Render(
 		c,
 		initial,
-		func() { a.records(c) },
-		func() { a.details(c) },
+		func() {
+			if records.Kinds[tab] == records.Items {
+				a.itemNavigation(c)
+			} else {
+				a.records(c)
+			}
+		},
+		func() {
+			if records.Kinds[tab] == records.Items &&
+				a.itemMode == itemIconTable {
+				a.iconDetails(c)
+			} else {
+				a.details(c)
+			}
+		},
 	)
 }
 
@@ -104,20 +133,24 @@ func (a *Page) details(c *ui.Context) {
 	kind := records.Kinds[a.tab]
 	table := a.state.Session.Records.Table(kind)
 	if table == nil {
+		a.form.textChoice = nil
 		return
 	}
 	if table.Err != nil {
+		a.form.textChoice = nil
 		ui.Text(c, components.ErrorText(table.Err)).Padding(24)
 		return
 	}
 	rows := a.rows()
 	ids := a.panes[a.tab].selectedIDs(rows)
 	if len(ids) > 1 {
+		a.form.textChoice = nil
 		a.batchEditor(c, table, ids)
 		return
 	}
 	selected := a.panes[a.tab].selected
 	if len(rows) == 0 || selected < 0 || selected >= len(rows) {
+		a.form.textChoice = nil
 		ui.Text(c, locales.NoResults()).Padding(24)
 		return
 	}
@@ -243,6 +276,11 @@ func (a *Page) OpenDeployment(chapter, site int) {
 }
 
 func (a *Page) Open(kind records.Kind, id int) {
+	if kind == records.Items {
+		a.itemMode = itemRecords
+		a.icons.target = nil
+		a.cancelIconEdit()
+	}
 	for i, k := range records.Kinds {
 		if k != kind {
 			continue

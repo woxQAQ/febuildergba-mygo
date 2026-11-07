@@ -9,6 +9,7 @@ import (
 	"github.com/woxQAQ/febuildergba-mygo/game/edit"
 	"github.com/woxQAQ/febuildergba-mygo/game/event"
 	"github.com/woxQAQ/febuildergba-mygo/game/graphics"
+	"github.com/woxQAQ/febuildergba-mygo/game/itemicon"
 	"github.com/woxQAQ/febuildergba-mygo/game/maps"
 	"github.com/woxQAQ/febuildergba-mygo/game/portrait"
 	"github.com/woxQAQ/febuildergba-mygo/game/quote"
@@ -33,6 +34,7 @@ type Session struct {
 	Portraits   *portrait.Editor
 	Sprites     *sprite.Reader
 	Images      *graphics.Editor
+	ItemIcons   *itemicon.Reader
 	Chapters    *chapter.Editor
 	Events      *event.Editor
 	Deployments *deployment.Editor
@@ -132,6 +134,7 @@ func Open(path string) (session *Session, err error) {
 		spriteFormat := format.sprites
 		spriteFormat.ItemIcons = format.icons.Pointer
 		s.Sprites = sprite.New(context, spriteFormat)
+		s.ItemIcons = itemicon.New(context, format.icons)
 		s.Images = graphics.New(context, map[graphics.Kind]graphics.Backend{
 			graphics.Portrait: format.portraits,
 			graphics.ItemIcon: format.icons,

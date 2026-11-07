@@ -41,6 +41,9 @@ type format struct {
 	// position, 48 in FE6 and 52 in the later generations.
 	classAnimationOffset int
 	traits               []records.RecordTrait
+	itemTraits           []records.RecordTrait
+	itemUseEffects       []records.ItemChoice
+	itemWeaponEffects    []records.ItemChoice
 	weaponThresholds     []int64
 	shops                shop.Format
 	worldmap             worldmap.Format
@@ -62,6 +65,9 @@ func (g format) recordFormat(data []byte) records.Format {
 		Rules:                g.tableRules(data),
 		Patches:              patches,
 		Traits:               g.traits,
+		ItemTraits:           g.itemTraits,
+		ItemUseEffects:       g.itemUseEffects,
+		ItemWeaponEffects:    g.itemWeaponEffects,
 		WeaponThresholds:     g.weaponThresholds,
 		Terrain:              g.terrain,
 		ClassAnimationOffset: g.classAnimationOffset,
