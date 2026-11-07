@@ -146,7 +146,7 @@ func (p *Page) navigation(c *ui.Context) {
 	ui.Column(c.Key("text-list")).Fill().Gap(8).Padding(12).Children(func() {
 		components.TextDraft(
 			p.state,
-			ui.TextInput(c, &p.query).
+			ui.SearchField(c, &p.query).
 				Placeholder(locales.SearchText()).
 				Label(locales.SearchText()).
 				Disabled(p.state.Busy).

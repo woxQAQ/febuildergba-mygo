@@ -151,7 +151,7 @@ func (page *Page) navigation(c *ui.Context) {
 	ui.Column(c).Fill().Padding(12).Gap(8).Children(func() {
 		components.TextDraft(
 			page.state,
-			ui.TextInput(c, &page.query).
+			ui.SearchField(c, &page.query).
 				Placeholder(locales.PortraitSearch()).
 				Label(locales.PortraitSearch()).
 				Disabled(page.state.Busy).
