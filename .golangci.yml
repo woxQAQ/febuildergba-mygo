@@ -80,7 +80,9 @@ linters:
           files:
             - "${config-path}/internal/pages/**.go"
           deny:
-            - pkg: github.com/woxQAQ/febuildergba-mygo/internal/app
+            - pkg: github.com/woxQAQ/febuildergba-mygo/internal/app$
+              desc: Pass application actions through callbacks.
+            - pkg: github.com/woxQAQ/febuildergba-mygo/internal/app/
               desc: Pass application actions through callbacks.
         record-navigation:
           files:

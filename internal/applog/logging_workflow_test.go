@@ -345,7 +345,12 @@ func TestConcurrentDiagnosticSnapshots(t *testing.T) {
 	for range 3 {
 		workers.Go(func() {
 			for range 120 {
+				var previous uint64
 				for _, entry := range sink.Buffer.Snapshot() {
+					if entry.Sequence <= previous {
+						t.Error("concurrent snapshot lost receipt order")
+					}
+					previous = entry.Sequence
 					if entry.Message == "worker" {
 						entry.Attrs[0].Value.Any().(map[string]any)["name"] = "isolated reader"
 					}
@@ -361,11 +366,19 @@ func TestConcurrentDiagnosticSnapshots(t *testing.T) {
 	if len(entries) != 32 {
 		t.Fatalf("ring size=%d", len(entries))
 	}
+	sequence := entries[0].Sequence
 	for index, entry := range entries {
+		if entry.Sequence != sequence {
+			t.Fatal("ring sequence changed across eviction", entry.Sequence)
+		}
+		sequence++
 		if entry.Operation != "app.tail" || entry.Time.IsZero() ||
 			entryAttrs(t, entry)["sequence"] != float64(index+1) {
 			t.Fatalf("ring order at %d: %v", index, entry)
 		}
+	}
+	if entries[len(entries)-1].Sequence != sink.Buffer.Sequence() {
+		t.Fatal("last sequence does not match the recent stream")
 	}
 }
 

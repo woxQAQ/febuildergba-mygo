@@ -44,6 +44,238 @@ func (msgs Messages) PortraitChoose() string {
 	return Catalog.Format(msgs.locale, "portrait_choose", nil)
 }
 
+// LogViewer says "Application log"
+// in the language the app shows.
+func LogViewer() string { return In(i18n.Locale()).LogViewer() }
+
+// LogViewer says "Application log"
+// in the language of msgs.
+func (msgs Messages) LogViewer() string {
+	return Catalog.Format(msgs.locale, "log_viewer", nil)
+}
+
+// LogAllLevels says "All levels"
+// in the language the app shows.
+func LogAllLevels() string { return In(i18n.Locale()).LogAllLevels() }
+
+// LogAllLevels says "All levels"
+// in the language of msgs.
+func (msgs Messages) LogAllLevels() string {
+	return Catalog.Format(msgs.locale, "log_all_levels", nil)
+}
+
+// LogSearch says "Search messages, operations or attributes"
+// in the language the app shows.
+func LogSearch() string { return In(i18n.Locale()).LogSearch() }
+
+// LogSearch says "Search messages, operations or attributes"
+// in the language of msgs.
+func (msgs Messages) LogSearch() string {
+	return Catalog.Format(msgs.locale, "log_search", nil)
+}
+
+// LogMinimumLevel says "Minimum level"
+// in the language the app shows.
+func LogMinimumLevel() string { return In(i18n.Locale()).LogMinimumLevel() }
+
+// LogMinimumLevel says "Minimum level"
+// in the language of msgs.
+func (msgs Messages) LogMinimumLevel() string {
+	return Catalog.Format(msgs.locale, "log_minimum_level", nil)
+}
+
+// LogPause says "Pause updates"
+// in the language the app shows.
+func LogPause() string { return In(i18n.Locale()).LogPause() }
+
+// LogPause says "Pause updates"
+// in the language of msgs.
+func (msgs Messages) LogPause() string {
+	return Catalog.Format(msgs.locale, "log_pause", nil)
+}
+
+// LogResume says "Resume updates"
+// in the language the app shows.
+func LogResume() string { return In(i18n.Locale()).LogResume() }
+
+// LogResume says "Resume updates"
+// in the language of msgs.
+func (msgs Messages) LogResume() string {
+	return Catalog.Format(msgs.locale, "log_resume", nil)
+}
+
+// LogLatest says "Latest"
+// in the language the app shows.
+func LogLatest() string { return In(i18n.Locale()).LogLatest() }
+
+// LogLatest says "Latest"
+// in the language of msgs.
+func (msgs Messages) LogLatest() string {
+	return Catalog.Format(msgs.locale, "log_latest", nil)
+}
+
+// LogCopyFiltered says "Copy filtered entries"
+// in the language the app shows.
+func LogCopyFiltered() string { return In(i18n.Locale()).LogCopyFiltered() }
+
+// LogCopyFiltered says "Copy filtered entries"
+// in the language of msgs.
+func (msgs Messages) LogCopyFiltered() string {
+	return Catalog.Format(msgs.locale, "log_copy_filtered", nil)
+}
+
+// LogClearView says "Clear view"
+// in the language the app shows.
+func LogClearView() string { return In(i18n.Locale()).LogClearView() }
+
+// LogClearView says "Clear view"
+// in the language of msgs.
+func (msgs Messages) LogClearView() string {
+	return Catalog.Format(msgs.locale, "log_clear_view", nil)
+}
+
+// LogClearHelp says "Hide current entries in this viewer. Log collection and files are kept."
+// in the language the app shows.
+func LogClearHelp() string { return In(i18n.Locale()).LogClearHelp() }
+
+// LogClearHelp says "Hide current entries in this viewer. Log collection and files are kept."
+// in the language of msgs.
+func (msgs Messages) LogClearHelp() string {
+	return Catalog.Format(msgs.locale, "log_clear_help", nil)
+}
+
+// LogVisibleCount says "Showing {count} entries (retains up to {capacity})"
+// in the language the app shows.
+func LogVisibleCount(count int, capacity int) string {
+	return In(i18n.Locale()).LogVisibleCount(count, capacity)
+}
+
+// LogVisibleCount says "Showing {count} entries (retains up to {capacity})"
+// in the language of msgs.
+func (msgs Messages) LogVisibleCount(count int, capacity int) string {
+	return Catalog.Format(msgs.locale, "log_visible_count", map[string]any{"count": count, "capacity": capacity})
+}
+
+// LogPaused says "Updates paused; logs are still being collected."
+// in the language the app shows.
+func LogPaused() string { return In(i18n.Locale()).LogPaused() }
+
+// LogPaused says "Updates paused; logs are still being collected."
+// in the language of msgs.
+func (msgs Messages) LogPaused() string {
+	return Catalog.Format(msgs.locale, "log_paused", nil)
+}
+
+// LogSelectionOutside says "The selected entry is outside the current list."
+// in the language the app shows.
+func LogSelectionOutside() string { return In(i18n.Locale()).LogSelectionOutside() }
+
+// LogSelectionOutside says "The selected entry is outside the current list."
+// in the language of msgs.
+func (msgs Messages) LogSelectionOutside() string {
+	return Catalog.Format(msgs.locale, "log_selection_outside", nil)
+}
+
+// LogNoEntries says "No matching recent entries."
+// in the language the app shows.
+func LogNoEntries() string { return In(i18n.Locale()).LogNoEntries() }
+
+// LogNoEntries says "No matching recent entries."
+// in the language of msgs.
+func (msgs Messages) LogNoEntries() string {
+	return Catalog.Format(msgs.locale, "log_no_entries", nil)
+}
+
+// LogTime says "Time"
+// in the language the app shows.
+func LogTime() string { return In(i18n.Locale()).LogTime() }
+
+// LogTime says "Time"
+// in the language of msgs.
+func (msgs Messages) LogTime() string {
+	return Catalog.Format(msgs.locale, "log_time", nil)
+}
+
+// LogLevel says "Level"
+// in the language the app shows.
+func LogLevel() string { return In(i18n.Locale()).LogLevel() }
+
+// LogLevel says "Level"
+// in the language of msgs.
+func (msgs Messages) LogLevel() string {
+	return Catalog.Format(msgs.locale, "log_level", nil)
+}
+
+// LogOperation says "Operation"
+// in the language the app shows.
+func LogOperation() string { return In(i18n.Locale()).LogOperation() }
+
+// LogOperation says "Operation"
+// in the language of msgs.
+func (msgs Messages) LogOperation() string {
+	return Catalog.Format(msgs.locale, "log_operation", nil)
+}
+
+// LogMessage says "Message"
+// in the language the app shows.
+func LogMessage() string { return In(i18n.Locale()).LogMessage() }
+
+// LogMessage says "Message"
+// in the language of msgs.
+func (msgs Messages) LogMessage() string {
+	return Catalog.Format(msgs.locale, "log_message", nil)
+}
+
+// LogEntries says "Log entries"
+// in the language the app shows.
+func LogEntries() string { return In(i18n.Locale()).LogEntries() }
+
+// LogEntries says "Log entries"
+// in the language of msgs.
+func (msgs Messages) LogEntries() string {
+	return Catalog.Format(msgs.locale, "log_entries", nil)
+}
+
+// LogDetails says "Details"
+// in the language the app shows.
+func LogDetails() string { return In(i18n.Locale()).LogDetails() }
+
+// LogDetails says "Details"
+// in the language of msgs.
+func (msgs Messages) LogDetails() string {
+	return Catalog.Format(msgs.locale, "log_details", nil)
+}
+
+// LogCopySelected says "Copy selected entry"
+// in the language the app shows.
+func LogCopySelected() string { return In(i18n.Locale()).LogCopySelected() }
+
+// LogCopySelected says "Copy selected entry"
+// in the language of msgs.
+func (msgs Messages) LogCopySelected() string {
+	return Catalog.Format(msgs.locale, "log_copy_selected", nil)
+}
+
+// LogSelectEntry says "Select an entry to read its attributes and error causes."
+// in the language the app shows.
+func LogSelectEntry() string { return In(i18n.Locale()).LogSelectEntry() }
+
+// LogSelectEntry says "Select an entry to read its attributes and error causes."
+// in the language of msgs.
+func (msgs Messages) LogSelectEntry() string {
+	return Catalog.Format(msgs.locale, "log_select_entry", nil)
+}
+
+// LogDetailsBody says "Log entry details"
+// in the language the app shows.
+func LogDetailsBody() string { return In(i18n.Locale()).LogDetailsBody() }
+
+// LogDetailsBody says "Log entry details"
+// in the language of msgs.
+func (msgs Messages) LogDetailsBody() string {
+	return Catalog.Format(msgs.locale, "log_details_body", nil)
+}
+
 // PortraitSelect says "Choose portrait"
 // in the language the app shows.
 func PortraitSelect() string { return In(i18n.Locale()).PortraitSelect() }

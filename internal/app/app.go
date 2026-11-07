@@ -12,6 +12,7 @@ import (
 	"github.com/woxQAQ/febuildergba-mygo/fault"
 	"github.com/woxQAQ/febuildergba-mygo/game"
 	"github.com/woxQAQ/febuildergba-mygo/internal/applog"
+	"github.com/woxQAQ/febuildergba-mygo/internal/locales"
 	"github.com/woxQAQ/febuildergba-mygo/internal/pages"
 	"github.com/woxQAQ/febuildergba-mygo/rom"
 )
@@ -19,6 +20,8 @@ import (
 type application struct {
 	windows     map[*mygo.Window]*pages.Workspace
 	development *developmentSession
+	logBuffer   *applog.RingBuffer
+	logWindow   *mygo.Window
 }
 
 func Run(paths []string) (err error) {
@@ -34,7 +37,10 @@ func Run(paths []string) (err error) {
 		slog.SetDefault(previous)
 	}()
 	slog.Info("app started", "dev", dev, "log_dir", sink.LogDir)
-	m := &application{windows: make(map[*mygo.Window]*pages.Workspace)}
+	m := &application{
+		windows:   make(map[*mygo.Window]*pages.Workspace),
+		logBuffer: sink.Buffer,
+	}
 	if dev {
 		directory, err := os.UserCacheDir()
 		if err != nil {
@@ -62,6 +68,10 @@ func Run(paths []string) (err error) {
 			m.setMenu()
 			for win, page := range m.windows {
 				updateTitle(win, page)
+			}
+			if m.logWindow != nil {
+				m.logWindow.SetTitle(locales.LogViewer())
+				m.logWindow.Invalidate()
 			}
 		})
 		for _, path := range paths {

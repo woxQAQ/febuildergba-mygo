@@ -66,6 +66,7 @@ flowchart TD
     App[app] --> Pages[pages]
     App --> AppLog[internal/applog: 应用诊断]
     State --> AppLog
+    Pages --> AppLog
     AppLog --> Fault[fault: 错误上下文]
     Pages --> Components[components]
     Pages --> State[internal/editor]
@@ -198,7 +199,9 @@ flowchart TD
 
 ## 应用诊断
 
-`internal/applog` 中的 `Sink` 是日志运行期句柄，持有组合后的 `slog.Logger`、可用日志目录和 `RingBuffer`（固定容量的近期记录缓冲）。`app.Run` 安装默认 logger，退出时先等待开发路径记录完成，再记录致命错误并关闭日志文件；`main.go` 据返回值设置非零退出码。标准错误流使用文本格式，轮转文件使用 JSONL；文件初始化或写入失败时，警告直接进入标准错误流与内存，避免再次经过失败的文件处理器。配置与保留策略见[开发说明](development.md#日志与诊断)。
+`internal/applog` 中的 `Sink` 是日志运行期句柄，持有组合后的 `slog.Logger`、可用日志目录和 `RingBuffer`（固定容量的近期记录缓冲）。`app.Run` 安装默认 logger，退出时先等待开发路径记录完成，再记录致命错误并关闭日志文件；`main.go` 据返回值设置非零退出码。`Entry.Sequence` 在接收锁内递增，提供跨环形缓冲淘汰的稳定身份；`Sequence()` 可检查新记录而不复制属性，`Entry.JSON()` 复用标准 `slog.JSONHandler`，与持久化字段格式保持一致。标准错误流使用文本格式，轮转文件使用 JSONL；文件初始化或写入失败时，警告直接进入标准错误流与内存，避免再次经过失败的文件处理器。配置与保留策略见[开发说明](development.md#日志与诊断)。
+
+`app/log_viewer.go` 管理一个应用级日志窗口，独立于 ROM 工作区及开发路径恢复；菜单在未打开 ROM 时同样可用，重复打开聚焦已有窗口。`pages.LogViewer` 消费共享缓冲的独立快照，按序号保持列表和所选详情，筛选及暂停状态只属于该窗口；所选记录被淘汰或过滤后仍可阅读与复制。界面通过 `Context.After` 每 250 ms 在 UI 线程检查新日志，暂停后不轮询，不引入后台 UI 状态写入。列表与结构化详情使用可调整的上下分栏，复制得到 JSONL，清空视图以序号界限隐藏旧记录，不改变采集或磁盘文件。
 
 领域核心只返回结果与 `fault.Error`。窗口错误通过 `editor.State.SetErr` 更新横幅；保留局部草稿错误的页面通过 `State.Report` 记录诊断，不改变提示位置。两者按错误码和诊断文本去重。`State.Edit` 包围同步领域提交，只在成功且文档修订变化时记录 `apply`；文档撤销重做使用同一状态入口记录 `undo`／`redo`。草稿历史和空写入不产生文档历史事件。
 

@@ -12,6 +12,8 @@ import (
 
 // Entry is a detached snapshot. Mutating returned attributes cannot change logs.
 type Entry struct {
+	// Sequence identifies receipt order across ring-buffer eviction.
+	Sequence  uint64
 	Time      time.Time
 	Level     slog.Level
 	Message   string
@@ -25,6 +27,21 @@ type RingBuffer struct {
 	mu          sync.RWMutex
 	entries     []Entry
 	next, count int
+	sequence    uint64
+}
+
+// Sequence returns the last received sequence without copying entries.
+func (b *RingBuffer) Sequence() uint64 {
+	b.mu.RLock()
+	defer b.mu.RUnlock()
+	return b.sequence
+}
+
+// Capacity is the maximum number of entries retained by this buffer.
+func (b *RingBuffer) Capacity() int {
+	b.mu.RLock()
+	defer b.mu.RUnlock()
+	return len(b.entries)
 }
 
 func (b *RingBuffer) Snapshot() []Entry {
@@ -71,6 +88,8 @@ func (h *bufferHandler) Handle(_ context.Context, record slog.Record) error {
 	b.mu.Lock()
 	defer b.mu.Unlock()
 	if len(b.entries) > 0 {
+		b.sequence++
+		entry.Sequence = b.sequence
 		b.entries[b.next] = entry
 		b.next = (b.next + 1) % len(b.entries)
 		if b.count < len(b.entries) {

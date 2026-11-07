@@ -17,6 +17,9 @@ func (m *application) setMenu() {
 	for win := range m.windows {
 		win.SetMenu(m.windowMenu(win))
 	}
+	if m.logWindow != nil {
+		m.logWindow.SetMenu(m.windowMenu(m.logWindow))
+	}
 }
 
 func (m *application) windowMenu(win *mygo.Window) *mygo.Menu {
@@ -114,8 +117,18 @@ func (m *application) windowMenu(win *mygo.Window) *mygo.Menu {
 			{Role: mygo.RoleSelectAll},
 		}},
 		{
-			Label:   locales.ViewMenu(),
-			Submenu: []*mygo.MenuItem{zoomIn, zoomOut, resetZoom},
+			Label: locales.ViewMenu(),
+			Submenu: []*mygo.MenuItem{
+				zoomIn,
+				zoomOut,
+				resetZoom,
+				mygo.Separator(),
+				{
+					Label:       locales.LogViewer(),
+					Accelerator: "CmdOrCtrl+Shift+L",
+					Click:       func(*mygo.MenuItem, *mygo.Window) { m.openLogViewer() },
+				},
+			},
 		},
 		{Role: mygo.RoleWindowMenu},
 	})
