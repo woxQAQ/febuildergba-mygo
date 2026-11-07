@@ -164,7 +164,7 @@ func (v *Page) mapEditor(
 				entry.resizeControls(c, state, disabled)
 			}
 			ui.Row(c).Wrap().Gap(12).AlignItems(ui.Center).Children(func() {
-				ui.Tabs(c.Key("map-tools"), &entry.tool, locales.MapBrush(), locales.MapRectangle(), locales.MapEyedropper(), locales.MapPan()).
+				ui.Segmented(c.Key("map-tools"), &entry.tool, locales.MapBrush(), locales.MapRectangle(), locales.MapEyedropper(), locales.MapPan()).
 					Label(locales.MapTools()).
 					Tooltip(locales.MapEditHelp()).
 					Disabled(disabled)

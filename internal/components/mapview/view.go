@@ -136,7 +136,7 @@ func (v *View) render(c *ui.Context, overlay Overlay) {
 						return
 					}
 					before, beforeScale := v.zoom, v.scale()
-					ui.Tabs(c.Key("zoom"), &v.zoom, "50%", "100%", "200%").
+					ui.Segmented(c.Key("zoom"), &v.zoom, "50%", "100%", "200%").
 						Label(locales.MapZoom())
 					if before != v.zoom {
 						v.scroll.X *= v.scale() / beforeScale
