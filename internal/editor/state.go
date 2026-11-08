@@ -15,6 +15,24 @@ type History struct {
 	Undo, Redo func()
 }
 
+// HistoryClaim declares which history owns undo and redo while the declaring
+// control holds the focus. It is a routing declaration for the current build,
+// not a focus query and not a command source: controls claim a target only
+// when focused, and the workspace resolves the effective TextFocused once per
+// build from the claim and the framework's text-focus report.
+type HistoryClaim int
+
+const (
+	// HistoryClaimNone leaves routing to the framework's text-focus query.
+	HistoryClaimNone HistoryClaim = iota
+	// HistoryClaimText keeps undo and redo with the focused control's native
+	// text history.
+	HistoryClaimText
+	// HistoryClaimDocument routes undo and redo to the ROM document history
+	// even while a text-taking control holds the focus.
+	HistoryClaimDocument
+)
+
 // State is shared by a window's pages and components and mutated on the UI
 // thread.
 type State struct {
@@ -26,6 +44,7 @@ type State struct {
 	loggedText     string
 	// Focus and draft commands are recomputed by the visible page each build.
 	TextFocused  bool
+	HistoryClaim HistoryClaim
 	DraftHistory *History
 }
 
@@ -34,6 +53,7 @@ func (s *State) SetSession(session *game.Session) {
 	s.SetErr(nil)
 	s.External = false
 	s.TextFocused = false
+	s.HistoryClaim = HistoryClaimNone
 	s.DraftHistory = nil
 	s.HistoryEpoch++
 }
@@ -80,6 +100,21 @@ func (s *State) Edit(work func() error) error {
 	}
 	s.Report("editor.operation", err)
 	return err
+}
+
+// ResolveHistoryFocus settles the build's history routing from the declared
+// claim and the framework's text-focus report. Claims outrank the query, so an
+// immediate-commit field keeps document history and a declared text draft
+// keeps native text history. History, UsesTextHistory and the menu snapshot
+// all read the resolved TextFocused.
+func (s *State) ResolveHistoryFocus(takesText bool) {
+	s.TextFocused = takesText
+	switch s.HistoryClaim {
+	case HistoryClaimText:
+		s.TextFocused = true
+	case HistoryClaimDocument:
+		s.TextFocused = false
+	}
 }
 
 // History selects the same target for menus and keyboard commands. Native text

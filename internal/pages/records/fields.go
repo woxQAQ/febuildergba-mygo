@@ -158,7 +158,10 @@ func (a *form) numberField(
 		message := fmt.Sprintf("%s: %d…%d", locales.AllowedRange(), low, high)
 		input.Error(message).Tooltip(message)
 	}
-	return input
+	// Values commit immediately, so undo belongs to the document history
+	// while this field holds the focus; an outer TextDraft may keep native
+	// text history instead.
+	return components.DocumentField(a.state, input)
 }
 
 func (a *form) focusField(key fieldKey) {

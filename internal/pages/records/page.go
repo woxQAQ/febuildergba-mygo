@@ -198,7 +198,9 @@ func (a *Page) rows() []records.Row {
 func (a *Page) records(c *ui.Context) {
 	pane := &a.panes[a.tab]
 	ui.Column(c.Key(a.tab)).Fill().Gap(8).Padding(12).Children(func() {
-		if components.TextDraft(a.state, ui.SearchField(c.Key("search"), &pane.query).Placeholder(locales.Search()).Label(locales.Search())).
+		if ui.SearchField(c.Key("search"), &pane.query).
+			Placeholder(locales.Search()).
+			Label(locales.Search()).
 			Changed() {
 			pane.selected = 0
 			pane.chosen.Clear()

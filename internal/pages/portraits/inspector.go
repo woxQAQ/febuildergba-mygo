@@ -123,6 +123,9 @@ func (page *Page) number(
 		message := locales.AllowedRange() + ": 0…255"
 		input.Error(message).Tooltip(message)
 	}
+	// Positions commit immediately, so undo belongs to the document history
+	// while this field holds the focus.
+	components.DocumentField(page.state, input)
 }
 
 func (page *Page) positionInputs(

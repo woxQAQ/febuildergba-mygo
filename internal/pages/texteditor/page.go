@@ -144,14 +144,11 @@ func (p *Page) View(c *ui.Context) {
 
 func (p *Page) navigation(c *ui.Context) {
 	ui.Column(c.Key("text-list")).Fill().Gap(8).Padding(12).Children(func() {
-		components.TextDraft(
-			p.state,
-			ui.SearchField(c, &p.query).
-				Placeholder(locales.SearchText()).
-				Label(locales.SearchText()).
-				Disabled(p.state.Busy).
-				OnChange(p.refresh),
-		)
+		ui.SearchField(c, &p.query).
+			Placeholder(locales.SearchText()).
+			Label(locales.SearchText()).
+			Disabled(p.state.Busy).
+			OnChange(p.refresh)
 		if p.indexErr != nil {
 			ui.Text(c, components.ErrorText(p.indexErr)).
 				TextColor(c.Theme().Danger)
@@ -242,16 +239,13 @@ func (p *Page) editor(c *ui.Context) {
 					FontSize(components.FontCaption).
 					Selectable()
 			})
-		components.TextDraft(
-			p.state,
-			ui.TextArea(c.Key(d), &d.text).
-				Grow(1).
-				Label(locales.TextContent()).
-				Tooltip(locales.DescriptionEditScope()).
-				ReadOnly(!value.Editable).
-				Disabled(p.state.Busy).
-				OnChange(func() { d.preview, d.err = nil, nil }),
-		)
+		ui.TextArea(c.Key(d), &d.text).
+			Grow(1).
+			Label(locales.TextContent()).
+			Tooltip(locales.DescriptionEditScope()).
+			ReadOnly(!value.Editable).
+			Disabled(p.state.Busy).
+			OnChange(func() { d.preview, d.err = nil, nil })
 		if stale {
 			ui.Text(c, locales.TextDraftStale()).TextColor(c.Theme().Danger)
 		} else if !value.Editable {

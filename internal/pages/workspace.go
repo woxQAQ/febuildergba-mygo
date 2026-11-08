@@ -338,7 +338,7 @@ func (w *Workspace) View(c *ui.Context) {
 	c.SetZoom(float32(w.ZoomPercent()) / 100)
 	w.zoomShortcuts(c)
 	state := w.Editor
-	state.TextFocused = false
+	state.HistoryClaim = editor.HistoryClaimNone
 	state.DraftHistory = nil
 	components.ApplyTheme(c)
 	ui.Column(c).Fill().Children(func() {
@@ -407,6 +407,9 @@ func (w *Workspace) View(c *ui.Context) {
 			}
 		})
 	})
+	// Pages and popovers are built; settle history routing once so the menu
+	// snapshot and the shortcuts below consume the same result.
+	state.ResolveHistoryFocus(c.FocusTakesText())
 	history := state.History()
 	context := struct {
 		text, draft, undo, redo bool
