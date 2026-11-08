@@ -978,6 +978,7 @@
   "map_zoom": "Map zoom",
   "map_grid": "Grid",
   "map_reset_view": "Reset view",
+  "map_reset_view_help": "Restore 100% zoom and return to the map origin; the grid setting is kept",
   "map_canvas": "Chapter map",
   "map_selection": "Selected map cell",
   "map_tile": "Tile",

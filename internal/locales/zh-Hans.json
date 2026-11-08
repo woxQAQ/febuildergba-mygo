@@ -977,6 +977,7 @@
   "map_zoom": "地图缩放",
   "map_grid": "网格",
   "map_reset_view": "重置视图",
+  "map_reset_view_help": "恢复 100% 缩放并回到地图起点；网格设置保留",
   "map_canvas": "章节地图",
   "map_selection": "选中的地图格子",
   "map_tile": "图块",

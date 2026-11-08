@@ -9,6 +9,7 @@ import (
 
 	"github.com/woxQAQ/febuildergba-mygo/game/maps"
 	"github.com/woxQAQ/febuildergba-mygo/internal/components"
+	"github.com/woxQAQ/febuildergba-mygo/internal/components/icons"
 	"github.com/woxQAQ/febuildergba-mygo/internal/locales"
 )
 
@@ -103,6 +104,32 @@ func (v *View) scale() float32 {
 	return float32(uint32(1)<<uint(v.zoom)) / 2
 }
 
+// deviated reports whether the viewport differs from its initial zoom and
+// pan position; only then do we offer a reset affordance.
+func (v *View) deviated() bool {
+	return v.zoom != 1 || v.scroll.X != 0
+}
+
+func (v *View) resetView() {
+	v.zoom = 1
+	v.scroll = ui.ScrollState{}
+}
+
+// resetButton offers the one-click recovery from a deviated viewport as a
+// compact icon button, keeping the toolbar free of it at the default view.
+func (v *View) resetButton(c *ui.Context) {
+	ui.ButtonBase(c.Key("reset-view")).
+		Size(24, 24).
+		Radius(4).
+		FocusRing(true).
+		Label(locales.MapResetView()).
+		Tooltip(locales.MapResetViewHelp()).
+		OnClick(v.resetView).
+		Children(func() {
+			ui.Icon(c, icons.Feather.RotateCcw)
+		})
+}
+
 func (v *View) render(c *ui.Context, overlay Overlay) {
 	if overlay.Focus != nil {
 		v.focus(*overlay.Focus)
@@ -141,11 +168,10 @@ func (v *View) render(c *ui.Context, overlay Overlay) {
 					if before != v.zoom {
 						v.scroll.X *= v.scale() / beforeScale
 					}
-					ui.Checkbox(c.Key("grid"), &v.grid, locales.MapGrid())
-					if ui.Button(c.Key("reset-view"), locales.MapResetView()).
-						Clicked() {
-						v.zoom = 1
-						v.scroll = ui.ScrollState{}
+					grid := &v.grid
+					ui.Checkbox(c.Key("grid"), grid, locales.MapGrid())
+					if v.deviated() {
+						v.resetButton(c)
 					}
 				})
 		}
@@ -170,8 +196,11 @@ func (v *View) render(c *ui.Context, overlay Overlay) {
 			TrackScroll(&v.scroll).
 			Border(1, c.Theme().Border).
 			Children(func() {
-				canvas := ui.Image(c, v.bitmap).Size(width, height).Shrink(0).
-					Label(locales.MapCanvas()).Cursor(ui.CursorCrosshair)
+				canvas := ui.Image(c, v.bitmap).
+					Size(width, height).
+					Shrink(0).
+					Label(locales.MapCanvas()).
+					Cursor(ui.CursorCrosshair)
 				if overlay.Drawing != nil && overlay.Drawing.Tool != Pan {
 					v.drawInput(canvas, scale, overlay.Drawing)
 				} else {

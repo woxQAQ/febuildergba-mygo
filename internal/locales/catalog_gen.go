@@ -9822,6 +9822,16 @@ func (msgs Messages) MapResetView() string {
 	return Catalog.Format(msgs.locale, "map_reset_view", nil)
 }
 
+// MapResetViewHelp says "Restore 100% zoom and return to the map origin; the grid setting is kept"
+// in the language the app shows.
+func MapResetViewHelp() string { return In(i18n.Locale()).MapResetViewHelp() }
+
+// MapResetViewHelp says "Restore 100% zoom and return to the map origin; the grid setting is kept"
+// in the language of msgs.
+func (msgs Messages) MapResetViewHelp() string {
+	return Catalog.Format(msgs.locale, "map_reset_view_help", nil)
+}
+
 // MapCanvas says "Chapter map"
 // in the language the app shows.
 func MapCanvas() string { return In(i18n.Locale()).MapCanvas() }
