@@ -56,7 +56,6 @@ type delta struct {
 }
 type operation struct {
 	label                 string
-	beforeID, afterID     uint64
 	beforeSize, afterSize int
 	changes               []delta
 }
@@ -76,14 +75,16 @@ type State struct {
 
 // Document owns the bytes and history. Callers only receive copies.
 type Document struct {
-	mu                                 sync.RWMutex
-	saveMu                             sync.Mutex
-	data                               []byte
-	path                               string
-	diskHash                           [32]byte
-	history                            []operation
-	cursor                             int
-	revision, stateID, nextID, savedID uint64
+	mu              sync.RWMutex
+	saveMu          sync.Mutex
+	data, savedData []byte
+	path            string
+	diskHash        [32]byte
+	history         []operation
+	cursor          int
+	revision        uint64
+	// dirtyBytes counts unequal bytes and bytes missing from either version.
+	dirtyBytes int
 }
 
 func Open(path string) (doc *Document, err error) {
@@ -104,7 +105,12 @@ func Open(path string) (doc *Document, err error) {
 	if len(data) == 0 {
 		return nil, ErrSize
 	}
-	return &Document{data: data, path: path, diskHash: sha256.Sum256(data)}, nil
+	return &Document{
+		data:      data,
+		savedData: bytes.Clone(data),
+		path:      path,
+		diskHash:  sha256.Sum256(data),
+	}, nil
 }
 
 func readFile(path string) (data []byte, mode os.FileMode, err error) {
@@ -140,7 +146,7 @@ func (d *Document) State() State {
 		Path:     d.path,
 		Size:     len(d.data),
 		Revision: d.revision,
-		Dirty:    d.stateID != d.savedID,
+		Dirty:    d.dirtyBytes != 0,
 		CanUndo:  d.cursor > 0,
 		CanRedo:  d.cursor < len(d.history),
 	}
@@ -205,7 +211,6 @@ func (d *Document) apply(revision uint64, label string, edit Edit) error {
 	})
 	op := operation{
 		label:      label,
-		beforeID:   d.stateID,
 		beforeSize: len(d.data),
 		afterSize:  edit.Size,
 	}
@@ -237,21 +242,45 @@ func (d *Document) apply(revision uint64, label string, edit Edit) error {
 	if len(op.changes) == 0 && op.beforeSize == op.afterSize {
 		return nil
 	}
-	d.nextID++
-	op.afterID = d.nextID
-	d.expand(op.afterSize)
+	d.resize(op.afterSize)
 	for _, c := range op.changes {
-		copy(d.data[c.offset:], c.after)
+		d.write(c.offset, c.after)
 	}
 	d.history = append(d.history[:d.cursor], op)
 	d.cursor++
-	d.stateID = op.afterID
 	d.revision++
 	return nil
 }
 
-func (d *Document) expand(size int) {
-	d.data = append(d.data, bytes.Repeat([]byte{0xFF}, size-len(d.data))...)
+func (d *Document) write(offset int, data []byte) {
+	end := offset + len(data)
+	before := d.data[offset:end]
+	saved := d.savedData[min(offset, len(d.savedData)):min(end, len(d.savedData))]
+	d.dirtyBytes += differingBytes(data, saved) - differingBytes(before, saved)
+	copy(before, data)
+}
+
+func (d *Document) resize(size int) {
+	start := min(size, len(d.data))
+	saved := d.savedData[min(start, len(d.savedData)):]
+	d.dirtyBytes -= differingBytes(d.data[start:], saved)
+	if size < len(d.data) {
+		d.data = d.data[:size]
+	} else {
+		d.data = append(d.data, bytes.Repeat([]byte{0xFF}, size-len(d.data))...)
+	}
+	d.dirtyBytes += differingBytes(d.data[start:], saved)
+}
+
+func differingBytes(a, b []byte) int {
+	shared := min(len(a), len(b))
+	count := max(len(a), len(b)) - shared
+	for i, value := range a[:shared] {
+		if value != b[i] {
+			count++
+		}
+	}
+	return count
 }
 
 func (d *Document) Undo() bool {
@@ -263,10 +292,9 @@ func (d *Document) Undo() bool {
 	d.cursor--
 	op := d.history[d.cursor]
 	for _, c := range op.changes {
-		copy(d.data[c.offset:], c.before)
+		d.write(c.offset, c.before)
 	}
-	d.data = d.data[:op.beforeSize]
-	d.stateID = op.beforeID
+	d.resize(op.beforeSize)
 	d.revision++
 	return true
 }
@@ -278,12 +306,11 @@ func (d *Document) Redo() bool {
 		return false
 	}
 	op := d.history[d.cursor]
-	d.expand(op.afterSize)
+	d.resize(op.afterSize)
 	for _, c := range op.changes {
-		copy(d.data[c.offset:], c.after)
+		d.write(c.offset, c.after)
 	}
 	d.cursor++
-	d.stateID = op.afterID
 	d.revision++
 	return true
 }
@@ -342,12 +369,13 @@ func (d *Document) save(path string, replace bool) (err error) {
 	// during I/O.
 	d.mu.RLock()
 	data := bytes.Clone(d.data)
-	originalPath, expectedHash, savedID := d.path, d.diskHash, d.stateID
+	originalPath, expectedHash := d.path, d.diskHash
 	d.mu.RUnlock()
 	dataHash := sha256.Sum256(data)
 	publish := func() {
 		d.mu.Lock()
-		d.path, d.diskHash, d.savedID = path, dataHash, savedID
+		d.path, d.diskHash, d.savedData = path, dataHash, data
+		d.dirtyBytes = differingBytes(d.data, d.savedData)
 		d.mu.Unlock()
 	}
 	previous, mode, err := readFile(path)

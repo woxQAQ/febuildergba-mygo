@@ -9,10 +9,9 @@ import (
 	"testing"
 )
 
-// ROM Document Invariants (ROM-INV-1 through ROM-INV-7)
-//
 // These tests protect the core guarantees of the ROM document model.
-// Any failure here indicates a fundamental violation of system correctness.
+// Saved-content workflows, including manual restoration, live in
+// saved_content_workflow_test.go.
 
 // ROM-INV-1: revision 单调递增
 //
@@ -74,85 +73,9 @@ func TestDocument_RevisionMonotonic(t *testing.T) {
 	}
 }
 
-// ROM-INV-2: stateID 正确跳转
+// ROM-INV-3: Dirty 对应与最近成功保存内容的差异。
 //
-// Undo 必须回到 beforeID，Redo 必须前进到 afterID。
-// 如果 stateID 跳转错误，Dirty 标记会不准确，用户可能丢失修改或看到错误的保存状态。
-func TestDocument_StateTransition(t *testing.T) {
-	d := newTestDocument(t, 0x100)
-
-	initialState := d.stateID
-
-	// 记录三次修改
-	_ = d.Apply(
-		d.State().Revision,
-		"op1",
-		[]Change{{Offset: 0x10, Data: []byte{0x01}}},
-	)
-	state1 := d.stateID
-
-	_ = d.Apply(
-		d.State().Revision,
-		"op2",
-		[]Change{{Offset: 0x20, Data: []byte{0x02}}},
-	)
-	state2 := d.stateID
-
-	_ = d.Apply(
-		d.State().Revision,
-		"op3",
-		[]Change{{Offset: 0x30, Data: []byte{0x03}}},
-	)
-	state3 := d.stateID
-
-	// 验证状态递增
-	if state1 == initialState || state2 == state1 || state3 == state2 {
-		t.Errorf(
-			"States not advancing: %d -> %d -> %d -> %d",
-			initialState,
-			state1,
-			state2,
-			state3,
-		)
-	}
-
-	// Undo 应该回到 state2
-	d.Undo()
-	if d.stateID != state2 {
-		t.Errorf("After undo, expected stateID=%d, got %d", state2, d.stateID)
-	}
-
-	// 再 Undo 应该回到 state1
-	d.Undo()
-	if d.stateID != state1 {
-		t.Errorf(
-			"After 2nd undo, expected stateID=%d, got %d",
-			state1,
-			d.stateID,
-		)
-	}
-
-	// Redo 应该前进到 state2
-	d.Redo()
-	if d.stateID != state2 {
-		t.Errorf("After redo, expected stateID=%d, got %d", state2, d.stateID)
-	}
-
-	// 再 Redo 应该前进到 state3
-	d.Redo()
-	if d.stateID != state3 {
-		t.Errorf(
-			"After 2nd redo, expected stateID=%d, got %d",
-			state3,
-			d.stateID,
-		)
-	}
-}
-
-// ROM-INV-3: savedID 对应未修改状态
-//
-// Dirty 标记必须准确反映文档是否有未保存的修改。
-// 如果 savedID 不正确，用户可能丢失修改或看到错误的保存提示。
+// 保存、撤销和重做共同决定当前内容是否仍有未保存修改。
 func TestDocument_SavedState(t *testing.T) {
 	tmpDir := t.TempDir()
 	path := filepath.Join(tmpDir, "test.gba")
