@@ -13,6 +13,7 @@
 | [应用日志与诊断记录设计](logging-design.md)                                 | 设计基线 `0f82791`           | [错误设计](../../docs/error-design.md)、[架构](../../docs/architecture.md)、[开发说明](../../docs/development.md) |
 | [文档 harness 巡检](document-harness-audit.md)                              | `90ab062`                    | [AGENTS](../../AGENTS.md)、[文档索引](../../docs/README.md)、[测试说明](../../tests/README.md)                    |
 | [资源写入与文本草稿修复计划](resource-write-and-text-draft-plans/README.md) | 基线 `534dc85`               | [架构](../../docs/architecture.md)、[使用指南](../../docs/user-guide.md)、[测试说明](../../tests/README.md)       |
+| [ROM 写入规划包命名迁移](romwrite-rename-plans/README.md)                  | 基线 `0650147`／实现 `b019568` | [架构](../../docs/architecture.md)、[错误设计](../../docs/error-design.md)、[测试说明](../../tests/README.md)     |
 
 [Format 与编辑流程原始提案（Opus）](format-editing-opus-proposal.md)和[另一版提案（Codex）](format-editing-codex-proposal.md)保留不同设计方向的原始讨论。写作提交未记录，归档核对基线为 `640f0fb`；当前实现与规则由[架构](../../docs/architecture.md)和 [AGENTS](../../AGENTS.md)替代，状态由[覆盖矩阵](../../docs/coverage.md)替代。
 

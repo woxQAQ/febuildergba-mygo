@@ -2,6 +2,7 @@
   "name": "FEBuilderGBA",
   "identifier": "dev.febuildergba.native",
   "version": "0.1.0",
+  "main": "./cmd/app",
   "out": "build",
   "i18n": {
     "dir": "internal/locales",

@@ -10,7 +10,7 @@ default:
 
 # 启动编辑器，可传入一个或多个 ROM 路径。
 run *args:
-    go run . "$@"
+    go run ./cmd/app "$@"
 
 # 开发模式，代码或翻译修改后自动重编译；例如 just dev -lang zh-Hans。
 dev *args:

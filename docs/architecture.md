@@ -48,7 +48,7 @@ flowchart TD
     ROMWrite --> ROM
 ```
 
-图中展示主要依赖。`main.go` 只负责启动。下列直接导入约束由 `.golangci.yml` 的 `depguard` 随 `just lint`／`just check` 自动检查，包含子包和测试文件：
+图中展示主要依赖。`cmd/app/main.go` 只负责启动。下列直接导入约束由 `.golangci.yml` 的 `depguard` 随 `just lint`／`just check` 自动检查，包含子包和测试文件：
 
 - `game`、`rom`、`romwrite`、`gba`、`fault` 不导入 MyGo 或界面层。
 - `game` 的领域子包不导入 `game/version`；版本身份由组合根选择。
@@ -191,7 +191,7 @@ macOS 系统菜单跟随焦点窗口；Linux／Windows 的常驻窗口菜单各�
 
 ## 应用诊断
 
-`internal/applog.Sink` 持有 `slog.Logger`、日志目录和并发安全的近期 `RingBuffer`。`app.Run` 安装 logger，退出时先等待开发路径记录，再记录致命错误并关闭文件；`main.go` 按返回值设置退出码。文本 stderr、轮转 JSONL 与内存并行接收；文件失败直接向其余输出发警告，避免递归调用失败 Handler。配置与保留策略见[开发说明](development.md#日志与诊断)。
+`internal/applog.Sink` 持有 `slog.Logger`、日志目录和并发安全的近期 `RingBuffer`。`app.Run` 安装 logger，退出时先等待开发路径记录，再记录致命错误并关闭文件；`cmd/app/main.go` 按返回值设置退出码。文本 stderr、轮转 JSONL 与内存并行接收；文件失败直接向其余输出发警告，避免递归调用失败 Handler。配置与保留策略见[开发说明](development.md#日志与诊断)。
 
 `Entry.Sequence` 在接收锁内递增，缓冲淘汰不复用身份；快照隔离属性，`Entry.JSON()` 使用标准 `slog.JSONHandler`，与磁盘格式一致，内存序号不写入文件。`app/log_viewer.go` 管理一个独立于 ROM 窗口及开发恢复的日志窗口，`pages.LogViewer` 在 UI 线程检查序号并读取快照。筛选、暂停、所选副本和清空界限属于查看器，不改变采集与文件。操作见[应用日志](user-guide.md#应用日志)。
 

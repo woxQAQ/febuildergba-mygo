@@ -15,7 +15,7 @@
 | 修改约束、验证选择、完成条件                | [AGENTS](../AGENTS.md)                                                                                                 |
 | 环境、开发恢复、日志配置、国际化、打包      | [开发说明](development.md)；命令实现与包范围查 [justfile](../justfile)，依赖版本查 `go.mod`                            |
 | 包职责、数据所有权、依赖或架构决策          | [架构](architecture.md)，区分当前实现、必须遵守的约束和未决问题                                                        |
-| 通用主题、布局与交互                        | [界面设计](../DESIGN.md)；领域细节见[人物与职业](record-editor-design.md)、[头像](portrait-editor-design.md)或下表专题 |
+| 通用主题、布局与交互                        | [界面设计](DESIGN.md)；领域细节见[人物与职业](record-editor-design.md)、[头像](portrait-editor-design.md)或下表专题 |
 | 错误码、上下文、原因链或错误展示            | [错误设计](error-design.md)                                                                                            |
 | 测试组织、输入选择、证据解释                | [测试说明](../tests/README.md)；执行与停止规则链接 AGENTS                                                              |
 | 合成样本不变量与固定预期                    | [Fixture 约定](../testdata/fixtures.md)；构造代码在 `internal/testutil` 与所属领域测试中，不登记逐文件清单             |
