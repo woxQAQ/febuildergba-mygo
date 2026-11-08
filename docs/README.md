@@ -42,7 +42,7 @@
 
 ## 活动方案、暂缓设计与历史
 
-[MyGo 采用评估与实施计划](../plans/README.md)以 `2585e9f` 为基线，处于提案状态；分别评估[全部原生 UI 能力的项目适配](../plans/mygo-ui-assessment.md)和[版本升级](../plans/mygo-0.8.3-assessment.md)。现有版本的搜索、取值控件与只读 diff 试点可以独立推进；标签关联和焦点历史试点注明各自 API 前提。由开始相应任务触发，不表示已完成迁移；当前依赖以 `go.mod` 为准。
+[MyGo 采用评估与实施计划](../.agents/archive/plans/README.md)以 `2585e9f` 为基线，五个计划已全部执行并合并入 `main`；归档中保留[全部原生 UI 能力的项目适配](../.agents/archive/plans/mygo-ui-assessment.md)和[版本升级](../.agents/archive/plans/mygo-0.8.3-assessment.md)两份评估及逐项结论。作为完成记录不再同步；当前实现与依赖以源码和 `go.mod` 为准。
 
 [元数据层设计](metadata-design.md)已确认，暂未实施；由具体功能的共享定义或格式导入需求触发，不是当前开发的前置重构。
 
