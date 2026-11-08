@@ -132,6 +132,8 @@ rg -n 'TestMyGoHistoryReview' internal
 
 目标语义：道具数值与其他立即写入的数值一致，应属文档历史；需要移除该组合的 TextDraft 并处理右键菜单 `EditItems` 带来的同类原生命令。作为后续任务单独界定，不通过复制该错误保持“兼容”。
 
+> 后续已修复（2026-11-08，`3aecc28`）：数值网格与自定义数值输入的 TextDraft 已移除，撤销归文档历史；右键菜单跳过含原生撤销的平台编辑项（仅 Windows 的框架编辑菜单含撤销项）。
+
 ### 采纳的候选
 
 - `editor.State.HistoryClaim`：仅覆盖当前 build 的三态枚举（未声明／原生文本历史／文档历史），`editor` 包不引入 MyGo 依赖；不含命令回调，不冒充焦点。
