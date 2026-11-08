@@ -77,12 +77,12 @@ func (a *form) itemOptionField(
 					if field.ID == "combat.range" {
 						field.Hex = true
 					}
-					components.TextDraft(
-						a.state,
-						a.numberField(c, records.Items, row, field, value).
-							Grow(1).
-							MinWidth(0),
-					)
+					// The custom value commits immediately like any
+					// number field; undo belongs to the document
+					// history, so no TextDraft claim here.
+					a.numberField(c, records.Items, row, field, value).
+						Grow(1).
+						MinWidth(0)
 					ui.Button(c, "▾").Width(26).Padding(0).
 						Label(locales.ItemUsePresets()).
 						Tooltip(locales.ItemUsePresets()).
@@ -176,13 +176,12 @@ func (a *form) itemNumberGrid(
 							TextColor(c.Theme().Danger)
 						return
 					}
-					components.TextDraft(
-						a.state,
-						a.numberField(c, records.Items, row, field, value).
-							LabelledBy(caption).
-							WidthPercent(100).
-							MinWidth(0),
-					)
+					// Item numbers commit immediately; undo belongs to the
+					// document history, so no TextDraft claim here.
+					a.numberField(c, records.Items, row, field, value).
+						LabelledBy(caption).
+						WidthPercent(100).
+						MinWidth(0)
 				})
 			}
 		})

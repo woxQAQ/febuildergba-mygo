@@ -2,6 +2,7 @@ package records
 
 import (
 	"fmt"
+	"runtime"
 	"strconv"
 	"strings"
 
@@ -143,8 +144,14 @@ func (a *form) numberField(
 		}
 		commit(parsed)
 	}).ContextMenu(func(menu *ui.Menu) {
-		menu.EditItems()
-		menu.Separator()
+		// Native text undo on an immediate-commit field restores the old
+		// text and OnChange commits it as a new document write. The
+		// framework's edit items include undo only on Windows; elsewhere
+		// they are clipboard commands, which stay.
+		if runtime.GOOS != "windows" {
+			menu.EditItems()
+			menu.Separator()
+		}
 		if menu.Item(locales.IncreaseValue()).
 			Disabled(a.state.Busy || draft.value >= high).Chosen() {
 			a.nudgeField(key, f, 1)
