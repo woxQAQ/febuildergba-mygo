@@ -93,6 +93,12 @@ with-env { MYGO_LOCALE: "en" } { just run }
 
 该环境变量不改写已保存的语言偏好。
 
+## 图标
+
+界面图标来自 [@iconify-json](https://iconify.design/) 图标集：`package.json` 在 `devDependencies` 中声明需要的集（如 `@iconify-json/feather`），`just icons` 安装依赖并由 `cmd/iconify-gen` 把每个集生成为 `internal/components/icons/<集>_gen.go`：集是一个命名空间变量，图标是其 `ui.SVG` 字段，按 `icons.<Set>.<Icon>` 引用（kebab-case 转 CamelCase）。生成文件与 `pnpm-lock.yaml` 一起提交，`node_modules/` 不入库。
+
+生成器以集合级 24×24 网格为默认值并保留每个图标的 viewBox 覆盖；使用 rotate／flip 变换或别名（alias）的条目会报错而不是静默渲染错误，`hidden` 条目跳过。接入需要这些能力的集合时，先扩展生成器。
+
 ## 打包
 
 使用 `just build`；平台、应用名称和产物位置查 `mygo.json`，附加参数查 MyGo CLI 帮助。平台与分发状态维护在[覆盖矩阵](coverage.md#待展开的旧版功能组)。

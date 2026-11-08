@@ -7,6 +7,7 @@
     just
     golangci-lint
     oxfmt
+    pnpm
   ];
 
   env = {

@@ -5,6 +5,7 @@
 /.direnv/
 /build/
 /.mygo/
+/node_modules/
 /.rom/
 /FEBuilderGBA-MYGO
 /febuildergba-mygo

@@ -32,6 +32,11 @@ i18n-check:
 i18n: generate i18n-check
     golangci-lint fmt ./internal/locales/...
 
+# 安装 @iconify-json 图标依赖并生成 Go 图标；生成的 *_gen.go 一起提交。
+icons:
+    pnpm install
+    go run ./cmd/iconify-gen
+
 # 按 .golangci.yml 格式化 Go 代码。
 fmt:
     golangci-lint fmt ./... && oxfmt . "!FEBuilderGBA/**"

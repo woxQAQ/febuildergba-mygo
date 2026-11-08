@@ -1,0 +1,7 @@
+{
+  "name": "febuildergba-mygo",
+  "private": true,
+  "devDependencies": {
+    "@iconify-json/feather": "1.2.1"
+  }
+}
