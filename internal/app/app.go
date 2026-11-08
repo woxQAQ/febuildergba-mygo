@@ -19,6 +19,7 @@ import (
 
 type application struct {
 	windows     map[*mygo.Window]*pages.Workspace
+	hexWindows  map[*mygo.Window]*hexEditorWindow
 	development *developmentSession
 	logBuffer   *applog.RingBuffer
 	logWindow   *mygo.Window
@@ -38,8 +39,9 @@ func Run(paths []string) (err error) {
 	}()
 	slog.Info("app started", "dev", dev, "log_dir", sink.LogDir)
 	m := &application{
-		windows:   make(map[*mygo.Window]*pages.Workspace),
-		logBuffer: sink.Buffer,
+		windows:    make(map[*mygo.Window]*pages.Workspace),
+		hexWindows: make(map[*mygo.Window]*hexEditorWindow),
+		logBuffer:  sink.Buffer,
 	}
 	if dev {
 		directory, err := os.UserCacheDir()
@@ -68,6 +70,10 @@ func Run(paths []string) (err error) {
 			m.setMenu()
 			for win, page := range m.windows {
 				updateTitle(win, page)
+			}
+			for owner, tool := range m.hexWindows {
+				updateHexTitle(tool.window, m.windows[owner])
+				tool.window.Invalidate()
 			}
 			if m.logWindow != nil {
 				m.logWindow.SetTitle(locales.LogViewer())
@@ -112,5 +118,5 @@ func setExternal(a *pages.Workspace, changed bool) {
 			state.Revision,
 		)
 	}
-	a.Editor.External = changed
+	a.Editor.SetExternal(changed)
 }

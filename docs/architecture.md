@@ -106,7 +106,7 @@ flowchart TD
 
 ### 输入与提交
 
-每个窗口拥有独立的 `rom.Document` 和 `game.Session`。文档管理字节、修订、撤销历史与保存点，领域编辑器管理解析和缓存。`records` 向共享 `edit.Context` 发布经校验的手动布局；该设置只改变解释，不改 ROM 指针或文档修订。
+每个 ROM 主窗口拥有独立的 `rom.Document` 和 `game.Session`，其十六进制工具窗口共享同一会话和文档。文档管理字节、修订、撤销历史与保存点，领域编辑器管理解析和缓存。`records` 向共享 `edit.Context` 发布经校验的手动布局；该设置只改变解释，不改 ROM 指针或文档修订。
 
 `Capture()` 将只读快照与同次捕获的 `edit.Stamp` 组成 `edit.Input`。stamp 绑定文档、修订与适用解析设置；草稿保留原始 stamp，重新捕获不能延长旧草稿寿命。恢复相同设置会恢复相同解释身份。仅原始字节操作可用 `CaptureBytes()` 忽略布局；表、图像、部署、事件和地图仍须校验解释设置。
 
@@ -148,7 +148,7 @@ flowchart TD
 
 ### 窗口与页面
 
-`pages/workspace.go` 管理导航、窗口缩放与动作，各页拥有自己的选择、输入和草稿。章节配置字段仍由 `pages/records` 表单持有，通过渲染回调进入章节工作区；死亡对话实例由工作区按人物持有，嵌入人物详情。独立领域页以回调导航，不导入记录页私有实现。
+`pages/workspace.go` 管理导航、窗口缩放与动作，各页拥有自己的选择、输入和草稿。`app/hex_editor.go` 为每个 ROM 主窗口管理一个可复用的十六进制工具窗口，菜单和领域字节跳转共用该入口；`pages.HexEditor` 组合字节编辑器、诊断及状态栏。工具窗口随所属 ROM 主窗口关闭，重新载入会话后清空旧字节草稿。章节配置字段仍由 `pages/records` 表单持有，通过渲染回调进入章节工作区；死亡对话实例由工作区按人物持有，嵌入人物详情。独立领域页以回调导航，不导入记录页私有实现。
 
 记录页的 `Page.Footer` 通过工作区进入已有 `StatusBar` 的渲染槽，组件不依赖页面。定位输入与搬迁审核分别绑定来源；前者改变解释，后者消费领域搬迁计划。操作步骤见[定位与搬迁](user-guide.md#高级操作)。
 
@@ -172,7 +172,9 @@ flowchart TD
 
 ### 撤销路由
 
-`editor.State.History` 是菜单和快捷键的共同入口。每次构建先清空 `HistoryClaim` 与 `DraftHistory`；焦点控件显式声明文本或文档历史：`TextDraft` 使用文本历史，`DocumentField` 使用 ROM 历史，外层文本草稿可覆盖内层声明。没有声明时，构建后使用 MyGo 的 `FocusTakesText`。
+`editor.State.History` 是菜单和快捷键的共同入口。`editor.State` 的共享文档状态包含会话、忙碌、错误、外部修改和历史刷新代次；`NewView` 为工具窗口建立独立焦点与草稿历史路由。状态通知在 UI 线程使相关窗口重绘，后台完成后即使主窗口最小化也会刷新工具窗口；文档展示快照限制重复重绘。两个窗口分别按本窗口焦点选择文本或 ROM 历史，保存命令仍交给所属 ROM 主窗口。
+
+每次构建先清空 `HistoryClaim` 与 `DraftHistory`；焦点控件显式声明文本或文档历史：`TextDraft` 使用文本历史，`DocumentField` 使用 ROM 历史，外层文本草稿可覆盖内层声明。没有声明时，构建后使用 MyGo 的 `FocusTakesText`。
 
 页面与弹层构建完后，工作区调用 `ResolveHistoryFocus` 一次求值，`State.History`、`Workspace.UsesTextHistory`、菜单和根快捷键读同一结果。地图区按稳定 Handle 注册草稿回调，只捕获草稿和页面数据。空或过期草稿仍占有历史目标；执行时再次检查新鲜度，过期禁用导致失焦时保留目标，直到进入其他区域。
 

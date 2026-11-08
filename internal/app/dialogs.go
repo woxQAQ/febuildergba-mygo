@@ -15,7 +15,7 @@ func (m *application) openDialog(win *mygo.Window, a *pages.Workspace) {
 	if a.Editor.Busy {
 		return
 	}
-	a.Editor.Busy = true
+	a.Editor.SetBusy(true)
 	title := locales.Open()
 	go func() {
 		paths, err := mygo.Dialog.Open(
@@ -36,7 +36,7 @@ func (m *application) openDialog(win *mygo.Window, a *pages.Workspace) {
 			logROMOpened(session, false)
 		}
 		win.Update(func() {
-			a.Editor.Busy = false
+			a.Editor.SetBusy(false)
 			a.Editor.Report("app.open", err)
 			a.Editor.SetErr(err)
 			if session == nil {
@@ -123,7 +123,7 @@ func reloadDocument(win *mygo.Window, a *pages.Workspace) {
 	if a.Editor.Session == nil || a.Editor.Busy {
 		return
 	}
-	a.Editor.Busy = true
+	a.Editor.SetBusy(true)
 	state := a.Editor.Session.Document.State()
 	question, reload, cancel := locales.ReloadQuestion(), locales.Reload(), locales.Cancel()
 	go func() {
@@ -151,7 +151,7 @@ func reloadDocument(win *mygo.Window, a *pages.Workspace) {
 			logROMOpened(session, true)
 		}
 		win.Update(func() {
-			a.Editor.Busy = false
+			a.Editor.SetBusy(false)
 			a.Editor.Report("app.reload", err)
 			a.Editor.SetErr(err)
 			if session != nil {

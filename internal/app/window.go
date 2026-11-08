@@ -29,7 +29,8 @@ func (m *application) newWindow(session *game.Session) *mygo.Window {
 	if runtime.GOOS == "darwin" {
 		titleBarStyle = mygo.TitleBarHidden
 	}
-	win := mygo.NewWindow(mygo.WindowOptions{
+	var win *mygo.Window
+	win = mygo.NewWindow(mygo.WindowOptions{
 		Title:          locales.AppTitle(),
 		Width:          1150,
 		Height:         780,
@@ -41,9 +42,16 @@ func (m *application) newWindow(session *game.Session) *mygo.Window {
 			X: 16,
 			Y: (pages.HeaderHeight - 14) / 2,
 		},
-		Content: ui.View(a.View),
+		Content: ui.View(func(c *ui.Context) {
+			a.View(c)
+			m.refreshHexEditor(win)
+		}),
 	})
 	m.windows[win] = a
+	a.Editor.Changed = func() {
+		win.Invalidate()
+		m.refreshHexEditor(win)
+	}
 	// Native menus can replace GTK widgets, so update them after the view
 	// finishes building and the current native draw has returned.
 	a.Actions.MenuStateChanged = func() {
@@ -59,6 +67,12 @@ func (m *application) newWindow(session *game.Session) *mygo.Window {
 		})
 	}
 	a.Actions.Open = func() { m.openDialog(win, a) }
+	a.Actions.OpenHex = func(address, length int) {
+		if tool := m.openHexEditor(win); tool != nil {
+			tool.page.Open(address, length)
+			tool.window.Invalidate()
+		}
+	}
 	a.Actions.Save = func(as bool) { m.saveDocument(win, a, as) }
 	a.Actions.Reload = func() { reloadDocument(win, a) }
 	a.Actions.ImportTextFile = func(source *text.File, done func(*text.Import, string, error)) { importTextFile(win, a, source, done) }
@@ -180,7 +194,7 @@ func (m *application) newWindow(session *game.Session) *mygo.Window {
 			return
 		}
 		e.PreventDefault()
-		a.Editor.Busy = true
+		a.Editor.SetBusy(true)
 		question, save, discard, cancel := locales.CloseQuestion(), locales.Save(), locales.Discard(), locales.Cancel()
 		doc := a.Editor.Session.Document
 		go func() {
@@ -212,7 +226,7 @@ func (m *application) newWindow(session *game.Session) *mygo.Window {
 				fault.Context{Path: doc.State().Path},
 			)
 			win.Update(func() {
-				a.Editor.Busy = false
+				a.Editor.SetBusy(false)
 				a.Editor.Report("app.close_window", err)
 				a.Editor.SetErr(err)
 				if closeWindow {
@@ -221,34 +235,44 @@ func (m *application) newWindow(session *game.Session) *mygo.Window {
 			})
 		}()
 	})
-	win.OnClosed(func() { delete(m.windows, win) })
+	win.OnClosed(func() {
+		delete(m.windows, win)
+		if tool := m.hexWindows[win]; tool != nil {
+			delete(m.hexWindows, win)
+			tool.window.Destroy()
+		}
+	})
 	win.OnFocus(func() {
 		m.setMenu()
-		if a.Editor.Session == nil || a.Editor.Busy {
-			return
-		}
-		doc := a.Editor.Session.Document
-		revision := doc.State().Revision
-		go func() {
-			changed, err := doc.ExternalChanged()
-			win.Update(func() {
-				a.Editor.Report("app.external_change", err)
-				if a.Editor.Session != nil &&
-					a.Editor.Session.Document == doc &&
-					doc.State().Revision == revision {
-					if err != nil {
-						a.Editor.SetErr(err)
-					} else {
-						setExternal(a, changed)
-					}
-				}
-			})
-		}()
+		checkExternal(win, a)
 	})
 	updateTitle(win, a)
 	m.setMenu()
 	m.rememberROMs()
 	return win
+}
+
+func checkExternal(win *mygo.Window, a *pages.Workspace) {
+	if a.Editor.Session == nil || a.Editor.Busy {
+		return
+	}
+	doc := a.Editor.Session.Document
+	revision := doc.State().Revision
+	go func() {
+		changed, err := doc.ExternalChanged()
+		win.Update(func() {
+			a.Editor.Report("app.external_change", err)
+			if a.Editor.Session != nil &&
+				a.Editor.Session.Document == doc &&
+				doc.State().Revision == revision {
+				if err != nil {
+					a.Editor.SetErr(err)
+				} else {
+					setExternal(a, changed)
+				}
+			}
+		})
+	}()
 }
 
 func updateTitle(win *mygo.Window, a *pages.Workspace) {
@@ -271,7 +295,7 @@ func background(
 	if a.Editor.Busy {
 		return
 	}
-	a.Editor.Busy = true
+	a.Editor.SetBusy(true)
 	doc := a.Editor.Session.Document
 	revision := doc.State().Revision
 	go func() {
@@ -283,7 +307,7 @@ func background(
 		changed, checkErr := doc.ExternalChanged()
 		win.Update(
 			func() {
-				a.Editor.Busy = false
+				a.Editor.SetBusy(false)
 				a.Editor.Report(operation, err)
 				if a.Editor.Session == nil ||
 					a.Editor.Session.Document != doc ||

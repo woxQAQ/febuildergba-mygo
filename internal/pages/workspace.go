@@ -20,7 +20,6 @@ import (
 	"github.com/woxQAQ/febuildergba-mygo/internal/locales"
 	"github.com/woxQAQ/febuildergba-mygo/internal/pages/arenas"
 	"github.com/woxQAQ/febuildergba-mygo/internal/pages/eventeditor"
-	"github.com/woxQAQ/febuildergba-mygo/internal/pages/hexeditor"
 	"github.com/woxQAQ/febuildergba-mygo/internal/pages/portraits"
 	"github.com/woxQAQ/febuildergba-mygo/internal/pages/quotes"
 	recordspage "github.com/woxQAQ/febuildergba-mygo/internal/pages/records"
@@ -33,12 +32,25 @@ import (
 // HeaderHeight is the desktop title-bar height exposed by the page composition.
 const HeaderHeight = components.HeaderHeight
 
+// These offsets follow the record-table tabs.
+const (
+	textTab = iota
+	scriptsTab
+	portraitsTab
+	shopsTab
+	quotesTab
+	supportsTab
+	arenasTab
+	worldmapTab
+)
+
 // Actions connects page intent to the owning desktop window.
 type Actions struct {
 	Open                      func()
 	Save                      func(bool)
 	Reload                    func()
 	Run                       func()
+	OpenHex                   func(int, int)
 	ImportPNG                 func(func([]byte, error))
 	ExportPNG                 func(graphics.Ref)
 	ImportWorldMapBackground  func(*worldmap.Background, func(*worldmap.BackgroundDraft, error))
@@ -61,7 +73,6 @@ type Workspace struct {
 	Actions   Actions
 	tab       int
 	records   *recordspage.Page
-	hex       *hexeditor.Page
 	texts     *texteditor.Page
 	scripts   *eventeditor.Page
 	portraits *portraits.Page
@@ -80,8 +91,7 @@ type Workspace struct {
 }
 
 func New() *Workspace {
-	w := &Workspace{Editor: &editor.State{}, zoomLevel: 1}
-	w.hex = hexeditor.New(w.Editor)
+	w := &Workspace{Editor: editor.New(), zoomLevel: 1}
 	w.texts = texteditor.New(
 		w.Editor,
 		func(kind records.Kind, id int) {
@@ -90,7 +100,7 @@ func New() *Workspace {
 				return
 			}
 			if string(kind) == support.TalkUse {
-				w.tab = len(records.Kinds) + 6
+				w.tab = len(records.Kinds) + supportsTab
 				w.supports.OpenTalk(id)
 				return
 			}
@@ -179,7 +189,7 @@ func New() *Workspace {
 		w.records.Open,
 		w.openText,
 		func(key shop.Key) {
-			w.tab = len(records.Kinds) + 4
+			w.tab = len(records.Kinds) + shopsTab
 			w.shops.Open(key)
 		},
 	)
@@ -195,7 +205,7 @@ func New() *Workspace {
 		w.openText,
 	)
 	w.records.SetSupportTalkOpener(
-		func(unit, partner int) { w.tab = len(records.Kinds) + 6; w.supports.OpenPair(unit, partner) },
+		func(unit, partner int) { w.tab = len(records.Kinds) + supportsTab; w.supports.OpenPair(unit, partner) },
 	)
 	w.scripts = eventeditor.New(
 		w.Editor,
@@ -229,7 +239,7 @@ func New() *Workspace {
 		},
 	)
 	w.scripts.SetWorldMapOpener(func(target event.ScriptTarget, id int) {
-		w.tab = len(records.Kinds) + 8
+		w.tab = len(records.Kinds) + worldmapTab
 		if target == event.ScriptWorldMapRouteTarget {
 			w.worldmap.OpenRoute(id)
 		} else {
@@ -245,7 +255,6 @@ func New() *Workspace {
 func (w *Workspace) SetSession(session *game.Session) {
 	w.Editor.SetSession(session)
 	w.records.Reset()
-	w.hex.Reset()
 	w.texts.Reset()
 	w.scripts.Reset()
 	w.portraits.Reset()
@@ -288,28 +297,29 @@ func (w *Workspace) OpenQuote(kind quote.Kind, index int) {
 			}
 		}
 	}
-	w.tab = len(records.Kinds) + 5
+	w.tab = len(records.Kinds) + quotesTab
 	w.quotes.Open(kind, index)
 }
 
 func (w *Workspace) openWorldMap(id int) {
-	w.tab = len(records.Kinds) + 8
+	w.tab = len(records.Kinds) + worldmapTab
 	w.worldmap.Open(id)
 }
 
 func (w *Workspace) openHex(address, length int) {
-	w.tab = len(records.Kinds) + 1
-	w.hex.Open(address, length)
+	if w.Actions.OpenHex != nil {
+		w.Actions.OpenHex(address, length)
+	}
 }
 
 func (w *Workspace) openText(id uint16) {
-	w.tab = len(records.Kinds)
+	w.tab = len(records.Kinds) + textTab
 	w.texts.Open(id)
 }
 
 // OpenScript navigates to a chapter's physical script entry pointer.
 func (w *Workspace) OpenScript(chapter, site int) {
-	w.tab = len(records.Kinds) + 2
+	w.tab = len(records.Kinds) + scriptsTab
 	w.scripts.Open(chapter, site)
 }
 
@@ -317,7 +327,7 @@ func (w *Workspace) OpenScript(chapter, site int) {
 func (w *Workspace) OpenPortrait(
 	id int,
 ) {
-	w.tab = len(records.Kinds) + 3
+	w.tab = len(records.Kinds) + portraitsTab
 	w.portraits.Open(id)
 }
 
@@ -356,7 +366,6 @@ func (w *Workspace) View(c *ui.Context) {
 		labels = append(
 			labels,
 			locales.TextEditor(),
-			locales.HexEditor(),
 			locales.ScriptEditor(),
 			locales.PortraitTable(),
 			locales.ShopEntries(),
@@ -373,30 +382,28 @@ func (w *Workspace) View(c *ui.Context) {
 		if w.tab >= len(records.Kinds) {
 			w.records.Deactivate()
 		}
-		if w.tab != len(records.Kinds) {
+		if w.tab != len(records.Kinds)+textTab {
 			w.texts.Deactivate()
 		}
-		if w.tab != len(records.Kinds)+8 {
+		if w.tab != len(records.Kinds)+worldmapTab {
 			w.worldmap.Deactivate()
 		}
 		switch w.tab {
-		case len(records.Kinds):
+		case len(records.Kinds) + textTab:
 			w.texts.View(c)
-		case len(records.Kinds) + 1:
-			w.hex.View(c)
-		case len(records.Kinds) + 2:
+		case len(records.Kinds) + scriptsTab:
 			w.scripts.View(c)
-		case len(records.Kinds) + 3:
+		case len(records.Kinds) + portraitsTab:
 			w.portraits.View(c)
-		case len(records.Kinds) + 4:
+		case len(records.Kinds) + shopsTab:
 			w.shops.View(c)
-		case len(records.Kinds) + 5:
+		case len(records.Kinds) + quotesTab:
 			w.quotes.View(c)
-		case len(records.Kinds) + 6:
+		case len(records.Kinds) + supportsTab:
 			w.supports.View(c)
-		case len(records.Kinds) + 7:
+		case len(records.Kinds) + arenasTab:
 			w.arenas.View(c)
-		case len(records.Kinds) + 8:
+		case len(records.Kinds) + worldmapTab:
 			w.worldmap.View(c)
 		default:
 			w.records.View(c, w.tab)

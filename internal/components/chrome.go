@@ -150,12 +150,10 @@ func StatusBar(
 				status = locales.Working()
 			}
 			ui.Text(c, status)
-			ui.Button(c, locales.Run()).
-				Disabled(state.Busy || run == nil).
-				OnClick(func() {
-					if run != nil {
-						run()
-					}
-				})
+			if run != nil {
+				ui.Button(c, locales.Run()).
+					Disabled(state.Busy).
+					OnClick(run)
+			}
 		})
 }

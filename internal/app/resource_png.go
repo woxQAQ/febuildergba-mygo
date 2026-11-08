@@ -19,7 +19,7 @@ func importResourcePNG[T any](
 	if workspace.Editor.Busy || done == nil {
 		return
 	}
-	workspace.Editor.Busy = true
+	workspace.Editor.SetBusy(true)
 	go func() {
 		paths, err := mygo.Dialog.Open(
 			mygo.OpenDialogOptions{
@@ -40,7 +40,7 @@ func importResourcePNG[T any](
 		}
 		err = fault.Wrap(err, "app.import_resource_png", fault.Context{})
 		win.Update(func() {
-			workspace.Editor.Busy = false
+			workspace.Editor.SetBusy(false)
 			workspace.Editor.Report("app.import_resource_png", err)
 			done(result, err)
 		})

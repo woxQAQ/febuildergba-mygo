@@ -30,7 +30,7 @@ func importPNG(
 	if workspace.Editor.Busy || done == nil {
 		return
 	}
-	workspace.Editor.Busy = true
+	workspace.Editor.SetBusy(true)
 	title := locales.ReplacePng()
 	go func() {
 		paths, err := mygo.Dialog.Open(
@@ -48,7 +48,7 @@ func importPNG(
 		}
 		err = fault.Wrap(err, "app.import_png", fault.Context{})
 		win.Update(func() {
-			workspace.Editor.Busy = false
+			workspace.Editor.SetBusy(false)
 			workspace.Editor.Report("app.import_png", err)
 			done(content, err)
 		})

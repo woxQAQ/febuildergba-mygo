@@ -32,7 +32,7 @@
 | <a id="rom-save"></a>rom.save                     | 保存、另存、备份及失败处理 | 已实现   | 快照、备份、替换；备份不自动清理                                                                                                                              |
 | <a id="rom-save-snapshot"></a>rom.save-snapshot   | 保存期间保持文档可读       | 已实现   | I/O 不持有状态锁，新修改保持未保存                                                                                                                            |
 | <a id="rom-external"></a>rom.external             | 检测外部修改               | 部分实现 | 保存与聚焦时检查；持续监视未实现                                                                                                                              |
-| <a id="rom-isolation"></a>rom.isolation           | 独立文档与历史             | 已实现   | 每窗口独立会话                                                                                                                                                |
+| <a id="rom-isolation"></a>rom.isolation           | 独立文档与历史             | 已实现   | 每个 ROM 主窗口独立会话；所属十六进制窗口共享该文档与历史                                                                                                     |
 | <a id="fe8u-repoint"></a>fe8u.repoint             | 按实际指针定位搬迁表       | 已实现   | 实际表指针；单表失败隔离                                                                                                                                      |
 | <a id="fe8u-units"></a>fe8u.units                 | 人物基础字段               | 部分实现 | 基础字段；补丁扩展未完整覆盖                                                                                                                                  |
 | <a id="fe8u-classes"></a>fe8u.classes             | 职业基础字段               | 部分实现 | 基础字段与原生移动／地形表；动画编辑待接入                                                                                                                    |
@@ -43,7 +43,7 @@
 | <a id="fe8u-patches"></a>fe8u.patches             | 布局相关补丁识别           | 部分实现 | 已知布局特征；补丁管理未实现                                                                                                                                  |
 | <a id="fe8u-asset-preview"></a>fe8u.asset-preview | 头像、职业卡及图标预览     | 已实现   | 标准素材读写；扩展头像只读                                                                                                                                    |
 | <a id="fe8u-layout"></a>fe8u.layout               | 手动表定位                 | 已实现   | 只影响当前窗口解析                                                                                                                                            |
-| <a id="fe8u-raw"></a>fe8u.raw                     | 固定长度字节编辑           | 已实现   | 固定长度、文档身份与修订检查                                                                                                                                  |
+| <a id="fe8u-raw"></a>fe8u.raw                     | 固定长度字节编辑           | 已实现   | 视图菜单打开独立窗口；固定长度、文档身份与修订检查                                                                                                            |
 | <a id="emulator-launch"></a>emulator.launch       | 保存后打开模拟器           | 已实现   | 可执行文件、PATH、macOS bundle                                                                                                                                |
 | <a id="emulator-warp"></a>emulator.warp           | 跳转指定章节               | 待实现   | RAM 注入、版本及章节状态待适配                                                                                                                                |
 

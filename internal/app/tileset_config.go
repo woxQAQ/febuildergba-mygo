@@ -29,7 +29,7 @@ func importTilesetConfig(
 	if workspace.Editor.Busy || done == nil {
 		return
 	}
-	workspace.Editor.Busy = true
+	workspace.Editor.SetBusy(true)
 	title := locales.MapTilesetImport()
 	go func() {
 		paths, err := mygo.Dialog.Open(mygo.OpenDialogOptions{
@@ -56,7 +56,7 @@ func importTilesetConfig(
 		}
 		err = fault.Wrap(err, "app.import_tileset_config", fault.Context{})
 		win.Update(func() {
-			workspace.Editor.Busy = false
+			workspace.Editor.SetBusy(false)
 			workspace.Editor.Report("app.import_tileset_config", err)
 			done(draft, err)
 		})

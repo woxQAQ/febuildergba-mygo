@@ -34,7 +34,7 @@
 
 ## 布局与文字
 
-- 已有结构化表单或可视化编辑器的资源，通过所属编辑器修改；不在这些工作流旁提供“编辑字节”或指向十六进制页的替代入口。领域页面不设统管全页的“原始数据”复选框。字段和常用操作直接放在所属表单中，单个字段、短说明不单独折叠；简短规则放在对应控件帮助中，无任务价值的地址清单删除。关联事件等结果较长、需独立查询的浏览任务才按需展开。独立十六进制页用于尚未解释的数据。
+- 已有结构化表单或可视化编辑器的资源，通过所属编辑器修改；不在这些工作流旁提供“编辑字节”或指向十六进制工具窗口的替代入口。领域页面不设统管全页的“原始数据”复选框。字段和常用操作直接放在所属表单中，单个字段、短说明不单独折叠；简短规则放在对应控件帮助中，无任务价值的地址清单删除。关联事件等结果较长、需独立查询的浏览任务才按需展开。十六进制工具窗口用于尚未解释的数据，通过“视图”菜单打开，复用所属 ROM 的文档与历史。
 - 引用字段优先显示可搜索的资源名称和就地预览，末尾使用紧贴字段的 Lucide `ArrowUpRight` 打开图标；悬停及可访问名称说明目标。字段内 `Alt+Enter` 打开当前引用，Tab 后的 Enter／空格也可激活图标。更换引用与打开资源使用独立操作，无效引用及忙碌时禁止打开。列表和行内的添加、复制、删除、重排使用紧凑的 Lucide 图标按钮，图形统一为 16×16，提供完整提示及可访问名称。地图工具使用图标分段控件，保留方向键选择和单个 Tab 停靠；网格与道路翻转使用保留按下状态的图标开关。草稿撤销／重做、日志暂停／继续、最新和复制、提示条关闭及文本操作菜单使用图标。应用、取消、预览、丢弃草稿及文件操作等需要说明后果或对象的动作保留文字。
 - 标签说明对象，按钮说明动作；前置条件通过可直接操作的入口和控件状态表达，不常驻“请先……”或重复按钮顺序的操作说明。版本、格式和计算规则放在对应帮助中；当前错误、冲突、检查不完整及共享修改后果直接显示，并使用正文对比度。
 - 记录、文本和头像导航的搜索框随输入过滤显示，查询随页面状态保留；非空查询在框内提供清空按钮，Escape 同样清空并保留输入焦点，空查询的 Escape 不被搜索框拦截。搜索不修改 ROM，忙碌时禁止输入。
@@ -80,4 +80,4 @@
 
 ## 实现位置
 
-`internal/pages` 拥有标签内容、导航和页面组合，包括记录、脚本、通用文本及十六进制编辑。`internal/components` 根包维护窗口 chrome 和通用控件，`internal/editor` 保存窗口共享编辑状态。记录表单和章节交互分别位于 `internal/pages/records`、`internal/pages/chapters`，共享地图渲染位于 `internal/components/mapview`；商店列表位于 `internal/pages/shops`，共享货物控件位于 `internal/components/shopview`。战斗／死亡对话页位于 `internal/pages/quotes`，消费 `game/quote` 的原生表和计划。图标位于 `internal/components/icons`，由 `cmd/iconify-gen` 从 `package.json` 声明的 `@iconify-json/*` 依赖生成。`internal/input` 承载纯数值及地址解析。直接导入限制及 depguard 的检查范围见[架构约束](architecture.md#约束)，依赖与所有权见[架构说明](architecture.md)，启动与构建见[开发说明](development.md)。
+`internal/pages` 拥有标签内容、导航和页面组合，包括记录、脚本、通用文本及独立十六进制窗口的内容。`internal/components` 根包维护窗口 chrome 和通用控件，`internal/editor` 保存窗口共享编辑状态。记录表单和章节交互分别位于 `internal/pages/records`、`internal/pages/chapters`，共享地图渲染位于 `internal/components/mapview`；商店列表位于 `internal/pages/shops`，共享货物控件位于 `internal/components/shopview`。战斗／死亡对话页位于 `internal/pages/quotes`，消费 `game/quote` 的原生表和计划。图标位于 `internal/components/icons`，由 `cmd/iconify-gen` 从 `package.json` 声明的 `@iconify-json/*` 依赖生成。`internal/input` 承载纯数值及地址解析。直接导入限制及 depguard 的检查范围见[架构约束](architecture.md#约束)，依赖与所有权见[架构说明](architecture.md)，启动与构建见[开发说明](development.md)。

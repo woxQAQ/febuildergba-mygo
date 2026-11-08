@@ -152,8 +152,7 @@ func (a *Page) Open(address, length int) {
 }
 
 func (a *Page) View(c *ui.Context) {
-	ui.Column(c.Key("hex-editor")).Grow(1).Padding(20).Gap(12).Children(func() {
-		ui.Text(c, locales.HexEditor()).FontSize(components.FontTitle).Bold()
+	ui.Column(c.Key("hex-editor")).Grow(1).Padding(12).Gap(10).Children(func() {
 		ui.Text(c, locales.HexScope()).TextColor(c.Theme().TextMuted)
 		ui.Row(c).Gap(12).AlignItems(ui.End).Children(func() {
 			ui.Field(c, locales.RomAddress(), func() {
@@ -253,4 +252,10 @@ func New(state *editor.State) *Page {
 	return a
 }
 
-func (a *Page) Reset() { a.raw = rawDraft{address: "00000000", length: "64"} }
+func (a *Page) Reset() {
+	a.raw = rawDraft{
+		address:    "00000000",
+		length:     "64",
+		generation: a.raw.generation + 1,
+	}
+}

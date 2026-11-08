@@ -32,7 +32,7 @@ func importTextFile(
 	if workspace.Editor.Busy || done == nil {
 		return
 	}
-	workspace.Editor.Busy = true
+	workspace.Editor.SetBusy(true)
 	title := locales.TextFileImport()
 	go func() {
 		paths, err := mygo.Dialog.Open(mygo.OpenDialogOptions{
@@ -58,7 +58,7 @@ func importTextFile(
 		}
 		err = fault.Wrap(err, "app.import_text_file", fault.Context{})
 		win.Update(func() {
-			workspace.Editor.Busy = false
+			workspace.Editor.SetBusy(false)
 			workspace.Editor.Report("app.import_text_file", err)
 			done(draft, name, err)
 		})

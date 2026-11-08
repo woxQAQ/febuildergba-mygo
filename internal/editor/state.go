@@ -33,19 +33,56 @@ const (
 	HistoryClaimDocument
 )
 
-// State is shared by a window's pages and components and mutated on the UI
-// thread.
-type State struct {
+// documentState is shared by the workspace and its tool windows. All writes
+// remain on the UI thread; each State keeps its own focus and draft routing.
+type documentState struct {
 	Session        *game.Session
 	Busy, External bool
 	Err            error
 	HistoryEpoch   uint64
-	loggedCode     fault.Code
-	loggedText     string
+	// Changed invalidates windows displaying this document on the UI thread.
+	Changed    func()
+	loggedCode fault.Code
+	loggedText string
+}
+
+// State owns one window's history routing over a shared document state.
+type State struct {
+	*documentState
+
 	// Focus and draft commands are recomputed by the visible page each build.
 	TextFocused  bool
 	HistoryClaim HistoryClaim
 	DraftHistory *History
+}
+
+func New() *State {
+	return &State{documentState: &documentState{}}
+}
+
+// NewView shares the document and operation state with a separate window.
+func (s *State) NewView() *State {
+	return &State{documentState: s.documentState}
+}
+
+func (s *State) notify() {
+	if s.Changed != nil {
+		s.Changed()
+	}
+}
+
+func (s *State) SetBusy(busy bool) {
+	if s.Busy != busy {
+		s.Busy = busy
+		s.notify()
+	}
+}
+
+func (s *State) SetExternal(external bool) {
+	if s.External != external {
+		s.External = external
+		s.notify()
+	}
 }
 
 func (s *State) SetSession(session *game.Session) {
@@ -56,6 +93,7 @@ func (s *State) SetSession(session *game.Session) {
 	s.HistoryClaim = HistoryClaimNone
 	s.DraftHistory = nil
 	s.HistoryEpoch++
+	s.notify()
 }
 
 // Report records a changed diagnostic without changing the page's presentation.
@@ -77,6 +115,7 @@ func (s *State) SetErr(err error) {
 		s.loggedCode, s.loggedText = fault.Code{}, ""
 	}
 	s.Report("editor.operation", err)
+	s.notify()
 }
 
 // Edit observes a synchronous domain commit without moving logging into the
@@ -99,6 +138,7 @@ func (s *State) Edit(work func() error) error {
 		)
 	}
 	s.Report("editor.operation", err)
+	s.notify()
 	return err
 }
 
