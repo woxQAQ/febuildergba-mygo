@@ -2,6 +2,8 @@
 
 原生 FE8J/U 据点、路线、道路与移动控制点由 `game/worldmap` 读取与编辑，`game/worldmap_sources.go` 提供当前章节、文本校验及会话资源保护。事件目录和已确认指令由 `game/event/worldmap_events.go`、`game/event/worldmap_commands.go`、`game/event/worldmap_scene.go` 及 FE6／FE7 的版本指令文件接入通用脚本草稿。功能状态和未支持范围见[覆盖矩阵](../coverage.md#世界地图据点)，来源见[据点核对来源](../sources.md#世界地图据点)、[路线核对来源](../sources.md#世界地图路线与底图)和[事件核对来源](../sources.md#世界地图事件)。
 
+操作步骤见[世界地图操作](../guides/worldmap.md)，通用指令编辑见[事件脚本操作](../guides/event-scripts.md)。
+
 ## 版本与入口
 
 FE8 的据点和道路用于可操作世界地图；游戏按当前主角路线与分支标志读取进入章节、后继据点，并由事件及运行状态控制显示与通行。FE6／FE7 的世界地图用于章节间叙事演出，图像与事件有各自入口，不采用这套据点与道路表。

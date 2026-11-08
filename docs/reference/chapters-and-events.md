@@ -1,6 +1,6 @@
 # 章节、地图与事件
 
-本文维护当前格式、写入语义和限制；功能状态见[覆盖矩阵](../coverage.md)，操作步骤见[使用指南](../user-guide.md)。旧版与原生代码的固定版本见[核对来源](../sources.md)。
+本文维护当前格式、写入语义和限制；功能状态见[覆盖矩阵](../coverage.md)，章节工作区的操作见[章节与地图](../guides/chapters.md)，指令编辑见[事件脚本](../guides/event-scripts.md)。旧版与原生代码的固定版本见[核对来源](../sources.md)。
 
 当前入口：章节布局（`game/chapter/format.go`）、资源协调（`game/chapter/editor.go`）、部署草稿（`game/deployment/draft.go`）、事件条件（`game/event/conditions.go`）、条件编辑（`game/event/conditions_edit.go`）和脚本读取（`game/event/script.go`）。
 

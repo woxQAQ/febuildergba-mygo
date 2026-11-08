@@ -1,6 +1,6 @@
 # MyGo v0.6.3 → v0.7.3 评估
 
-> 一次性调研，核对日期：2026-10-30。项目基线为 `44cdc8fe8a5160163c58db8be1ba90cf594e53f6`，并包含调研开始时已有的章节、记录和地图组件工作区修改。本报告不维护后续升级状态；当前依赖以 `go.mod` 为准，架构与开发规则以[架构说明](../architecture.md)、[开发说明](../development.md)和 [AGENTS](../../AGENTS.md) 为准。
+> 一次性调研，核对日期：2026-10-30。项目基线为 `44cdc8fe8a5160163c58db8be1ba90cf594e53f6`，并包含调研开始时已有的章节、记录和地图组件工作区修改。本报告不维护后续升级状态；当前依赖以 `go.mod` 为准，架构与开发规则以[架构说明](../../docs/architecture.md)、[开发说明](../../docs/development.md)和 [AGENTS](../../AGENTS.md) 为准。
 
 ## 结论与版本边界
 
@@ -88,7 +88,7 @@ flowchart LR
     App --> UI
 ```
 
-新 API 没有理由让 `game` 持有 `ui.Bitmap`、把地图规则搬入绘制回调，或把 `editor.State` 改成框架控件树。当前 `mapview` 只消费预览与交互回调，正适合继续接入新绘制能力。[项目架构](../architecture.md)、[框架生命周期契约][contract-new]
+新 API 没有理由让 `game` 持有 `ui.Bitmap`、把地图规则搬入绘制回调，或把 `editor.State` 改成框架控件树。当前 `mapview` 只消费预览与交互回调，正适合继续接入新绘制能力。[项目架构](../../docs/architecture.md)、[框架生命周期契约][contract-new]
 
 ### 撤销目标比统一快捷键更值得整理
 

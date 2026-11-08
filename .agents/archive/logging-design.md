@@ -1,10 +1,10 @@
 # 应用日志与诊断记录设计
 
-历史方案：已实施并归档，设计核对基线为 `0f82791`。本文保留当时的方案与实施顺序，不再随实现更新；当前日志行为见[错误设计](../error-design.md#日志采集)，模块边界见[架构](../architecture.md#应用诊断)，配置与保留策略见[开发说明](../development.md#日志与诊断)。
+历史方案：已实施并归档，设计核对基线为 `0f82791`。本文保留当时的方案与实施顺序，不再随实现更新；当前日志行为见[错误设计](../../docs/error-design.md#日志采集)，模块边界见[架构](../../docs/architecture.md#应用诊断)，配置与保留策略见[开发说明](../../docs/development.md#日志与诊断)。
 
 - **核对基线**：仓库提交 `0f82791`。当前实现仅在 `fault/error.go` 提供 `fault.LogValue`，并在 `internal/app/app.go` 调用未配置 `slog.Handler` 的默认 `slog.Error` 输出至标准错误流，`main.go` 仍使用 `log.Fatal`。
-- **触发条件**：接入桌面端持久化日志、统一后台 I/O 与页面同步编辑的错误诊断记录，或实现[覆盖矩阵](../coverage.md)中的 `diagnostics.errors`（独立诊断面板）与 `tools.distribution`（问题报告及日志导出）时按本文实施。
-- **关联文档**：[错误设计](../error-design.md)、[架构与代码导航](../architecture.md)、[覆盖矩阵](../coverage.md)。
+- **触发条件**：接入桌面端持久化日志、统一后台 I/O 与页面同步编辑的错误诊断记录，或实现[覆盖矩阵](../../docs/coverage.md)中的 `diagnostics.errors`（独立诊断面板）与 `tools.distribution`（问题报告及日志导出）时按本文实施。
+- **关联文档**：[错误设计](../../docs/error-design.md)、[架构与代码导航](../../docs/architecture.md)、[覆盖矩阵](../../docs/coverage.md)。
 
 ## 现状与问题
 
@@ -24,7 +24,7 @@
 3. **UI 线程非阻塞与并发安全**：
    日志接收器同时服务于 `internal/app` 的后台 worker goroutine 和 UI 主线程。内部锁粒度限于单条记录的序列化与写入，单文件大小有界，避免阻塞界面渲染。
 4. **环境变量驱动配置**：
-   通过环境变量控制日志级别与目录，不新增自定义 CLI 标志，避免污染[旧版 CLI 契约](../legacy-inventory.md#cli-参数范围)（`cli.compatibility`）的参数空间。
+   通过环境变量控制日志级别与目录，不新增自定义 CLI 标志，避免污染[旧版 CLI 契约](../../docs/legacy-inventory.md#cli-参数范围)（`cli.compatibility`）的参数空间。
 
 ## 拓扑与模块设计
 
@@ -154,4 +154,4 @@ UI 线程上的页面与组件将对 `state.Err` 的写入收敛为 `state.SetEr
    - 在 `internal/editor.State` 增加 `SetErr` 并在页面／组件错误设置处接入，同时在 `Undo`／`Redo` 记录 `DEBUG` 级历史事件。
 3. **合成测试验证**：
    - 在 `internal/applog` 编写工作流测试（不按函数逐一写单元测试）：使用 `t.TempDir()` 验证 JSONL 中 `fault.LogValue` 原因树保真、按 `fault.Kind` 分流过滤（`Canceled` 忽略、`InvalidInput` 仅 `DEBUG` 输出）、单文件超限后的世代轮转、不可写目录的优雅降级，以及 `RingBuffer` 并发读写与容量覆盖边界。
-   - 实施完成后更新 [架构与代码导航](../architecture.md) 与 [错误设计](../error-design.md)，并将本方案归入对应实现文档或按 [AGENTS](../../AGENTS.md#文档维护) 处置。
+   - 实施完成后更新 [架构与代码导航](../../docs/architecture.md) 与 [错误设计](../../docs/error-design.md)，并将本方案归入对应实现文档或按 [AGENTS](../../AGENTS.md#文档维护) 处置。
