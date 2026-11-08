@@ -11,7 +11,7 @@ import (
 	"github.com/woxQAQ/febuildergba-mygo/game/edit"
 	"github.com/woxQAQ/febuildergba-mygo/internal/testutil"
 	"github.com/woxQAQ/febuildergba-mygo/rom"
-	"github.com/woxQAQ/febuildergba-mygo/space"
+	"github.com/woxQAQ/febuildergba-mygo/romwrite"
 )
 
 func TestCapturedCommitLifecycle(t *testing.T) {
@@ -20,11 +20,11 @@ func TestCapturedCommitLifecycle(t *testing.T) {
 	doc, context := capturedDocument(t, data)
 	context.Interpret("automatic")
 	input := context.Capture()
-	owner := space.Owner{Resource: "resource"}
-	claims := []space.Claim{{Start: 4, End: 8, Owner: owner, Site: true}}
-	builder := space.NewBuilder(input.Data, space.Protection{
-		Pointer: func(_ []byte, owner space.Owner, site int) error {
-			return space.CheckWrite(claims, owner, site)
+	owner := romwrite.Owner{Resource: "resource"}
+	claims := []romwrite.Claim{{Start: 4, End: 8, Owner: owner, Site: true}}
+	builder := romwrite.NewBuilder(input.Data, romwrite.Protection{
+		Pointer: func(_ []byte, owner romwrite.Owner, site int) error {
+			return romwrite.CheckPointerWrite(claims, owner, site)
 		},
 	})
 	var encoded []byte
@@ -34,7 +34,7 @@ func TestCapturedCommitLifecycle(t *testing.T) {
 			testutil.PointerWord(at+4),
 		)
 		return append(encoded, 0xA1, 0xA2, 0xA3, 0xA4), nil
-	}, space.PointerSite{Owner: owner, Address: 4, ExpectedWord: 0x08000020}); err != nil {
+	}, romwrite.PointerSite{Owner: owner, Address: 4, ExpectedWord: 0x08000020}); err != nil {
 		t.Fatal(err)
 	}
 	plan := builder.Plan()

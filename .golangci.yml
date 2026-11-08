@@ -27,14 +27,14 @@ linters:
             - github.com/woxQAQ/febuildergba-mygo/internal/applog$
         no-applog:
           files:
-            - "${config-path}/{game,rom,space,gba,fault}/**.go"
+            - "${config-path}/{game,rom,romwrite,gba,fault}/**.go"
             - "${config-path}/internal/{input,locales}/**.go"
           deny:
             - pkg: github.com/woxQAQ/febuildergba-mygo/internal/applog
               desc: Application logging belongs at app and editor boundaries.
         domain:
           files:
-            - "${config-path}/{game,rom,space,gba,fault}/**.go"
+            - "${config-path}/{game,rom,romwrite,gba,fault}/**.go"
           deny:
             - pkg: github.com/egoist/mygo
               desc: Domain packages must remain independent of MyGo.
@@ -98,7 +98,7 @@ linters:
               desc: Catalogs cannot import domain packages.
             - pkg: github.com/woxQAQ/febuildergba-mygo/rom
               desc: Catalogs cannot import domain packages.
-            - pkg: github.com/woxQAQ/febuildergba-mygo/space
+            - pkg: github.com/woxQAQ/febuildergba-mygo/romwrite
               desc: Catalogs cannot import domain packages.
             - pkg: github.com/woxQAQ/febuildergba-mygo/gba
               desc: Catalogs cannot import domain packages.

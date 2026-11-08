@@ -7,13 +7,13 @@ import (
 	"github.com/woxQAQ/febuildergba-mygo/game/records"
 	"github.com/woxQAQ/febuildergba-mygo/game/shop"
 	"github.com/woxQAQ/febuildergba-mygo/gba"
-	"github.com/woxQAQ/febuildergba-mygo/space"
+	"github.com/woxQAQ/febuildergba-mygo/romwrite"
 )
 
 func (s *Session) shopSource() shop.Source {
 	return shop.Source{
 		References: s.shopReferences,
-		ProtectPointer: func(data []byte, owner space.Owner, site int) error {
+		ProtectPointer: func(data []byte, owner romwrite.Owner, site int) error {
 			return s.guardPointer(data, owner, site, edit.ErrLayout)
 		},
 	}

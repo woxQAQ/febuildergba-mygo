@@ -7,15 +7,15 @@ import (
 	"github.com/woxQAQ/febuildergba-mygo/game/edit"
 	"github.com/woxQAQ/febuildergba-mygo/gba"
 	"github.com/woxQAQ/febuildergba-mygo/rom"
-	"github.com/woxQAQ/febuildergba-mygo/space"
+	"github.com/woxQAQ/febuildergba-mygo/romwrite"
 )
 
 // MovePlan is an immutable preview tied to one document revision.
 type MovePlan struct {
 	commit *edit.Commit
 	kind   Kind
-	source space.Range
-	plan   space.WritePlan
+	source romwrite.Range
+	plan   romwrite.WritePlan
 	refs   int
 }
 
@@ -35,7 +35,7 @@ func (m *MovePlan) Revision() uint64 { return m.commit.Revision() }
 // free ranges.
 func (s *Editor) PlanTableMove(
 	kind Kind,
-	available []space.FreeRange,
+	available []romwrite.FreeRange,
 ) (result *MovePlan, err error) {
 	defer func() { err = fault.Wrap(err, "game.plan_table_move", fault.Context{Table: string(kind)}) }()
 	s.Refresh()
@@ -56,14 +56,14 @@ func (s *Editor) PlanTableMove(
 		if other.Manual && other.Err == nil {
 			move.Reserved = append(
 				move.Reserved,
-				space.Range{
+				romwrite.Range{
 					Start: other.Address,
 					End:   other.Address + other.Stride*other.Count,
 				},
 			)
 		}
 	}
-	builder := space.NewBuilder(input.Data, s.protection)
+	builder := romwrite.NewBuilder(input.Data, s.protection)
 	if _, err = builder.Relocate(move); err != nil {
 		return nil, err
 	}
@@ -121,15 +121,17 @@ func (s *Editor) ApplyTableMove(move *MovePlan) (err error) {
 	return nil
 }
 
-func (g Format) TableMove(data []byte, table Table) (space.Move, error) {
-	move := space.Move{Owner: space.Owner{Resource: string(table.Kind), ID: -1}}
+func (g Format) TableMove(data []byte, table Table) (romwrite.Move, error) {
+	move := romwrite.Move{
+		Owner: romwrite.Owner{Resource: string(table.Kind), ID: -1},
+	}
 	for _, rule := range g.Rules {
 		if rule.Kind != table.Kind {
 			continue
 		}
 		source, err := rule.Extent(data, table)
 		if err != nil {
-			return space.Move{}, err
+			return romwrite.Move{}, err
 		}
 		move.Source = source
 		for _, address := range rule.Pointers {
@@ -140,7 +142,7 @@ func (g Format) TableMove(data []byte, table Table) (space.Move, error) {
 				target == source.Start {
 				move.References = append(
 					move.References,
-					space.Reference{Owner: move.Owner, Address: address},
+					romwrite.Reference{Owner: move.Owner, Address: address},
 				)
 			}
 		}
@@ -155,8 +157,8 @@ func (g Format) TableMove(data []byte, table Table) (space.Move, error) {
 					target < source.End {
 					move.References = append(
 						move.References,
-						space.Reference{
-							Owner: space.Owner{
+						romwrite.Reference{
+							Owner: romwrite.Owner{
 								Resource: string(table.Kind),
 								ID:       row.ID,
 							},
@@ -169,14 +171,14 @@ func (g Format) TableMove(data []byte, table Table) (space.Move, error) {
 		}
 	}
 	if len(move.References) == 0 {
-		return space.Move{}, space.ErrReference
+		return romwrite.Move{}, romwrite.ErrReference
 	}
-	move.Reserved = append(move.Reserved, space.Range{Start: 0, End: 0xC0})
+	move.Reserved = append(move.Reserved, romwrite.Range{Start: 0, End: 0xC0})
 	for _, rule := range g.Rules {
 		for _, address := range rule.Pointers {
 			move.Reserved = append(
 				move.Reserved,
-				space.Range{Start: address, End: address + 4},
+				romwrite.Range{Start: address, End: address + 4},
 			)
 		}
 		other := rule.Read(
@@ -190,7 +192,7 @@ func (g Format) TableMove(data []byte, table Table) (space.Move, error) {
 		}
 		region, err := rule.Extent(data, other)
 		if err != nil {
-			return space.Move{}, err
+			return romwrite.Move{}, err
 		}
 		move.Reserved = append(move.Reserved, region)
 	}

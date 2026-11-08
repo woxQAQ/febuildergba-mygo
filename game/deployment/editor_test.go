@@ -13,7 +13,7 @@ import (
 	"github.com/woxQAQ/febuildergba-mygo/game/records"
 	"github.com/woxQAQ/febuildergba-mygo/internal/testutil"
 	"github.com/woxQAQ/febuildergba-mygo/rom"
-	"github.com/woxQAQ/febuildergba-mygo/space"
+	"github.com/woxQAQ/febuildergba-mygo/romwrite"
 )
 
 func TestDeploymentEditingWorkflow(t *testing.T) {
@@ -490,7 +490,7 @@ func TestDeploymentResourceBoundaries(t *testing.T) {
 			draft,
 		); !errors.Is(
 			err,
-			space.ErrCapacity,
+			romwrite.ErrCapacity,
 		) {
 			t.Fatalf("full ROM accepted append: %v", err)
 		}

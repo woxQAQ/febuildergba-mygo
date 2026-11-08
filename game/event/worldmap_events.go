@@ -7,7 +7,7 @@ import (
 	"github.com/woxQAQ/febuildergba-mygo/game/edit"
 	"github.com/woxQAQ/febuildergba-mygo/game/records"
 	"github.com/woxQAQ/febuildergba-mygo/gba"
-	"github.com/woxQAQ/febuildergba-mygo/space"
+	"github.com/woxQAQ/febuildergba-mygo/romwrite"
 )
 
 // WorldMapScripts selects the independent native event directory. A world-map
@@ -189,27 +189,30 @@ func (s *Editor) WorldMapEvents() ([]WorldMapEvent, error) {
 func (f Format) WorldMapClaims(
 	data []byte,
 	chapters *records.Table,
-) []space.Claim {
-	var claims []space.Claim
+) []romwrite.Claim {
+	var claims []romwrite.Claim
 	if site := f.WorldMapEvents.ChapterPLIST; site >= 0xC0 &&
 		gba.Within(data, site, 4) {
 		claims = append(
 			claims,
-			space.Claim{
+			romwrite.Claim{
 				Start: site,
 				End:   site + 4,
-				Owner: space.Owner{Resource: "event.worldmap_root", ID: site},
-				Site:  true,
+				Owner: romwrite.Owner{
+					Resource: "event.worldmap_root",
+					ID:       site,
+				},
+				Site: true,
 			},
 		)
 	}
 	for _, table := range f.WorldMapEvents.Tables {
 		site := table.Pointer
 		if site >= 0xC0 && gba.Within(data, site, 4) {
-			owner := space.Owner{Resource: "event.worldmap_root", ID: site}
+			owner := romwrite.Owner{Resource: "event.worldmap_root", ID: site}
 			claims = append(
 				claims,
-				space.Claim{
+				romwrite.Claim{
 					Start: site,
 					End:   site + 4,
 					Owner: owner,
@@ -222,7 +225,7 @@ func (f Format) WorldMapClaims(
 				base < len(data) {
 				claims = append(
 					claims,
-					space.Claim{
+					romwrite.Claim{
 						Start: base,
 						End:   min(base+table.Count*4, len(data)),
 						Owner: owner,
@@ -243,20 +246,20 @@ func (f Format) WorldMapClaims(
 		if entry.Address >= 0xC0 && gba.Within(data, entry.Address, 4) {
 			claims = append(
 				claims,
-				space.Claim{
+				romwrite.Claim{
 					Start: entry.Address,
 					End:   entry.Address + 4,
 					Owner: ScriptCodeOwner(),
 				},
 			)
 		}
-		host := space.Owner{}
+		host := romwrite.Owner{}
 		if entry.Source == "script_call_entry" {
 			host = ScriptCodeOwner()
 		}
 		claims = append(
 			claims,
-			space.Claim{
+			romwrite.Claim{
 				Start: entry.Pointer,
 				End:   entry.Pointer + 4,
 				Owner: ScriptOwner(entry.Pointer),
@@ -269,7 +272,7 @@ func (f Format) WorldMapClaims(
 		for _, row := range program.rows {
 			claims = append(
 				claims,
-				space.Claim{
+				romwrite.Claim{
 					Start: row.instruction.Address,
 					End:   row.instruction.Address + len(row.instruction.Raw),
 					Owner: ScriptCodeOwner(),

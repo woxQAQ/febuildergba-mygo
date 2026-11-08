@@ -11,14 +11,14 @@ import (
 	"github.com/woxQAQ/febuildergba-mygo/game/records"
 	"github.com/woxQAQ/febuildergba-mygo/gba"
 	"github.com/woxQAQ/febuildergba-mygo/rom"
-	"github.com/woxQAQ/febuildergba-mygo/space"
+	"github.com/woxQAQ/febuildergba-mygo/romwrite"
 )
 
 // ChangesPlan appends a frozen table and only changed tile payloads. The
 // selected PLIST entry is the sole existing write site; scripts stay intact.
 type ChangesPlan struct {
 	commit                                   *edit.Commit
-	plan                                     space.WritePlan
+	plan                                     romwrite.WritePlan
 	source, pointer, before, after, payloads int
 	uses                                     []Use
 	references                               ChangeReferences
@@ -130,8 +130,8 @@ func (s *Editor) PlanChanges(
 	if err = s.validateMapChanges(format, draft, uses); err != nil {
 		return nil, err
 	}
-	builder := space.NewBuilder(s.image.Data, space.Protection{
-		Pointer: func(_ []byte, _ space.Owner, site int) error {
+	builder := romwrite.NewBuilder(s.image.Data, romwrite.Protection{
+		Pointer: func(_ []byte, _ romwrite.Owner, site int) error {
 			return s.mapWriteSite(format, site, ChangesField)
 		},
 	})
@@ -147,7 +147,7 @@ func (s *Editor) PlanChanges(
 				}
 				address := destination + len(content)
 				if address > rom.MaxSize {
-					return nil, space.ErrCapacity
+					return nil, romwrite.ErrCapacity
 				}
 				binary.LittleEndian.PutUint32(
 					header[8:],
@@ -159,7 +159,7 @@ func (s *Editor) PlanChanges(
 			copy(content[index*12:], header[:])
 		}
 		return content, nil
-	}, space.PointerSite{
+	}, romwrite.PointerSite{
 		Owner:        resourceOwner(ChangesField, draft.original.pointer),
 		Address:      draft.original.pointer,
 		ExpectedWord: gba.Uint32(s.image.Data, draft.original.pointer),

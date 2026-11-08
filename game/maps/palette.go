@@ -13,7 +13,7 @@ import (
 	"github.com/woxQAQ/febuildergba-mygo/game/records"
 	"github.com/woxQAQ/febuildergba-mygo/gba"
 	"github.com/woxQAQ/febuildergba-mygo/rom"
-	"github.com/woxQAQ/febuildergba-mygo/space"
+	"github.com/woxQAQ/febuildergba-mygo/romwrite"
 )
 
 // PaletteSize is the native ten-bank map palette: five normal and five fogged.
@@ -360,7 +360,7 @@ type PaletteChange struct {
 
 type PalettePlan struct {
 	commit          *edit.Commit
-	plan            space.WritePlan
+	plan            romwrite.WritePlan
 	source, pointer int
 	changes         []PaletteChange
 	uses            []Use
@@ -400,15 +400,15 @@ func (s *Editor) PlanPalette(
 		return nil, err
 	}
 	changes := paletteChanges(draft.source.original, draft.content)
-	builder := space.NewBuilder(
+	builder := romwrite.NewBuilder(
 		s.image.Data,
-		space.Protection{
-			Pointer: func(_ []byte, _ space.Owner, site int) error { return s.mapWriteSite(s.format, site, PaletteField) },
+		romwrite.Protection{
+			Pointer: func(_ []byte, _ romwrite.Owner, site int) error { return s.mapWriteSite(s.format, site, PaletteField) },
 		},
 	)
 	if _, err := builder.Replace(
 		draft.content,
-		space.PointerSite{
+		romwrite.PointerSite{
 			Owner:        resourceOwner(PaletteField, draft.source.pointer),
 			Address:      draft.source.pointer,
 			ExpectedWord: gba.Uint32(s.image.Data, draft.source.pointer),

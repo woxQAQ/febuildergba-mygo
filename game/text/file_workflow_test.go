@@ -15,7 +15,7 @@ import (
 	"github.com/woxQAQ/febuildergba-mygo/gba"
 	"github.com/woxQAQ/febuildergba-mygo/internal/testutil"
 	"github.com/woxQAQ/febuildergba-mygo/rom"
-	"github.com/woxQAQ/febuildergba-mygo/space"
+	"github.com/woxQAQ/febuildergba-mygo/romwrite"
 )
 
 func TestTextFileEditingAndHistory(t *testing.T) {
@@ -287,7 +287,7 @@ func TestTextFileFailuresDoNotPartiallyApply(t *testing.T) {
 				t.Fatal("unsafe batch accepted", scenario)
 			}
 			if scenario == "partial-capacity" &&
-				!errors.Is(err, space.ErrCapacity) {
+				!errors.Is(err, romwrite.ErrCapacity) {
 				t.Fatal("partial allocation", err)
 			}
 			if scenario == "duplicate" &&

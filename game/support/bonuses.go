@@ -8,7 +8,7 @@ import (
 	"github.com/woxQAQ/febuildergba-mygo/game/edit"
 	"github.com/woxQAQ/febuildergba-mygo/gba"
 	"github.com/woxQAQ/febuildergba-mygo/rom"
-	"github.com/woxQAQ/febuildergba-mygo/space"
+	"github.com/woxQAQ/febuildergba-mygo/romwrite"
 )
 
 // BonusKind follows the native six unsigned-byte bonus fields. Values are the
@@ -66,17 +66,17 @@ func (f Format) bonuses(data []byte) (table bonusTable) {
 	return
 }
 
-func (f Format) bonusClaims(data []byte) []space.Claim {
+func (f Format) bonusClaims(data []byte) []romwrite.Claim {
 	if f.BonusPointer < 0xC0 || !gba.Within(data, f.BonusPointer, 4) {
 		return nil
 	}
-	owner := space.Owner{Resource: bonusResource}
-	result := []space.Claim{{
+	owner := romwrite.Owner{Resource: bonusResource}
+	result := []romwrite.Claim{{
 		Start: f.BonusPointer, End: f.BonusPointer + 4,
 		Owner: owner, Site: true,
 	}}
 	if table := f.bonuses(data); len(table.raw) > 0 {
-		result = append(result, space.Claim{
+		result = append(result, romwrite.Claim{
 			Start: table.address,
 			End:   table.address + len(table.raw),
 			Owner: owner,
@@ -202,12 +202,12 @@ func (e *Editor) PlanBonuses(d *BonusDraft) (result *BonusPlan, err error) {
 		return nil, err
 	}
 	site := e.format.BonusPointer
-	builder := space.NewBuilder(
+	builder := romwrite.NewBuilder(
 		image.Data,
-		space.Protection{Pointer: e.source.ProtectPointer},
+		romwrite.Protection{Pointer: e.source.ProtectPointer},
 	)
-	destination, err := builder.Replace(d.raw, space.PointerSite{
-		Owner:   space.Owner{Resource: bonusResource},
+	destination, err := builder.Replace(d.raw, romwrite.PointerSite{
+		Owner:   romwrite.Owner{Resource: bonusResource},
 		Address: site,
 		ExpectedWord: uint32( // #nosec G115 -- The bonus address was read from a valid GBA ROM pointer.
 			0x08000000 + d.address,

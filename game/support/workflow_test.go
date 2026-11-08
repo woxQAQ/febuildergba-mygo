@@ -14,7 +14,7 @@ import (
 	"github.com/woxQAQ/febuildergba-mygo/gba"
 	"github.com/woxQAQ/febuildergba-mygo/internal/testutil"
 	"github.com/woxQAQ/febuildergba-mygo/rom"
-	"github.com/woxQAQ/febuildergba-mygo/space"
+	"github.com/woxQAQ/febuildergba-mygo/romwrite"
 )
 
 func TestSupportWorkflow(t *testing.T) {
@@ -235,7 +235,7 @@ func TestSupportStructureAndSynchronization(t *testing.T) {
 				support.Relationship{Unit: 1},
 			); !errors.Is(
 				err,
-				space.ErrCapacity,
+				romwrite.ErrCapacity,
 			) {
 				t.Fatal("capacity", err)
 			}
@@ -360,7 +360,7 @@ func TestSupportConflictsAreAtomic(t *testing.T) {
 					t.Fatal(err)
 				}
 				d.Set(0, support.Relationship{Unit: 2, Initial: 35, Growth: 4})
-				expected = space.ErrCapacity
+				expected = romwrite.ErrCapacity
 			}
 			before = s.Document.Snapshot()
 			_, err = s.Supports.Plan(d, true)

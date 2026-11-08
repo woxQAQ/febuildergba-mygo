@@ -9,7 +9,7 @@ import (
 	"github.com/woxQAQ/febuildergba-mygo/game/edit"
 	"github.com/woxQAQ/febuildergba-mygo/gba"
 	"github.com/woxQAQ/febuildergba-mygo/rom"
-	"github.com/woxQAQ/febuildergba-mygo/space"
+	"github.com/woxQAQ/febuildergba-mygo/romwrite"
 )
 
 const MaxRoadTilesetPNG = 1 << 20
@@ -262,7 +262,7 @@ func (d *RoadTilesetDraft) Preview(route *RouteDraft) (*image.RGBA, error) {
 
 type RoadTilesetPlan struct {
 	commit   *edit.Commit
-	appended space.Range
+	appended romwrite.Range
 }
 
 func (p *RoadTilesetPlan) Current(
@@ -270,7 +270,7 @@ func (p *RoadTilesetPlan) Current(
 ) bool {
 	return p != nil && p.commit.Current(e.context)
 }
-func (p *RoadTilesetPlan) Appended() space.Range { return p.appended }
+func (p *RoadTilesetPlan) Appended() romwrite.Range { return p.appended }
 
 func (e *Editor) PlanRoadTileset(
 	d *RoadTilesetDraft,
@@ -289,8 +289,8 @@ func (e *Editor) PlanRoadTileset(
 	if err = e.context.Validate(snapshot.Data); err != nil {
 		return nil, err
 	}
-	builder := space.NewBuilder(snapshot.Data, space.Protection{
-		Pointer: func(data []byte, owner space.Owner, site int) error {
+	builder := romwrite.NewBuilder(snapshot.Data, romwrite.Protection{
+		Pointer: func(data []byte, owner romwrite.Owner, site int) error {
 			if err := e.source.ProtectPointer(data, owner, site); err != nil {
 				return fault.New(
 					ErrReference,
@@ -317,10 +317,10 @@ func (e *Editor) PlanRoadTileset(
 		if part.site == e.format.Scene.RoadTiles {
 			sites = d.source.tileSites
 		}
-		pointers := make([]space.PointerSite, len(sites))
+		pointers := make([]romwrite.PointerSite, len(sites))
 		for i, site := range sites {
-			pointers[i] = space.PointerSite{
-				Owner:   space.Owner{Resource: "worldmap.scene", ID: site},
+			pointers[i] = romwrite.PointerSite{
+				Owner:   romwrite.Owner{Resource: "worldmap.scene", ID: site},
 				Address: site, ExpectedWord: gba.Uint32(snapshot.Data, site),
 			}
 		}

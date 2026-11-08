@@ -11,7 +11,7 @@ import (
 	"github.com/woxQAQ/febuildergba-mygo/gba"
 	"github.com/woxQAQ/febuildergba-mygo/internal/testutil"
 	"github.com/woxQAQ/febuildergba-mygo/rom"
-	"github.com/woxQAQ/febuildergba-mygo/space"
+	"github.com/woxQAQ/febuildergba-mygo/romwrite"
 )
 
 func TestTableMoves(t *testing.T) {
@@ -196,8 +196,8 @@ func TestTableMoveRejectsStaleOrForeignPreview(t *testing.T) {
 
 func TestTableMoveUsesDeclaredSpace(t *testing.T) {
 	s := testutil.Open(t, testutil.NewMinimalFE8U())
-	available := space.Range{Start: 0x400000, End: 0x401000}
-	free := []space.FreeRange{
+	available := romwrite.Range{Start: 0x400000, End: 0x401000}
+	free := []romwrite.FreeRange{
 		{Range: available, Source: "explicitly reserved test interval"},
 	}
 	move, err := s.Records.PlanTableMove(records.Items, free)
@@ -225,7 +225,7 @@ func TestTableMoveUsesDeclaredSpace(t *testing.T) {
 		free,
 	); !errors.Is(
 		err,
-		space.ErrRange,
+		romwrite.ErrRange,
 	) {
 		t.Fatalf("overlapping known table: %v", err)
 	}
@@ -236,10 +236,10 @@ func TestTableMoveInterpretationLifecycle(t *testing.T) {
 		t.Run(version.Name, func(t *testing.T) {
 			for _, reuse := range []bool{false, true} {
 				name := "append-other-layout"
-				var free []space.FreeRange
+				var free []romwrite.FreeRange
 				if reuse {
 					name = "reuse-other-layout"
-					free = []space.FreeRange{{
+					free = []romwrite.FreeRange{{
 						Start: 0x400000, End: 0x401000,
 						Source: "reserved fixture interval",
 					}}
@@ -283,7 +283,7 @@ func TestTableMoveInterpretationLifecycle(t *testing.T) {
 							free,
 						); !errors.Is(
 							err,
-							space.ErrRange,
+							romwrite.ErrRange,
 						) {
 							t.Fatalf(
 								"new plan reused the manual table: %v",

@@ -10,7 +10,7 @@ import (
 	"github.com/woxQAQ/febuildergba-mygo/game/records"
 	"github.com/woxQAQ/febuildergba-mygo/internal/testutil"
 	"github.com/woxQAQ/febuildergba-mygo/rom"
-	"github.com/woxQAQ/febuildergba-mygo/space"
+	"github.com/woxQAQ/febuildergba-mygo/romwrite"
 )
 
 func TestRecordFieldClaimWorkflow(t *testing.T) {
@@ -40,7 +40,7 @@ func TestRecordFieldClaimWorkflow(t *testing.T) {
 			before, state := s.Document.Snapshot(), s.Document.State()
 			err = s.Records.Set(records.Items, sample.ids, "combat.might", 42)
 			if fault.CodeOf(err) != edit.ErrLayout ||
-				!errors.Is(err, space.ErrClaim) {
+				!errors.Is(err, romwrite.ErrClaim) {
 				t.Fatalf(
 					"overlapping payload was not rejected with its cause: %v",
 					err,
@@ -156,7 +156,7 @@ func TestRecordFieldClaimWorkflow(t *testing.T) {
 					)
 					if overlap {
 						if fault.CodeOf(err) != edit.ErrLayout ||
-							!errors.Is(err, space.ErrClaim) {
+							!errors.Is(err, romwrite.ErrClaim) {
 							t.Fatalf(
 								"another record owner did not protect its bytes: %v",
 								err,

@@ -14,7 +14,7 @@ import (
 	"github.com/woxQAQ/febuildergba-mygo/game/worldmap"
 	"github.com/woxQAQ/febuildergba-mygo/internal/testutil"
 	"github.com/woxQAQ/febuildergba-mygo/rom"
-	"github.com/woxQAQ/febuildergba-mygo/space"
+	"github.com/woxQAQ/febuildergba-mygo/romwrite"
 )
 
 func TestRoadRouteCommitPreservesSharedSources(t *testing.T) {
@@ -378,9 +378,9 @@ func TestRoadPlanFailuresAndIndependentFields(t *testing.T) {
 			want := error(rom.ErrStale)
 			switch scenario {
 			case "overlap":
-				want = space.ErrClaim
+				want = romwrite.ErrClaim
 			case "capacity", "combined-capacity":
-				want = space.ErrCapacity
+				want = romwrite.ErrCapacity
 			default:
 				plan, err = s.WorldMap.PlanRoute(d)
 				if err != nil {

@@ -10,7 +10,7 @@ import (
 	"github.com/woxQAQ/febuildergba-mygo/game/records"
 	"github.com/woxQAQ/febuildergba-mygo/gba"
 	"github.com/woxQAQ/febuildergba-mygo/rom"
-	"github.com/woxQAQ/febuildergba-mygo/space"
+	"github.com/woxQAQ/febuildergba-mygo/romwrite"
 )
 
 const tilesetTerrainOffset = 0x2000
@@ -292,7 +292,7 @@ type TilesetChange struct {
 
 type TilesetPlan struct {
 	commit          *edit.Commit
-	plan            space.WritePlan
+	plan            romwrite.WritePlan
 	source, pointer int
 	changes         []TilesetChange
 	uses            []Use
@@ -396,12 +396,12 @@ func (s *Editor) PlanTileset(
 	if err != nil {
 		return nil, err
 	}
-	builder := space.NewBuilder(s.image.Data, space.Protection{
-		Pointer: func(_ []byte, _ space.Owner, site int) error { return s.mapWriteSite(s.format, site, ConfigField) },
+	builder := romwrite.NewBuilder(s.image.Data, romwrite.Protection{
+		Pointer: func(_ []byte, _ romwrite.Owner, site int) error { return s.mapWriteSite(s.format, site, ConfigField) },
 	})
 	if _, err := builder.Replace(
 		compressed,
-		space.PointerSite{
+		romwrite.PointerSite{
 			Owner:        resourceOwner(ConfigField, draft.pointer),
 			Address:      draft.pointer,
 			ExpectedWord: gba.Uint32(s.image.Data, draft.pointer),

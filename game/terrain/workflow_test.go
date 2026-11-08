@@ -14,7 +14,7 @@ import (
 	"github.com/woxQAQ/febuildergba-mygo/gba"
 	"github.com/woxQAQ/febuildergba-mygo/internal/testutil"
 	"github.com/woxQAQ/febuildergba-mygo/rom"
-	"github.com/woxQAQ/febuildergba-mygo/space"
+	"github.com/woxQAQ/febuildergba-mygo/romwrite"
 )
 
 func TestClassTerrainWorkflow(t *testing.T) {
@@ -393,7 +393,7 @@ func TestTerrainConflictingResourcesAndCapacity(t *testing.T) {
 			// Payload and record aliases now surface as claim conflicts.
 			wanted := error(edit.ErrLayout)
 			if mode == "capacity" {
-				wanted = space.ErrCapacity
+				wanted = romwrite.ErrCapacity
 			}
 			if !errors.Is(err, wanted) {
 				t.Fatalf("got %v, want %v", err, wanted)

@@ -8,7 +8,7 @@ import (
 	"github.com/woxQAQ/febuildergba-mygo/game/edit"
 	"github.com/woxQAQ/febuildergba-mygo/gba"
 	"github.com/woxQAQ/febuildergba-mygo/rom"
-	"github.com/woxQAQ/febuildergba-mygo/space"
+	"github.com/woxQAQ/febuildergba-mygo/romwrite"
 )
 
 const (
@@ -48,7 +48,7 @@ type Route struct {
 	terminator     [8]byte
 }
 
-func (r Route) Owner() space.Owner      { return space.Owner{Resource: RouteResource, ID: r.ID} }
+func (r Route) Owner() romwrite.Owner   { return romwrite.Owner{Resource: RouteResource, ID: r.ID} }
 func (r Route) Points() []MovementPoint { return slices.Clone(r.points) }
 
 func (f Format) Routes(data []byte) ([]Route, error) {
@@ -132,15 +132,15 @@ func readMovement(data []byte, at int) ([]MovementPoint, [8]byte, error) {
 	return nil, [8]byte{}, ErrMovement
 }
 
-func (f Format) routeClaims(data []byte) []space.Claim {
+func (f Format) routeClaims(data []byte) []romwrite.Claim {
 	if f.RoutePointer < 0xC0 || !gba.Within(data, f.RoutePointer, 4) {
 		return nil
 	}
-	claims := []space.Claim{
+	claims := []romwrite.Claim{
 		{
 			Start: f.RoutePointer,
 			End:   f.RoutePointer + 4,
-			Owner: space.Owner{Resource: RouteResource, ID: -1},
+			Owner: romwrite.Owner{Resource: RouteResource, ID: -1},
 			Site:  true,
 		},
 	}
@@ -148,7 +148,7 @@ func (f Format) routeClaims(data []byte) []space.Claim {
 	for _, r := range routes {
 		claims = append(
 			claims,
-			space.Claim{
+			romwrite.Claim{
 				Start: r.Address,
 				End:   r.Address + RouteSize,
 				Owner: r.Owner(),
@@ -161,10 +161,10 @@ func (f Format) routeClaims(data []byte) []space.Claim {
 			{r.Address, r.Road, 0, "worldmap.roads"},
 			{r.Address + 8, r.Movement, 0, "worldmap.movement"},
 		} {
-			owner := space.Owner{Resource: payload.resource, ID: r.ID}
+			owner := romwrite.Owner{Resource: payload.resource, ID: r.ID}
 			claims = append(
 				claims,
-				space.Claim{
+				romwrite.Claim{
 					Start: payload.site,
 					End:   payload.site + 4,
 					Owner: owner,
@@ -189,7 +189,7 @@ func (f Format) routeClaims(data []byte) []space.Claim {
 				gba.Within(data, payload.at, payload.length) {
 				claims = append(
 					claims,
-					space.Claim{
+					romwrite.Claim{
 						Start: payload.at,
 						End:   payload.at + payload.length,
 						Owner: owner,
@@ -302,7 +302,7 @@ func (d *RouteDraft) SetPoints(points []MovementPoint) error {
 type RoutePlan struct {
 	commit        *edit.Commit
 	before, after Route
-	appended      space.Range
+	appended      romwrite.Range
 	shared        []int
 	roadShared    []int
 	roadChanges   []RoadChange
@@ -313,9 +313,9 @@ func (p *RoutePlan) Current(
 ) bool {
 	return p != nil && p.commit.Current(e.context)
 }
-func (p *RoutePlan) Before() Route         { return p.before }
-func (p *RoutePlan) After() Route          { return p.after }
-func (p *RoutePlan) Appended() space.Range { return p.appended }
+func (p *RoutePlan) Before() Route            { return p.before }
+func (p *RoutePlan) After() Route             { return p.after }
+func (p *RoutePlan) Appended() romwrite.Range { return p.appended }
 
 // Shared lists known route IDs still using the old movement pointer.
 func (p *RoutePlan) Shared() []int { return slices.Clone(p.shared) }
@@ -343,7 +343,7 @@ func (e *Editor) PlanRoute(d *RouteDraft) (plan *RoutePlan, err error) {
 	if err = e.source.ProtectRange(
 		image.Data,
 		r.Owner(),
-		space.Range{Start: r.Address, End: r.Address + RouteSize},
+		romwrite.Range{Start: r.Address, End: r.Address + RouteSize},
 	); err != nil {
 		return nil, fault.New(
 			ErrReference,
@@ -365,7 +365,7 @@ func (e *Editor) PlanRoute(d *RouteDraft) (plan *RoutePlan, err error) {
 		}
 	}
 	plan = &RoutePlan{before: r, after: d.Route()}
-	builder := space.NewBuilder(image.Data, space.Protection{
+	builder := romwrite.NewBuilder(image.Data, romwrite.Protection{
 		Pointer: e.source.ProtectPointer, Range: e.source.ProtectRange,
 	})
 	if d.road != nil && d.road.Modified() {
@@ -377,8 +377,11 @@ func (e *Editor) PlanRoute(d *RouteDraft) (plan *RoutePlan, err error) {
 		}
 		plan.after.Road, err = builder.Replace(
 			d.road.encode(),
-			space.PointerSite{
-				Owner:        space.Owner{Resource: "worldmap.roads", ID: r.ID},
+			romwrite.PointerSite{
+				Owner: romwrite.Owner{
+					Resource: "worldmap.roads",
+					ID:       r.ID,
+				},
 				Address:      r.Address,
 				ExpectedWord: gba.Uint32(image.Data, r.Address),
 			},
@@ -401,8 +404,11 @@ func (e *Editor) PlanRoute(d *RouteDraft) (plan *RoutePlan, err error) {
 				plan.shared = append(plan.shared, other.ID)
 			}
 		}
-		pointer := space.PointerSite{
-			Owner:        space.Owner{Resource: "worldmap.movement", ID: r.ID},
+		pointer := romwrite.PointerSite{
+			Owner: romwrite.Owner{
+				Resource: "worldmap.movement",
+				ID:       r.ID,
+			},
 			Address:      r.Address + 8,
 			ExpectedWord: gba.Uint32(image.Data, r.Address+8),
 		}

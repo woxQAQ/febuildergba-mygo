@@ -16,7 +16,7 @@ import (
 	"github.com/woxQAQ/febuildergba-mygo/gba"
 	"github.com/woxQAQ/febuildergba-mygo/internal/testutil"
 	"github.com/woxQAQ/febuildergba-mygo/rom"
-	"github.com/woxQAQ/febuildergba-mygo/space"
+	"github.com/woxQAQ/febuildergba-mygo/romwrite"
 )
 
 func TestMapGraphicsAndPaletteJointImport(t *testing.T) {
@@ -404,7 +404,7 @@ func TestMapGraphicsJointImportRejectsUnsafeWrites(t *testing.T) {
 				t.Fatal("unsafe joint import accepted")
 			}
 			if scenario == "partial-capacity" &&
-				!errors.Is(err, space.ErrCapacity) {
+				!errors.Is(err, romwrite.ErrCapacity) {
 				t.Fatal("capacity", err)
 			}
 			if !bytes.Equal(before.Data, s.Document.Snapshot().Data) ||

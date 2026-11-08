@@ -1,4 +1,4 @@
-// Package space plans GBA ROM resource writes and relocations without changing
+// Package romwrite plans GBA ROM resource writes and relocations without changing
 // the source bytes. It combines explicit references, resource ownership and
 // bounded allocations into edits that the document can apply atomically.
 //
@@ -47,12 +47,12 @@
 //
 //	input := ctx.Capture()
 //	// Decode and validate payload, selected and claims from input.Data here.
-//	builder := space.NewBuilder(input.Data, space.Protection{
-//		Pointer: func(_ []byte, owner space.Owner, site int) error {
-//			return space.CheckWrite(claims, owner, site)
+//	builder := romwrite.NewBuilder(input.Data, romwrite.Protection{
+//		Pointer: func(_ []byte, owner romwrite.Owner, site int) error {
+//			return romwrite.CheckPointerWrite(claims, owner, site)
 //		},
-//		Range: func(_ []byte, owner space.Owner, region space.Range) error {
-//			return space.CheckRangeWrite(claims, owner, region)
+//		Range: func(_ []byte, owner romwrite.Owner, region romwrite.Range) error {
+//			return romwrite.CheckRangeWrite(claims, owner, region)
 //		},
 //	})
 //	if _, err := builder.Replace(payload, selected...); err != nil {
@@ -107,8 +107,8 @@
 //
 // [Owner] identifies a resource; [Claim] describes its confirmed extent or
 // pointer site. A site's Host identifies the record containing that pointer.
-// [CheckWrite] checks a pointer update against overlapping claims, allowing the
-// writer's own site and its declared host. [CheckRangeWrite] checks a payload
+// [CheckPointerWrite] checks a pointer update against overlapping claims, allowing
+// the writer's own site and its declared host. [CheckRangeWrite] checks a payload
 // update, allowing its owner's claims and pointer sites hosted by that owner.
 // Owning a pointer does not grant permission to overwrite its host record.
 //
@@ -139,4 +139,4 @@
 // Errors use the stable [ErrRange], [ErrCapacity], [ErrReference] and [ErrClaim]
 // codes, or preserve errors returned by encoding and protection callbacks. Callers use
 // errors.Is and fault context rather than parsing error text.
-package space
+package romwrite

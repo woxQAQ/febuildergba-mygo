@@ -4,7 +4,7 @@ package deployment
 import (
 	"github.com/woxQAQ/febuildergba-mygo/game/edit"
 	"github.com/woxQAQ/febuildergba-mygo/game/records"
-	"github.com/woxQAQ/febuildergba-mygo/space"
+	"github.com/woxQAQ/febuildergba-mygo/romwrite"
 )
 
 // Source discovers unit references through chapter headers and condition/event
@@ -14,13 +14,13 @@ type Source struct {
 	Uses       func([]byte, int) []Use
 	// ProtectPointer guards one chapter's group pointer site against
 	// overwriting any claimed resource.
-	ProtectPointer func(data []byte, owner space.Owner, site int) error
+	ProtectPointer func(data []byte, owner romwrite.Owner, site int) error
 }
 
 // Owner names the claim identity of one deployment group pointer site.
 // Chapters aliasing one group declare identical claims instead of conflicting.
-func Owner(site int) space.Owner {
-	return space.Owner{Resource: "deployment", ID: site}
+func Owner(site int) romwrite.Owner {
+	return romwrite.Owner{Resource: "deployment", ID: site}
 }
 
 type Editor struct {

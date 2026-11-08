@@ -9,13 +9,13 @@ import (
 	"github.com/woxQAQ/febuildergba-mygo/game/edit"
 	"github.com/woxQAQ/febuildergba-mygo/gba"
 	"github.com/woxQAQ/febuildergba-mygo/rom"
-	"github.com/woxQAQ/febuildergba-mygo/space"
+	"github.com/woxQAQ/febuildergba-mygo/romwrite"
 )
 
 type Source struct {
 	Units func([]byte) ([]Unit, error)
 	// owner is the character whose pointer may change, or zero for dialog.
-	ProtectPointer func(data []byte, owner space.Owner, site int) error
+	ProtectPointer func(data []byte, owner romwrite.Owner, site int) error
 	ValidateText   func([]byte, uint16) error
 }
 
@@ -194,7 +194,7 @@ func (d *Draft) Add(value Relationship) error {
 	n := d.Capacity()
 	count := int(d.raw[3*n])
 	if count >= n {
-		return space.ErrCapacity
+		return romwrite.ErrCapacity
 	}
 	if value.Unit == 0 || int(value.Unit) == d.record.ID {
 		return edit.ErrValue
@@ -358,15 +358,15 @@ func (e *Editor) plan(
 			}
 		}
 	}
-	builder := space.NewBuilder(
+	builder := romwrite.NewBuilder(
 		image.Data,
-		space.Protection{Pointer: e.source.ProtectPointer},
+		romwrite.Protection{Pointer: e.source.ProtectPointer},
 	)
 	appendResource := func(payload []byte, move Move) error {
-		pointers := make([]space.PointerSite, len(move.Pointers))
+		pointers := make([]romwrite.PointerSite, len(move.Pointers))
 		for i, site := range move.Pointers {
-			pointers[i] = space.PointerSite{
-				Owner:   space.Owner{Resource: "support", ID: move.Unit},
+			pointers[i] = romwrite.PointerSite{
+				Owner:   romwrite.Owner{Resource: "support", ID: move.Unit},
 				Address: site, ExpectedWord: gba.Uint32(image.Data, site),
 			}
 		}

@@ -12,7 +12,7 @@ import (
 	"github.com/woxQAQ/febuildergba-mygo/gba"
 	"github.com/woxQAQ/febuildergba-mygo/internal/testutil"
 	"github.com/woxQAQ/febuildergba-mygo/rom"
-	"github.com/woxQAQ/febuildergba-mygo/space"
+	"github.com/woxQAQ/febuildergba-mygo/romwrite"
 )
 
 func TestDarkWorldMapPaletteAndHistory(t *testing.T) {
@@ -167,11 +167,11 @@ func TestDarkWorldMapPaletteFailures(t *testing.T) {
 				plan, err := s.WorldMap.PlanBackground(draft)
 				switch scenario {
 				case "overlap":
-					if !errors.Is(err, space.ErrClaim) {
+					if !errors.Is(err, romwrite.ErrClaim) {
 						t.Fatal(err)
 					}
 				case "capacity":
-					if !errors.Is(err, space.ErrCapacity) {
+					if !errors.Is(err, romwrite.ErrCapacity) {
 						t.Fatal(err)
 					}
 				case "bad-day":

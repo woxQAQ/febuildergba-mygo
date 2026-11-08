@@ -6,14 +6,14 @@ import (
 	"github.com/woxQAQ/febuildergba-mygo/game/edit"
 	"github.com/woxQAQ/febuildergba-mygo/gba"
 	"github.com/woxQAQ/febuildergba-mygo/rom"
-	"github.com/woxQAQ/febuildergba-mygo/space"
+	"github.com/woxQAQ/febuildergba-mygo/romwrite"
 )
 
 // Source supplies confirmed references and prevents damaged owner layouts from
 // overwriting unrelated live resources. Unresolved owners remain diagnostics.
 type Source struct {
 	References     func([]byte) ([]Reference, []error)
-	ProtectPointer func(data []byte, owner space.Owner, site int) error
+	ProtectPointer func(data []byte, owner romwrite.Owner, site int) error
 }
 
 type Entry struct {
@@ -180,11 +180,11 @@ func (s *Editor) Plan(d *EntryDraft) (*EntryPlan, error) {
 	if s.source.ProtectPointer == nil {
 		return nil, edit.ErrLayout
 	}
-	builder := space.NewBuilder(
+	builder := romwrite.NewBuilder(
 		s.image.Data,
-		space.Protection{Pointer: s.source.ProtectPointer},
+		romwrite.Protection{Pointer: s.source.ProtectPointer},
 	)
-	after, err := builder.Replace(d.inventory.Payload(), space.PointerSite{
+	after, err := builder.Replace(d.inventory.Payload(), romwrite.PointerSite{
 		Owner: d.entry.Key.Owner(), Address: d.entry.Pointer,
 		ExpectedWord: gba.Uint32(s.image.Data, d.entry.Pointer),
 	})

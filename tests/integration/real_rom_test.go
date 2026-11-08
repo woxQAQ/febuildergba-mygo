@@ -16,7 +16,7 @@ import (
 	"github.com/woxQAQ/febuildergba-mygo/game/graphics"
 	"github.com/woxQAQ/febuildergba-mygo/game/records"
 	"github.com/woxQAQ/febuildergba-mygo/rom"
-	"github.com/woxQAQ/febuildergba-mygo/space"
+	"github.com/woxQAQ/febuildergba-mygo/romwrite"
 )
 
 // Each discovered input runs independently; no particular release or filename
@@ -163,7 +163,7 @@ func checkPlan(t *testing.T, s *game.Session, before rom.Snapshot, err error) {
 		!bytes.Equal(current.Data, before.Data) {
 		t.Fatal("preview changed the document")
 	}
-	if errors.Is(err, space.ErrCapacity) ||
+	if errors.Is(err, romwrite.ErrCapacity) ||
 		errors.Is(err, graphics.ErrFormat) {
 		t.Skipf("operation unavailable for this input: %v", err)
 	}

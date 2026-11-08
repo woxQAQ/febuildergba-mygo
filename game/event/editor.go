@@ -10,7 +10,7 @@ import (
 	"github.com/woxQAQ/febuildergba-mygo/game/shop"
 	"github.com/woxQAQ/febuildergba-mygo/game/text"
 	"github.com/woxQAQ/febuildergba-mygo/game/worldmap"
-	"github.com/woxQAQ/febuildergba-mygo/space"
+	"github.com/woxQAQ/febuildergba-mygo/romwrite"
 )
 
 // Source resolves chapter resources after the event interpreter has established
@@ -19,8 +19,8 @@ type Source struct {
 	WorldMap       *worldmap.Editor
 	Portraits      *portrait.Editor
 	ResolveMap     func(int, maps.Target) (maps.Change, error)
-	ProtectPointer func(data []byte, owner space.Owner, site int) error
-	ProtectRange   func(data []byte, owner space.Owner, region space.Range) error
+	ProtectPointer func(data []byte, owner romwrite.Owner, site int) error
+	ProtectRange   func(data []byte, owner romwrite.Owner, region romwrite.Range) error
 	DefaultShop    func([]byte) (*shop.Draft, error)
 	InventoryUses  func([]byte, int) []shop.Reference
 }

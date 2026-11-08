@@ -6,12 +6,12 @@ import (
 	"github.com/woxQAQ/febuildergba-mygo/fault"
 	"github.com/woxQAQ/febuildergba-mygo/game/edit"
 	"github.com/woxQAQ/febuildergba-mygo/rom"
-	"github.com/woxQAQ/febuildergba-mygo/space"
+	"github.com/woxQAQ/febuildergba-mygo/romwrite"
 )
 
 type Source struct {
 	Classes        func([]byte) ([]Class, error)
-	ProtectPointer func(data []byte, owner space.Owner, site int) error
+	ProtectPointer func(data []byte, owner romwrite.Owner, site int) error
 }
 
 type Editor struct {
@@ -169,9 +169,9 @@ func (e *Editor) Plan(d *Draft) (result *Plan, err error) {
 		}
 	}
 	result = &Plan{}
-	builder := space.NewBuilder(
+	builder := romwrite.NewBuilder(
 		image.Data,
-		space.Protection{Pointer: e.source.ProtectPointer},
+		romwrite.Protection{Pointer: e.source.ProtectPointer},
 	)
 	for i, table := range d.tables {
 		if !pending[table.Pointer] {
@@ -196,8 +196,8 @@ func (e *Editor) Plan(d *Draft) (result *Plan, err error) {
 				)
 			}
 		}
-		destination, err := builder.Replace(payload, space.PointerSite{
-			Owner: space.Owner{
+		destination, err := builder.Replace(payload, romwrite.PointerSite{
+			Owner: romwrite.Owner{
 				Resource: "terrain",
 				ID:       table.Class.ID,
 				Slot:     i,

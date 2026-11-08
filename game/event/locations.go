@@ -10,7 +10,7 @@ import (
 	"github.com/woxQAQ/febuildergba-mygo/game/shop"
 	"github.com/woxQAQ/febuildergba-mygo/gba"
 	"github.com/woxQAQ/febuildergba-mygo/rom"
-	"github.com/woxQAQ/febuildergba-mygo/space"
+	"github.com/woxQAQ/febuildergba-mygo/romwrite"
 )
 
 // ConditionTarget describes the native meaning of the word at offset 4.
@@ -308,19 +308,19 @@ func (d *ConditionDraft) validateLocation(record eventRecord) error {
 // InventoryRegion reports the confirmed inventory extent referenced by a
 // location event. Discovery warnings belong to the reading path and are not
 // recorded here.
-func (c Condition) InventoryRegion(data []byte) (space.Range, bool) {
+func (c Condition) InventoryRegion(data []byte) (romwrite.Range, bool) {
 	if c.OperandKind != ShopTarget && c.OperandKind != RandomRewardTarget {
-		return space.Range{}, false
+		return romwrite.Range{}, false
 	}
 	probe := c
 	regions := locationResources(data, &probe)
 	if len(regions) == 0 {
-		return space.Range{}, false
+		return romwrite.Range{}, false
 	}
 	return regions[0], true
 }
 
-func locationResources(data []byte, condition *Condition) []space.Range {
+func locationResources(data []byte, condition *Condition) []romwrite.Range {
 	if condition.OperandKind != ShopTarget &&
 		condition.OperandKind != RandomRewardTarget {
 		return nil
@@ -337,7 +337,7 @@ func locationResources(data []byte, condition *Condition) []space.Range {
 				gba.Within(data, at, shop.PayloadSize) {
 				end = max(end, at+shop.PayloadSize)
 			}
-			return []space.Range{{Start: at, End: end}}
+			return []romwrite.Range{{Start: at, End: end}}
 		}
 	}
 	condition.Warnings = append(condition.Warnings, ErrEventConditions)

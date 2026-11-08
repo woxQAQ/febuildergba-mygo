@@ -4,7 +4,7 @@ import (
 	"github.com/woxQAQ/febuildergba-mygo/game/graphics"
 	"github.com/woxQAQ/febuildergba-mygo/game/text"
 	"github.com/woxQAQ/febuildergba-mygo/gba"
-	"github.com/woxQAQ/febuildergba-mygo/space"
+	"github.com/woxQAQ/febuildergba-mygo/romwrite"
 )
 
 func (s *Editor) TextReferences(data []byte, id uint16) text.References {
@@ -18,7 +18,7 @@ func (s *Editor) TextReferences(data []byte, id uint16) text.References {
 		if table.Manual {
 			result.Manual = append(
 				result.Manual,
-				space.Range{
+				romwrite.Range{
 					Start: table.Address,
 					End:   table.Address + table.Stride*table.Count,
 				},
@@ -72,7 +72,7 @@ func (s *Editor) ImageReferences(
 		}
 		result.Ranges = append(
 			result.Ranges,
-			space.Range{
+			romwrite.Range{
 				Start: table.Address,
 				End:   table.Address + table.Stride*table.Count,
 			},

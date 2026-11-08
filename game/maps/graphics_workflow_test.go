@@ -18,7 +18,7 @@ import (
 	"github.com/woxQAQ/febuildergba-mygo/gba"
 	"github.com/woxQAQ/febuildergba-mygo/internal/testutil"
 	"github.com/woxQAQ/febuildergba-mygo/rom"
-	"github.com/woxQAQ/febuildergba-mygo/space"
+	"github.com/woxQAQ/febuildergba-mygo/romwrite"
 )
 
 func graphicsPNG(t *testing.T, bitmap image.Image) []byte {
@@ -608,7 +608,7 @@ func TestMapGraphicsPNGAndCommitFailuresAreAtomic(t *testing.T) {
 						t.Fatal("no pixel changes", err)
 					}
 					if scenario == "capacity" &&
-						!errors.Is(err, space.ErrCapacity) {
+						!errors.Is(err, romwrite.ErrCapacity) {
 						t.Fatal("capacity", err)
 					}
 					if scenario == "cross-role-capacity" &&

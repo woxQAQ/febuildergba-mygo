@@ -2,7 +2,7 @@ package game
 
 import (
 	"github.com/woxQAQ/febuildergba-mygo/game/graphics"
-	"github.com/woxQAQ/febuildergba-mygo/space"
+	"github.com/woxQAQ/febuildergba-mygo/romwrite"
 )
 
 // imageReferences protects confirmed resources against an asset write. The
@@ -16,8 +16,8 @@ func (s *Session) imageReferences(
 	result := s.Records.ImageReferences(data, ref)
 	for _, claim := range s.claims(data) {
 		if ref.Kind == graphics.ItemIcon && claim.Site &&
-			claim.Owner == (space.Owner{Resource: "itemicon"}) &&
-			claim.Range == (space.Range{Start: g.icons.Pointer, End: g.icons.Pointer + 4}) {
+			claim.Owner == (romwrite.Owner{Resource: "itemicon"}) &&
+			claim.Range == (romwrite.Range{Start: g.icons.Pointer, End: g.icons.Pointer + 4}) {
 			continue
 		}
 		result.Ranges = append(result.Ranges, claim.Range)

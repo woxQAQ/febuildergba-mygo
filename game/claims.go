@@ -7,19 +7,19 @@ import (
 	"github.com/woxQAQ/febuildergba-mygo/game/edit"
 	"github.com/woxQAQ/febuildergba-mygo/game/records"
 	"github.com/woxQAQ/febuildergba-mygo/gba"
-	"github.com/woxQAQ/febuildergba-mygo/space"
+	"github.com/woxQAQ/febuildergba-mygo/romwrite"
 )
 
 // recordOwner names a record table row in resource claims; ID -1 marks the
 // table's declared root pointers.
-func recordOwner(kind records.Kind, id int) space.Owner {
-	return space.Owner{Resource: string(kind), ID: id}
+func recordOwner(kind records.Kind, id int) romwrite.Owner {
+	return romwrite.Owner{Resource: string(kind), ID: id}
 }
 
 // claims caches declarations only when the supplied read-only bytes match a
 // captured document input. Prospective or older images are interpreted without
 // publishing their results under the current document's stamp.
-func (s *Session) claims(data []byte) []space.Claim {
+func (s *Session) claims(data []byte) []romwrite.Claim {
 	if s.claimsStamp.Current(s.context) && bytes.Equal(data, s.claimsData) {
 		return s.claimsCache
 	}
@@ -38,33 +38,33 @@ func (s *Session) claims(data []byte) []space.Claim {
 // their own stable code.
 func (s *Session) protectPointer(
 	data []byte,
-	owner space.Owner,
+	owner romwrite.Owner,
 	site int,
 ) error {
 	if site < 0xC0 || site%4 != 0 || !gba.Within(data, site, 4) {
 		return edit.ErrLayout
 	}
-	return space.CheckWrite(s.claims(data), owner, site)
+	return romwrite.CheckPointerWrite(s.claims(data), owner, site)
 }
 
 // protectRange guards an in-place write with the same session claims as
 // pointer updates. Payload bounds are checked before overlap authorization.
 func (s *Session) protectRange(
 	data []byte,
-	owner space.Owner,
-	region space.Range,
+	owner romwrite.Owner,
+	region romwrite.Range,
 ) error {
 	if region.Start < 0xC0 || region.End <= region.Start ||
 		!gba.Within(data, region.Start, region.End-region.Start) {
 		return edit.ErrLayout
 	}
-	return space.CheckRangeWrite(s.claims(data), owner, region)
+	return romwrite.CheckRangeWrite(s.claims(data), owner, region)
 }
 
 // guardPointer maps a rejected pointer write to the domain's code.
 func (s *Session) guardPointer(
 	data []byte,
-	owner space.Owner,
+	owner romwrite.Owner,
 	site int,
 	code fault.Code,
 ) error {
@@ -86,25 +86,25 @@ func (s *Session) guardPointer(
 	return nil
 }
 
-func (s *Session) collectClaims(data []byte) []space.Claim {
+func (s *Session) collectClaims(data []byte) []romwrite.Claim {
 	g := s.format
-	var claims []space.Claim
-	add := func(start, length int, owner space.Owner) {
+	var claims []romwrite.Claim
+	add := func(start, length int, owner romwrite.Owner) {
 		if start >= 0xC0 && length > 0 && gba.Within(data, start, length) {
 			claims = append(
 				claims,
-				space.Claim{
+				romwrite.Claim{
 					Start: start, End: start + length,
 					Owner: owner,
 				},
 			)
 		}
 	}
-	addSite := func(site int, owner space.Owner) {
+	addSite := func(site int, owner romwrite.Owner) {
 		if site >= 0xC0 && gba.Within(data, site, 4) {
 			claims = append(
 				claims,
-				space.Claim{
+				romwrite.Claim{
 					Start: site, End: site + 4,
 					Owner: owner,
 					Site:  true,
@@ -137,13 +137,13 @@ func (s *Session) collectClaims(data []byte) []space.Claim {
 	}
 
 	// Text and native image roots.
-	textOwner := space.Owner{Resource: "text"}
+	textOwner := romwrite.Owner{Resource: "text"}
 	addSite(g.text.Pointer, textOwner)
 	addSite(g.text.TreePointer, textOwner)
 	addSite(g.text.RootPointer, textOwner)
-	addSite(g.icons.Pointer, space.Owner{Resource: "itemicon"})
-	addSite(g.icons.Palette, space.Owner{Resource: "itemicon"})
-	addSite(g.portraits.Pointer, space.Owner{Resource: "portrait"})
+	addSite(g.icons.Pointer, romwrite.Owner{Resource: "itemicon"})
+	addSite(g.icons.Palette, romwrite.Owner{Resource: "itemicon"})
+	addSite(g.portraits.Pointer, romwrite.Owner{Resource: "portrait"})
 	if table, err := g.text.Table(data); err == nil {
 		add(table.Address, table.Count*4, textOwner)
 	}

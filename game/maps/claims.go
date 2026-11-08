@@ -3,26 +3,26 @@ package maps
 import (
 	"github.com/woxQAQ/febuildergba-mygo/game/records"
 	"github.com/woxQAQ/febuildergba-mygo/gba"
-	"github.com/woxQAQ/febuildergba-mygo/space"
+	"github.com/woxQAQ/febuildergba-mygo/romwrite"
 )
 
-func resourceOwner(field string, site int) space.Owner {
+func resourceOwner(field string, site int) romwrite.Owner {
 	// Both loading roles consume the same kind of graphics PLIST entry.
 	if field == GraphicsAltField {
 		field = GraphicsField
 	}
-	return space.Owner{Resource: "maps." + field, ID: site}
+	return romwrite.Owner{Resource: "maps." + field, ID: site}
 }
 
 // Claims protects concrete map PLIST consumers and their bounded payloads.
 // Other kinds in a shared PLIST retain distinct ownership even at the same site.
-func (f Format) Claims(data []byte, chapters *records.Table) []space.Claim {
-	var claims []space.Claim
-	add := func(start, length int, owner space.Owner, site bool) {
+func (f Format) Claims(data []byte, chapters *records.Table) []romwrite.Claim {
+	var claims []romwrite.Claim
+	add := func(start, length int, owner romwrite.Owner, site bool) {
 		if start >= 0xC0 && start < len(data) && length > 0 {
 			claims = append(
 				claims,
-				space.Claim{
+				romwrite.Claim{
 					Start: start,
 					End:   min(start+length, len(data)),
 					Owner: owner,
@@ -31,7 +31,7 @@ func (f Format) Claims(data []byte, chapters *records.Table) []space.Claim {
 			)
 		}
 	}
-	seen := make(map[space.Owner]bool)
+	seen := make(map[romwrite.Owner]bool)
 	for _, binding := range f.bindings(nil) {
 		if binding.Root == 0 {
 			continue
@@ -39,7 +39,7 @@ func (f Format) Claims(data []byte, chapters *records.Table) []space.Claim {
 		add(
 			binding.Root,
 			4,
-			space.Owner{Resource: "maps.root", ID: binding.Root},
+			romwrite.Owner{Resource: "maps.root", ID: binding.Root},
 			true,
 		)
 		if chapters == nil || chapters.Err != nil {

@@ -6,7 +6,7 @@ import (
 	"github.com/woxQAQ/febuildergba-mygo/game/shop"
 	"github.com/woxQAQ/febuildergba-mygo/game/text"
 	"github.com/woxQAQ/febuildergba-mygo/gba"
-	"github.com/woxQAQ/febuildergba-mygo/space"
+	"github.com/woxQAQ/febuildergba-mygo/romwrite"
 )
 
 const (
@@ -32,7 +32,7 @@ type Node struct {
 	raw         [NodeSize]byte
 }
 
-func (n Node) Owner() space.Owner { return space.Owner{Resource: Resource, ID: n.ID} }
+func (n Node) Owner() romwrite.Owner { return romwrite.Owner{Resource: Resource, ID: n.ID} }
 
 func (f Format) Nodes(data []byte) ([]Node, error) {
 	if f.Pointer == 0 {
@@ -69,21 +69,21 @@ func (f Format) Nodes(data []byte) ([]Node, error) {
 
 // Claims owns nodes, routes and confirmed graphics, including hosted pointers.
 // Each inventory remains independently editable through its shop owner.
-func (f Format) Claims(data []byte) []space.Claim {
+func (f Format) Claims(data []byte) []romwrite.Claim {
 	result := append(f.routeClaims(data), f.Scene.claims(data)...)
 	if f.Pointer < 0xC0 || !gba.Within(data, f.Pointer, 4) {
 		return result
 	}
-	result = append(result, space.Claim{
+	result = append(result, romwrite.Claim{
 		Start: f.Pointer, End: f.Pointer + 4,
-		Owner: space.Owner{Resource: Resource, ID: -1}, Site: true,
+		Owner: romwrite.Owner{Resource: Resource, ID: -1}, Site: true,
 	})
 	nodes, err := f.Nodes(data)
 	if err != nil {
 		return result
 	}
 	for _, node := range nodes {
-		result = append(result, space.Claim{
+		result = append(result, romwrite.Claim{
 			Start: node.Address,
 			End:   node.Address + NodeSize,
 			Owner: node.Owner(),
@@ -94,13 +94,13 @@ func (f Format) Claims(data []byte) []space.Claim {
 				ID:     node.ID,
 				Slot:   slot,
 			}.Owner()
-			result = append(result, space.Claim{
+			result = append(result, romwrite.Claim{
 				Start: site, End: site + 4,
 				Owner: owner, Host: node.Owner(), Site: true,
 			})
 			if at, valid := gba.Pointer(data, site); valid && at >= 0xC0 &&
 				at%2 == 0 && gba.Within(data, at, shop.PayloadSize) {
-				result = append(result, space.Claim{
+				result = append(result, romwrite.Claim{
 					Start: at, End: at + shop.PayloadSize,
 					Owner: owner,
 				})
@@ -111,8 +111,8 @@ func (f Format) Claims(data []byte) []space.Claim {
 }
 
 // Ranges protects bounded resources without proving exclusive ownership.
-func (f Format) Ranges(data []byte) []space.Range {
-	return space.ClaimRanges(f.Claims(data))
+func (f Format) Ranges(data []byte) []romwrite.Range {
+	return romwrite.ClaimRanges(f.Claims(data))
 }
 
 func (f Format) TextUses(data []byte, id uint16) []text.Use {

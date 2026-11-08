@@ -8,7 +8,7 @@ import (
 	"github.com/woxQAQ/febuildergba-mygo/fault"
 	"github.com/woxQAQ/febuildergba-mygo/game/text"
 	"github.com/woxQAQ/febuildergba-mygo/gba"
-	"github.com/woxQAQ/febuildergba-mygo/space"
+	"github.com/woxQAQ/febuildergba-mygo/romwrite"
 )
 
 var (
@@ -67,7 +67,7 @@ type Unit struct {
 	ID, Pointer int
 	Affinity    uint8
 	Name        string
-	Host        space.Owner
+	Host        romwrite.Owner
 }
 
 type Relationship struct{ Unit, Initial, Growth uint8 }
@@ -181,13 +181,13 @@ func (f Format) talks(data []byte) talkTable {
 // pointer (hosted by the character record) and payload, and the shared talk
 // table with its native consumer pointers. The talk table uses the zero ID,
 // which no character record can hold.
-func (f Format) Claims(data []byte, units []Unit) []space.Claim {
+func (f Format) Claims(data []byte, units []Unit) []romwrite.Claim {
 	result := f.bonusClaims(data)
 	for _, unit := range units {
-		owner := space.Owner{Resource: "support", ID: unit.ID}
+		owner := romwrite.Owner{Resource: "support", ID: unit.ID}
 		result = append(
 			result,
-			space.Claim{
+			romwrite.Claim{
 				Start: unit.Pointer, End: unit.Pointer + 4,
 				Owner: owner,
 				Host:  unit.Host,
@@ -197,7 +197,7 @@ func (f Format) Claims(data []byte, units []Unit) []space.Claim {
 		if r := f.Read(data, unit); r.Address != 0 {
 			result = append(
 				result,
-				space.Claim{
+				romwrite.Claim{
 					Start: r.Address,
 					End:   r.Address + f.Size,
 					Owner: owner,
@@ -206,10 +206,10 @@ func (f Format) Claims(data []byte, units []Unit) []space.Claim {
 		}
 	}
 	for _, site := range f.TalkPointers {
-		owner := space.Owner{Resource: "support"}
+		owner := romwrite.Owner{Resource: "support"}
 		result = append(
 			result,
-			space.Claim{
+			romwrite.Claim{
 				Start: site, End: site + 4,
 				Owner: owner,
 				Site:  true,
@@ -220,7 +220,7 @@ func (f Format) Claims(data []byte, units []Unit) []space.Claim {
 		if t.address != 0 && length > 0 {
 			result = append(
 				result,
-				space.Claim{
+				romwrite.Claim{
 					Start: t.address,
 					End:   t.address + length,
 					Owner: owner,

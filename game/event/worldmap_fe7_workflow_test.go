@@ -14,7 +14,7 @@ import (
 	"github.com/woxQAQ/febuildergba-mygo/game/records"
 	"github.com/woxQAQ/febuildergba-mygo/internal/testutil"
 	"github.com/woxQAQ/febuildergba-mygo/rom"
-	"github.com/woxQAQ/febuildergba-mygo/space"
+	"github.com/woxQAQ/febuildergba-mygo/romwrite"
 )
 
 func TestFE7WorldMapNarrationAndHistory(t *testing.T) {
@@ -259,7 +259,7 @@ func TestFE7WorldMapDirectoryClaims(t *testing.T) {
 				d,
 			); !errors.Is(
 				err,
-				space.ErrClaim,
+				romwrite.ErrClaim,
 			) {
 				t.Fatal("directory ownership", err)
 			}
@@ -388,9 +388,9 @@ func TestFE7WorldMapIndependentSourcesAndFailures(t *testing.T) {
 			if err == nil {
 				t.Fatal("invalid plan accepted")
 			}
-			if name == "capacity" && !errors.Is(err, space.ErrCapacity) ||
+			if name == "capacity" && !errors.Is(err, romwrite.ErrCapacity) ||
 				name == "stale" && !errors.Is(err, rom.ErrStale) ||
-				name == "overlap" && !errors.Is(err, space.ErrClaim) {
+				name == "overlap" && !errors.Is(err, romwrite.ErrClaim) {
 				t.Fatal("failure category", err)
 			}
 			if state != s.Document.State() ||

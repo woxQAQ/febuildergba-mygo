@@ -6,7 +6,7 @@ import (
 
 	"github.com/woxQAQ/febuildergba-mygo/fault"
 	"github.com/woxQAQ/febuildergba-mygo/game/edit"
-	"github.com/woxQAQ/febuildergba-mygo/space"
+	"github.com/woxQAQ/febuildergba-mygo/romwrite"
 )
 
 const Resource = "text"
@@ -23,9 +23,9 @@ type Use struct {
 // resource coordinator for the same ROM snapshot as the text operation.
 type References struct {
 	Uses    []Use
-	Ranges  []space.Range
+	Ranges  []romwrite.Range
 	Sites   []int
-	Manual  []space.Range
+	Manual  []romwrite.Range
 	Aliases map[byte]string
 }
 

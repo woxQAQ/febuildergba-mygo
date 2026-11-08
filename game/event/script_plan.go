@@ -10,7 +10,7 @@ import (
 	"github.com/woxQAQ/febuildergba-mygo/game/records"
 	"github.com/woxQAQ/febuildergba-mygo/gba"
 	"github.com/woxQAQ/febuildergba-mygo/rom"
-	"github.com/woxQAQ/febuildergba-mygo/space"
+	"github.com/woxQAQ/febuildergba-mygo/romwrite"
 )
 
 type ScriptUse struct {
@@ -71,9 +71,9 @@ func (s *Editor) PlanScriptEdit(
 	if current.Entry.Address != entry.Address {
 		return nil, rom.ErrStale
 	}
-	builder := space.NewBuilder(s.image.Data, space.Protection{
+	builder := romwrite.NewBuilder(s.image.Data, romwrite.Protection{
 		Pointer: s.source.ProtectPointer,
-		Range: func(_ []byte, _ space.Owner, region space.Range) error {
+		Range: func(_ []byte, _ romwrite.Owner, region romwrite.Range) error {
 			return s.scriptWriteRange(region.Start, region.End)
 		},
 	})
@@ -97,7 +97,7 @@ func (s *Editor) PlanScriptEdit(
 		destination, err = builder.ReplaceEncoded(func(at int) ([]byte, error) {
 			content, positions, err = draft.scriptContent(at, true)
 			return content, err
-		}, space.PointerSite{
+		}, romwrite.PointerSite{
 			Owner: ScriptOwner(entry.Pointer), Address: entry.Pointer,
 			ExpectedWord: gba.Uint32(s.image.Data, entry.Pointer),
 		})
@@ -167,7 +167,7 @@ func (d *ScriptDraft) labelsChanged(structural bool) bool {
 
 func (s *Editor) patchScript(
 	draft *ScriptDraft,
-	builder *space.Builder,
+	builder *romwrite.Builder,
 	content []byte,
 ) error {
 	entry := draft.Entry()
@@ -382,7 +382,7 @@ func (s *Editor) scriptWriteRange(start, end int) error {
 	if err := s.source.ProtectRange(
 		s.image.Data,
 		ScriptCodeOwner(),
-		space.Range{
+		romwrite.Range{
 			Start: start, End: end,
 		},
 	); err != nil {

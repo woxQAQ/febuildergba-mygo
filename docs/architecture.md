@@ -43,19 +43,19 @@ flowchart TD
     Records --> Text[text]
     Domain[领域编辑器] --> Edit[edit: 输入绑定与提交]
     Edit --> ROM[rom]
-    Domain --> Space[space]
+    Domain --> ROMWrite[romwrite: ROM 写入规划]
     Domain --> GBA[gba]
-    Space --> ROM
+    ROMWrite --> ROM
 ```
 
 图中展示主要依赖。`main.go` 只负责启动。下列直接导入约束由 `.golangci.yml` 的 `depguard` 随 `just lint`／`just check` 自动检查，包含子包和测试文件：
 
-- `game`、`rom`、`space`、`gba`、`fault` 不导入 MyGo 或界面层。
+- `game`、`rom`、`romwrite`、`gba`、`fault` 不导入 MyGo 或界面层。
 - `game` 的领域子包不导入 `game/version`；版本身份由组合根选择。
 - `app` 只经 `pages` 根包组合界面，不导入组件或页面子包。
 - 组件不反向导入页面或 app，页面不导入 app；文本、头像、脚本、商店、支援、斗技场、战斗／死亡对话及世界地图页面不直接导入记录页。
 - `locales` 不导入领域包；错误到文案的映射由组件承接。
-- `internal/applog` 只依赖标准库与 `fault`；`game`、`rom`、`space`、`gba`、`fault`、`internal/input`、`internal/locales` 不导入它。
+- `internal/applog` 只依赖标准库与 `fault`；`game`、`rom`、`romwrite`、`gba`、`fault`、`internal/input`、`internal/locales` 不导入它。
 - `internal/input` 不导入 MyGo；该包独立承载纯数值和地址解析。
 
 ### 人工审查的设计约束
@@ -63,7 +63,7 @@ flowchart TD
 以下规则不由 depguard 证明，代码审查需结合实际调用和领域工作流验证：
 
 - **版本事实**：生产配置中的绝对 ROM 地址（指针位置、hook、指令位置、恢复地址、补丁特征位置）只放在 `game/feXX.go`。领域包以命名值定义结构差异，例如 `support.FE7Layout()`、`chapter.FE6Layout()`、`records.FE7ClassFields()`；不以布尔值或版本 ID 选择版本，也不自行推导版本地址。页面通过领域 Format 的能力字段读取规则，如 `quote` 的 `BattleConditions`／`SilentDeath`。depguard 只覆盖上节的 `game/version` 导入限制，不检查地址或布局的放置。既有字面量例外见[未决问题](#未决问题)。
-- **资源声明**：`space.Claim` 表示带所有者（Owner）的字节区间，Host 表示容纳指针站点的宿主记录。指针写入与声明重叠时，只允许写入者自己的站点声明或其宿主记录，由 `space.CheckWrite` 执行；原地载荷写入由 `space.CheckRangeWrite` 检查整段区间，只允许自己的声明及自己容纳的指针站点，其余均冲突。各领域声明自己的已确认资源，会话汇总；新增领域提供 Claims 来源，不给其他领域增加成对排除分支。实现审查检查来源是否齐全，领域流程检查冲突和失败原子性；已有声明不等于完整的全 ROM 引用证明。
+- **资源声明**：`romwrite.Claim` 表示带所有者（Owner）的字节区间，Host 表示容纳指针站点的宿主记录。指针写入与声明重叠时，只允许写入者自己的站点声明或其宿主记录，由 `romwrite.CheckPointerWrite` 执行；原地载荷写入由 `romwrite.CheckRangeWrite` 检查整段区间，只允许自己的声明及自己容纳的指针站点，其余均冲突。各领域声明自己的已确认资源，会话汇总；新增领域提供 Claims 来源，不给其他领域增加成对排除分支。实现审查检查来源是否齐全，领域流程检查冲突和失败原子性；已有声明不等于完整的全 ROM 引用证明。
 - **包与资源边界**：子包不访问父包私有成员，父包不为子包逐项转发 API。原生编辑器接收所属格式、编辑上下文及具体资源输入，不接收整个 `*game.Session`。拆包依据是独立领域含义，不是文件数量。
 - **状态与事务**：线程、异步结果、不可变计划及原子提交遵循 [AGENTS 的实现边界](../AGENTS.md#实现边界)；验证范围见 [AGENTS 的命令与验证](../AGENTS.md#命令与验证)。导入检查不能证明这些行为。
 
@@ -72,7 +72,7 @@ flowchart TD
 | 模块           | 代码                                                            | 职责                                                                                                               |
 | -------------- | --------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------ |
 | ROM 文档       | `rom`                                                           | 字节、修订、撤销重做、保存点、备份与外部修改检测。                                                                 |
-| 空间与引用     | `space`                                                         | 根据明确声明的区间和引用规划写入、追加与搬迁；资源声明（Claim）的归属与字节写入检查，不猜测资源含义。              |
+| ROM 写入规划   | `romwrite`                                                      | 根据明确声明的区间和引用规划写入、追加与搬迁；资源声明（Claim）的归属与字节写入检查，不猜测资源含义。              |
 | GBA 编解码     | `gba`                                                           | 地址边界、LZ77、4bpp、BGR555 与背景图块等原生编码。                                                                |
 | 错误模型       | `fault`                                                         | 稳定错误码、结构化上下文和原因链，不依赖 UI。                                                                      |
 | 版本与装配     | `game/session.go`、`game/format.go`、版本配置（`game/fe8u.go`） | 识别固定基线版本，组合领域编辑器。`Session` 保存这些编辑器及同一个文档入口。                                       |
@@ -112,10 +112,10 @@ flowchart TD
 
 写入经过两层计划：
 
-1. `space.Builder` 在同一快照上组合分配、编码、原地覆盖和引用修改。`AppendEncoded`／`ReplaceEncoded` 在分配位置确定后调用领域编码器；`PointerSite` 携带所有者和完整 `ExpectedWord`，`Repoint` 接收文件偏移，清零另用 `ClearPointer`。`Protection` 提供指针和区间检查，缺少对应检查时拒绝写入已有字节。每项先检查引用、归属、边界和交叠，成功后才加入计划；失败不消耗空间或改变已累积操作。
-2. `Builder.Plan()` 返回尚未绑定文档的 `space.WritePlan`。`edit.NewCommit` 再冻结原始 stamp、历史标签和写入，`Commit.Apply` 核对来源后交给 `rom.Document.ApplyEdit` 一次提交。领域 `Plan` 同时保留这份提交和影响信息。
+1. `romwrite.Builder` 在同一快照上组合分配、编码、原地覆盖和引用修改。`AppendEncoded`／`ReplaceEncoded` 在分配位置确定后调用领域编码器；`PointerSite` 携带所有者和完整 `ExpectedWord`，`Repoint` 接收文件偏移，清零另用 `ClearPointer`。`Protection` 提供指针和区间检查，缺少对应检查时拒绝写入已有字节。每项先检查引用、归属、边界和交叠，成功后才加入计划；失败不消耗空间或改变已累积操作。
+2. `Builder.Plan()` 返回尚未绑定文档的 `romwrite.WritePlan`。`edit.NewCommit` 再冻结原始 stamp、历史标签和写入，`Commit.Apply` 核对来源后交给 `rom.Document.ApplyEdit` 一次提交。领域 `Plan` 同时保留这份提交和影响信息。
 
-默认分配在末尾追加，也接受带来源的明确可用区间。`Builder.Relocate` 处理源范围与内部偏移引用；源区在同一构建器内不可写，复用已有区间仍检查保护。旧载荷及未选定的独立引用保留。具体机制与示例见[ROM 与空间参考](reference/rom-editing.md#空间分配与表搬迁)和 `space/doc.go`。
+默认分配在末尾追加，也接受带来源的明确可用区间。`Builder.Relocate` 处理源范围与内部偏移引用；源区在同一构建器内不可写，复用已有区间仍检查保护。旧载荷及未选定的独立引用保留。具体机制与示例见[ROM 与空间参考](reference/rom-editing.md#空间分配与表搬迁)和 `romwrite/doc.go`。
 
 ### 资源保护
 

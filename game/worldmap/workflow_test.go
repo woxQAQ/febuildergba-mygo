@@ -12,7 +12,7 @@ import (
 	"github.com/woxQAQ/febuildergba-mygo/game/worldmap"
 	"github.com/woxQAQ/febuildergba-mygo/internal/testutil"
 	"github.com/woxQAQ/febuildergba-mygo/rom"
-	"github.com/woxQAQ/febuildergba-mygo/space"
+	"github.com/woxQAQ/febuildergba-mygo/romwrite"
 )
 
 func TestNativeNodeEditingAndHistory(t *testing.T) {
@@ -256,7 +256,7 @@ func TestNodeConflictAndReferenceFailuresAreAtomic(t *testing.T) {
 				t.Fatal(err)
 			}
 			var plan *worldmap.Plan
-			want := error(space.ErrClaim)
+			want := error(romwrite.ErrClaim)
 			switch scenario {
 			case "chapter":
 				want = edit.ErrValue

@@ -14,7 +14,7 @@ import (
 	"github.com/woxQAQ/febuildergba-mygo/game/records"
 	"github.com/woxQAQ/febuildergba-mygo/internal/testutil"
 	"github.com/woxQAQ/febuildergba-mygo/rom"
-	"github.com/woxQAQ/febuildergba-mygo/space"
+	"github.com/woxQAQ/febuildergba-mygo/romwrite"
 )
 
 func TestFE7WorldMapMarkersSharedEditAndHistory(t *testing.T) {
@@ -312,7 +312,7 @@ func TestFE7WorldMapMarkersInvalidEditsAndConflicts(t *testing.T) {
 				d,
 			); !errors.Is(
 				err,
-				space.ErrClaim,
+				romwrite.ErrClaim,
 			) {
 				t.Fatal("overlapping marker write", err)
 			}

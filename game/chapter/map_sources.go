@@ -5,7 +5,7 @@ import (
 	"github.com/woxQAQ/febuildergba-mygo/game/edit"
 	"github.com/woxQAQ/febuildergba-mygo/game/event"
 	"github.com/woxQAQ/febuildergba-mygo/game/maps"
-	"github.com/woxQAQ/febuildergba-mygo/space"
+	"github.com/woxQAQ/febuildergba-mygo/romwrite"
 )
 
 func (s *Editor) mapSource() maps.Source {
@@ -34,7 +34,11 @@ func (s *Editor) mapSource() maps.Source {
 }
 
 // mapProtection authorizes the selected map resource under the session claims.
-func (s *Editor) mapProtection(data []byte, owner space.Owner, site int) error {
+func (s *Editor) mapProtection(
+	data []byte,
+	owner romwrite.Owner,
+	site int,
+) error {
 	if err := s.format.protect(
 		data,
 		s.records,

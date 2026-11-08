@@ -4,7 +4,7 @@ import (
 	"github.com/woxQAQ/febuildergba-mygo/game/arena"
 	"github.com/woxQAQ/febuildergba-mygo/game/edit"
 	"github.com/woxQAQ/febuildergba-mygo/game/records"
-	"github.com/woxQAQ/febuildergba-mygo/space"
+	"github.com/woxQAQ/febuildergba-mygo/romwrite"
 )
 
 func (s *Session) arenaTable(
@@ -66,7 +66,7 @@ func (s *Session) arenaSource() arena.Source {
 		},
 		Items: func(data []byte) ([]int, error) { return s.arenaIDs(data, records.Items) },
 		Units: func(data []byte) ([]int, error) { return s.arenaIDs(data, records.Units) },
-		ProtectPointer: func(data []byte, owner space.Owner, site int) error {
+		ProtectPointer: func(data []byte, owner romwrite.Owner, site int) error {
 			return s.guardPointer(data, owner, site, arena.ErrReference)
 		},
 	}

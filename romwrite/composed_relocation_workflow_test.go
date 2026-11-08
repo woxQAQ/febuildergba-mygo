@@ -1,4 +1,4 @@
-package space_test
+package romwrite_test
 
 import (
 	"bytes"
@@ -8,14 +8,14 @@ import (
 	"testing"
 
 	"github.com/woxQAQ/febuildergba-mygo/internal/testutil"
-	"github.com/woxQAQ/febuildergba-mygo/space"
+	"github.com/woxQAQ/febuildergba-mygo/romwrite"
 )
 
 func TestEncodedReplacementAndRelocationCompose(t *testing.T) {
 	data, protection, record, palette, movement := resourceEditFixture()
 	copy(data[32:40], []byte{0x24, 0, 0, 8, 0xB1, 0xB2, 0xB3, 0xB4})
 	doc := openResourceDocument(t, data)
-	builder := space.NewBuilder(data, protection)
+	builder := romwrite.NewBuilder(data, protection)
 	if at, err := builder.AppendEncoded(func(at int) ([]byte, error) {
 		if at != 132 {
 			t.Fatalf("first allocation: %d", at)
@@ -37,17 +37,17 @@ func TestEncodedReplacementAndRelocationCompose(t *testing.T) {
 	if _, err := builder.AppendEncoded(func(int) ([]byte, error) {
 		_, err := builder.Append([]byte{0xFF})
 		return nil, err
-	}); !errors.Is(err, space.ErrRange) || !reflect.DeepEqual(builder.Plan(), before) {
+	}); !errors.Is(err, romwrite.ErrRange) || !reflect.DeepEqual(builder.Plan(), before) {
 		t.Fatalf("reentrant encoding changed the plan: %v", err)
 	}
-	move := space.Move{
+	move := romwrite.Move{
 		Owner:  palette.Owner,
-		Source: space.Range{Start: 32, End: 40},
-		References: []space.Reference{
+		Source: romwrite.Range{Start: 32, End: 40},
+		References: []romwrite.Reference{
 			{Owner: palette.Owner, Address: 8},
 			{Address: 32, Offset: 4},
 		},
-		Available: []space.FreeRange{
+		Available: []romwrite.FreeRange{
 			{
 				Start: 64, End: 80,
 				Source: "declared allocation",
@@ -55,17 +55,17 @@ func TestEncodedReplacementAndRelocationCompose(t *testing.T) {
 		},
 	}
 	wrongOwner := move
-	wrongOwner.References = []space.Reference{
+	wrongOwner.References = []romwrite.Reference{
 		{Owner: movement.Owner, Address: 8},
 	}
 	if _, err := builder.Relocate(
 		wrongOwner,
-	); !errors.Is(err, space.ErrClaim) ||
+	); !errors.Is(err, romwrite.ErrClaim) ||
 		!reflect.DeepEqual(builder.Plan(), before) {
 		t.Fatalf("relocation skipped pointer ownership: %v", err)
 	}
 	conflict := move
-	conflict.Available = []space.FreeRange{
+	conflict.Available = []romwrite.FreeRange{
 		{
 			Start: 48, End: 64,
 			Source: "conflicting allocation",
@@ -73,15 +73,15 @@ func TestEncodedReplacementAndRelocationCompose(t *testing.T) {
 	}
 	if _, err := builder.Relocate(
 		conflict,
-	); !errors.Is(err, space.ErrClaim) ||
+	); !errors.Is(err, romwrite.ErrClaim) ||
 		!reflect.DeepEqual(builder.Plan(), before) {
 		t.Fatalf("relocation skipped existing-range protection: %v", err)
 	}
-	for _, missing := range []space.Protection{{Pointer: protection.Pointer}, {Range: protection.Range}} {
-		unguarded := space.NewBuilder(data, missing)
+	for _, missing := range []romwrite.Protection{{Pointer: protection.Pointer}, {Range: protection.Range}} {
+		unguarded := romwrite.NewBuilder(data, missing)
 		if _, err := unguarded.Relocate(
 			move,
-		); !errors.Is(err, space.ErrClaim) ||
+		); !errors.Is(err, romwrite.ErrClaim) ||
 			len(unguarded.Plan().Edit.Changes) != 0 {
 			t.Fatalf("relocation accepted missing protection: %v", err)
 		}
@@ -89,7 +89,7 @@ func TestEncodedReplacementAndRelocationCompose(t *testing.T) {
 	if destination, err := builder.Relocate(
 		move,
 	); err != nil ||
-		destination != (space.Range{Start: 64, End: 72}) {
+		destination != (romwrite.Range{Start: 64, End: 72}) {
 		t.Fatalf("relocation: %+v, %v", destination, err)
 	}
 	before = builder.Plan()
@@ -97,18 +97,18 @@ func TestEncodedReplacementAndRelocationCompose(t *testing.T) {
 		palette.Owner,
 		32,
 		[]byte{0},
-	); !errors.Is(err, space.ErrRange) ||
+	); !errors.Is(err, romwrite.ErrRange) ||
 		!reflect.DeepEqual(builder.Plan(), before) {
 		t.Fatalf("later write changed the retained source: %v", err)
 	}
-	another := space.Move{
-		Owner: movement.Owner, Source: space.Range{Start: 48, End: 56},
-		References: []space.Reference{{Owner: movement.Owner, Address: 12}},
+	another := romwrite.Move{
+		Owner: movement.Owner, Source: romwrite.Range{Start: 48, End: 56},
+		References: []romwrite.Reference{{Owner: movement.Owner, Address: 12}},
 		Available:  move.Available,
 	}
 	if _, err := builder.Relocate(
 		another,
-	); !errors.Is(err, space.ErrRange) ||
+	); !errors.Is(err, romwrite.ErrRange) ||
 		!reflect.DeepEqual(builder.Plan(), before) {
 		t.Fatalf("relocation reused an earlier allocation: %v", err)
 	}
@@ -131,7 +131,7 @@ func TestEncodedReplacementAndRelocationCompose(t *testing.T) {
 		t.Fatal(err)
 	}
 	plan := builder.Plan()
-	if plan.Destination != (space.Range{Start: 64, End: 144}) {
+	if plan.Destination != (romwrite.Range{Start: 64, End: 144}) {
 		t.Fatalf("allocation envelope: %+v", plan.Destination)
 	}
 	if err := doc.ApplyEdit(0, "composed relocation", plan.Edit); err != nil {
@@ -174,7 +174,7 @@ func TestEncodedReplacementAndRelocationCompose(t *testing.T) {
 func TestPointerRetargetAndClearHistory(t *testing.T) {
 	data, protection, _, pointer, _ := resourceEditFixture()
 	doc := openResourceDocument(t, data)
-	builder := space.NewBuilder(data, protection)
+	builder := romwrite.NewBuilder(data, protection)
 	if err := builder.Repoint(pointer, 0); err != nil {
 		t.Fatal(err)
 	}
@@ -190,7 +190,7 @@ func TestPointerRetargetAndClearHistory(t *testing.T) {
 		t.Fatal("file offset zero became a null pointer")
 	}
 	pointer.ExpectedWord = 0x08000000
-	builder = space.NewBuilder(atStart.Data, protection)
+	builder = romwrite.NewBuilder(atStart.Data, protection)
 	if err := builder.ClearPointer(pointer); err != nil {
 		t.Fatal(err)
 	}

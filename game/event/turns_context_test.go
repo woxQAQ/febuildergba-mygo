@@ -8,7 +8,7 @@ import (
 	"github.com/woxQAQ/febuildergba-mygo/game/event"
 	"github.com/woxQAQ/febuildergba-mygo/game/records"
 	"github.com/woxQAQ/febuildergba-mygo/internal/testutil"
-	"github.com/woxQAQ/febuildergba-mygo/space"
+	"github.com/woxQAQ/febuildergba-mygo/romwrite"
 )
 
 func TestTurnChapterContext(t *testing.T) {
@@ -167,14 +167,14 @@ func TestTurnResourceRecovery(t *testing.T) {
 				if name == "declared units space" {
 					at = f.GetPosition("deploy_units")
 				}
-				region := space.Range{Start: at, End: at + 0x100}
+				region := romwrite.Range{Start: at, End: at + 0x100}
 				_, err := s.Records.PlanTableMove(
 					records.Items,
-					[]space.FreeRange{
+					[]romwrite.FreeRange{
 						{Range: region, Source: "fixture ownership conflict"},
 					},
 				)
-				if !errors.Is(err, space.ErrRange) ||
+				if !errors.Is(err, romwrite.ErrRange) ||
 					!bytes.Equal(before.Data, s.Document.Snapshot().Data) {
 					t.Fatalf("live event resource reused: %v", err)
 				}

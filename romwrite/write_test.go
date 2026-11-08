@@ -1,4 +1,4 @@
-package space
+package romwrite
 
 import (
 	"bytes"
@@ -19,7 +19,7 @@ func relocationProtection() Protection {
 		{Start: 32, End: 48, Owner: owner},
 	}
 	return Protection{
-		Pointer: func(_ []byte, owner Owner, site int) error { return CheckWrite(claims, owner, site) },
+		Pointer: func(_ []byte, owner Owner, site int) error { return CheckPointerWrite(claims, owner, site) },
 		Range:   func(_ []byte, owner Owner, region Range) error { return CheckRangeWrite(claims, owner, region) },
 	}
 }

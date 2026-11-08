@@ -49,13 +49,13 @@ vet:
 test *args:
     go test "$@" ./...
 
-# 只运行 ROM 文档、游戏会话、空间和图像核心测试。
+# 只运行 ROM 文档、游戏会话、ROM 写入规划和图像核心测试。
 test-core *args:
-    go test "$@" ./rom ./game/... ./space ./gba
+    go test "$@" ./rom ./game/... ./romwrite ./gba
 
-# 检查 ROM、游戏会话、空间和应用日志的数据竞争，不覆盖 UI 线程回传。
+# 检查 ROM、游戏会话、ROM 写入规划和应用日志的数据竞争，不覆盖 UI 线程回传。
 test-race *args:
-    go test -race "$@" ./rom ./game/... ./space ./internal/applog
+    go test -race "$@" ./rom ./game/... ./romwrite ./internal/applog
 
 # 动态发现 .rom/ 中的 ROM，使用临时副本验证通用流程；禁用缓存。
 test-integration *args:

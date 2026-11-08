@@ -4,7 +4,7 @@ import (
 	"github.com/woxQAQ/febuildergba-mygo/game/edit"
 	"github.com/woxQAQ/febuildergba-mygo/game/records"
 	"github.com/woxQAQ/febuildergba-mygo/game/support"
-	"github.com/woxQAQ/febuildergba-mygo/space"
+	"github.com/woxQAQ/febuildergba-mygo/romwrite"
 )
 
 func supportUnits(data []byte, table records.Table) []support.Unit {
@@ -58,7 +58,7 @@ func (s *Session) supportSource() support.Source {
 	return support.Source{
 		Units:        s.supportUnits,
 		ValidateText: func(data []byte, id uint16) error { _, err := s.format.text.Read(data, id); return err },
-		ProtectPointer: func(data []byte, owner space.Owner, site int) error {
+		ProtectPointer: func(data []byte, owner romwrite.Owner, site int) error {
 			return s.guardPointer(data, owner, site, edit.ErrLayout)
 		},
 	}

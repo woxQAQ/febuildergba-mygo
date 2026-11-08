@@ -15,7 +15,7 @@ import (
 	"github.com/woxQAQ/febuildergba-mygo/game/records"
 	"github.com/woxQAQ/febuildergba-mygo/internal/testutil"
 	"github.com/woxQAQ/febuildergba-mygo/rom"
-	"github.com/woxQAQ/febuildergba-mygo/space"
+	"github.com/woxQAQ/febuildergba-mygo/romwrite"
 )
 
 func TestFE6WorldMapNarrationAndHistory(t *testing.T) {
@@ -268,7 +268,7 @@ func TestFE6WorldMapProtectsMapWrites(t *testing.T) {
 				t.Fatal(err)
 			}
 			before, state := s.Document.Snapshot(), s.Document.State()
-			if _, err = s.Maps.Plan(d); !errors.Is(err, space.ErrClaim) {
+			if _, err = s.Maps.Plan(d); !errors.Is(err, romwrite.ErrClaim) {
 				t.Fatal("script ownership", err)
 			}
 			if state != s.Document.State() ||
@@ -429,11 +429,11 @@ func TestFE6WorldMapBoundsAndFailures(t *testing.T) {
 			if err == nil {
 				t.Fatal("invalid edit accepted")
 			}
-			if name == "capacity" && !errors.Is(err, space.ErrCapacity) ||
+			if name == "capacity" && !errors.Is(err, romwrite.ErrCapacity) ||
 				(name == "stale" || name == "layout") &&
 					!errors.Is(err, rom.ErrStale) ||
 				(name == "map-site" || name == "map-payload" || name == "record-overlap") &&
-					!errors.Is(err, space.ErrClaim) {
+					!errors.Is(err, romwrite.ErrClaim) {
 				t.Fatal("failure category", err)
 			}
 			if state != s.Document.State() ||

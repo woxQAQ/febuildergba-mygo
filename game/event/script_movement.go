@@ -6,7 +6,7 @@ import (
 
 	"github.com/woxQAQ/febuildergba-mygo/game/edit"
 	"github.com/woxQAQ/febuildergba-mygo/game/records"
-	"github.com/woxQAQ/febuildergba-mygo/space"
+	"github.com/woxQAQ/febuildergba-mygo/romwrite"
 )
 
 const (
@@ -204,7 +204,7 @@ func (d *ScriptDraft) SetMovement(
 }
 
 func (d *ScriptDraft) prepareMovements(
-	builder *space.Builder,
+	builder *romwrite.Builder,
 ) (*ScriptDraft, int, error) {
 	prepared := *d
 	prepared.rows = cloneScriptRows(d.rows)

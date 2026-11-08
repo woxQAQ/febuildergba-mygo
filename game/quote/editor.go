@@ -8,11 +8,11 @@ import (
 	"github.com/woxQAQ/febuildergba-mygo/game/edit"
 	"github.com/woxQAQ/febuildergba-mygo/gba"
 	"github.com/woxQAQ/febuildergba-mygo/rom"
-	"github.com/woxQAQ/febuildergba-mygo/space"
+	"github.com/woxQAQ/febuildergba-mygo/romwrite"
 )
 
 type Source struct {
-	ProtectPointer func(data []byte, owner space.Owner, site int) error
+	ProtectPointer func(data []byte, owner romwrite.Owner, site int) error
 	ValidateText   func([]byte, uint16) error
 }
 type Editor struct {
@@ -179,7 +179,7 @@ func (d *Draft) Set(index int, id string, value uint32) error {
 
 func (d *Draft) Add() error {
 	if len(d.rows) >= MaxEntries {
-		return space.ErrCapacity
+		return romwrite.ErrCapacity
 	}
 	raw := make([]byte, d.table.Stride)
 	for _, field := range d.table.rule.Fields {
@@ -207,7 +207,7 @@ func (d *Draft) Duplicate(index int) error {
 		return edit.ErrValue
 	}
 	if len(d.rows) >= MaxEntries {
-		return space.ErrCapacity
+		return romwrite.ErrCapacity
 	}
 	copied := d.rows[index]
 	copied.ID = d.nextID
@@ -327,14 +327,14 @@ func (s *Editor) Plan(d *Draft) (result *Plan, err error) {
 		payload = append(payload, row.Raw...)
 	}
 	payload = append(payload, d.table.terminator...)
-	builder := space.NewBuilder(
+	builder := romwrite.NewBuilder(
 		image.Data,
-		space.Protection{Pointer: s.source.ProtectPointer},
+		romwrite.Protection{Pointer: s.source.ProtectPointer},
 	)
-	pointers := make([]space.PointerSite, len(d.table.Pointers))
+	pointers := make([]romwrite.PointerSite, len(d.table.Pointers))
 	for i, site := range d.table.Pointers {
-		pointers[i] = space.PointerSite{
-			Owner:   space.Owner{Resource: string(d.table.Kind)},
+		pointers[i] = romwrite.PointerSite{
+			Owner:   romwrite.Owner{Resource: string(d.table.Kind)},
 			Address: site,
 			ExpectedWord: uint32( // #nosec G115 -- The table address was read from a valid GBA ROM pointer.
 				0x08000000 + d.table.Address,

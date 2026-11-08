@@ -11,7 +11,7 @@ import (
 	"github.com/woxQAQ/febuildergba-mygo/game/edit"
 	"github.com/woxQAQ/febuildergba-mygo/game/text"
 	"github.com/woxQAQ/febuildergba-mygo/rom"
-	"github.com/woxQAQ/febuildergba-mygo/space"
+	"github.com/woxQAQ/febuildergba-mygo/romwrite"
 )
 
 // Editor owns record interpretation, manual table layouts and field edits.
@@ -21,7 +21,7 @@ type Editor struct {
 	source     func([]byte) Format
 	definition Format
 	texts      *text.Editor
-	protection space.Protection
+	protection romwrite.Protection
 	image      edit.Input
 	binding    edit.Stamp
 	layouts    map[Kind]Layout
@@ -33,7 +33,7 @@ func New(
 	context *edit.Context,
 	source func([]byte) Format,
 	texts *text.Editor,
-	protection space.Protection,
+	protection romwrite.Protection,
 ) *Editor {
 	s := &Editor{
 		context:    context,
@@ -164,12 +164,12 @@ func (s *Editor) Set(
 		}
 		offset := row.Address + field.Offset
 		if !bytes.Equal(s.image.Data[offset:offset+field.Width], data) {
-			region := space.Range{Start: offset, End: offset + field.Width}
-			var protectionErr error = space.ErrClaim
+			region := romwrite.Range{Start: offset, End: offset + field.Width}
+			var protectionErr error = romwrite.ErrClaim
 			if s.protection.Range != nil {
 				protectionErr = s.protection.Range(
 					s.image.Data,
-					space.Owner{Resource: string(kind), ID: row.ID},
+					romwrite.Owner{Resource: string(kind), ID: row.ID},
 					region,
 				)
 			}

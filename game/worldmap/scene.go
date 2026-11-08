@@ -6,7 +6,7 @@ import (
 	"github.com/woxQAQ/febuildergba-mygo/fault"
 	"github.com/woxQAQ/febuildergba-mygo/game/edit"
 	"github.com/woxQAQ/febuildergba-mygo/gba"
-	"github.com/woxQAQ/febuildergba-mygo/space"
+	"github.com/woxQAQ/febuildergba-mygo/romwrite"
 )
 
 const MapWidth, MapHeight = 480, 320
@@ -103,8 +103,8 @@ func compressedAsset(data []byte, site, limit int) ([]byte, int, int, error) {
 	return decoded, at, length, nil
 }
 
-func (f SceneFormat) claims(data []byte) []space.Claim {
-	var claims []space.Claim
+func (f SceneFormat) claims(data []byte) []romwrite.Claim {
+	var claims []romwrite.Claim
 	for _, asset := range []struct{ site, length, limit int }{
 		{f.Image, MapWidth * MapHeight / 2, 0},
 		{f.Palette, 128, 0},
@@ -119,10 +119,10 @@ func (f SceneFormat) claims(data []byte) []space.Claim {
 		if asset.site < 0xC0 || !gba.Within(data, asset.site, 4) {
 			continue
 		}
-		owner := space.Owner{Resource: "worldmap.scene", ID: asset.site}
+		owner := romwrite.Owner{Resource: "worldmap.scene", ID: asset.site}
 		claims = append(
 			claims,
-			space.Claim{
+			romwrite.Claim{
 				Start: asset.site,
 				End:   asset.site + 4,
 				Owner: owner,
@@ -140,7 +140,7 @@ func (f SceneFormat) claims(data []byte) []space.Claim {
 		if err == nil {
 			claims = append(
 				claims,
-				space.Claim{Start: at, End: at + length, Owner: owner},
+				romwrite.Claim{Start: at, End: at + length, Owner: owner},
 			)
 		}
 	}

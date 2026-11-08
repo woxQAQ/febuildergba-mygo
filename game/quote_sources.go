@@ -3,12 +3,12 @@ package game
 import (
 	"github.com/woxQAQ/febuildergba-mygo/game/edit"
 	"github.com/woxQAQ/febuildergba-mygo/game/quote"
-	"github.com/woxQAQ/febuildergba-mygo/space"
+	"github.com/woxQAQ/febuildergba-mygo/romwrite"
 )
 
 func (s *Session) quoteSource() quote.Source {
 	return quote.Source{
-		ProtectPointer: func(data []byte, owner space.Owner, site int) error {
+		ProtectPointer: func(data []byte, owner romwrite.Owner, site int) error {
 			return s.guardPointer(data, owner, site, edit.ErrLayout)
 		},
 		ValidateText: func(data []byte, id uint16) error {

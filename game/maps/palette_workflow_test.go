@@ -16,7 +16,7 @@ import (
 	"github.com/woxQAQ/febuildergba-mygo/gba"
 	"github.com/woxQAQ/febuildergba-mygo/internal/testutil"
 	"github.com/woxQAQ/febuildergba-mygo/rom"
-	"github.com/woxQAQ/febuildergba-mygo/space"
+	"github.com/woxQAQ/febuildergba-mygo/romwrite"
 )
 
 func palettePNG(t *testing.T, bitmap image.Image) []byte {
@@ -446,7 +446,7 @@ func TestMapPalettePNGAndCommitFailuresAreAtomic(t *testing.T) {
 					t.Fatal("no-op", err)
 				}
 				if scenario == "capacity" &&
-					!errors.Is(err, space.ErrCapacity) {
+					!errors.Is(err, romwrite.ErrCapacity) {
 					t.Fatal("capacity", err)
 				}
 			}

@@ -10,7 +10,7 @@ import (
 	"github.com/woxQAQ/febuildergba-mygo/game/records"
 	"github.com/woxQAQ/febuildergba-mygo/gba"
 	"github.com/woxQAQ/febuildergba-mygo/rom"
-	"github.com/woxQAQ/febuildergba-mygo/space"
+	"github.com/woxQAQ/febuildergba-mygo/romwrite"
 )
 
 // ObjectiveTemplate adds a native condition; existing chapter rules remain in order.
@@ -44,7 +44,7 @@ func (f Format) eventResources(
 	table Table,
 	event *Condition,
 	parsed *deployment.Reader,
-) ([]space.Claim, []space.Range) {
+) ([]romwrite.Claim, []romwrite.Range) {
 	if event.OperandKind != ConditionScript {
 		return nil, locationResources(data, event)
 	}

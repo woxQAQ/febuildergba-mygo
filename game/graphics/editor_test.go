@@ -14,7 +14,7 @@ import (
 	"github.com/woxQAQ/febuildergba-mygo/game/records"
 	"github.com/woxQAQ/febuildergba-mygo/internal/testutil"
 	"github.com/woxQAQ/febuildergba-mygo/rom"
-	"github.com/woxQAQ/febuildergba-mygo/space"
+	"github.com/woxQAQ/febuildergba-mygo/romwrite"
 )
 
 func TestAssetReplacementWorkflows(t *testing.T) {
@@ -268,7 +268,7 @@ func TestAssetImportRejections(t *testing.T) {
 		valid,
 	); !errors.Is(
 		err,
-		space.ErrCapacity,
+		romwrite.ErrCapacity,
 	) {
 		t.Fatalf("full ROM: %v", err)
 	}

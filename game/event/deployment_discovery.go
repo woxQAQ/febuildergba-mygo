@@ -8,7 +8,7 @@ import (
 	"github.com/woxQAQ/febuildergba-mygo/game/edit"
 	"github.com/woxQAQ/febuildergba-mygo/game/records"
 	"github.com/woxQAQ/febuildergba-mygo/gba"
-	"github.com/woxQAQ/febuildergba-mygo/space"
+	"github.com/woxQAQ/febuildergba-mygo/romwrite"
 )
 
 var ErrDeploymentScript = fault.Code{
@@ -20,7 +20,7 @@ type Deployments struct {
 	binding  edit.Stamp
 	Groups   []deployment.Group
 	Warnings []error
-	scripts  []space.Claim
+	scripts  []romwrite.Claim
 }
 
 func (d Deployments) Current(
@@ -96,7 +96,7 @@ func (f Format) ReadDeployments(
 
 // ScriptClaims reports decoded instructions and their call sites, separately
 // from deployment payloads returned by each group's Regions method.
-func (d Deployments) ScriptClaims() []space.Claim { return slices.Clone(d.scripts) }
+func (d Deployments) ScriptClaims() []romwrite.Claim { return slices.Clone(d.scripts) }
 
 // Discovery follows typed operands with bounded recursion. It does not execute
 // branches, ASM, or dynamic calls, and reports incomplete discovery explicitly.
@@ -300,12 +300,12 @@ func (s *deploymentScanner) walk(
 			s.warn(at)
 			return mapID
 		}
-		s.result.scripts = append(s.result.scripts, space.Claim{
+		s.result.scripts = append(s.result.scripts, romwrite.Claim{
 			Start: at, End: at + command.length,
 			Owner: ScriptCodeOwner(),
 		})
 		if command.call >= 0 {
-			s.result.scripts = append(s.result.scripts, space.Claim{
+			s.result.scripts = append(s.result.scripts, romwrite.Claim{
 				Start: command.call, End: command.call + 4,
 				Owner: ScriptOwner(command.call),
 				Host:  ScriptCodeOwner(),

@@ -12,7 +12,7 @@ import (
 	"github.com/woxQAQ/febuildergba-mygo/game/shop"
 	"github.com/woxQAQ/febuildergba-mygo/game/text"
 	"github.com/woxQAQ/febuildergba-mygo/game/worldmap"
-	"github.com/woxQAQ/febuildergba-mygo/space"
+	"github.com/woxQAQ/febuildergba-mygo/romwrite"
 )
 
 // Config connects the native chapter table to its event, map and text formats.
@@ -26,8 +26,8 @@ type Config struct {
 	Maps           maps.Format
 	Text           text.Format
 	Shops          shop.Format
-	ProtectPointer func(data []byte, owner space.Owner, site int) error
-	ProtectRange   func(data []byte, owner space.Owner, region space.Range) error
+	ProtectPointer func(data []byte, owner romwrite.Owner, site int) error
+	ProtectRange   func(data []byte, owner romwrite.Owner, region romwrite.Range) error
 	InventoryUses  func([]byte, int) []shop.Reference
 }
 
@@ -65,7 +65,7 @@ func New(
 			InventoryUses: config.InventoryUses,
 			ResolveMap:    s.Maps.ResolveTarget,
 			ProtectRange:  config.ProtectRange,
-			ProtectPointer: func(data []byte, owner space.Owner, site int) error {
+			ProtectPointer: func(data []byte, owner romwrite.Owner, site int) error {
 				err := config.protect(data, records, owner, site)
 				if err != nil {
 					return fault.New(
@@ -93,7 +93,7 @@ func New(
 func (g Config) protect(
 	data []byte,
 	recordsEditor *records.Editor,
-	owner space.Owner,
+	owner romwrite.Owner,
 	site int,
 ) error {
 	if g.ProtectPointer == nil {

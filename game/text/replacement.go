@@ -8,7 +8,7 @@ import (
 	"github.com/woxQAQ/febuildergba-mygo/game/edit"
 	"github.com/woxQAQ/febuildergba-mygo/gba"
 	"github.com/woxQAQ/febuildergba-mygo/rom"
-	"github.com/woxQAQ/febuildergba-mygo/space"
+	"github.com/woxQAQ/febuildergba-mygo/romwrite"
 )
 
 func (g Format) plan(
@@ -18,10 +18,10 @@ func (g Format) plan(
 	role Role,
 	entry int,
 	references References,
-) (space.WritePlan, error) {
+) (romwrite.WritePlan, error) {
 	encoded, expected, err := g.encodeText(data, entry, id, content, role)
 	if err != nil {
-		return space.WritePlan{}, err
+		return romwrite.WritePlan{}, err
 	}
 	return g.planReplacements(data, []replacement{
 		{
@@ -49,13 +49,13 @@ type replacement struct {
 func (g Format) planReplacements(
 	data []byte,
 	replacements []replacement,
-) (space.WritePlan, error) {
+) (romwrite.WritePlan, error) {
 	byID := make(map[int]replacement, len(replacements))
 	for _, item := range replacements {
 		byID[int(item.id)] = item
 	}
-	builder := space.NewBuilder(data, space.Protection{
-		Pointer: func(data []byte, owner space.Owner, site int) error {
+	builder := romwrite.NewBuilder(data, romwrite.Protection{
+		Pointer: func(data []byte, owner romwrite.Owner, site int) error {
 			item, ok := byID[owner.ID]
 			if !ok || owner.Resource != Resource {
 				return ErrText
@@ -71,11 +71,11 @@ func (g Format) planReplacements(
 		},
 	})
 	for _, item := range replacements {
-		if _, err := builder.Replace(item.encoded, space.PointerSite{
-			Owner:   space.Owner{Resource: Resource, ID: int(item.id)},
+		if _, err := builder.Replace(item.encoded, romwrite.PointerSite{
+			Owner:   romwrite.Owner{Resource: Resource, ID: int(item.id)},
 			Address: item.entry, ExpectedWord: gba.Uint32(data, item.entry),
 		}); err != nil {
-			return space.WritePlan{}, fault.Wrap(
+			return romwrite.WritePlan{}, fault.Wrap(
 				err,
 				"game.replace_text",
 				fault.Context{
@@ -96,7 +96,7 @@ func (g Format) planReplacements(
 			decoded, decodeErr := g.Read(prospective, item.id)
 			if decodeErr != nil || !decoded.Editable ||
 				decoded.Content != item.expected {
-				return space.WritePlan{}, fault.New(
+				return romwrite.WritePlan{}, fault.New(
 					ErrTextEncoding,
 					"game.verify_text",
 					fault.Context{
@@ -107,7 +107,7 @@ func (g Format) planReplacements(
 				)
 			}
 		} else if decoded, decodeErr := g.ReadName(prospective, item.id, item.references.Aliases); decodeErr != nil || decoded != item.expected {
-			return space.WritePlan{}, fault.New(
+			return romwrite.WritePlan{}, fault.New(
 				ErrNameEncoding,
 				"game.verify_text",
 				fault.Context{
@@ -129,7 +129,7 @@ type Plan struct {
 	fieldID     string
 	content     string
 	uses        []Use
-	destination space.Range
+	destination romwrite.Range
 }
 
 func (e *Plan) TextID() uint16 { return e.textID }

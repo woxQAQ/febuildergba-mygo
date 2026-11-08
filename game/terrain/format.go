@@ -6,7 +6,7 @@ import (
 
 	"github.com/woxQAQ/febuildergba-mygo/fault"
 	"github.com/woxQAQ/febuildergba-mygo/gba"
-	"github.com/woxQAQ/febuildergba-mygo/space"
+	"github.com/woxQAQ/febuildergba-mygo/romwrite"
 )
 
 var ErrTable = fault.Code{
@@ -74,7 +74,7 @@ func (f Format) Columns() []Column { return slices.Clone(f.columns) }
 type Class struct {
 	ID, Address, Length int
 	Name                string
-	Host                space.Owner
+	Host                romwrite.Owner
 }
 
 type Reference struct {
@@ -134,16 +134,20 @@ func (f Format) Read(data []byte, class Class) []Table {
 // Claims declares each class's column pointers (hosted by the class record)
 // and their payloads. Slot is the column index, so two columns or two classes
 // aliasing one position conflict instead of silently sharing it.
-func (f Format) Claims(data []byte, classes []Class) []space.Claim {
-	var result []space.Claim
+func (f Format) Claims(data []byte, classes []Class) []romwrite.Claim {
+	var result []romwrite.Claim
 	for _, class := range classes {
 		for slot, table := range f.Read(data, class) {
-			owner := space.Owner{Resource: "terrain", ID: class.ID, Slot: slot}
+			owner := romwrite.Owner{
+				Resource: "terrain",
+				ID:       class.ID,
+				Slot:     slot,
+			}
 			if table.Pointer >= 0xC0 && gba.Within(data, table.Pointer, 4) &&
 				table.Pointer+4 <= class.Address+class.Length {
 				result = append(
 					result,
-					space.Claim{
+					romwrite.Claim{
 						Start: table.Pointer,
 						End:   table.Pointer + 4,
 						Owner: owner,
@@ -155,7 +159,7 @@ func (f Format) Claims(data []byte, classes []Class) []space.Claim {
 			if table.Address >= 0xC0 && table.Address < len(data) {
 				result = append(
 					result,
-					space.Claim{
+					romwrite.Claim{
 						Start: table.Address,
 						End:   min(table.Address+f.count, len(data)),
 						Owner: owner,

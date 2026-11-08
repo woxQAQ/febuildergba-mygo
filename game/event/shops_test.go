@@ -16,7 +16,7 @@ import (
 	"github.com/woxQAQ/febuildergba-mygo/gba"
 	"github.com/woxQAQ/febuildergba-mygo/internal/testutil"
 	"github.com/woxQAQ/febuildergba-mygo/rom"
-	"github.com/woxQAQ/febuildergba-mygo/space"
+	"github.com/woxQAQ/febuildergba-mygo/romwrite"
 )
 
 func TestChapterShopWorkflow(t *testing.T) {
@@ -434,9 +434,9 @@ func TestShopConflictAndStorageProtection(t *testing.T) {
 				if err := inventory.Add(3); err != nil {
 					t.Fatal(err)
 				}
-				want = space.ErrCapacity
+				want = romwrite.ErrCapacity
 			case "read buffer":
-				want = space.ErrRange
+				want = romwrite.ErrRange
 			case "pointer conflict":
 				f.WritePointer(
 					f.GetPosition("deploy_list")+4,
@@ -468,7 +468,7 @@ func TestShopConflictAndStorageProtection(t *testing.T) {
 				at := f.GetPosition("location_inventory") + 20
 				_, err = s.Records.PlanTableMove(
 					records.Items,
-					[]space.FreeRange{
+					[]romwrite.FreeRange{
 						{
 							Start:  at,
 							End:    at + 0x100,

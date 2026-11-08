@@ -7,7 +7,7 @@ import (
 
 	"github.com/woxQAQ/febuildergba-mygo/fault"
 	"github.com/woxQAQ/febuildergba-mygo/gba"
-	"github.com/woxQAQ/febuildergba-mygo/space"
+	"github.com/woxQAQ/febuildergba-mygo/romwrite"
 )
 
 var ErrDeployment = fault.Code{
@@ -141,8 +141,8 @@ func (r *Reader) Group(site int, label string, faction int) Group {
 
 // Regions reports confirmed unit and movement extents without exposing their
 // native record buffers to other resource scanners.
-func (g Group) Regions() []space.Range {
-	result := []space.Range{
+func (g Group) Regions() []romwrite.Range {
+	result := []romwrite.Range{
 		{
 			Start: g.Address,
 			End:   g.Address + len(g.records)*g.Stride + len(g.terminator),
@@ -153,7 +153,7 @@ func (g Group) Regions() []space.Range {
 			start := int(gba.Uint32(record.data, 8) & 0x01FFFFFF)
 			result = append(
 				result,
-				space.Range{Start: start, End: start + len(record.movement)},
+				romwrite.Range{Start: start, End: start + len(record.movement)},
 			)
 		}
 	}

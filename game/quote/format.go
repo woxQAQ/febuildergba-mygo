@@ -7,7 +7,7 @@ import (
 	"github.com/woxQAQ/febuildergba-mygo/fault"
 	"github.com/woxQAQ/febuildergba-mygo/game/text"
 	"github.com/woxQAQ/febuildergba-mygo/gba"
-	"github.com/woxQAQ/febuildergba-mygo/space"
+	"github.com/woxQAQ/febuildergba-mygo/romwrite"
 )
 
 type Kind string
@@ -286,14 +286,14 @@ func readTable(data []byte, r Rule, site int) (result Table) {
 // Claims declares each table's consumer pointers, payload and terminator,
 // plus the declared script prefixes. Script prefixes are protected without
 // claiming their full extent.
-func (f Format) Claims(data []byte) []space.Claim {
-	var result []space.Claim
+func (f Format) Claims(data []byte) []romwrite.Claim {
+	var result []romwrite.Claim
 	for _, r := range f.Rules {
-		owner := space.Owner{Resource: string(r.Kind)}
+		owner := romwrite.Owner{Resource: string(r.Kind)}
 		for _, site := range r.Pointers {
 			result = append(
 				result,
-				space.Claim{
+				romwrite.Claim{
 					Start: site, End: site + 4,
 					Owner: owner,
 					Site:  true,
@@ -312,7 +312,7 @@ func (f Format) Claims(data []byte) []space.Claim {
 						gba.Within(data, at, 4) {
 						result = append(
 							result,
-							space.Claim{
+							romwrite.Claim{
 								Start: at, End: at + 4,
 								Owner: owner,
 							},
@@ -323,7 +323,7 @@ func (f Format) Claims(data []byte) []space.Claim {
 			if table.Address != 0 && len(table.Entries) > 0 {
 				result = append(
 					result,
-					space.Claim{
+					romwrite.Claim{
 						Start: table.Address,
 						End:   table.Address + len(table.Entries)*r.Stride,
 						Owner: owner,
@@ -333,7 +333,7 @@ func (f Format) Claims(data []byte) []space.Claim {
 			if table.Err == nil {
 				result = append(
 					result,
-					space.Claim{
+					romwrite.Claim{
 						Start: table.Address + len(table.Entries)*r.Stride,
 						End:   table.Address + (len(table.Entries)+1)*r.Stride,
 						Owner: owner,

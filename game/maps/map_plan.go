@@ -9,7 +9,7 @@ import (
 	"github.com/woxQAQ/febuildergba-mygo/game/records"
 	"github.com/woxQAQ/febuildergba-mygo/gba"
 	"github.com/woxQAQ/febuildergba-mygo/rom"
-	"github.com/woxQAQ/febuildergba-mygo/space"
+	"github.com/woxQAQ/febuildergba-mygo/romwrite"
 )
 
 // MapUse distinguishes a shared pointer entry from an independent entry which
@@ -25,7 +25,7 @@ type Plan struct {
 	commit                                *edit.Commit
 	source, destination, pointer, changed int
 	uses                                  []Use
-	plan                                  space.WritePlan
+	plan                                  romwrite.WritePlan
 	beforeSize, afterSize                 image.Point
 	impacts                               []Impact
 	warnings                              []ImpactWarning
@@ -67,12 +67,12 @@ func (s *Editor) Plan(draft *Draft) (result *Plan, err error) {
 	if err != nil {
 		return nil, err
 	}
-	builder := space.NewBuilder(s.image.Data, space.Protection{
-		Pointer: func(_ []byte, _ space.Owner, site int) error {
+	builder := romwrite.NewBuilder(s.image.Data, romwrite.Protection{
+		Pointer: func(_ []byte, _ romwrite.Owner, site int) error {
 			return s.mapWriteSite(format, site, LayoutField)
 		},
 	})
-	if _, err = builder.Replace(compressed, space.PointerSite{
+	if _, err = builder.Replace(compressed, romwrite.PointerSite{
 		Owner:   resourceOwner(LayoutField, draft.pointer),
 		Address: draft.pointer,
 		ExpectedWord: uint32( // #nosec G115 -- The layout address was read from a valid GBA ROM pointer.

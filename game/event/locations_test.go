@@ -15,7 +15,7 @@ import (
 	"github.com/woxQAQ/febuildergba-mygo/game/records"
 	"github.com/woxQAQ/febuildergba-mygo/internal/testutil"
 	"github.com/woxQAQ/febuildergba-mygo/rom"
-	"github.com/woxQAQ/febuildergba-mygo/space"
+	"github.com/woxQAQ/febuildergba-mygo/romwrite"
 )
 
 func TestLocationEditingWorkflow(t *testing.T) {
@@ -374,7 +374,7 @@ func TestLocationConflictAndFailureAtomicity(t *testing.T) {
 				if err := d.Set(0, event.EventFlag, 0x31); err != nil {
 					t.Fatal(err)
 				}
-				want = space.ErrCapacity
+				want = romwrite.ErrCapacity
 			}
 			before := s.Document.Snapshot()
 			raw := d.Events()[2].Raw

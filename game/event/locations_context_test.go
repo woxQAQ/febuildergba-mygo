@@ -9,7 +9,7 @@ import (
 	"github.com/woxQAQ/febuildergba-mygo/game/event"
 	"github.com/woxQAQ/febuildergba-mygo/game/records"
 	"github.com/woxQAQ/febuildergba-mygo/internal/testutil"
-	"github.com/woxQAQ/febuildergba-mygo/space"
+	"github.com/woxQAQ/febuildergba-mygo/romwrite"
 )
 
 func TestLocationChapterContexts(t *testing.T) {
@@ -149,7 +149,7 @@ func TestLocationResourceBoundaries(t *testing.T) {
 				start := f.GetPosition(scenario)
 				_, err := s.Records.PlanTableMove(
 					records.Items,
-					[]space.FreeRange{
+					[]romwrite.FreeRange{
 						{
 							Start:  start,
 							End:    start + 0x100,
@@ -157,7 +157,7 @@ func TestLocationResourceBoundaries(t *testing.T) {
 						},
 					},
 				)
-				if !errors.Is(err, space.ErrRange) ||
+				if !errors.Is(err, romwrite.ErrRange) ||
 					!bytes.Equal(before.Data, s.Document.Snapshot().Data) {
 					t.Fatalf("live location resource reused: %v", err)
 				}

@@ -10,7 +10,7 @@ import (
 	"github.com/woxQAQ/febuildergba-mygo/game/records"
 	"github.com/woxQAQ/febuildergba-mygo/gba"
 	"github.com/woxQAQ/febuildergba-mygo/internal/testutil"
-	"github.com/woxQAQ/febuildergba-mygo/space"
+	"github.com/woxQAQ/febuildergba-mygo/romwrite"
 )
 
 // The same bytes can decode as a script and another resource. A successful
@@ -92,7 +92,7 @@ func TestScriptParametersRespectSessionClaims(t *testing.T) {
 			}
 			plan, err := s.Events.PlanScriptEdit(draft)
 			if plan != nil || !errors.Is(err, edit.ErrLayout) ||
-				!errors.Is(err, space.ErrClaim) {
+				!errors.Is(err, romwrite.ErrClaim) {
 				t.Fatalf(
 					"overlapping resource allowed a script write: plan=%v err=%v",
 					plan,
@@ -116,10 +116,10 @@ func TestScriptCodeClaimsProtectOpeningAndAllowAdjacentPayload(t *testing.T) {
 	f.WriteAt(at, []byte{0x20, 0x0E, 5, 0, 0x20, 1, 0, 0})
 	s := testutil.Open(t, f)
 	before, state := s.Document.Snapshot(), s.Document.State()
-	if _, err := s.Records.PlanTableMove(records.Items, []space.FreeRange{{
+	if _, err := s.Records.PlanTableMove(records.Items, []romwrite.FreeRange{{
 		Start: at, End: at + 0x100,
 		Source: "declared interval overlapping an opening script",
-	}}); !errors.Is(err, space.ErrRange) {
+	}}); !errors.Is(err, romwrite.ErrRange) {
 		t.Fatalf("table move could overwrite opening instructions: %v", err)
 	}
 	if state != s.Document.State() ||

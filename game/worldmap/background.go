@@ -10,7 +10,7 @@ import (
 	"github.com/woxQAQ/febuildergba-mygo/game/edit"
 	"github.com/woxQAQ/febuildergba-mygo/gba"
 	"github.com/woxQAQ/febuildergba-mygo/rom"
-	"github.com/woxQAQ/febuildergba-mygo/space"
+	"github.com/woxQAQ/febuildergba-mygo/romwrite"
 )
 
 const MaxBackgroundPNG = 1 << 20
@@ -292,7 +292,7 @@ func (d *BackgroundDraft) Image() *image.RGBA {
 
 type BackgroundPlan struct {
 	commit   *edit.Commit
-	appended space.Range
+	appended romwrite.Range
 }
 
 func (p *BackgroundPlan) Current(
@@ -300,7 +300,7 @@ func (p *BackgroundPlan) Current(
 ) bool {
 	return p != nil && p.commit.Current(e.context)
 }
-func (p *BackgroundPlan) Appended() space.Range { return p.appended }
+func (p *BackgroundPlan) Appended() romwrite.Range { return p.appended }
 
 func (e *Editor) PlanBackground(
 	d *BackgroundDraft,
@@ -319,8 +319,8 @@ func (e *Editor) PlanBackground(
 	if err = e.context.Validate(image.Data); err != nil {
 		return nil, err
 	}
-	builder := space.NewBuilder(image.Data, space.Protection{
-		Pointer: func(data []byte, owner space.Owner, site int) error {
+	builder := romwrite.NewBuilder(image.Data, romwrite.Protection{
+		Pointer: func(data []byte, owner romwrite.Owner, site int) error {
 			if err := e.source.ProtectPointer(data, owner, site); err != nil {
 				return fault.New(
 					ErrReference,
@@ -348,10 +348,10 @@ func (e *Editor) PlanBackground(
 		if part.site == e.format.Scene.paletteSite(d.source.tone) {
 			sites = d.source.paletteSites
 		}
-		pointers := make([]space.PointerSite, len(sites))
+		pointers := make([]romwrite.PointerSite, len(sites))
 		for i, site := range sites {
-			pointers[i] = space.PointerSite{
-				Owner:   space.Owner{Resource: "worldmap.scene", ID: site},
+			pointers[i] = romwrite.PointerSite{
+				Owner:   romwrite.Owner{Resource: "worldmap.scene", ID: site},
 				Address: site, ExpectedWord: gba.Uint32(image.Data, site),
 			}
 		}

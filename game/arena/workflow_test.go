@@ -14,7 +14,7 @@ import (
 	"github.com/woxQAQ/febuildergba-mygo/gba"
 	"github.com/woxQAQ/febuildergba-mygo/internal/testutil"
 	"github.com/woxQAQ/febuildergba-mygo/rom"
-	"github.com/woxQAQ/febuildergba-mygo/space"
+	"github.com/woxQAQ/febuildergba-mygo/romwrite"
 )
 
 func TestArenaNativeWorkflows(t *testing.T) {
@@ -347,7 +347,7 @@ func TestArenaRejectsUnsafeChangesWithoutWriting(t *testing.T) {
 					"fill",
 					rom.Edit{Size: rom.MaxSize},
 				)
-				want = space.ErrCapacity
+				want = romwrite.ErrCapacity
 				if err == nil {
 					d, err = s.Arena.NewDraft(group)
 					if err == nil {
@@ -418,7 +418,7 @@ func TestArenaReadIsolationAndResourceClaims(t *testing.T) {
 					d,
 				); !errors.Is(
 					err,
-					space.ErrClaim,
+					romwrite.ErrClaim,
 				) {
 					t.Fatal("arena resource not protected", err)
 				}

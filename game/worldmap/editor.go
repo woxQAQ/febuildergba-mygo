@@ -7,7 +7,7 @@ import (
 	"github.com/woxQAQ/febuildergba-mygo/fault"
 	"github.com/woxQAQ/febuildergba-mygo/game/edit"
 	"github.com/woxQAQ/febuildergba-mygo/rom"
-	"github.com/woxQAQ/febuildergba-mygo/space"
+	"github.com/woxQAQ/febuildergba-mygo/romwrite"
 )
 
 // Field identifies a native node value. Inventory pointers and the padding byte
@@ -99,8 +99,8 @@ var ErrReference = fault.Code{
 type Source struct {
 	ValidateChapter func([]byte, int) error
 	ValidateText    func([]byte, uint16) error
-	ProtectRange    func([]byte, space.Owner, space.Range) error
-	ProtectPointer  func([]byte, space.Owner, int) error
+	ProtectRange    func([]byte, romwrite.Owner, romwrite.Range) error
+	ProtectPointer  func([]byte, romwrite.Owner, int) error
 }
 
 type Editor struct {
@@ -223,7 +223,7 @@ func (e *Editor) Plan(d *Draft) (plan *Plan, err error) {
 		return nil, err
 	}
 	node := d.node
-	if err = e.source.ProtectRange(image.Data, node.Owner(), space.Range{
+	if err = e.source.ProtectRange(image.Data, node.Owner(), romwrite.Range{
 		Start: node.Address, End: node.Address + NodeSize,
 	}); err != nil {
 		return nil, fault.New(

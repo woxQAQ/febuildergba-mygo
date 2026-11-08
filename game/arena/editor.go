@@ -9,7 +9,7 @@ import (
 	"github.com/woxQAQ/febuildergba-mygo/game/edit"
 	"github.com/woxQAQ/febuildergba-mygo/gba"
 	"github.com/woxQAQ/febuildergba-mygo/rom"
-	"github.com/woxQAQ/febuildergba-mygo/space"
+	"github.com/woxQAQ/febuildergba-mygo/romwrite"
 )
 
 // Class supplies the native promotion tier from the effective record layout.
@@ -22,7 +22,7 @@ type (
 		Classes        func([]byte) ([]Class, error)
 		Items          func([]byte) ([]int, error)
 		Units          func([]byte) ([]int, error)
-		ProtectPointer func([]byte, space.Owner, int) error
+		ProtectPointer func([]byte, romwrite.Owner, int) error
 	}
 )
 
@@ -272,18 +272,18 @@ func (e *Editor) Plan(d *Draft) (plan *Plan, err error) {
 	if err = e.validate(image.Data, d); err != nil {
 		return nil, err
 	}
-	builder := space.NewBuilder(
+	builder := romwrite.NewBuilder(
 		image.Data,
-		space.Protection{Pointer: e.source.ProtectPointer},
+		romwrite.Protection{Pointer: e.source.ProtectPointer},
 	)
 	plan = &Plan{}
 	for _, t := range d.tables {
 		if bytes.Equal(t.original, t.raw) {
 			continue
 		}
-		pointers := make([]space.PointerSite, len(t.pointers))
+		pointers := make([]romwrite.PointerSite, len(t.pointers))
 		for i, site := range t.pointers {
-			pointers[i] = space.PointerSite{
+			pointers[i] = romwrite.PointerSite{
 				Owner:   t.kind.Owner(),
 				Address: site,
 				ExpectedWord: uint32( // #nosec G115 -- The table address was read from a valid GBA ROM pointer.

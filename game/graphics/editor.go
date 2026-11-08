@@ -8,14 +8,14 @@ import (
 
 	"github.com/woxQAQ/febuildergba-mygo/fault"
 	"github.com/woxQAQ/febuildergba-mygo/game/edit"
-	"github.com/woxQAQ/febuildergba-mygo/space"
+	"github.com/woxQAQ/febuildergba-mygo/romwrite"
 )
 
 // References supplies confirmed cross-resource protection and record uses for
 // the exact snapshot being planned. Native image encoders own their layouts.
 type References struct {
 	Uses   []Use
-	Ranges []space.Range
+	Ranges []romwrite.Range
 	Sites  []int
 }
 

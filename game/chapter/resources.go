@@ -6,7 +6,7 @@ import (
 	"github.com/woxQAQ/febuildergba-mygo/game/event"
 	"github.com/woxQAQ/febuildergba-mygo/game/records"
 	"github.com/woxQAQ/febuildergba-mygo/gba"
-	"github.com/woxQAQ/febuildergba-mygo/space"
+	"github.com/woxQAQ/febuildergba-mygo/romwrite"
 )
 
 func (g Config) Deployments(
@@ -53,24 +53,24 @@ func (g Config) Conditions(
 // script operand sites, decoded script code, referenced location payloads and
 // deployment groups. The chapter table comes from
 // the session's effective layout so manual layouts protect their real rows.
-func (g Config) Claims(data []byte, chapters *records.Table) []space.Claim {
-	var claims []space.Claim
-	add := func(start, length int, owner space.Owner) {
+func (g Config) Claims(data []byte, chapters *records.Table) []romwrite.Claim {
+	var claims []romwrite.Claim
+	add := func(start, length int, owner romwrite.Owner) {
 		if start >= 0xC0 && length > 0 && gba.Within(data, start, length) {
 			claims = append(
 				claims,
-				space.Claim{
+				romwrite.Claim{
 					Start: start, End: start + length,
 					Owner: owner,
 				},
 			)
 		}
 	}
-	addSite := func(site int, owner, host space.Owner) {
+	addSite := func(site int, owner, host romwrite.Owner) {
 		if site >= 0xC0 && gba.Within(data, site, 4) {
 			claims = append(
 				claims,
-				space.Claim{
+				romwrite.Claim{
 					Start: site, End: site + 4,
 					Owner: owner,
 					Host:  host,
@@ -79,7 +79,7 @@ func (g Config) Claims(data []byte, chapters *records.Table) []space.Claim {
 			)
 		}
 	}
-	addSite(g.Events.Root, event.RootOwner(), space.Owner{})
+	addSite(g.Events.Root, event.RootOwner(), romwrite.Owner{})
 	list, valid := gba.Pointer(data, g.Events.Root)
 	if !valid || chapters == nil || chapters.Err != nil {
 		return claims
@@ -87,7 +87,7 @@ func (g Config) Claims(data []byte, chapters *records.Table) []space.Claim {
 	seen := make(map[int]bool)
 	for _, row := range chapters.Rows {
 		header := -1
-		headerOwner := space.Owner{}
+		headerOwner := romwrite.Owner{}
 		for _, field := range chapters.Fields {
 			if field.ID != event.HeaderField {
 				continue
@@ -112,7 +112,7 @@ func (g Config) Claims(data []byte, chapters *records.Table) []space.Claim {
 					headerOwner,
 				)
 			}
-			addSite(entry, event.HeaderOwner(entry), space.Owner{})
+			addSite(entry, event.HeaderOwner(entry), romwrite.Owner{})
 		}
 		var groups []deployment.Group
 		for _, kind := range event.Tables() {
@@ -132,7 +132,7 @@ func (g Config) Claims(data []byte, chapters *records.Table) []space.Claim {
 			}
 			claims = append(claims, conditions.ScriptClaims()...)
 			for _, region := range conditions.ResourceRegions() {
-				add(region.Start, region.End-region.Start, space.Owner{
+				add(region.Start, region.End-region.Start, romwrite.Owner{
 					Resource: "event.location_resource", ID: region.Start,
 				})
 			}

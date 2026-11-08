@@ -1,4 +1,4 @@
-package space
+package romwrite
 
 import "github.com/woxQAQ/febuildergba-mygo/fault"
 
@@ -7,7 +7,7 @@ var ErrClaim = fault.Code{
 	Kind: fault.Conflict,
 }
 
-// Owner identifies the resource a claim belongs to. Space does not interpret
+// Owner identifies the resource a claim belongs to. romwrite does not interpret
 // resource meaning; an Owner is only a comparable identity.
 type Owner struct {
 	Resource string
@@ -25,12 +25,12 @@ type Claim struct {
 	Site  bool
 }
 
-// CheckWrite verifies that owner may rewrite the pointer site [site, site+4)
+// CheckPointerWrite verifies that owner may rewrite the pointer site [site, site+4)
 // under claims. An overlapping claim is accepted only when it is the owner's
 // own site declaration at that position, or a claim owned by the declared
 // host and containing the site. Anything else conflicts, including two owners
 // declaring the same site.
-func CheckWrite(claims []Claim, owner Owner, site int) error {
+func CheckPointerWrite(claims []Claim, owner Owner, site int) error {
 	siteRange := Range{Start: site, End: site + 4}
 	host := Owner{}
 	declared := false

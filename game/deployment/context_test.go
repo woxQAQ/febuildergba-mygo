@@ -10,7 +10,7 @@ import (
 	"github.com/woxQAQ/febuildergba-mygo/game/records"
 	"github.com/woxQAQ/febuildergba-mygo/internal/testutil"
 	"github.com/woxQAQ/febuildergba-mygo/rom"
-	"github.com/woxQAQ/febuildergba-mygo/space"
+	"github.com/woxQAQ/febuildergba-mygo/romwrite"
 )
 
 func TestDeploymentChapterContext(t *testing.T) {
@@ -130,17 +130,17 @@ func TestDeploymentDeclaredSpaceProtection(t *testing.T) {
 	s := testutil.Open(t, f)
 	before := s.Document.Snapshot()
 	for _, address := range []int{f.GetPosition("deploy_first"), f.GetPosition("deploy_units"), f.GetPosition("deploy_path")} {
-		candidate := space.Range{Start: address, End: address + 0x400}
+		candidate := romwrite.Range{Start: address, End: address + 0x400}
 		_, err := s.Records.PlanTableMove(
 			records.Units,
-			[]space.FreeRange{
+			[]romwrite.FreeRange{
 				{
 					Range:  candidate,
 					Source: "explicitly declared candidate",
 				},
 			},
 		)
-		if !errors.Is(err, space.ErrRange) {
+		if !errors.Is(err, romwrite.ErrRange) {
 			t.Fatalf(
 				"live deployment bytes accepted as reusable space at %X: %v",
 				address,

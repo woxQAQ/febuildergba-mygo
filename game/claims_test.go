@@ -8,7 +8,7 @@ import (
 	"github.com/woxQAQ/febuildergba-mygo/game/deployment"
 	"github.com/woxQAQ/febuildergba-mygo/game/records"
 	"github.com/woxQAQ/febuildergba-mygo/internal/testutil"
-	"github.com/woxQAQ/febuildergba-mygo/space"
+	"github.com/woxQAQ/febuildergba-mygo/romwrite"
 )
 
 // A damaged event graph cannot authorize a deployment group pointer to
@@ -77,7 +77,7 @@ func TestTableMoveRespectsManualLayoutClaims(t *testing.T) {
 	if got := m.Records.Table(records.Units).Address; got != manual {
 		t.Fatalf("manual layout not in effect: %X", got)
 	}
-	free := []space.FreeRange{
+	free := []romwrite.FreeRange{
 		{
 			Start: payload, End: payload + 0x100,
 			Source: "declared interval overlapping a manual support payload",
@@ -87,7 +87,7 @@ func TestTableMoveRespectsManualLayoutClaims(t *testing.T) {
 	if _, err := m.Records.PlanTableMove(
 		records.Items,
 		free,
-	); !errors.Is(err, space.ErrRange) ||
+	); !errors.Is(err, romwrite.ErrRange) ||
 		before.Revision != m.Document.State().Revision {
 		t.Fatalf(
 			"a table move could overwrite a manual support payload: %v",

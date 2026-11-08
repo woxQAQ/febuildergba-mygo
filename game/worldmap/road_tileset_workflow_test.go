@@ -15,7 +15,7 @@ import (
 	"github.com/woxQAQ/febuildergba-mygo/gba"
 	"github.com/woxQAQ/febuildergba-mygo/internal/testutil"
 	"github.com/woxQAQ/febuildergba-mygo/rom"
-	"github.com/woxQAQ/febuildergba-mygo/space"
+	"github.com/woxQAQ/febuildergba-mygo/romwrite"
 )
 
 func exportedRoadTiles(
@@ -293,9 +293,9 @@ func TestWorldMapRoadTilesetPlanFailures(t *testing.T) {
 			want := error(rom.ErrStale)
 			switch scenario {
 			case "reload-overlap", "palette-overlap":
-				want = space.ErrClaim
+				want = romwrite.ErrClaim
 			case "capacity":
-				want = space.ErrCapacity
+				want = romwrite.ErrCapacity
 			default:
 				plan, err = s.WorldMap.PlanRoadTileset(draft)
 				if err != nil {

@@ -7,7 +7,7 @@ import (
 
 	"github.com/woxQAQ/febuildergba-mygo/fault"
 	"github.com/woxQAQ/febuildergba-mygo/gba"
-	"github.com/woxQAQ/febuildergba-mygo/space"
+	"github.com/woxQAQ/febuildergba-mygo/romwrite"
 )
 
 // Kind identifies a native resource, independent of the selected game version.
@@ -54,8 +54,8 @@ type Format struct {
 	LinkUnits   int
 }
 
-func (k Kind) Owner() space.Owner { return space.Owner{Resource: "arena", ID: int(k)} }
-func (k Kind) ClassList() bool    { return k <= Magic }
+func (k Kind) Owner() romwrite.Owner { return romwrite.Owner{Resource: "arena", ID: int(k)} }
+func (k Kind) ClassList() bool       { return k <= Magic }
 
 func (f Format) Groups() []Kind {
 	groups := []Kind{Melee, Ranged, Magic, BaseWeapons}
@@ -171,8 +171,8 @@ func (t *table) count() int {
 
 // Claims includes each consumer even when the shared table is split or invalid.
 // Every independently readable payload is protected; equality is not ownership.
-func (f Format) Claims(data []byte) []space.Claim {
-	var result []space.Claim
+func (f Format) Claims(data []byte) []romwrite.Claim {
+	var result []romwrite.Claim
 	for kind := Melee; kind <= LinkUnits; kind++ {
 		for _, site := range f.pointers(kind) {
 			if site < 0xC0 || !gba.Within(data, site, 4) {
@@ -180,7 +180,7 @@ func (f Format) Claims(data []byte) []space.Claim {
 			}
 			result = append(
 				result,
-				space.Claim{
+				romwrite.Claim{
 					Start: site, End: site + 4,
 					Owner: kind.Owner(),
 					Site:  true,
@@ -194,7 +194,7 @@ func (f Format) Claims(data []byte) []space.Claim {
 			if len(raw) > 0 {
 				result = append(
 					result,
-					space.Claim{
+					romwrite.Claim{
 						Start: at, End: at + len(raw),
 						Owner: kind.Owner(),
 					},

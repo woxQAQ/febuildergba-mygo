@@ -12,7 +12,7 @@ import (
 	"github.com/woxQAQ/febuildergba-mygo/game/shop"
 	"github.com/woxQAQ/febuildergba-mygo/gba"
 	"github.com/woxQAQ/febuildergba-mygo/rom"
-	"github.com/woxQAQ/febuildergba-mygo/space"
+	"github.com/woxQAQ/febuildergba-mygo/romwrite"
 )
 
 const (
@@ -303,7 +303,7 @@ func (d *ConditionDraft) Deployment(index int) *deployment.Draft {
 type ConditionPlan struct {
 	commit                          *edit.Commit
 	chapter, pointer, before, after int
-	plan                            space.WritePlan
+	plan                            romwrite.WritePlan
 	uses                            []int
 	inventories                     []InventoryChange
 }
@@ -339,9 +339,9 @@ func (s *Editor) PlanConditions(
 		return nil, edit.ErrValue
 	}
 	site := d.original.Pointer
-	builder := space.NewBuilder(
+	builder := romwrite.NewBuilder(
 		s.image.Data,
-		space.Protection{Pointer: s.source.ProtectPointer},
+		romwrite.Protection{Pointer: s.source.ProtectPointer},
 	)
 	var inventories []InventoryChange
 	if _, err = builder.ReplaceEncoded(func(base int) ([]byte, error) {
@@ -427,7 +427,7 @@ func (s *Editor) PlanConditions(
 			) // #nosec G115 -- Builder bounds the complete resource before application.
 		}
 		return content, nil
-	}, space.PointerSite{
+	}, romwrite.PointerSite{
 		Owner: ConditionsOwner(site, d.original.Table), Address: site,
 		ExpectedWord: gba.Uint32(s.image.Data, site),
 	}); err != nil {

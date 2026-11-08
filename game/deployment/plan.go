@@ -7,7 +7,7 @@ import (
 	"github.com/woxQAQ/febuildergba-mygo/game/edit"
 	"github.com/woxQAQ/febuildergba-mygo/game/records"
 	"github.com/woxQAQ/febuildergba-mygo/rom"
-	"github.com/woxQAQ/febuildergba-mygo/space"
+	"github.com/woxQAQ/febuildergba-mygo/romwrite"
 )
 
 type Use struct {
@@ -18,7 +18,7 @@ type Use struct {
 type Plan struct {
 	commit                          *edit.Commit
 	chapter, pointer, before, after int
-	plan                            space.WritePlan
+	plan                            romwrite.WritePlan
 	uses                            []Use
 }
 
@@ -55,9 +55,9 @@ func (s *Editor) Plan(
 	if s.source.ProtectPointer == nil {
 		return nil, edit.ErrLayout
 	}
-	builder := space.NewBuilder(
+	builder := romwrite.NewBuilder(
 		s.image.Data,
-		space.Protection{Pointer: s.source.ProtectPointer},
+		romwrite.Protection{Pointer: s.source.ProtectPointer},
 	)
 	expected := uint32(0)
 	if draft.group.Address != 0 {
@@ -67,7 +67,7 @@ func (s *Editor) Plan(
 	}
 	if _, err = builder.ReplaceEncoded(
 		func(at int) ([]byte, error) { return draft.Payload(at), nil },
-		space.PointerSite{
+		romwrite.PointerSite{
 			Owner:        Owner(site),
 			Address:      site,
 			ExpectedWord: expected,

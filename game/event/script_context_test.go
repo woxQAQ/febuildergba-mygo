@@ -10,7 +10,7 @@ import (
 	"github.com/woxQAQ/febuildergba-mygo/game/records"
 	"github.com/woxQAQ/febuildergba-mygo/internal/testutil"
 	"github.com/woxQAQ/febuildergba-mygo/rom"
-	"github.com/woxQAQ/febuildergba-mygo/space"
+	"github.com/woxQAQ/febuildergba-mygo/romwrite"
 )
 
 func TestScriptEntryContexts(t *testing.T) {
@@ -118,7 +118,7 @@ func TestScriptResourceAndDynamicGuards(t *testing.T) {
 			before := s.Document.Snapshot()
 			plan, err := s.Events.PlanScriptEdit(d)
 			if scenario == "capacity" {
-				if !errors.Is(err, space.ErrCapacity) ||
+				if !errors.Is(err, romwrite.ErrCapacity) ||
 					!bytes.Equal(before.Data, s.Document.Snapshot().Data) {
 					t.Fatal("script capacity failure", err)
 				}

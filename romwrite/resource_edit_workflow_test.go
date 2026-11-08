@@ -1,4 +1,4 @@
-package space_test
+package romwrite_test
 
 import (
 	"bytes"
@@ -9,14 +9,14 @@ import (
 	"testing"
 
 	"github.com/woxQAQ/febuildergba-mygo/rom"
-	"github.com/woxQAQ/febuildergba-mygo/space"
+	"github.com/woxQAQ/febuildergba-mygo/romwrite"
 )
 
 func TestComposedResourceEditHistory(t *testing.T) {
 	data, protection, record, palette, movement := resourceEditFixture()
 	doc := openResourceDocument(t, data)
 	image := doc.Snapshot()
-	builder := space.NewBuilder(image.Data, protection)
+	builder := romwrite.NewBuilder(image.Data, protection)
 	path := []byte{0x91, 0x92, 0x93}
 	if destination, err := builder.Append(
 		path,
@@ -49,7 +49,7 @@ func TestComposedResourceEditHistory(t *testing.T) {
 	}
 	preview.Edit.Size = 1
 	plan := builder.Plan()
-	if plan.Destination != (space.Range{Start: 132, End: 141}) ||
+	if plan.Destination != (romwrite.Range{Start: 132, End: 141}) ||
 		plan.Edit.Size != 141 {
 		t.Fatalf("combined allocation: %+v", plan)
 	}
@@ -109,64 +109,64 @@ func TestResourcePlanFailureAndRecovery(t *testing.T) {
 	data, protection, record, palette, movement := resourceEditFixture()
 	for _, scenario := range []struct {
 		name string
-		fail func(*space.Builder) error
+		fail func(*romwrite.Builder) error
 		want error
 	}{
-		{"second reference mismatch", func(b *space.Builder) error {
+		{"second reference mismatch", func(b *romwrite.Builder) error {
 			wrong := movement
 			wrong.ExpectedWord = 0x08000034
 			_, err := b.Replace([]byte{1, 2}, palette, wrong)
 			return err
-		}, space.ErrReference},
-		{"duplicate selected reference", func(b *space.Builder) error {
+		}, romwrite.ErrReference},
+		{"duplicate selected reference", func(b *romwrite.Builder) error {
 			_, err := b.Replace([]byte{1, 2}, palette, palette)
 			return err
-		}, space.ErrRange},
-		{"foreign pointer owner", func(b *space.Builder) error {
+		}, romwrite.ErrRange},
+		{"foreign pointer owner", func(b *romwrite.Builder) error {
 			wrong := movement
 			wrong.Owner = palette.Owner
 			_, err := b.Replace([]byte{1, 2}, palette, wrong)
 			return err
-		}, space.ErrClaim},
-		{"unaligned pointer", func(b *space.Builder) error {
+		}, romwrite.ErrClaim},
+		{"unaligned pointer", func(b *romwrite.Builder) error {
 			wrong := palette
 			wrong.Address++
 			_, err := b.Replace([]byte{1}, wrong)
 			return err
-		}, space.ErrRange},
-		{"pointer arithmetic overflow", func(b *space.Builder) error {
+		}, romwrite.ErrRange},
+		{"pointer arithmetic overflow", func(b *romwrite.Builder) error {
 			wrong := palette
 			wrong.Address = int(^uint(0)>>1) - 3
 			_, err := b.Replace([]byte{1}, wrong)
 			return err
-		}, space.ErrRange},
-		{"overlapping patch", func(b *space.Builder) error {
+		}, romwrite.ErrRange},
+		{"overlapping patch", func(b *romwrite.Builder) error {
 			return b.Patch(record, 17, []byte{1, 2})
-		}, space.ErrRange},
-		{"pointer ownership does not grant host ownership", func(b *space.Builder) error {
+		}, romwrite.ErrRange},
+		{"pointer ownership does not grant host ownership", func(b *romwrite.Builder) error {
 			return b.Patch(palette.Owner, 8, make([]byte, 16))
-		}, space.ErrClaim},
-		{"patch outside source", func(b *space.Builder) error {
+		}, romwrite.ErrClaim},
+		{"patch outside source", func(b *romwrite.Builder) error {
 			return b.Patch(record, len(data), []byte{1})
-		}, space.ErrRange},
-		{"missing replacement references", func(b *space.Builder) error {
+		}, romwrite.ErrRange},
+		{"missing replacement references", func(b *romwrite.Builder) error {
 			_, err := b.Replace([]byte{1})
 			return err
-		}, space.ErrReference},
-		{"empty payload", func(b *space.Builder) error {
+		}, romwrite.ErrReference},
+		{"empty payload", func(b *romwrite.Builder) error {
 			_, err := b.Replace(nil, palette)
 			return err
-		}, space.ErrRange},
-		{"unallocated target", func(b *space.Builder) error {
+		}, romwrite.ErrRange},
+		{"unallocated target", func(b *romwrite.Builder) error {
 			return b.Repoint(movement, 135)
-		}, space.ErrReference},
-		{"non-ROM target", func(b *space.Builder) error {
+		}, romwrite.ErrReference},
+		{"non-ROM target", func(b *romwrite.Builder) error {
 			return b.Repoint(movement, -1)
-		}, space.ErrReference},
+		}, romwrite.ErrReference},
 	} {
 		t.Run(scenario.name, func(t *testing.T) {
 			doc := openResourceDocument(t, data)
-			builder := space.NewBuilder(data, protection)
+			builder := romwrite.NewBuilder(data, protection)
 			if _, err := builder.Append([]byte{0x91, 0x92, 0x93}); err != nil {
 				t.Fatal(err)
 			}
@@ -232,7 +232,7 @@ func TestResourcePlanFailureAndRecovery(t *testing.T) {
 
 func TestResourcePlanningRequiresProtectionAndCapacity(t *testing.T) {
 	data, protection, record, palette, _ := resourceEditFixture()
-	builder := space.NewBuilder(data, space.Protection{})
+	builder := romwrite.NewBuilder(data, romwrite.Protection{})
 	if _, err := builder.Append([]byte{1}); err != nil {
 		t.Fatal(err)
 	}
@@ -242,7 +242,7 @@ func TestResourcePlanningRequiresProtectionAndCapacity(t *testing.T) {
 		palette,
 	); !errors.Is(
 		err,
-		space.ErrClaim,
+		romwrite.ErrClaim,
 	) {
 		t.Fatalf("unguarded replacement: %v", err)
 	}
@@ -252,11 +252,16 @@ func TestResourcePlanningRequiresProtectionAndCapacity(t *testing.T) {
 		[]byte{3},
 	); !errors.Is(
 		err,
-		space.ErrClaim,
+		romwrite.ErrClaim,
 	) {
 		t.Fatalf("unguarded patch: %v", err)
 	}
-	if err := builder.ClearPointer(palette); !errors.Is(err, space.ErrClaim) {
+	if err := builder.ClearPointer(
+		palette,
+	); !errors.Is(
+		err,
+		romwrite.ErrClaim,
+	) {
 		t.Fatalf("unguarded repoint: %v", err)
 	}
 	if !reflect.DeepEqual(builder.Plan(), before) {
@@ -264,7 +269,7 @@ func TestResourcePlanningRequiresProtectionAndCapacity(t *testing.T) {
 	}
 	full := bytes.Repeat([]byte{0xFF}, rom.MaxSize-8)
 	copy(full, data)
-	builder = space.NewBuilder(full, protection)
+	builder = romwrite.NewBuilder(full, protection)
 	if _, err := builder.Append([]byte{1, 2, 3}); err != nil {
 		t.Fatal(err)
 	}
@@ -272,7 +277,7 @@ func TestResourcePlanningRequiresProtectionAndCapacity(t *testing.T) {
 	if _, err := builder.Replace(
 		make([]byte, 5),
 		palette,
-	); !errors.Is(err, space.ErrCapacity) ||
+	); !errors.Is(err, romwrite.ErrCapacity) ||
 		!reflect.DeepEqual(builder.Plan(), before) {
 		t.Fatalf("capacity failure changed the plan: %v", err)
 	}
@@ -285,37 +290,37 @@ func TestResourcePlanningRequiresProtectionAndCapacity(t *testing.T) {
 	}
 }
 
-func resourceEditFixture() ([]byte, space.Protection, space.Owner, space.PointerSite, space.PointerSite) {
+func resourceEditFixture() ([]byte, romwrite.Protection, romwrite.Owner, romwrite.PointerSite, romwrite.PointerSite) {
 	data := bytes.Repeat([]byte{0xCC}, 129)
 	copy(data[8:16], []byte{0x20, 0, 0, 8, 0x30, 0, 0, 8})
 	copy(
 		data[24:28],
 		[]byte{0x20, 0, 0, 8},
 	) // Independent reference to the old palette.
-	record := space.Owner{Resource: "record", ID: 1}
-	palette := space.PointerSite{
-		Owner:        space.Owner{Resource: "palette", ID: 1},
+	record := romwrite.Owner{Resource: "record", ID: 1}
+	palette := romwrite.PointerSite{
+		Owner:        romwrite.Owner{Resource: "palette", ID: 1},
 		Address:      8,
 		ExpectedWord: 0x08000020,
 	}
-	movement := space.PointerSite{
-		Owner:        space.Owner{Resource: "movement", ID: 1},
+	movement := romwrite.PointerSite{
+		Owner:        romwrite.Owner{Resource: "movement", ID: 1},
 		Address:      12,
 		ExpectedWord: 0x08000030,
 	}
-	claims := []space.Claim{
+	claims := []romwrite.Claim{
 		{Start: 8, End: 24, Owner: record},
 		{Start: 8, End: 12, Owner: palette.Owner, Host: record, Site: true},
 		{Start: 12, End: 16, Owner: movement.Owner, Host: record, Site: true},
 		{Start: 32, End: 40, Owner: palette.Owner},
 		{Start: 48, End: 56, Owner: movement.Owner},
 	}
-	return data, space.Protection{
-		Pointer: func(_ []byte, owner space.Owner, site int) error {
-			return space.CheckWrite(claims, owner, site)
+	return data, romwrite.Protection{
+		Pointer: func(_ []byte, owner romwrite.Owner, site int) error {
+			return romwrite.CheckPointerWrite(claims, owner, site)
 		},
-		Range: func(_ []byte, owner space.Owner, region space.Range) error {
-			return space.CheckRangeWrite(claims, owner, region)
+		Range: func(_ []byte, owner romwrite.Owner, region romwrite.Range) error {
+			return romwrite.CheckRangeWrite(claims, owner, region)
 		},
 	}, record, palette, movement
 }

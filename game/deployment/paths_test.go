@@ -13,7 +13,7 @@ import (
 	"github.com/woxQAQ/febuildergba-mygo/game/edit"
 	"github.com/woxQAQ/febuildergba-mygo/game/records"
 	"github.com/woxQAQ/febuildergba-mygo/internal/testutil"
-	"github.com/woxQAQ/febuildergba-mygo/space"
+	"github.com/woxQAQ/febuildergba-mygo/romwrite"
 )
 
 func TestMovementPathWorkflow(t *testing.T) {
@@ -269,12 +269,12 @@ func TestMovementNativeLimits(t *testing.T) {
 			}
 			if _, err := s.Records.PlanTableMove(
 				records.Items,
-				[]space.FreeRange{
+				[]romwrite.FreeRange{
 					{Start: path, End: path + 0x100, Source: "live REDA"},
 				},
 			); !errors.Is(
 				err,
-				space.ErrRange,
+				romwrite.ErrRange,
 			) {
 				t.Fatal("live path reused")
 			}

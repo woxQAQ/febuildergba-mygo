@@ -12,7 +12,7 @@ import (
 	"github.com/woxQAQ/febuildergba-mygo/game/text"
 	"github.com/woxQAQ/febuildergba-mygo/internal/testutil"
 	"github.com/woxQAQ/febuildergba-mygo/rom"
-	"github.com/woxQAQ/febuildergba-mygo/space"
+	"github.com/woxQAQ/febuildergba-mygo/romwrite"
 )
 
 // Fixed offsets and widths follow the four MapSetting forms and ROMFE*.
@@ -367,8 +367,8 @@ func TestChapterProtectedRanges(t *testing.T) {
 	f := chapterFixture(0)
 	s := testutil.Open(t, f)
 	base := f.GetPosition("chapters")
-	interval := space.Range{Start: base, End: base + 0x1000}
-	free := []space.FreeRange{
+	interval := romwrite.Range{Start: base, End: base + 0x1000}
+	free := []romwrite.FreeRange{
 		{Range: interval, Source: "declared interval overlapping chapters"},
 	}
 	if _, err := s.Records.PlanTableMove(
@@ -376,7 +376,7 @@ func TestChapterProtectedRanges(t *testing.T) {
 		free,
 	); !errors.Is(
 		err,
-		space.ErrRange,
+		romwrite.ErrRange,
 	) {
 		t.Fatalf("another table could overwrite known chapters: %v", err)
 	}

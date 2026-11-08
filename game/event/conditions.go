@@ -10,7 +10,7 @@ import (
 	"github.com/woxQAQ/febuildergba-mygo/game/edit"
 	"github.com/woxQAQ/febuildergba-mygo/game/records"
 	"github.com/woxQAQ/febuildergba-mygo/gba"
-	"github.com/woxQAQ/febuildergba-mygo/space"
+	"github.com/woxQAQ/febuildergba-mygo/romwrite"
 )
 
 var ErrEventConditions = fault.Code{
@@ -186,18 +186,18 @@ type Conditions struct {
 	Pointer, Address int
 	Table            Table
 	Events           []Condition
-	payload          space.Range
-	scripts          []space.Claim
-	resources        []space.Range
+	payload          romwrite.Range
+	scripts          []romwrite.Claim
+	resources        []romwrite.Range
 	format           Format
 	ending           *Condition
 }
 
 // PayloadRegion is the condition list's own extent, without the resources its
 // events reference.
-func (c Conditions) PayloadRegion() (space.Range, bool) {
-	if c.payload == (space.Range{}) {
-		return space.Range{}, false
+func (c Conditions) PayloadRegion() (romwrite.Range, bool) {
+	if c.payload == (romwrite.Range{}) {
+		return romwrite.Range{}, false
 	}
 	return c.payload, true
 }
@@ -252,7 +252,7 @@ func (f Format) readEvents(
 			return result, ErrEventConditions
 		}
 		if gba.Uint32(data, at) == 0 {
-			result.payload = space.Range{Start: result.Address, End: at + 4}
+			result.payload = romwrite.Range{Start: result.Address, End: at + 4}
 			return result, nil
 		}
 		kind := int(gba.Uint16(data, at))
@@ -374,11 +374,11 @@ func (f Format) ReadConditions(
 func Tables() [4]Table { return eventTables }
 
 // ScriptClaims reports code reached from conditions and the ending entry.
-func (c Conditions) ScriptClaims() []space.Claim { return slices.Clone(c.scripts) }
+func (c Conditions) ScriptClaims() []romwrite.Claim { return slices.Clone(c.scripts) }
 
 // ResourceRegions reports referenced location payloads, excluding the condition
 // table, script code and deployment groups (which expose their own regions).
-func (c Conditions) ResourceRegions() []space.Range { return slices.Clone(c.resources) }
+func (c Conditions) ResourceRegions() []romwrite.Range { return slices.Clone(c.resources) }
 
 func (c Conditions) Ending() (Condition, bool) {
 	if c.ending == nil {

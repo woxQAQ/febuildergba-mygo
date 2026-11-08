@@ -7,7 +7,7 @@ import (
 	"github.com/woxQAQ/febuildergba-mygo/game/edit"
 	"github.com/woxQAQ/febuildergba-mygo/game/text"
 	"github.com/woxQAQ/febuildergba-mygo/gba"
-	"github.com/woxQAQ/febuildergba-mygo/space"
+	"github.com/woxQAQ/febuildergba-mygo/romwrite"
 )
 
 type Rule struct {
@@ -188,11 +188,11 @@ func validLayout(data []byte, layout Layout, firstID int, fields []Field) bool {
 
 // extent includes FE6's hidden ID 0 and the record that stops automatic
 // parsing.
-func (rule Rule) Extent(data []byte, table Table) (space.Range, error) {
+func (rule Rule) Extent(data []byte, table Table) (romwrite.Range, error) {
 	if table.Err != nil || table.Manual || table.Stride != rule.Stride ||
 		table.Count < 1 ||
 		table.Count > rule.Count {
-		return space.Range{}, edit.ErrLayout
+		return romwrite.Range{}, edit.ErrLayout
 	}
 	start := table.Address - rule.Skip
 	length := rule.Skip + table.Count*rule.Stride
@@ -200,7 +200,7 @@ func (rule Rule) Extent(data []byte, table Table) (space.Range, error) {
 		end := start + length
 		if !gba.Within(data, end, rule.Stride) ||
 			!rule.ends(data, end, table.Count) {
-			return space.Range{}, fault.Wrap(
+			return romwrite.Range{}, fault.Wrap(
 				edit.ErrLayout,
 				"game.table_terminator",
 				fault.Context{
@@ -216,7 +216,7 @@ func (rule Rule) Extent(data []byte, table Table) (space.Range, error) {
 		length += rule.Stride
 	}
 	if !gba.Within(data, start, length) {
-		return space.Range{}, edit.ErrLayout
+		return romwrite.Range{}, edit.ErrLayout
 	}
-	return space.Range{Start: start, End: start + length}, nil
+	return romwrite.Range{Start: start, End: start + length}, nil
 }

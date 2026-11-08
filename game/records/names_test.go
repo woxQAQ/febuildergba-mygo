@@ -14,7 +14,7 @@ import (
 	"github.com/woxQAQ/febuildergba-mygo/gba"
 	"github.com/woxQAQ/febuildergba-mygo/internal/testutil"
 	"github.com/woxQAQ/febuildergba-mygo/rom"
-	"github.com/woxQAQ/febuildergba-mygo/space"
+	"github.com/woxQAQ/febuildergba-mygo/romwrite"
 )
 
 func TestSharedNameEdits(t *testing.T) {
@@ -288,7 +288,7 @@ func TestNameEditCapacity(t *testing.T) {
 		before := s.Document.Snapshot()
 		edit, err := s.Records.PlanTextEdit(records.Units, 1, "name_id", "A")
 		if size == rom.MaxSize {
-			if !errors.Is(err, space.ErrCapacity) ||
+			if !errors.Is(err, romwrite.ErrCapacity) ||
 				s.Document.State().Revision != before.Revision ||
 				!bytes.Equal(before.Data, s.Document.Snapshot().Data) {
 				t.Fatalf("capacity failure changed the ROM: %v", err)

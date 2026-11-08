@@ -14,7 +14,7 @@ import (
 	"github.com/woxQAQ/febuildergba-mygo/gba"
 	"github.com/woxQAQ/febuildergba-mygo/internal/testutil"
 	"github.com/woxQAQ/febuildergba-mygo/rom"
-	"github.com/woxQAQ/febuildergba-mygo/space"
+	"github.com/woxQAQ/febuildergba-mygo/romwrite"
 )
 
 func TestTilesetDefinitionEditingWorkflow(t *testing.T) {
@@ -370,7 +370,7 @@ func TestTilesetSharedGraphicsAndWriteFailuresAreAtomic(t *testing.T) {
 				!errors.Is(err, maps.ErrTilesetReference) {
 				t.Fatal("shared graphics error code", err)
 			}
-			if scenario == "capacity" && !errors.Is(err, space.ErrCapacity) {
+			if scenario == "capacity" && !errors.Is(err, romwrite.ErrCapacity) {
 				t.Fatal("capacity", err)
 			}
 			if !bytes.Equal(before.Data, s.Document.Snapshot().Data) ||

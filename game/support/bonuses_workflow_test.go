@@ -14,7 +14,7 @@ import (
 	"github.com/woxQAQ/febuildergba-mygo/gba"
 	"github.com/woxQAQ/febuildergba-mygo/internal/testutil"
 	"github.com/woxQAQ/febuildergba-mygo/rom"
-	"github.com/woxQAQ/febuildergba-mygo/space"
+	"github.com/woxQAQ/febuildergba-mygo/romwrite"
 )
 
 func TestAffinityBonusWorkflow(t *testing.T) {
@@ -174,7 +174,7 @@ func TestAffinityBonusFailuresAreAtomic(t *testing.T) {
 					"fill",
 					rom.Edit{Size: rom.MaxSize},
 				)
-				want = space.ErrCapacity
+				want = romwrite.ErrCapacity
 			}
 			if err != nil {
 				t.Fatal(err)

@@ -12,7 +12,7 @@ import (
 	"github.com/woxQAQ/febuildergba-mygo/game/records"
 	"github.com/woxQAQ/febuildergba-mygo/gba"
 	"github.com/woxQAQ/febuildergba-mygo/rom"
-	"github.com/woxQAQ/febuildergba-mygo/space"
+	"github.com/woxQAQ/febuildergba-mygo/romwrite"
 )
 
 const (
@@ -512,7 +512,7 @@ type GraphicsUse struct {
 
 type GraphicsPlan struct {
 	commit          *edit.Commit
-	plan            space.WritePlan
+	plan            romwrite.WritePlan
 	source, pointer int
 	changed         []int
 	uses            []GraphicsUse
@@ -637,10 +637,10 @@ func (s *Editor) PlanGraphics(
 			changed = append(changed, tile)
 		}
 	}
-	builder := space.NewBuilder(
+	builder := romwrite.NewBuilder(
 		s.image.Data,
-		space.Protection{
-			Pointer: func(_ []byte, owner space.Owner, site int) error {
+		romwrite.Protection{
+			Pointer: func(_ []byte, owner romwrite.Owner, site int) error {
 				field := GraphicsField
 				if owner == resourceOwner(PaletteField, site) {
 					field = PaletteField
@@ -652,7 +652,7 @@ func (s *Editor) PlanGraphics(
 	if pixelsChanged {
 		if _, err := builder.Replace(
 			draft.encoded,
-			space.PointerSite{
+			romwrite.PointerSite{
 				Owner:        resourceOwner(GraphicsField, g.input.pointer),
 				Address:      g.input.pointer,
 				ExpectedWord: gba.Uint32(s.image.Data, g.input.pointer),
@@ -663,7 +663,7 @@ func (s *Editor) PlanGraphics(
 	}
 	if colorsChanged {
 		p := g.paletteSource
-		if _, err := builder.Replace(draft.palette, space.PointerSite{
+		if _, err := builder.Replace(draft.palette, romwrite.PointerSite{
 			Owner: resourceOwner(PaletteField, p.pointer), Address: p.pointer,
 			ExpectedWord: gba.Uint32(s.image.Data, p.pointer),
 		}); err != nil {

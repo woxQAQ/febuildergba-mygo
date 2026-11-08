@@ -14,7 +14,7 @@ import (
 	"github.com/woxQAQ/febuildergba-mygo/gba"
 	"github.com/woxQAQ/febuildergba-mygo/internal/testutil"
 	"github.com/woxQAQ/febuildergba-mygo/rom"
-	"github.com/woxQAQ/febuildergba-mygo/space"
+	"github.com/woxQAQ/febuildergba-mygo/romwrite"
 )
 
 func movementFixture(version string) *testutil.FixtureBuilder {
@@ -430,7 +430,7 @@ func TestScriptMovementGuards(t *testing.T) {
 			}
 			plan, err := s.Events.PlanScriptEdit(d)
 			if scenario == "capacity" {
-				if !errors.Is(err, space.ErrCapacity) {
+				if !errors.Is(err, romwrite.ErrCapacity) {
 					t.Fatal("movement capacity", err)
 				}
 				return

@@ -2,7 +2,7 @@ package event
 
 import (
 	"github.com/woxQAQ/febuildergba-mygo/game/deployment"
-	"github.com/woxQAQ/febuildergba-mygo/space"
+	"github.com/woxQAQ/febuildergba-mygo/romwrite"
 )
 
 const HeaderField = "chapter_events_id"
@@ -131,29 +131,33 @@ func (f Format) EndingOffset() int { return f.ending }
 // one event list declare identical claims instead of conflicting.
 
 // RootOwner owns the chapter event list root pointer.
-func RootOwner() space.Owner { return space.Owner{Resource: "events", ID: -1} }
+func RootOwner() romwrite.Owner { return romwrite.Owner{Resource: "events", ID: -1} }
 
 // HeaderOwner owns one event header. The identity is a native position: the
 // header address for the header itself, or the entry position for the event
 // list entry when the header is unreadable.
-func HeaderOwner(header int) space.Owner {
-	return space.Owner{Resource: "events", ID: header}
+func HeaderOwner(header int) romwrite.Owner {
+	return romwrite.Owner{Resource: "events", ID: header}
 }
 
 // ConditionsOwner owns one condition table pointer and payload.
-func ConditionsOwner(site int, table Table) space.Owner {
-	return space.Owner{Resource: "event.conditions", ID: site, Slot: int(table)}
+func ConditionsOwner(site int, table Table) romwrite.Owner {
+	return romwrite.Owner{
+		Resource: "event.conditions",
+		ID:       site,
+		Slot:     int(table),
+	}
 }
 
 // ScriptCodeOwner owns decoded instruction bytes across shared and interior
 // entries. Entry pointers retain independent owners for relocation.
-func ScriptCodeOwner() space.Owner {
-	return space.Owner{Resource: "event.script_code"}
+func ScriptCodeOwner() romwrite.Owner {
+	return romwrite.Owner{Resource: "event.script_code"}
 }
 
 // ScriptOwner owns one script pointer site.
-func ScriptOwner(site int) space.Owner {
-	return space.Owner{Resource: "event.script", ID: site}
+func ScriptOwner(site int) romwrite.Owner {
+	return romwrite.Owner{Resource: "event.script", ID: site}
 }
 
 func (f Format) HeaderSize() int {

@@ -14,7 +14,7 @@ import (
 	"github.com/woxQAQ/febuildergba-mygo/game/worldmap"
 	"github.com/woxQAQ/febuildergba-mygo/internal/testutil"
 	"github.com/woxQAQ/febuildergba-mygo/rom"
-	"github.com/woxQAQ/febuildergba-mygo/space"
+	"github.com/woxQAQ/febuildergba-mygo/romwrite"
 )
 
 func worldMapScript(
@@ -247,13 +247,13 @@ func TestWorldMapEventFailuresKeepDocument(t *testing.T) {
 			expected := error(rom.ErrStale)
 			switch scenario {
 			case "record-overlap":
-				expected = space.ErrClaim
+				expected = romwrite.ErrClaim
 				err = d.Set(1, event.ScriptWMRoute, 3)
 			case "pointer-overlap":
-				expected = space.ErrClaim
+				expected = romwrite.ErrClaim
 				err = d.Insert(0, event.ScriptWMWaitNode)
 			case "capacity":
-				expected = space.ErrCapacity
+				expected = romwrite.ErrCapacity
 				err = d.Insert(0, event.ScriptWMWaitNode)
 			case "missing-route":
 				expected = worldmap.ErrConnections
@@ -397,7 +397,7 @@ func TestWorldMapEventsIndependentContextAndClaims(t *testing.T) {
 				t.Fatal(err)
 			}
 			before := s.Document.Snapshot()
-			if _, err = s.WorldMap.Plan(d); !errors.Is(err, space.ErrClaim) {
+			if _, err = s.WorldMap.Plan(d); !errors.Is(err, romwrite.ErrClaim) {
 				t.Fatal("node write ignored world-map event claim", err)
 			}
 			if !bytes.Equal(before.Data, s.Document.Snapshot().Data) {
@@ -483,7 +483,7 @@ func TestWorldMapEventsIndependentContextAndClaims(t *testing.T) {
 				t.Fatal(err)
 			}
 			before := s.Document.Snapshot()
-			if _, err = s.WorldMap.Plan(d); !errors.Is(err, space.ErrClaim) {
+			if _, err = s.WorldMap.Plan(d); !errors.Is(err, romwrite.ErrClaim) {
 				t.Fatal("damaged confirmed prefix was unprotected", err)
 			}
 			if !bytes.Equal(before.Data, s.Document.Snapshot().Data) {

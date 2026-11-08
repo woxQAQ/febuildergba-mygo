@@ -14,7 +14,7 @@ import (
 	"github.com/woxQAQ/febuildergba-mygo/gba"
 	"github.com/woxQAQ/febuildergba-mygo/internal/testutil"
 	"github.com/woxQAQ/febuildergba-mygo/rom"
-	"github.com/woxQAQ/febuildergba-mygo/space"
+	"github.com/woxQAQ/febuildergba-mygo/romwrite"
 )
 
 func TestNativeRoutesEditAndHistory(t *testing.T) {
@@ -227,7 +227,7 @@ func TestRouteFailuresAreAtomic(t *testing.T) {
 			if err = d.SetNode(1, 5); err != nil {
 				t.Fatal(err)
 			}
-			want := error(space.ErrClaim)
+			want := error(romwrite.ErrClaim)
 			switch scenario {
 			case "duplicate":
 				_ = d.SetNode(1, 3)
@@ -360,7 +360,7 @@ func TestRouteBoundariesAndCapacity(t *testing.T) {
 					d,
 				); !errors.Is(
 					err,
-					space.ErrCapacity,
+					romwrite.ErrCapacity,
 				) {
 					t.Fatal(err)
 				}

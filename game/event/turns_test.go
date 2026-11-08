@@ -12,7 +12,7 @@ import (
 	"github.com/woxQAQ/febuildergba-mygo/game/records"
 	"github.com/woxQAQ/febuildergba-mygo/internal/testutil"
 	"github.com/woxQAQ/febuildergba-mygo/rom"
-	"github.com/woxQAQ/febuildergba-mygo/space"
+	"github.com/woxQAQ/febuildergba-mygo/romwrite"
 )
 
 func TestTurnReinforcementWorkflow(t *testing.T) {
@@ -374,7 +374,7 @@ func TestTurnDraftIsolation(t *testing.T) {
 				}
 				before := s.Document.Snapshot()
 				_, err = s.Events.PlanConditions(d)
-				if !errors.Is(err, space.ErrCapacity) ||
+				if !errors.Is(err, romwrite.ErrCapacity) ||
 					!bytes.Equal(before.Data, s.Document.Snapshot().Data) {
 					t.Fatalf("capacity failure: %v", err)
 				}

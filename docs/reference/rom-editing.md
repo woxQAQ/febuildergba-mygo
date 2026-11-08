@@ -2,7 +2,7 @@
 
 本文维护版本前提、旧版依据、写入语义和行为限制；功能状态由表中链接指向[覆盖矩阵](../coverage.md)的对应行，操作步骤见[使用指南](../user-guide.md)。旧版与原生代码的固定版本见[核对来源](../sources.md)。
 
-当前入口：`rom/document.go`、`game/session.go`、`game/edit/bytes.go`、`game/records/relocation.go`、`space/write.go`。
+当前入口：`rom/document.go`、`game/session.go`、`game/edit/bytes.go`、`game/records/relocation.go`、`romwrite/write.go`。
 
 ## 基础编辑与原生界面
 
@@ -98,7 +98,7 @@
 | [扩容与历史](../coverage.md#storage-expansion-history)                                                  | ROM 文档                           | 先验证再提交，一次撤销恢复原长度，重做恢复扩容；过期或其他文档的预览被拒绝                  |
 | [表记录与容量规则](../coverage.md#storage-table-grow)、[旧区与共享引用](../coverage.md#storage-reclaim) | 表布局、游戏寻址规则和已确认使用方 | 保留旧区，不自动清空或回收；仅凭字节为空不能证明容量或引用规则                              |
 
-资源写入由 `space/plan_builder.go` 的 `Builder` 组合为一个 `WritePlan`；接口契约和调用示例见 `space/doc.go`：
+资源写入由 `romwrite/plan_builder.go` 的 `Builder` 组合为一个 `WritePlan`；接口契约和调用示例见 `romwrite/doc.go`：
 
 | 操作                              | 语义与边界                                                                                                           |
 | --------------------------------- | -------------------------------------------------------------------------------------------------------------------- |
@@ -107,7 +107,7 @@
 | `Relocate`                        | 复制已声明的源区并修正选定外部／内部引用；与其他操作共享分配和冲突检查，外部引用与复用区间执行保护，源区保持不可写。 |
 | `Repoint`／`ClearPointer`         | Repoint 的目标是文件偏移，0 指向 ROM 起点；ClearPointer 写入空指针，领域含义由调用方确认。                           |
 | `Patch`                           | 覆盖原文件中的定长区间，执行区间保护，不平移后续字节；未知位在领域草稿编码时保留。                                   |
-| `Plan`                            | 返回 `space.WritePlan` 独立副本；Destination 是所有分配的外包区间，不赋予中间空隙的写入权限。                        |
+| `Plan`                            | 返回 `romwrite.WritePlan` 独立副本；Destination 是所有分配的外包区间，不赋予中间空隙的写入权限。                     |
 
 `edit.Context.Capture()` 将快照字节与 `Stamp` 一起返回为 `edit.Input`；`CaptureBytes()` 只用于不依赖解析设置的操作。`edit.NewCommit` 将写入和原始 stamp 冻结为 `edit.Commit`，不重新执行资源归属检查。旧草稿不能通过重新捕获输入绕过过期判断。
 

@@ -2,7 +2,7 @@ package shop
 
 import (
 	"github.com/woxQAQ/febuildergba-mygo/gba"
-	"github.com/woxQAQ/febuildergba-mygo/space"
+	"github.com/woxQAQ/febuildergba-mygo/romwrite"
 )
 
 // Origin identifies the owner of an inventory reference.
@@ -24,16 +24,16 @@ type Key struct {
 
 // Owner names the claim identity of one reference. World-map slots belong to
 // their node; the loader defaults stand alone.
-func (k Key) Owner() space.Owner {
+func (k Key) Owner() romwrite.Owner {
 	switch k.Origin {
 	case WorldMap:
-		return space.Owner{Resource: "worldmap.shop", ID: k.ID, Slot: k.Slot}
+		return romwrite.Owner{Resource: "worldmap.shop", ID: k.ID, Slot: k.Slot}
 	case Preparation:
-		return space.Owner{Resource: "shop.preparation"}
+		return romwrite.Owner{Resource: "shop.preparation"}
 	case Default:
-		return space.Owner{Resource: "shop.default"}
+		return romwrite.Owner{Resource: "shop.default"}
 	default:
-		return space.Owner{Resource: "shop.chapter", ID: k.ID, Slot: k.Slot}
+		return romwrite.Owner{Resource: "shop.chapter", ID: k.ID, Slot: k.Slot}
 	}
 }
 
@@ -85,13 +85,13 @@ func (f Format) Default(data []byte) (*Draft, error) {
 
 // Claims declares the loader default and preparation pointers and their
 // inventories. Chapter and world-map references are claimed by their hosts.
-func (f Format) Claims(data []byte) []space.Claim {
-	var result []space.Claim
+func (f Format) Claims(data []byte) []romwrite.Claim {
+	var result []romwrite.Claim
 	for _, ref := range f.References() {
 		owner := ref.Key.Owner()
 		result = append(
 			result,
-			space.Claim{
+			romwrite.Claim{
 				Start: ref.Pointer, End: ref.Pointer + 4,
 				Owner: owner,
 				Site:  true,
@@ -104,7 +104,7 @@ func (f Format) Claims(data []byte) []space.Claim {
 			gba.Within(data, at, PayloadSize) {
 			result = append(
 				result,
-				space.Claim{
+				romwrite.Claim{
 					Start: at, End: at + PayloadSize,
 					Owner: owner,
 				},

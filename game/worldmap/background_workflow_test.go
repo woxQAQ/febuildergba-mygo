@@ -15,7 +15,7 @@ import (
 	"github.com/woxQAQ/febuildergba-mygo/gba"
 	"github.com/woxQAQ/febuildergba-mygo/internal/testutil"
 	"github.com/woxQAQ/febuildergba-mygo/rom"
-	"github.com/woxQAQ/febuildergba-mygo/space"
+	"github.com/woxQAQ/febuildergba-mygo/romwrite"
 )
 
 func backgroundPNG(t *testing.T, bitmap image.Image) []byte {
@@ -485,9 +485,9 @@ func TestWorldMapBackgroundPlanFailures(t *testing.T) {
 			want := error(rom.ErrStale)
 			switch scenario {
 			case "overlap", "source-overlap", "palette-consumer-overlap":
-				want = space.ErrClaim
+				want = romwrite.ErrClaim
 			case "capacity", "combined-capacity":
-				want = space.ErrCapacity
+				want = romwrite.ErrCapacity
 			default:
 				plan, err = s.WorldMap.PlanBackground(draft)
 				if err != nil {

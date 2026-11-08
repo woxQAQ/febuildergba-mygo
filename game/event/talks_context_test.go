@@ -9,7 +9,7 @@ import (
 	"github.com/woxQAQ/febuildergba-mygo/game/event"
 	"github.com/woxQAQ/febuildergba-mygo/game/records"
 	"github.com/woxQAQ/febuildergba-mygo/internal/testutil"
-	"github.com/woxQAQ/febuildergba-mygo/space"
+	"github.com/woxQAQ/febuildergba-mygo/romwrite"
 )
 
 func TestTalkChapterContexts(t *testing.T) {
@@ -130,14 +130,14 @@ func TestTalkRecoveryAndOwnership(t *testing.T) {
 				start := f.GetPosition(name)
 				if _, err := s.Records.PlanTableMove(
 					records.Items,
-					[]space.FreeRange{
+					[]romwrite.FreeRange{
 						{
 							Start:  start,
 							End:    start + 0x100,
 							Source: "talk resource conflict",
 						},
 					},
-				); !errors.Is(err, space.ErrRange) ||
+				); !errors.Is(err, romwrite.ErrRange) ||
 					!bytes.Equal(before.Data, s.Document.Snapshot().Data) {
 					t.Fatalf("live talk resource reused: %v", err)
 				}

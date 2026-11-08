@@ -11,7 +11,7 @@ import (
 	"github.com/woxQAQ/febuildergba-mygo/game/edit"
 	"github.com/woxQAQ/febuildergba-mygo/gba"
 	"github.com/woxQAQ/febuildergba-mygo/rom"
-	"github.com/woxQAQ/febuildergba-mygo/space"
+	"github.com/woxQAQ/febuildergba-mygo/romwrite"
 )
 
 func (s *Editor) Plan(ref Ref, content []byte) (result *Plan, err error) {
@@ -72,8 +72,8 @@ func (s *Editor) Plan(ref Ref, content []byte) (result *Plan, err error) {
 	if !validTargets(s.image.Data, encoding.Parts, references) {
 		return nil, edit.ErrLayout
 	}
-	builder := space.NewBuilder(s.image.Data, space.Protection{
-		Pointer: func(data []byte, _ space.Owner, site int) error {
+	builder := romwrite.NewBuilder(s.image.Data, romwrite.Protection{
+		Pointer: func(data []byte, _ romwrite.Owner, site int) error {
 			if !validTargets(data, []Replacement{{Pointer: site}}, references) {
 				return edit.ErrLayout
 			}
@@ -81,8 +81,11 @@ func (s *Editor) Plan(ref Ref, content []byte) (result *Plan, err error) {
 		},
 	})
 	for _, part := range encoding.Parts {
-		if _, err := builder.Replace(part.Data, space.PointerSite{
-			Owner:        space.Owner{Resource: string(ref.Kind), ID: ref.ID},
+		if _, err := builder.Replace(part.Data, romwrite.PointerSite{
+			Owner: romwrite.Owner{
+				Resource: string(ref.Kind),
+				ID:       ref.ID,
+			},
 			Address:      part.Pointer,
 			ExpectedWord: gba.Uint32(s.image.Data, part.Pointer),
 		}); err != nil {

@@ -21,7 +21,7 @@ import (
 	"github.com/woxQAQ/febuildergba-mygo/game/text"
 	"github.com/woxQAQ/febuildergba-mygo/game/worldmap"
 	"github.com/woxQAQ/febuildergba-mygo/rom"
-	"github.com/woxQAQ/febuildergba-mygo/space"
+	"github.com/woxQAQ/febuildergba-mygo/romwrite"
 )
 
 // Session assembles the editors for one document and the detected game version.
@@ -49,7 +49,7 @@ type Session struct {
 	context     *edit.Context
 	claimsStamp edit.Stamp
 	claimsData  []byte
-	claimsCache []space.Claim
+	claimsCache []romwrite.Claim
 }
 
 func Open(path string) (session *Session, err error) {
@@ -82,7 +82,7 @@ func Open(path string) (session *Session, err error) {
 					format.worldmap.TextUses(data, id)...)
 				// A text entry lives inside the text table, so the table's own
 				// claim cannot guard its entries against other domains.
-				var external []space.Range
+				var external []romwrite.Range
 				for _, claim := range s.claims(data) {
 					if claim.Owner.Resource != "text" {
 						external = append(external, claim.Range)
@@ -96,21 +96,24 @@ func Open(path string) (session *Session, err error) {
 			context,
 			func(data []byte) records.Format {
 				resolved := format.recordFormat(data)
-				resolved.Protected = func(data []byte) []space.Range {
-					return space.ClaimRanges(s.claims(data))
+				resolved.Protected = func(data []byte) []romwrite.Range {
+					return romwrite.ClaimRanges(s.claims(data))
 				}
 				return resolved
 			},
 			s.Texts,
-			space.Protection{Pointer: s.protectPointer, Range: s.protectRange},
+			romwrite.Protection{
+				Pointer: s.protectPointer,
+				Range:   s.protectRange,
+			},
 		)
 		s.Portraits = portrait.New(
 			context,
 			format.portraits,
 			format.genericPortraits,
 			s.Records,
-			func(data []byte) []space.Range {
-				return space.ClaimRanges(s.claims(data))
+			func(data []byte) []romwrite.Range {
+				return romwrite.ClaimRanges(s.claims(data))
 			},
 		)
 		s.WorldMap = worldmap.New(context, format.worldmap, s.worldmapSource())

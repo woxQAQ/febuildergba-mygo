@@ -16,7 +16,7 @@ import (
 	"github.com/woxQAQ/febuildergba-mygo/gba"
 	"github.com/woxQAQ/febuildergba-mygo/internal/testutil"
 	"github.com/woxQAQ/febuildergba-mygo/rom"
-	"github.com/woxQAQ/febuildergba-mygo/space"
+	"github.com/woxQAQ/febuildergba-mygo/romwrite"
 )
 
 func TestQuoteTableWorkflow(t *testing.T) {
@@ -615,7 +615,7 @@ func TestQuoteConflictAndFailureAtomicity(t *testing.T) {
 		before := s.Document.Snapshot()
 		if _, err = s.Quotes.Plan(
 			draft,
-		); !errors.Is(err, space.ErrCapacity) ||
+		); !errors.Is(err, romwrite.ErrCapacity) ||
 			!bytes.Equal(before.Data, s.Document.Snapshot().Data) {
 			t.Fatal("capacity failure wrote bytes", err)
 		}

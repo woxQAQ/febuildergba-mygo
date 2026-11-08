@@ -4,7 +4,7 @@ import (
 	"github.com/woxQAQ/febuildergba-mygo/game/graphics"
 	"github.com/woxQAQ/febuildergba-mygo/game/terrain"
 	"github.com/woxQAQ/febuildergba-mygo/game/text"
-	"github.com/woxQAQ/febuildergba-mygo/space"
+	"github.com/woxQAQ/febuildergba-mygo/romwrite"
 )
 
 type Kind string
@@ -81,7 +81,7 @@ type Format struct {
 	Rules       []Rule
 	NameOf      func(uint16) (string, error)
 	Patches     []string
-	Protected   func([]byte) []space.Range
+	Protected   func([]byte) []romwrite.Range
 	// The generation's named variants, selected by the version file.
 	Traits               []RecordTrait
 	ItemTraits           []RecordTrait

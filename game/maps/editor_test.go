@@ -14,7 +14,7 @@ import (
 	"github.com/woxQAQ/febuildergba-mygo/gba"
 	"github.com/woxQAQ/febuildergba-mygo/internal/testutil"
 	"github.com/woxQAQ/febuildergba-mygo/rom"
-	"github.com/woxQAQ/febuildergba-mygo/space"
+	"github.com/woxQAQ/febuildergba-mygo/romwrite"
 )
 
 func TestMapEditingWorkflow(t *testing.T) {
@@ -334,7 +334,7 @@ func TestMapPreviewConflicts(t *testing.T) {
 			}
 			plan, err := s.Maps.Plan(d)
 			if mode == "capacity" {
-				if !errors.Is(err, space.ErrCapacity) {
+				if !errors.Is(err, romwrite.ErrCapacity) {
 					t.Fatal("full ROM accepted", err)
 				}
 				return

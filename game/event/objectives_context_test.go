@@ -9,7 +9,7 @@ import (
 	"github.com/woxQAQ/febuildergba-mygo/game/event"
 	"github.com/woxQAQ/febuildergba-mygo/game/records"
 	"github.com/woxQAQ/febuildergba-mygo/internal/testutil"
-	"github.com/woxQAQ/febuildergba-mygo/space"
+	"github.com/woxQAQ/febuildergba-mygo/romwrite"
 )
 
 func TestObjectiveChapterContexts(t *testing.T) {
@@ -125,7 +125,7 @@ func TestObjectiveResourceOwnership(t *testing.T) {
 					at := f.GetPosition(resource)
 					_, err := s.Records.PlanTableMove(
 						records.Items,
-						[]space.FreeRange{
+						[]romwrite.FreeRange{
 							{
 								Start:  at,
 								End:    at + 0x100,
@@ -133,7 +133,7 @@ func TestObjectiveResourceOwnership(t *testing.T) {
 							},
 						},
 					)
-					if !errors.Is(err, space.ErrRange) ||
+					if !errors.Is(err, romwrite.ErrRange) ||
 						!bytes.Equal(before.Data, s.Document.Snapshot().Data) {
 						t.Fatalf("resource reused: %v", err)
 					}
