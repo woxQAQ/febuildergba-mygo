@@ -1,6 +1,6 @@
 # 003：验证框架焦点查询与领域历史归属的组合
 
-> 设计试点，尚未执行。基线：`2585e9f984bc31e34ade88b0b92580923b35e097`，2026-11-07。P2，工作量 M，风险高。依赖：计划 001。触发条件：决定减少逐控件的 TextDraft 登记。此计划先产出有运行证据的有限候选，不授权直接全项目改写历史路由。
+> 试点已执行，有限候选已采纳（2026-11-08，工作树基线 `c03b552`）。结论见文末[试点结论](#试点结论)。基线：`2585e9f984bc31e34ade88b0b92580923b35e097`，2026-11-07。P2，工作量 M，风险高。依赖：计划 001。触发条件：决定减少逐控件的 TextDraft 登记。此计划先产出有运行证据的有限候选，不授权直接全项目改写历史路由。
 >
 > 先运行 `git diff --stat 2585e9f..HEAD -- internal/editor/state.go internal/components/textdraft.go internal/pages/workspace.go internal/pages/records internal/pages/portraits/inspector.go internal/pages/texteditor/page.go internal/app/menus.go`，再检查工作区 diff。基线或历史策略已变化时重新核对矩阵，保留并行修改。
 
@@ -101,11 +101,65 @@ rg -n 'TestMyGoHistoryReview' internal
 
 ## 试点完成条件
 
-- [ ] 历史矩阵有实际操作证据；当前实现与设计冲突单独列出。
-- [ ] 有通过矩阵的有限候选，或有可复现的否定结论；不能只有“应该可行”。
-- [ ] 菜单、快捷键、普通文本、数值、独立草稿、空／过期状态均有明确归属。
-- [ ] 临时 UI 代码已移除；保留候选时 `just check` 通过。
-- [ ] 未开始其他页面的批量改造，更新计划状态及结论。
+- [x] 历史矩阵有实际操作证据；当前实现与设计冲突单独列出。
+- [x] 有通过矩阵的有限候选，或有可复现的否定结论；不能只有“应该可行”。
+- [x] 菜单、快捷键、普通文本、数值、独立草稿、空／过期状态均有明确归属。
+- [x] 临时 UI 代码已移除；保留候选时 `just check` 通过。
+- [x] 未开始其他页面的批量改造，更新计划状态及结论。
+
+## 试点结论
+
+执行于 2026-11-08，工作树基线 `c03b552`（001、002、004、005 已落地，MyGo v0.8.3）。证据来自临时 `TestMyGoHistoryReview` 流程（`ui.NewTester` 无头窗口 + 合成 fixture），验证后已按步骤 4 移除；以下为当次记录。
+
+### 基线矩阵（实际运行结果）
+
+| 场景 | 基线行为 | 矩阵一致 |
+| --- | --- | --- |
+| 记录搜索（TextDraft） | Cmd+Z 撤销框内文字，ROM 修订与可撤销编辑不变 | 是 |
+| 文本正文（TextDraft） | 输入后 Cmd+Z 撤销草稿文字，ROM 不变 | 是 |
+| 普通记录数值（units level） | 输入即提交；Cmd+Z/Cmd+Shift+Z 走 ROM 文档撤销／重做 | 是 |
+| 头像定位数值 | 同上，走文档历史 | 是 |
+| 地图草稿 | 聚焦画布后 DraftHistory 占有目标；笔画撤销在草稿内；空草稿与过期草稿均不落回 ROM | 是 |
+| 无文本／草稿焦点 | ROM 文档历史 | 是 |
+| Busy | 不派发领域历史命令 | 是 |
+
+### 冲突清单（基线差异，目标语义待界定，不在本试点修改）
+
+道具数值组合（`item_fields.go` 的 `TextDraft(numberField)`，含数值网格与自定义数值输入）：
+
+1. 键盘 Cmd+Z 完全无动作：`OnTextKey` 调用 `State.Undo`，但 `TextFocused` 使 `History()` 返回空命令，同时键被消费、原生文本撤销也被抑制。
+2. 原生菜单 undo（无头证据为 `Tester.Command("undo")`）执行字段的原生文本撤销，文本回退触发 `OnChange`，把旧值作为**新的 ROM 写入**提交（实测 uses 30→46，修订 1→2），与键盘路径不一致。
+
+目标语义：道具数值与其他立即写入的数值一致，应属文档历史；需要移除该组合的 TextDraft 并处理右键菜单 `EditItems` 带来的同类原生命令。作为后续任务单独界定，不通过复制该错误保持“兼容”。
+
+### 采纳的候选
+
+- `editor.State.HistoryClaim`：仅覆盖当前 build 的三态枚举（未声明／原生文本历史／文档历史），`editor` 包不引入 MyGo 依赖；不含命令回调，不冒充焦点。
+- `components.TextDraft` 改为声明原生文本历史；新增 `components.DocumentField` 声明立即写入字段的文档历史；两者只在控件实际持焦点时生效，外层 `TextDraft` 覆盖内层声明（道具组合行为因此与基线一致）。
+- 页面与弹层构建后由 `Workspace.View` 调用 `ResolveHistoryFocus(c.FocusTakesText())` 集中求值；`State.History`、`Workspace.UsesTextHistory`、菜单状态与根快捷键读取同一个 `TextFocused` 结果。
+- 移除的登记点：试点两页共三处——`records/page.go` 搜索、`texteditor/page.go` 搜索与正文 TextArea。其余页面的 TextDraft 全部保留。
+- 数值声明位置：`records/fields.go` 的 `numberField` 与 `portraits/inspector.go` 的 `number` 标记 `DocumentField`。
+
+### 候选与旧登记的行为差异（Reviewer 注意）
+
+1. 只读 TextArea（不可编辑文本）聚焦：旧登记声明原生文本历史（Cmd+Z 无动作）；候选由 `FocusTakesText` 判为不接收文字，落到 ROM 文档历史。只读无“未提交正文”，矩阵上归为普通页面；但用户视觉焦点在文本区，撤销 ROM 可能意外。差异已在无头复核中确认（`FocusTakesText` 对只读返回 false）。
+2. 窗口失焦：`FocusTakesText` 在窗口无键盘焦点时为 false（`FocusWithin` 不检查窗口焦点），失焦窗口的菜单状态落到文档／声明路由；键盘事件本就到不了失焦窗口，重新聚焦后恢复文本路由。
+3. 禁用文本输入同理按不接收文字处理；过期禁用的地图控件仍由 DraftHistory 占有目标，不受影响。
+
+### 步骤 3 覆盖记录
+
+无头 Tester 已覆盖：文本区随标签页消失并返回（草稿保留、路由跟随焦点）、模态打开／关闭（打开前请求的隐藏目标焦点落在模态搜索，Escape 关闭后焦点返回）、禁用／过期控件（地图过期草稿占有目标）、列表滚动（无历史副作用）、空／过期草稿、窗口失焦再返回、组合输入（Compose 未提交前不产生草稿标记与 ROM 变化，提交后撤销留在文本历史）。原生 macOS 窗口（真实菜单、真实 IME）因无显示环境未执行；`Tester.Command` 与真实菜单验证分别记录、不互相替代；其他平台未执行，保留该限制。
+
+### 逐页迁移触发条件
+
+其他页面保留 TextDraft。某页要取消登记前，先按本计划矩阵界定该页每个文本控件的目标历史（特别注意道具数值这类已登记的冲突组合），复跑对应的临时矩阵复核后再移除；不按标题、字段 ID 或显示字符串推断归属。
+
+### 验证记录
+
+- 步骤 1 基线与步骤 2 候选均通过 `go test -count=1 -run TestMyGoHistoryReview ./internal/pages ./internal/pages/records ./internal/pages/portraits`（临时流程，已移除）。
+- 步骤 2 `just vet` 通过；矩阵复跑与基线一致，额外空帧不触发撤销。
+- 步骤 4 `just check`、`git diff --check` 通过；`rg TestMyGoHistoryReview internal` 无匹配。
+- 未改 ROM 历史实现，未运行 `just test-race`（该 recipe 不覆盖本次改动的包）；翻译未变化，未重新生成 catalog。
 
 ## 固定来源
 
