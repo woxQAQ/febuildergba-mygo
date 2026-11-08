@@ -230,3 +230,128 @@ func TestTableMoveUsesDeclaredSpace(t *testing.T) {
 		t.Fatalf("overlapping known table: %v", err)
 	}
 }
+
+func TestTableMoveInterpretationLifecycle(t *testing.T) {
+	for _, version := range testutil.Games() {
+		t.Run(version.Name, func(t *testing.T) {
+			for _, reuse := range []bool{false, true} {
+				name := "append-other-layout"
+				var free []space.FreeRange
+				if reuse {
+					name = "reuse-other-layout"
+					free = []space.FreeRange{{
+						Start: 0x400000, End: 0x401000,
+						Source: "reserved fixture interval",
+					}}
+				}
+				t.Run(name, func(t *testing.T) {
+					s := testutil.Open(t, version.Build())
+					move, err := s.Records.PlanTableMove(records.Items, free)
+					if err != nil {
+						t.Fatal(err)
+					}
+					layout := s.Records.Table(records.Units).Layout
+					layout.Address, layout.Count = 0x400000, 1
+					if reuse {
+						layout.Address = move.Destination()
+					}
+					if err := s.Records.UseLayout(
+						records.Units,
+						layout,
+					); err != nil {
+						t.Fatal(err)
+					}
+					before, state := s.Document.Snapshot(), s.Document.State()
+					if err := s.Records.ApplyTableMove(
+						move,
+					); !errors.Is(
+						err,
+						rom.ErrStale,
+					) {
+						t.Fatalf(
+							"changed interpretation accepted an old move: %v",
+							err,
+						)
+					}
+					if s.Document.State() != state ||
+						!bytes.Equal(before.Data, s.Document.Snapshot().Data) {
+						t.Fatal("rejected move changed bytes or document state")
+					}
+					if reuse {
+						if _, err := s.Records.PlanTableMove(
+							records.Items,
+							free,
+						); !errors.Is(
+							err,
+							space.ErrRange,
+						) {
+							t.Fatalf(
+								"new plan reused the manual table: %v",
+								err,
+							)
+						}
+					}
+				})
+			}
+			t.Run("restore-same-interpretation", func(t *testing.T) {
+				s := testutil.Open(t, version.Build())
+				before := s.Document.Snapshot()
+				move, err := s.Records.PlanTableMove(records.Items, nil)
+				if err != nil {
+					t.Fatal(err)
+				}
+				layout := s.Records.Table(records.Units).Layout
+				layout.Address, layout.Count = 0x400000, 1
+				if err := s.Records.UseLayout(
+					records.Units,
+					layout,
+				); err != nil {
+					t.Fatal(err)
+				}
+				s.Records.UseAutomaticLayout(records.Units)
+				if err := s.Records.ApplyTableMove(move); err != nil {
+					t.Fatal(err)
+				}
+				after := s.Document.Snapshot()
+				if len(after.Data) <= len(before.Data) ||
+					!s.Document.Undo() || !bytes.Equal(before.Data, s.Document.Snapshot().Data) ||
+					s.Document.State().CanUndo || s.Document.State().Dirty ||
+					!s.Document.Redo() || !bytes.Equal(after.Data, s.Document.Snapshot().Data) {
+					t.Fatal("restored interpretation lost atomic move history")
+				}
+			})
+			t.Run("undo-does-not-revive", func(t *testing.T) {
+				s := testutil.Open(t, version.Build())
+				move, err := s.Records.PlanTableMove(records.Items, nil)
+				if err != nil {
+					t.Fatal(err)
+				}
+				if err := s.Records.Set(
+					records.Items,
+					[]int{0},
+					"combat.might",
+					42,
+				); err != nil {
+					t.Fatal(err)
+				}
+				if !s.Document.Undo() {
+					t.Fatal("undo unavailable")
+				}
+				s.Refresh()
+				before, state := s.Document.Snapshot(), s.Document.State()
+				if err := s.Records.ApplyTableMove(
+					move,
+				); !errors.Is(
+					err,
+					rom.ErrStale,
+				) {
+					t.Fatalf("undo revived an old move: %v", err)
+				}
+				if s.Document.State() != state ||
+					!bytes.Equal(before.Data, s.Document.Snapshot().Data) {
+					t.Fatal("rejected move changed restored bytes or history")
+				}
+			})
+		})
+	}
+}

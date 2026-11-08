@@ -10,6 +10,7 @@ import (
 	"github.com/woxQAQ/febuildergba-mygo/game/text"
 	"github.com/woxQAQ/febuildergba-mygo/internal/components"
 	"github.com/woxQAQ/febuildergba-mygo/internal/locales"
+	"github.com/woxQAQ/febuildergba-mygo/rom"
 )
 
 type textDraft struct {
@@ -20,30 +21,83 @@ type textDraft struct {
 	err            error
 }
 
+func (draft *textDraft) modified() bool { return draft.text != draft.original }
+
+func (draft *textDraft) matches(value text.Value) bool {
+	return draft.textID == value.ID && draft.original == value.Content
+}
+
+// Names retain the record reader's display semantics; descriptions retain
+// the complete editable control language. Read errors never become new text.
+func (a *form) textSource(key fieldKey) (text.Value, error) {
+	if key.Field != "name_id" {
+		return a.state.Session.Records.Text(key.Kind, key.Record, key.Field)
+	}
+	_, row, _, err := a.state.Session.Records.Resolve(
+		key.Kind,
+		key.Record,
+		key.Field,
+	)
+	if err != nil {
+		return text.Value{}, err
+	}
+	return text.Value{
+		ID: row.NameID, Content: row.Name,
+		Editable: row.NameID != 0 && row.TextError == nil,
+	}, row.TextError
+}
+
 func (a *form) textDraftFor(
 	key fieldKey,
-	id uint16,
-	original string,
+	value text.Value,
+	readErr error,
 ) *textDraft {
 	if a.texts == nil {
 		a.texts = make(map[fieldKey]*textDraft)
 	}
 	draft := a.texts[key]
-	if draft == nil || draft.original != original || draft.textID != id ||
-		draft.epoch != a.state.HistoryEpoch {
+	if draft == nil ||
+		!draft.modified() && readErr == nil && !draft.matches(value) {
 		draft = &textDraft{
-			text:     original,
-			original: original,
-			textID:   id,
-			epoch:    a.state.HistoryEpoch,
+			text:     value.Content,
+			original: value.Content,
+			textID:   value.ID,
 		}
 		a.texts[key] = draft
 	}
-	if draft.preview != nil &&
-		draft.preview.Revision() != a.state.Session.Document.State().Revision {
+	if readErr != nil || !value.Editable || !draft.matches(value) ||
+		draft.epoch != a.state.HistoryEpoch ||
+		draft.preview != nil &&
+			draft.preview.Revision() != a.state.Session.Document.State().Revision {
 		draft.preview = nil
 	}
+	draft.epoch = a.state.HistoryEpoch
 	return draft
+}
+
+func (a *form) checkTextDraft(key fieldKey, draft *textDraft) error {
+	if a.state.Busy || a.texts[key] != draft {
+		return rom.ErrStale
+	}
+	value, err := a.textSource(key)
+	if err != nil {
+		return err
+	}
+	if !value.Editable || !draft.matches(value) {
+		return rom.ErrStale
+	}
+	return nil
+}
+
+func (a *form) previewText(key fieldKey, draft *textDraft) {
+	draft.preview = nil
+	draft.err = a.checkTextDraft(key, draft)
+	if draft.err == nil {
+		draft.preview, draft.err = a.state.Session.Records.PlanTextEdit(
+			key.Kind, key.Record, key.Field, draft.text,
+		)
+	}
+	a.state.Report("editor.operation", draft.err)
 }
 
 func (a *form) textPreview(
@@ -51,6 +105,7 @@ func (a *form) textPreview(
 	key fieldKey,
 	draft *textDraft,
 	label string,
+	unavailable bool,
 ) {
 	edit := draft.preview
 	if edit == nil {
@@ -81,10 +136,16 @@ func (a *form) textPreview(
 			)
 		}
 	}
-	ui.Button(c, label).Disabled(a.state.Busy).OnClick(func() {
-		if err := a.state.Edit(
-			func() error { return a.state.Session.Texts.Apply(edit) },
-		); err != nil {
+	ui.Button(c, label).Disabled(a.state.Busy || unavailable).OnClick(func() {
+		if err := a.state.Edit(func() error {
+			if err := a.checkTextDraft(key, draft); err != nil {
+				return err
+			}
+			if draft.preview != edit {
+				return rom.ErrStale
+			}
+			return a.state.Session.Texts.Apply(edit)
+		}); err != nil {
 			draft.err, draft.preview = err, nil
 			return
 		}
@@ -189,12 +250,15 @@ func (a *form) descriptionEditor(
 	field records.Field,
 	height float32,
 ) ui.Element {
-	value, err := a.state.Session.Records.Text(kind, row.ID, field.ID)
 	key := fieldKey{Kind: kind, Record: row.ID, Field: field.ID}
-	draft := a.textDraftFor(key, value.ID, value.Content)
+	value, err := a.textSource(key)
+	draft := a.textDraftFor(key, value, err)
+	stale := err == nil && !draft.matches(value)
+	pending := draft.modified() || stale
+	unavailable := err != nil || !value.Editable || stale
 	label := locales.Label(strings.TrimSuffix(field.ID, "_id"))
 	return ui.Column(c.Key(field.ID + "-editor")).Gap(6).Children(func() {
-		if err == nil && value.ID == 0 {
+		if err == nil && value.ID == 0 && !pending {
 			ui.Row(c).Wrap().Gap(8).AlignItems(ui.Center).Children(func() {
 				ui.Text(c, label).Bold().Grow(1)
 				if kind == records.Items {
@@ -215,38 +279,32 @@ func (a *form) descriptionEditor(
 		} else if height > 64 {
 			ui.Text(c, label).Bold()
 		}
-		unavailable := err != nil || !value.Editable
 		components.TextDraft(
 			a.state,
 			ui.TextArea(c, &draft.text).
 				Height(height).
 				Label(label).
 				Tooltip(locales.DescriptionEditScope()).
-				ReadOnly(unavailable).
+				ReadOnly(err != nil || !value.Editable).
 				Disabled(a.state.Busy).
-				OnChange(func() {
-					draft.preview, draft.err = nil, nil
-				}),
+				OnChange(func() { draft.preview, draft.err = nil, nil }),
 		)
-		if draft.text != value.Content {
+		if pending {
 			ui.Row(c).Gap(8).Children(func() {
 				ui.Button(c, locales.PreviewText()).
 					Disabled(a.state.Busy || unavailable).
-					OnClick(func() {
-						draft.preview, draft.err = a.state.Session.Records.PlanTextEdit(
-							kind,
-							row.ID,
-							field.ID,
-							draft.text,
-						)
-						a.state.Report("editor.operation", draft.err)
-					})
-				ui.Button(c, locales.Cancel()).
+					OnClick(func() { a.previewText(key, draft) })
+				cancel := locales.Cancel()
+				if stale || err != nil {
+					cancel = locales.ReloadText()
+				}
+				ui.Button(c, cancel).
 					Disabled(a.state.Busy).
-					OnClick(func() {
-						draft.text, draft.preview, draft.err = value.Content, nil, nil
-					})
+					OnClick(func() { delete(a.texts, key) })
 			})
+		}
+		if stale {
+			ui.Text(c, locales.TextDraftStale()).TextColor(c.Theme().Danger)
 		}
 		switch {
 		case err != nil:
@@ -262,7 +320,7 @@ func (a *form) descriptionEditor(
 			ui.Text(c, components.ErrorText(draft.err)).
 				TextColor(c.Theme().Danger)
 		}
-		a.textPreview(c, key, draft, locales.ApplyText())
+		a.textPreview(c, key, draft, locales.ApplyText(), unavailable)
 	})
 }
 
@@ -272,11 +330,14 @@ func (a *form) nameEditor(
 	row records.Row,
 ) ui.Element {
 	key := fieldKey{Kind: kind, Record: row.ID, Field: "name_id"}
-	draft := a.textDraftFor(key, row.NameID, row.Name)
+	value, err := a.textSource(key)
+	draft := a.textDraftFor(key, value, err)
+	stale := err == nil && !draft.matches(value)
+	pending := draft.modified() || stale
+	unavailable := err != nil || !value.Editable || stale
 	return ui.Column(c.Key("name-editor")).Gap(6).Children(func() {
-		unavailable := row.NameID == 0 || row.TextError != nil
 		ui.Row(c).Gap(8).AlignItems(ui.Center).Children(func() {
-			if kind == records.Items && row.NameID == 0 {
+			if kind == records.Items && value.ID == 0 && !pending {
 				a.itemTextAction(c, key, locales.Name(), 0)
 				return
 			}
@@ -289,41 +350,40 @@ func (a *form) nameEditor(
 					FontSize(components.FontTitle).
 					Height(34).
 					Grow(1).
-					Disabled(a.state.Busy || unavailable).
-					OnChange(func() {
-						draft.preview, draft.err = nil, nil
-					}),
+					ReadOnly(err != nil || !value.Editable).
+					Disabled(a.state.Busy).
+					OnChange(func() { draft.preview, draft.err = nil, nil }),
 			)
 			if kind == records.Items {
-				a.itemTextAction(c, key, locales.Name(), row.NameID)
-			} else if row.NameID == 0 {
+				a.itemTextAction(c, key, locales.Name(), value.ID)
+			} else if value.ID == 0 {
 				ui.Button(c, locales.ChooseTextId()).
 					Disabled(a.state.Busy).
 					OnClick(func() { a.openTextReference(key) })
 			}
-			if draft.text != row.Name {
+			if pending {
 				ui.Button(c, locales.PreviewName()).
 					Disabled(a.state.Busy || unavailable).
-					OnClick(func() {
-						draft.preview, draft.err = a.state.Session.Records.PlanTextEdit(
-							kind,
-							row.ID,
-							key.Field,
-							draft.text,
-						)
-						a.state.Report("editor.operation", draft.err)
-					})
-				ui.Button(c, locales.Cancel()).
+					OnClick(func() { a.previewText(key, draft) })
+				cancel := locales.Cancel()
+				if stale || err != nil {
+					cancel = locales.ReloadText()
+				}
+				ui.Button(c, cancel).
 					Disabled(a.state.Busy).
-					OnClick(func() {
-						draft.text, draft.preview, draft.err = row.Name, nil, nil
-					})
+					OnClick(func() { delete(a.texts, key) })
 			}
 		})
+		if stale {
+			ui.Text(c, locales.TextDraftStale()).TextColor(c.Theme().Danger)
+		}
+		if err != nil {
+			ui.Text(c, components.ErrorText(err)).TextColor(c.Theme().Danger)
+		}
 		if draft.err != nil {
 			ui.Text(c, components.ErrorText(draft.err)).
 				TextColor(c.Theme().Danger)
 		}
-		a.textPreview(c, key, draft, locales.ApplyName())
+		a.textPreview(c, key, draft, locales.ApplyName(), unavailable)
 	})
 }

@@ -293,3 +293,68 @@ func TestAssetImportRejections(t *testing.T) {
 		t.Fatalf("overlapping live table: %v", err)
 	}
 }
+
+func TestItemIconReplacementKeepsForeignClaims(t *testing.T) {
+	for _, foreign := range []bool{false, true} {
+		name := "normal-root-only"
+		if foreign {
+			name = "foreign-plist-site"
+		}
+		t.Run(name, func(t *testing.T) {
+			f := testutil.ImageFixture(t, 0)
+			root := testutil.ImageLayouts[0].IconPointer
+			if foreign {
+				// The chapter's graphics PLIST entry and the icon root
+				// consume the same pointer word under independent owners.
+				f.WriteU8(f.GetPosition("chapters")+4, 1)
+				f.WritePointer(0x19968, root-4)
+			}
+			s := testutil.Open(t, f)
+			before, state := s.Document.Snapshot(), s.Document.State()
+			icon := image.NewRGBA(image.Rect(0, 0, 16, 16))
+			icon.SetRGBA(0, 0, color.RGBA{0, 255, 0, 255})
+			plan, err := s.Images.Plan(
+				graphics.Ref{Kind: graphics.ItemIcon, ID: 0},
+				testutil.ImagePNG(t, icon),
+			)
+			if foreign {
+				if !errors.Is(err, edit.ErrLayout) || plan != nil {
+					t.Fatalf(
+						"foreign PLIST claim did not reject the replacement: %v",
+						err,
+					)
+				}
+				if s.Document.State() != state ||
+					!bytes.Equal(before.Data, s.Document.Snapshot().Data) {
+					t.Fatal(
+						"rejected replacement changed bytes or document state",
+					)
+				}
+				return
+			}
+			if err != nil {
+				t.Fatal(err)
+			}
+			if err := s.Images.Apply(plan); err != nil {
+				t.Fatal(err)
+			}
+			after := s.Document.Snapshot()
+			preserved := bytes.Clone(after.Data[:len(before.Data)])
+			copy(preserved[root:root+4], before.Data[root:root+4])
+			if !bytes.Equal(preserved, before.Data) ||
+				len(after.Data) <= len(before.Data) {
+				t.Fatal("replacement changed old payloads or unrelated bytes")
+			}
+			if !s.Document.Undo() ||
+				!bytes.Equal(before.Data, s.Document.Snapshot().Data) ||
+				s.Document.State().CanUndo ||
+				s.Document.State().Dirty {
+				t.Fatal("one undo did not restore the original document")
+			}
+			if !s.Document.Redo() ||
+				!bytes.Equal(after.Data, s.Document.Snapshot().Data) {
+				t.Fatal("redo did not restore the replacement and expansion")
+			}
+		})
+	}
+}

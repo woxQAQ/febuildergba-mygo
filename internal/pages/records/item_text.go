@@ -210,6 +210,7 @@ func (a *form) commitItemTextChoice(c *ui.Context, choice *itemTextChoice) {
 			choice.err = err
 			return
 		}
+		delete(a.texts, choice.key)
 	}
 	a.closeItemTextChoice(c)
 }

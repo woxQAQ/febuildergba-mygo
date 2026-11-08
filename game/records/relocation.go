@@ -43,7 +43,7 @@ func (s *Editor) PlanTableMove(
 	if table == nil || table.Err != nil || table.Manual {
 		return nil, edit.ErrLayout
 	}
-	input := s.context.CaptureBytes()
+	input := s.context.Capture()
 	if input.Stamp().Revision() != s.binding.Revision() {
 		return nil, rom.ErrStale
 	}
@@ -109,8 +109,8 @@ func (s *Editor) ApplyTableMove(move *MovePlan) (err error) {
 	if move == nil {
 		return rom.ErrStale
 	}
-	// Byte-bound moves keep their own precondition: a table under manual
-	// layout cannot be relocated by an automatic plan.
+	// A manual source table cannot be relocated by an automatic plan,
+	// independently of the commit's interpretation and revision checks.
 	if _, manual := s.layouts[move.kind]; manual {
 		return edit.ErrLayout
 	}

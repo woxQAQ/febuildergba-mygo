@@ -2,6 +2,7 @@
 package records
 
 import (
+	"bytes"
 	"fmt"
 	"maps"
 	"slices"
@@ -161,9 +162,35 @@ func (s *Editor) Set(
 		for i := range data {
 			data[i] = byte((value >> (i * 8)) & 0xFF)
 		}
+		offset := row.Address + field.Offset
+		if !bytes.Equal(s.image.Data[offset:offset+field.Width], data) {
+			region := space.Range{Start: offset, End: offset + field.Width}
+			var protectionErr error = space.ErrClaim
+			if s.protection.Range != nil {
+				protectionErr = s.protection.Range(
+					s.image.Data,
+					space.Owner{Resource: string(kind), ID: row.ID},
+					region,
+				)
+			}
+			if protectionErr != nil {
+				return fault.New(
+					edit.ErrLayout,
+					"game.protect_record_field",
+					fault.Context{
+						Range: &fault.Range{
+							Offset: offset,
+							Length: field.Width,
+							Size:   len(s.image.Data),
+						},
+					},
+					protectionErr,
+				)
+			}
+		}
 		changes = append(
 			changes,
-			rom.Change{Offset: row.Address + field.Offset, Data: data},
+			rom.Change{Offset: offset, Data: data},
 		)
 	}
 	ctx.RecordID = nil

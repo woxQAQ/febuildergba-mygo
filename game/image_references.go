@@ -15,7 +15,8 @@ func (s *Session) imageReferences(
 	g := s.format
 	result := s.Records.ImageReferences(data, ref)
 	for _, claim := range s.claims(data) {
-		if ref.Kind == graphics.ItemIcon &&
+		if ref.Kind == graphics.ItemIcon && claim.Site &&
+			claim.Owner == (space.Owner{Resource: "itemicon"}) &&
 			claim.Range == (space.Range{Start: g.icons.Pointer, End: g.icons.Pointer + 4}) {
 			continue
 		}
