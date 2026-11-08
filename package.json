@@ -2,6 +2,6 @@
   "name": "febuildergba-mygo",
   "private": true,
   "devDependencies": {
-    "@iconify-json/feather": "1.2.1"
+    "@iconify-json/lucide": "1.2.151"
   }
 }

@@ -10,6 +10,7 @@ import (
 	"github.com/woxQAQ/febuildergba-mygo/game/event"
 	"github.com/woxQAQ/febuildergba-mygo/game/records"
 	"github.com/woxQAQ/febuildergba-mygo/internal/components"
+	"github.com/woxQAQ/febuildergba-mygo/internal/components/icons"
 	"github.com/woxQAQ/febuildergba-mygo/internal/components/mapview"
 	"github.com/woxQAQ/febuildergba-mygo/internal/editor"
 	"github.com/woxQAQ/febuildergba-mygo/internal/locales"
@@ -102,7 +103,7 @@ func (v *Page) locationRows(
 	}
 	ui.Row(c).Wrap().Gap(8).AlignItems(ui.Center).Children(func() {
 		ui.Text(c, locales.LocationEvents()).Bold().Grow(1)
-		components.ActionButton(c, "⧉", locales.LocationCopy()).
+		components.ActionButton(c, icons.Lucide.Copy(), locales.LocationCopy()).
 			Disabled(state.Busy || stale).
 			OnClick(func() {
 				state.SetErr(entry.data.CopyLocation(entry.selected))
@@ -112,7 +113,7 @@ func (v *Page) locationRows(
 					entry.location = locationInteraction{}
 				}
 			})
-		components.ActionButton(c, "−", locales.LocationRemove()).
+		components.ActionButton(c, icons.Lucide.Trash(), locales.LocationRemove()).
 			Disabled(state.Busy || stale).
 			OnClick(func() { state.SetErr(entry.removeSelected()) })
 	})
@@ -131,7 +132,7 @@ func (v *Page) locationTools(
 		MaxWidthPercent(100).
 		AlignItems(ui.Center).
 		Children(func() {
-			components.ActionButton(c, "+", locales.LocationAdd()).
+			components.ActionButton(c, icons.Lucide.Plus(), locales.LocationAdd()).
 				Tooltip(locales.LocationScope()).
 				Disabled(disabled || entry.location.adding).
 				OnClick(func() { entry.location = locationInteraction{adding: true} })

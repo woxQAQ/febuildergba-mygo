@@ -99,10 +99,16 @@ func (p *Page) relatedEvents(
 										FontSize(components.FontCaption).
 										TextColor(c.Theme().TextMuted)
 								})
-							ui.Button(c, locales.Label("worldmap_open_event")).
-								Shrink(0).
-								Disabled(p.state.Busy || p.openScript == nil).
-								OnClick(func() { p.openScript(event.WorldMapScripts, entry.Pointer) })
+							components.ReferenceLink(
+								c,
+								locales.Label(
+									"worldmap_open_event",
+								)+" / "+worldMapEventCaption(
+									entry,
+								),
+								p.state.Busy || p.openScript == nil,
+								func() { p.openScript(event.WorldMapScripts, entry.Pointer) },
+							)
 						})
 				}
 			})

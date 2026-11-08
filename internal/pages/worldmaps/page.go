@@ -433,52 +433,75 @@ func (p *Page) fields(
 						entry.inputs[field] = inputState
 					}
 					options := p.options(field)
-					var control ui.Element
-					if len(options) > 0 {
-						control = ui.Autocomplete(
-							c.Key("value"),
-							&inputState.text,
-							options,
-						)
-					} else {
-						control = ui.TextInput(c.Key("value"), &inputState.text).
-							TextAlign(ui.End)
-					}
-					components.TextDraft(
-						p.state,
-						control.Label(label).Tooltip(fieldHelp(field)).
-							FontFeatures("tnum").
-							Disabled(disabled).OnChange(func() {
-							entry.plan, entry.err = nil, nil
-							text, _, _ := strings.Cut(inputState.text, " · ")
-							parsed, err := input.ParseInteger(text)
-							minimum, maximum := field.Bounds()
-							inputState.invalid = err != nil ||
-								parsed < int64(minimum) ||
-								parsed > int64(maximum)
-							if !inputState.invalid {
-								inputState.invalid = entry.draft.Set(
-									field,
-									int(parsed),
-								) != nil
+					ui.Row(c.Key("reference")).
+						Gap(4).
+						AlignItems(ui.Center).
+						Children(func() {
+							var control ui.Element
+							if len(options) > 0 {
+								control = ui.Autocomplete(
+									c.Key("value"),
+									&inputState.text,
+									options,
+								)
+							} else {
+								control = ui.TextInput(c.Key("value"), &inputState.text).
+									TextAlign(ui.End)
 							}
-						}),
-					)
-					if inputState.invalid {
-						minimum, maximum := field.Bounds()
-						control.Error(fmt.Sprintf("%d…%d", minimum, maximum))
-					}
-					if field == worldmap.EirikaChapter ||
-						field == worldmap.EphraimChapter {
-						ui.Button(c, locales.WorldmapOpenChapter()).
-							Disabled(p.state.Busy || inputState.invalid || p.openRecord == nil || !p.chapterExists(value)).
-							OnClick(func() { p.openRecord(records.Chapters, value) })
-					} else if field >= worldmap.EirikaNext &&
-						field <= worldmap.EphraimAlternate {
-						ui.Button(c, locales.WorldmapOpenNode()).
-							Disabled(p.state.Busy || inputState.invalid || value < 0 || value >= worldmap.NodeCount).
-							OnClick(func() { p.Open(value) })
-					}
+							control.Grow(1).MinWidth(0)
+							components.TextDraft(
+								p.state,
+								control.Label(label).Tooltip(fieldHelp(field)).
+									FontFeatures("tnum").
+									Disabled(disabled).OnChange(func() {
+									entry.plan, entry.err = nil, nil
+									text, _, _ := strings.Cut(
+										inputState.text,
+										" · ",
+									)
+									parsed, err := input.ParseInteger(text)
+									minimum, maximum := field.Bounds()
+									inputState.invalid = err != nil ||
+										parsed < int64(minimum) ||
+										parsed > int64(maximum)
+									if !inputState.invalid {
+										inputState.invalid = entry.draft.Set(
+											field,
+											int(parsed),
+										) != nil
+									}
+								}),
+							)
+							if inputState.invalid {
+								minimum, maximum := field.Bounds()
+								control.Error(
+									fmt.Sprintf("%d…%d", minimum, maximum),
+								)
+							}
+							if field == worldmap.EirikaChapter ||
+								field == worldmap.EphraimChapter {
+								components.ReferenceLink(
+									c,
+									locales.OpenReference(
+										fmt.Sprintf("%s %02X", label, value),
+									),
+									p.state.Busy || inputState.invalid || p.openRecord == nil ||
+										!p.chapterExists(value),
+									func() { p.openRecord(records.Chapters, value) },
+								)
+							} else if field >= worldmap.EirikaNext &&
+								field <= worldmap.EphraimAlternate {
+								components.ReferenceLink(
+									c,
+									locales.OpenReference(
+										fmt.Sprintf("%s %02X", label, value),
+									),
+									p.state.Busy || inputState.invalid || value < 0 ||
+										value >= worldmap.NodeCount,
+									func() { p.Open(value) },
+								)
+							}
+						})
 				})
 		}
 	})

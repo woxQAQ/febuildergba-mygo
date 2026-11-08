@@ -10,6 +10,7 @@ import (
 
 	"github.com/woxQAQ/febuildergba-mygo/game/event"
 	"github.com/woxQAQ/febuildergba-mygo/internal/components"
+	"github.com/woxQAQ/febuildergba-mygo/internal/components/icons"
 	"github.com/woxQAQ/febuildergba-mygo/internal/locales"
 )
 
@@ -144,7 +145,7 @@ func (page *Page) movement(
 					control.Error(fmt.Sprintf("%d…127", minimum))
 				}
 			}
-			components.ActionButton(c, "−", locales.ScriptDelete()).
+			components.ActionButton(c, icons.Lucide.Trash(), locales.ScriptDelete()).
 				Disabled(disabled || index == len(steps)-1).
 				OnClick(func() { update(slices.Delete(slices.Clone(steps), index, index+1), -1) })
 			ui.Button(c, locales.MoveUp()).

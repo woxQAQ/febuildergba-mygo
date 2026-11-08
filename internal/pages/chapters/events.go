@@ -11,6 +11,7 @@ import (
 	"github.com/woxQAQ/febuildergba-mygo/game/records"
 	"github.com/woxQAQ/febuildergba-mygo/game/shop"
 	"github.com/woxQAQ/febuildergba-mygo/internal/components"
+	"github.com/woxQAQ/febuildergba-mygo/internal/components/icons"
 	"github.com/woxQAQ/febuildergba-mygo/internal/components/shopview"
 	"github.com/woxQAQ/febuildergba-mygo/internal/editor"
 	"github.com/woxQAQ/febuildergba-mygo/internal/locales"
@@ -233,7 +234,7 @@ func (v *Page) talkEditor(
 						entry.preview = nil
 					}
 				})
-			components.ActionButton(c, "−", labels.remove).
+			components.ActionButton(c, icons.Lucide.Trash(), labels.remove).
 				Disabled(state.Busy || stale || len(events) == 0).
 				OnClick(func() { state.SetErr(entry.removeSelected()) })
 		})

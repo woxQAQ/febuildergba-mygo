@@ -10,6 +10,7 @@ import (
 	"github.com/woxQAQ/febuildergba-mygo/game/maps"
 	"github.com/woxQAQ/febuildergba-mygo/game/records"
 	"github.com/woxQAQ/febuildergba-mygo/internal/components"
+	"github.com/woxQAQ/febuildergba-mygo/internal/components/icons"
 	"github.com/woxQAQ/febuildergba-mygo/internal/components/mapview"
 	"github.com/woxQAQ/febuildergba-mygo/internal/editor"
 	"github.com/woxQAQ/febuildergba-mygo/internal/locales"
@@ -164,7 +165,26 @@ func (v *Page) mapEditor(
 				entry.resizeControls(c, state, disabled)
 			}
 			ui.Row(c).Wrap().Gap(12).AlignItems(ui.Center).Children(func() {
-				ui.Segmented(c.Key("map-tools"), &entry.tool, locales.MapBrush(), locales.MapRectangle(), locales.MapEyedropper(), locales.MapPan()).
+				components.IconSegments(
+					c.Key("map-tools"),
+					&entry.tool,
+					components.IconOption{
+						Icon:  icons.Lucide.Paintbrush(),
+						Label: locales.MapBrush(),
+					},
+					components.IconOption{
+						Icon:  icons.Lucide.Square(),
+						Label: locales.MapRectangle(),
+					},
+					components.IconOption{
+						Icon:  icons.Lucide.Pipette(),
+						Label: locales.MapEyedropper(),
+					},
+					components.IconOption{
+						Icon:  icons.Lucide.Hand(),
+						Label: locales.MapPan(),
+					},
+				).
 					Label(locales.MapTools()).
 					Tooltip(locales.MapEditHelp()).
 					Disabled(disabled)
@@ -336,10 +356,10 @@ func (v *Page) mapActions(
 		return
 	}
 	ui.Row(c).Wrap().Gap(8).AlignItems(ui.Center).Children(func() {
-		ui.Button(c, locales.MapUndo()).
+		components.ActionButton(c, icons.Lucide.CornerUpLeft(), locales.MapUndo()).
 			Disabled(disabled || !entry.data.CanUndo()).
 			OnClick(undo)
-		ui.Button(c, locales.MapRedo()).
+		components.ActionButton(c, icons.Lucide.CornerUpRight(), locales.MapRedo()).
 			Disabled(disabled || !entry.data.CanRedo()).
 			OnClick(redo)
 		ui.Button(c, locales.MapPreviewEdit()).

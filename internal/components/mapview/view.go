@@ -118,16 +118,10 @@ func (v *View) resetView() {
 // resetButton offers the one-click recovery from a deviated viewport as a
 // compact icon button, keeping the toolbar free of it at the default view.
 func (v *View) resetButton(c *ui.Context) {
-	ui.ButtonBase(c.Key("reset-view")).
+	components.ActionButton(c.Key("reset-view"), icons.Lucide.RotateCcw(), locales.MapResetView()).
 		Size(24, 24).
-		Radius(4).
-		FocusRing(true).
-		Label(locales.MapResetView()).
 		Tooltip(locales.MapResetViewHelp()).
-		OnClick(v.resetView).
-		Children(func() {
-			ui.Icon(c, icons.Feather.RotateCcw)
-		})
+		OnClick(v.resetView)
 }
 
 func (v *View) render(c *ui.Context, overlay Overlay) {
@@ -169,7 +163,12 @@ func (v *View) render(c *ui.Context, overlay Overlay) {
 						v.scroll.X *= v.scale() / beforeScale
 					}
 					grid := &v.grid
-					ui.Checkbox(c.Key("grid"), grid, locales.MapGrid())
+					components.ActionToggle(
+						c.Key("grid"),
+						grid,
+						icons.Lucide.Grid2x2(),
+						locales.MapGrid(),
+					)
 					if v.deviated() {
 						v.resetButton(c)
 					}

@@ -10,6 +10,7 @@ import (
 	"github.com/egoist/mygo/i18n"
 	"github.com/egoist/mygo/ui"
 
+	"github.com/woxQAQ/febuildergba-mygo/internal/components/icons"
 	"github.com/woxQAQ/febuildergba-mygo/internal/editor"
 	"github.com/woxQAQ/febuildergba-mygo/internal/locales"
 )
@@ -88,7 +89,7 @@ func ErrorBanner(c *ui.Context, state *editor.State) {
 				Grow(1).
 				Selectable().
 				Tooltip(state.Err.Error())
-			ui.Button(c, locales.Dismiss()).
+			ActionButton(c, icons.Lucide.X(), locales.Dismiss()).
 				OnClick(func() { state.SetErr(nil) })
 		})
 }

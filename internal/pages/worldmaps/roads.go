@@ -9,6 +9,7 @@ import (
 
 	"github.com/woxQAQ/febuildergba-mygo/game/worldmap"
 	"github.com/woxQAQ/febuildergba-mygo/internal/components"
+	"github.com/woxQAQ/febuildergba-mygo/internal/components/icons"
 	"github.com/woxQAQ/febuildergba-mygo/internal/editor"
 	"github.com/woxQAQ/febuildergba-mygo/internal/locales"
 )
@@ -94,10 +95,10 @@ func (p *Page) roadHistory(c *ui.Context, s *routeState, disabled bool) {
 		s.clearRoadGesture()
 	}
 	ui.Row(c.Key("road-history")).Wrap().Gap(8).Children(func() {
-		ui.Button(c, locales.WorldmapUndoRoad()).
+		components.ActionButton(c, icons.Lucide.CornerUpLeft(), locales.WorldmapUndoRoad()).
 			Disabled(disabled || !road.CanUndo()).
 			OnClick(undo)
-		ui.Button(c, locales.WorldmapRedoRoad()).
+		components.ActionButton(c, icons.Lucide.CornerUpRight(), locales.WorldmapRedoRoad()).
 			Disabled(disabled || !road.CanRedo()).
 			OnClick(redo)
 	})
@@ -133,11 +134,35 @@ func (p *Page) roadTools(c *ui.Context, s *routeState, disabled bool) {
 		Gap(8).
 		AlignItems(ui.Center).
 		Children(func() {
-			ui.Tabs(c.Key("tool"), &r.tool, locales.WorldmapInspect(), locales.MapBrush(), locales.WorldmapEraseRoad(), locales.MapEyedropper(), locales.MapPan()).
+			components.IconSegments(
+				c.Key("tool"),
+				&r.tool,
+				components.IconOption{
+					Icon:  icons.Lucide.MousePointer2(),
+					Label: locales.WorldmapInspect(),
+				},
+				components.IconOption{
+					Icon:  icons.Lucide.Paintbrush(),
+					Label: locales.MapBrush(),
+				},
+				components.IconOption{
+					Icon:  icons.Lucide.Eraser(),
+					Label: locales.WorldmapEraseRoad(),
+				},
+				components.IconOption{
+					Icon:  icons.Lucide.Pipette(),
+					Label: locales.MapEyedropper(),
+				},
+				components.IconOption{
+					Icon:  icons.Lucide.Hand(),
+					Label: locales.MapPan(),
+				},
+			).
 				Label(locales.WorldmapRoadTools()).
 				Disabled(disabled).
 				OnChange(func() { s.clearRoadGesture(); s.placing = false })
-			ui.Checkbox(c, &r.grid, locales.MapGrid()).Disabled(disabled)
+			components.ActionToggle(c, &r.grid, icons.Lucide.Grid2x2(), locales.MapGrid()).
+				Disabled(disabled)
 		})
 	if roadTool(r.tool) == roadInspect || roadTool(r.tool) == roadPan {
 		return
@@ -153,9 +178,9 @@ func (p *Page) roadTools(c *ui.Context, s *routeState, disabled bool) {
 			Children(func() {
 				ui.Textf(c, "%s %02X", locales.MapTile(), r.brush.Tile).
 					FontFeatures("tnum")
-				ui.Checkbox(c, &r.brush.FlipX, locales.WorldmapFlipX()).
+				components.ActionToggle(c, &r.brush.FlipX, icons.Lucide.FlipHorizontal(), locales.WorldmapFlipX()).
 					Disabled(disabled)
-				ui.Checkbox(c, &r.brush.FlipY, locales.WorldmapFlipY()).
+				components.ActionToggle(c, &r.brush.FlipY, icons.Lucide.FlipVertical(), locales.WorldmapFlipY()).
 					Disabled(disabled)
 			})
 		width, _ := c.Size()

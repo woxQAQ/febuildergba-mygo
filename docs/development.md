@@ -95,9 +95,9 @@ with-env { MYGO_LOCALE: "en" } { just run }
 
 ## 图标
 
-界面图标来自 [@iconify-json](https://iconify.design/) 图标集：`package.json` 在 `devDependencies` 中声明需要的集（如 `@iconify-json/feather`），`just icons` 安装依赖并由 `cmd/iconify-gen` 把每个集生成为 `internal/components/icons/<集>_gen.go`：集是一个命名空间变量，图标是其 `ui.SVG` 字段，按 `icons.<Set>.<Icon>` 引用（kebab-case 转 CamelCase）。生成文件与 `pnpm-lock.yaml` 一起提交，`node_modules/` 不入库。
+界面图标统一使用 [Lucide](https://lucide.dev/)，由 `package.json` 的 `@iconify-json/lucide` 开发依赖提供。`just icons` 安装依赖并由 `cmd/iconify-gen` 生成 `internal/components/icons/lucide_gen.go`，组件和页面直接按 `icons.Lucide.Plus()` 等方法引用（kebab-case 转 CamelCase）。每个图标拥有独立的零值 `sync.Once` 与 SVG 指针，在首次调用时解析，后续调用安全地复用同一个 SVG；并发首次调用也只解析一次。图标状态不使用包初始化表达式引用 SVG，未引用的方法、缓存和 SVG 字符串可由 Go 链接器裁剪，整套图标不会在包初始化时解析。生成文件与 `pnpm-lock.yaml` 一起提交，`node_modules/` 不入库。
 
-生成器以集合级 24×24 网格为默认值并保留每个图标的 viewBox 覆盖；使用 rotate／flip 变换或别名（alias）的条目会报错而不是静默渲染错误，`hidden` 条目跳过。接入需要这些能力的集合时，先扩展生成器。
+生成器以集合级 24×24 网格为默认值并保留每个图标的 viewBox 覆盖；支持纯名称别名（alias）及其引用链，继承原图标的几何数据。`hidden` 条目跳过；归一化后同名且内容相同的条目共用方法，不同内容的名称冲突会报错。rotate／flip 变换、别名属性覆盖、缺失或循环引用仍会报错。
 
 ## 打包
 

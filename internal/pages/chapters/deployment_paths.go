@@ -10,6 +10,7 @@ import (
 	"github.com/woxQAQ/febuildergba-mygo/game/deployment"
 	"github.com/woxQAQ/febuildergba-mygo/game/records"
 	"github.com/woxQAQ/febuildergba-mygo/internal/components"
+	"github.com/woxQAQ/febuildergba-mygo/internal/components/icons"
 	"github.com/woxQAQ/febuildergba-mygo/internal/components/mapview"
 	"github.com/woxQAQ/febuildergba-mygo/internal/editor"
 	"github.com/woxQAQ/febuildergba-mygo/internal/locales"
@@ -196,7 +197,7 @@ func (v *Page) pathEditor(
 			}
 			if column > len(fields) {
 				point, selected := v.mapView.Selection()
-				components.ActionButton(c, "⌖", fmt.Sprintf("%s %02X", locales.MovePlace(), node)).
+				components.ActionButton(c, icons.Lucide.Crosshair(), fmt.Sprintf("%s %02X", locales.MovePlace(), node)).
 					Disabled(disabled || !selected).
 					OnClick(func() { state.SetErr(entry.placePathStep(node, point)) })
 				return
@@ -215,18 +216,18 @@ func (v *Page) pathEditor(
 	}
 	ui.Row(c).Wrap().Gap(6).Children(func() {
 		for _, action := range []struct {
-			symbol  string
+			icon    *ui.SVG
 			label   string
 			enabled bool
 			run     func() error
 		}{
-			{"+", locales.MoveAdd(), len(steps) < deployment.MaxMovementSteps, entry.addPathStep},
-			{"⧉", locales.MoveDuplicate(), len(steps) > 0 && len(steps) < deployment.MaxMovementSteps, entry.duplicatePathStep},
-			{"−", locales.MoveRemove(), len(steps) > 0, entry.removePathStep},
-			{"↑", locales.MoveUp(), path.selected > 0, func() error { return entry.movePathStep(path.selected - 1) }},
-			{"↓", locales.MoveDown(), path.selected+1 < len(steps), func() error { return entry.movePathStep(path.selected + 1) }},
+			{icons.Lucide.Plus(), locales.MoveAdd(), len(steps) < deployment.MaxMovementSteps, entry.addPathStep},
+			{icons.Lucide.Copy(), locales.MoveDuplicate(), len(steps) > 0 && len(steps) < deployment.MaxMovementSteps, entry.duplicatePathStep},
+			{icons.Lucide.Trash(), locales.MoveRemove(), len(steps) > 0, entry.removePathStep},
+			{icons.Lucide.ArrowUp(), locales.MoveUp(), path.selected > 0, func() error { return entry.movePathStep(path.selected - 1) }},
+			{icons.Lucide.ArrowDown(), locales.MoveDown(), path.selected+1 < len(steps), func() error { return entry.movePathStep(path.selected + 1) }},
 		} {
-			components.ActionButton(c, action.symbol, action.label).
+			components.ActionButton(c, action.icon, action.label).
 				Disabled(disabled || !action.enabled).
 				OnClick(func() { state.SetErr(action.run()) })
 		}

@@ -11,6 +11,7 @@ import (
 	"github.com/woxQAQ/febuildergba-mygo/game/event"
 	"github.com/woxQAQ/febuildergba-mygo/game/worldmap"
 	"github.com/woxQAQ/febuildergba-mygo/internal/components"
+	"github.com/woxQAQ/febuildergba-mygo/internal/components/icons"
 	"github.com/woxQAQ/febuildergba-mygo/internal/input"
 	"github.com/woxQAQ/febuildergba-mygo/internal/locales"
 )
@@ -323,27 +324,45 @@ func (p *Page) routeEndpoints(c *ui.Context, s *routeState, disabled bool) {
 				Children(func() {
 					ui.Text(c, label)
 					options := p.options(worldmap.EirikaNext)[1:]
-					control := ui.Autocomplete(c.Key("node"), &s.nodes[i].text, options).
-						Label(label).
-						Disabled(disabled).
-						OnChange(func() {
-							s.plan, s.err = nil, nil
-							text, _, _ := strings.Cut(s.nodes[i].text, " · ")
-							id, err := input.ParseInteger(text)
-							s.nodes[i].invalid = err != nil || id < 0 ||
-								id >= worldmap.NodeCount
-							if !s.nodes[i].invalid {
-								s.err = s.draft.SetNode(i, int(id))
+					ui.Row(c.Key("reference")).
+						Gap(4).
+						AlignItems(ui.Center).
+						Children(func() {
+							control := ui.Autocomplete(c.Key("node"), &s.nodes[i].text, options).
+								Grow(1).
+								MinWidth(0).
+								Label(label).
+								Disabled(disabled).
+								OnChange(func() {
+									s.plan, s.err = nil, nil
+									text, _, _ := strings.Cut(
+										s.nodes[i].text,
+										" · ",
+									)
+									id, err := input.ParseInteger(text)
+									s.nodes[i].invalid = err != nil || id < 0 ||
+										id >= worldmap.NodeCount
+									if !s.nodes[i].invalid {
+										s.err = s.draft.SetNode(i, int(id))
+									}
+								})
+							components.TextDraft(p.state, control)
+							if s.nodes[i].invalid {
+								control.Error(
+									fmt.Sprintf("0…%d", worldmap.NodeCount-1),
+								)
 							}
+							id := s.draft.Route().Nodes[i]
+							components.ReferenceLink(
+								c,
+								locales.OpenReference(
+									fmt.Sprintf("%s %02X", label, id),
+								),
+								p.state.Busy || s.nodes[i].invalid || id < 0 ||
+									id >= worldmap.NodeCount,
+								func() { p.Open(id) },
+							)
 						})
-					components.TextDraft(p.state, control)
-					if s.nodes[i].invalid {
-						control.Error(fmt.Sprintf("0…%d", worldmap.NodeCount-1))
-					}
-					id := s.draft.Route().Nodes[i]
-					ui.Button(c, locales.WorldmapOpenNode()).
-						Disabled(p.state.Busy || s.nodes[i].invalid || id < 0 || id >= worldmap.NodeCount).
-						OnClick(func() { p.Open(id) })
 				})
 		}
 	})
@@ -360,7 +379,7 @@ func (p *Page) movementPoints(c *ui.Context, s *routeState, disabled bool) {
 			FontSize(components.FontCaption).
 			TextColor(c.Theme().TextMuted)
 		ui.Row(c.Key("point-tools")).Wrap().Gap(8).Children(func() {
-			components.ActionButton(c, "+", locales.WorldmapAddPoint()).
+			components.ActionButton(c, icons.Lucide.Plus(), locales.WorldmapAddPoint()).
 				Disabled(disabled || s.invalid() || len(s.points) >= worldmap.MaxMovementPoints).
 				OnClick(func() {
 					points := s.draft.Route().Points()
@@ -482,23 +501,21 @@ func (p *Page) movementPoints(c *ui.Context, s *routeState, disabled bool) {
 												)
 											}
 										}
-										ui.Button(c.Key("up"), "↑").
-											Label(fmt.Sprintf("%s %d", locales.WorldmapMoveUp(), index+1)).
+										components.ActionButton(c.Key("up"), icons.Lucide.ArrowUp(), fmt.Sprintf("%s %d", locales.WorldmapMoveUp(), index+1)).
 											Disabled(disabled || index == 0).
 											OnClick(func() {
 												s.points[index-1], s.points[index] = s.points[index], s.points[index-1]
 												s.selected = index - 1
 												s.syncPoints()
 											})
-										ui.Button(c.Key("down"), "↓").
-											Label(fmt.Sprintf("%s %d", locales.WorldmapMoveDown(), index+1)).
+										components.ActionButton(c.Key("down"), icons.Lucide.ArrowDown(), fmt.Sprintf("%s %d", locales.WorldmapMoveDown(), index+1)).
 											Disabled(disabled || index+1 == len(s.points)).
 											OnClick(func() {
 												s.points[index+1], s.points[index] = s.points[index], s.points[index+1]
 												s.selected = index + 1
 												s.syncPoints()
 											})
-										components.ActionButton(c.Key("remove"), "−", fmt.Sprintf("%s %d", locales.WorldmapRemovePoint(), index+1)).
+										components.ActionButton(c.Key("remove"), icons.Lucide.Trash(), fmt.Sprintf("%s %d", locales.WorldmapRemovePoint(), index+1)).
 											Disabled(disabled).
 											OnClick(func() {
 												s.points = slices.Delete(

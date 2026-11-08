@@ -1,8 +1,8 @@
 // Command iconify-gen converts the @iconify-json/* icon sets installed
 // by pnpm into Go source under internal/components/icons: one file per
-// set, exposing its icons as fields of a namespace variable referenced
-// as icons.cSete.cIcone. Run it through `just icons` after changing the
-// icon dependencies; commit the generated files.
+// set, exposing cached icon methods as icons.<Set>.<Icon>().
+// Run it through `just icons` after changing the icon dependencies;
+// commit the generated files.
 package main
 
 import (
@@ -17,10 +17,9 @@ import (
 
 const iconsDir = "internal/components/icons"
 
-// setDoc mirrors the Iconify icons.json format. Entries using rotate or
-// flip transforms and alias entries are rejected until a consumer
-// actually needs them; hidden entries are skipped as the format marks
-// them kept only for backward compatibility.
+// setDoc mirrors the Iconify icons.json format. Name-only aliases inherit
+// their parent's geometry. Entries using transforms or alias overrides are
+// rejected until needed; hidden entries are skipped.
 type setDoc struct {
 	Prefix string `json:"prefix"`
 	Width  int    `json:"width"`
@@ -129,18 +128,54 @@ func packageInfo(set string) (version, license string) {
 	return manifest.Version, manifest.License
 }
 
-// generate renders one Go file holding the set's visible icons as fields
-// of a single namespace variable, referenced as icons.<Set>.<Icon>.
+// generate renders one Go file with a zero-size namespace and independent
+// caches, so unused icons, synchronization state and SVG strings can be linked out.
 func generate(set, version, license string, data []byte) ([]byte, error) {
 	var doc setDoc
 	if err := json.Unmarshal(data, &doc); err != nil {
 		return nil, fmt.Errorf("parse set %s: %w", set, err)
 	}
-	if len(doc.Aliases) != 0 {
-		return nil, fmt.Errorf(
-			"set %s uses aliases, which we do not resolve",
-			set,
-		)
+	// Resolve name-only aliases before generating methods, including alias chains.
+	parents := make(map[string]string, len(doc.Aliases))
+	for name, data := range doc.Aliases {
+		var properties map[string]json.RawMessage
+		if err := json.Unmarshal(data, &properties); err != nil {
+			return nil, fmt.Errorf("set %s alias %q: %w", set, name, err)
+		}
+		var parent string
+		if len(properties) != 1 ||
+			json.Unmarshal(properties["parent"], &parent) != nil ||
+			parent == "" {
+			return nil, fmt.Errorf(
+				"set %s alias %q: only name-only aliases are supported",
+				set,
+				name,
+			)
+		}
+		if _, exists := doc.Icons[name]; exists {
+			return nil, fmt.Errorf(
+				"set %s alias %q duplicates an icon",
+				set,
+				name,
+			)
+		}
+		parents[name] = parent
+	}
+	for len(parents) > 0 {
+		resolved := false
+		for name, parent := range parents {
+			if icon, exists := doc.Icons[parent]; exists {
+				doc.Icons[name] = icon
+				delete(parents, name)
+				resolved = true
+			}
+		}
+		if !resolved {
+			return nil, fmt.Errorf(
+				"set %s has aliases with missing or cyclic parents",
+				set,
+			)
+		}
 	}
 	if doc.Prefix == "" {
 		doc.Prefix = set
@@ -174,6 +209,7 @@ func generate(set, version, license string, data []byte) ([]byte, error) {
 		left, top, width, height int
 	}
 	var fields []field
+	identifiers := make(map[string]int, len(names))
 	for _, name := range names {
 		icon := doc.Icons[name]
 		if icon.Rotate != 0 || icon.HFlip || icon.VFlip {
@@ -197,51 +233,72 @@ func generate(set, version, license string, data []byte) ([]byte, error) {
 		if height == 0 {
 			height = doc.Height
 		}
-		fields = append(fields, field{
+		entry := field{
 			name:   name,
 			body:   icon.Body,
 			left:   icon.Left,
 			top:    icon.Top,
 			width:  width,
 			height: height,
-		})
+		}
+		identifier := pascal(name)
+		if index, exists := identifiers[identifier]; exists {
+			previous := fields[index]
+			previous.name = name
+			if previous != entry {
+				return nil, fmt.Errorf(
+					"set %s icons %q and %q share Go name %s",
+					set,
+					fields[index].name,
+					name,
+					identifier,
+				)
+			}
+			continue
+		}
+		identifiers[identifier] = len(fields)
+		fields = append(fields, entry)
 	}
 	if len(fields) == 0 {
 		return nil, fmt.Errorf("set %s has no visible icons", set)
 	}
 
 	setName := pascal(doc.Prefix)
+	privateName := strings.ToLower(setName[:1]) + setName[1:]
 	fmt.Fprintf(
 		&b,
-		"\n// %s holds the icons of the %s set.\nvar %s = struct {\n",
+		"\n// %s provides lazily parsed icons from the %s set.\nvar %s %sSet\n\ntype %sSet struct{}\n",
 		setName,
 		doc.Prefix,
 		setName,
+		privateName,
+		privateName,
 	)
 	for _, f := range fields {
+		name := pascal(f.name)
 		fmt.Fprintf(
 			&b,
-			"\t// %s is the %q icon of the %s set.\n\t%s *ui.SVG\n",
-			pascal(f.name),
+			"\nvar %s%s cachedIcon\n\n// %s returns the cached %q icon of the %s set.\nfunc (%sSet) %s() *ui.SVG {\n\t%s%s.once.Do(func() {\n\t\t%s%s.svg = ui.MustParseSVG([]byte(`<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"%d %d %d %d\">%s</svg>`))\n\t})\n\treturn %s%s.svg\n}\n",
+			privateName,
+			name,
+			name,
 			f.name,
 			doc.Prefix,
-			pascal(f.name),
-		)
-	}
-	b.WriteString("}{\n")
-	for _, f := range fields {
-		fmt.Fprintf(
-			&b,
-			"\t%s: ui.MustParseSVG([]byte(`<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"%d %d %d %d\">%s</svg>`)),\n",
-			pascal(f.name),
+			privateName,
+			name,
+			privateName,
+			name,
+			privateName,
+			name,
 			f.left,
 			f.top,
 			f.width,
 			f.height,
 			f.body,
+			privateName,
+			name,
 		)
 	}
-	b.WriteString("}\n")
 
 	source, err := format.Source([]byte(b.String()))
 	if err != nil {
@@ -260,7 +317,8 @@ func pascal(name string) string {
 		if part == "" {
 			continue
 		}
-		b.WriteString(strings.ToUpper(part[:1]) + part[1:])
+		b.WriteString(strings.ToUpper(part[:1]))
+		b.WriteString(part[1:])
 	}
 	result := b.String()
 	if result == "" || result[0] >= '0' && result[0] <= '9' {

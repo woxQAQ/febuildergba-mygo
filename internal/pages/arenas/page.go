@@ -11,6 +11,7 @@ import (
 	"github.com/woxQAQ/febuildergba-mygo/game/arena"
 	"github.com/woxQAQ/febuildergba-mygo/game/records"
 	"github.com/woxQAQ/febuildergba-mygo/internal/components"
+	"github.com/woxQAQ/febuildergba-mygo/internal/components/icons"
 	"github.com/woxQAQ/febuildergba-mygo/internal/editor"
 	"github.com/woxQAQ/febuildergba-mygo/internal/input"
 	"github.com/woxQAQ/febuildergba-mygo/internal/locales"
@@ -340,9 +341,13 @@ func (p *Page) field(
 		if field.invalid {
 			control.Error(locales.ArenaValueHelp())
 		}
-		ui.Button(c, locales.ArenaOpenRecord()).
-			Disabled(p.state.Busy || row.Value == 0 || row.Value > 255 || p.openRecord == nil).
-			OnClick(func() { p.openRecord(recordKind(kind), int(row.Value)) })
+		components.ReferenceLink(
+			c,
+			locales.OpenReference(p.name(kind, row.Value)),
+			p.state.Busy || field.invalid || row.Value == 0 || row.Value > 255 ||
+				p.openRecord == nil,
+			func() { p.openRecord(recordKind(kind), int(row.Value)) },
+		)
 	})
 	if kind == arena.LinkUnits {
 		ui.Text(c, locales.ArenaLinkSlotHelp()).FontSize(components.FontCaption)
@@ -358,7 +363,7 @@ func (p *Page) structure(
 	disabled bool,
 ) {
 	ui.Row(c.Key("structure")).Wrap().Gap(6).Children(func() {
-		components.ActionButton(c, "+", locales.ArenaAdd()).
+		components.ActionButton(c, icons.Lucide.Plus(), locales.ArenaAdd()).
 			Disabled(disabled || len(rows) >= arena.MaxClasses).
 			OnClick(func() {
 				value := 1
@@ -371,7 +376,7 @@ func (p *Page) structure(
 					entry.plan = nil
 				}
 			})
-		components.ActionButton(c, "⧉", locales.ArenaCopy()).
+		components.ActionButton(c, icons.Lucide.Copy(), locales.ArenaCopy()).
 			Disabled(disabled || len(rows) == 0 || len(rows) >= arena.MaxClasses).
 			OnClick(func() {
 				entry.err = entry.draft.Insert(
@@ -384,7 +389,7 @@ func (p *Page) structure(
 					entry.plan = nil
 				}
 			})
-		components.ActionButton(c, "−", locales.ArenaDelete()).
+		components.ActionButton(c, icons.Lucide.Trash(), locales.ArenaDelete()).
 			Disabled(disabled || len(rows) == 0).
 			OnClick(func() {
 				entry.err = entry.draft.Delete(kind, selected)
@@ -394,13 +399,11 @@ func (p *Page) structure(
 				}
 			})
 		for _, direction := range []int{-1, 1} {
-			label, help := "↑", locales.MoveUp()
+			icon, help := icons.Lucide.ArrowUp(), locales.MoveUp()
 			if direction > 0 {
-				label, help = "↓", locales.MoveDown()
+				icon, help = icons.Lucide.ArrowDown(), locales.MoveDown()
 			}
-			ui.Button(c.Key(direction), label).
-				Label(help).
-				Tooltip(help).
+			components.ActionButton(c.Key(direction), icon, help).
 				Disabled(disabled || len(rows) == 0 || selected+direction < 0 || selected+direction >= len(rows)).
 				OnClick(func() {
 					entry.err = entry.draft.Move(

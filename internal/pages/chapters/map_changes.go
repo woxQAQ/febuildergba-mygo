@@ -11,6 +11,7 @@ import (
 	"github.com/woxQAQ/febuildergba-mygo/game/maps"
 	"github.com/woxQAQ/febuildergba-mygo/game/records"
 	"github.com/woxQAQ/febuildergba-mygo/internal/components"
+	"github.com/woxQAQ/febuildergba-mygo/internal/components/icons"
 	"github.com/woxQAQ/febuildergba-mygo/internal/components/mapview"
 	"github.com/woxQAQ/febuildergba-mygo/internal/editor"
 	"github.com/woxQAQ/febuildergba-mygo/internal/input"
@@ -230,10 +231,10 @@ func (v *Page) mapChangesEditor(
 				return
 			}
 			ui.Row(c).Wrap().Gap(8).AlignItems(ui.Center).Children(func() {
-				ui.Button(c, locales.MapUndo()).
+				components.ActionButton(c, icons.Lucide.CornerUpLeft(), locales.MapUndo()).
 					Disabled(disabled || !entry.data.CanUndo()).
 					OnClick(undo)
-				ui.Button(c, locales.MapRedo()).
+				components.ActionButton(c, icons.Lucide.CornerUpRight(), locales.MapRedo()).
 					Disabled(disabled || !entry.data.CanRedo()).
 					OnClick(redo)
 				ui.Button(c, locales.MapChangesReview()).
@@ -259,7 +260,26 @@ func (v *Page) mapChangesEditor(
 				}
 			})
 			ui.Row(c).Wrap().Gap(12).AlignItems(ui.Center).Children(func() {
-				ui.Tabs(c.Key("change-tools"), &entry.tool, locales.MapBrush(), locales.MapRectangle(), locales.MapEyedropper(), locales.MapPan()).
+				components.IconSegments(
+					c.Key("change-tools"),
+					&entry.tool,
+					components.IconOption{
+						Icon:  icons.Lucide.Paintbrush(),
+						Label: locales.MapBrush(),
+					},
+					components.IconOption{
+						Icon:  icons.Lucide.Square(),
+						Label: locales.MapRectangle(),
+					},
+					components.IconOption{
+						Icon:  icons.Lucide.Pipette(),
+						Label: locales.MapEyedropper(),
+					},
+					components.IconOption{
+						Icon:  icons.Lucide.Hand(),
+						Label: locales.MapPan(),
+					},
+				).
 					Label(locales.MapTools()).
 					Tooltip(locales.MapChangePaintHelp()).
 					Disabled(disabled || entry.pending())
@@ -346,7 +366,7 @@ func (v *Page) changeRows(
 		}
 	}
 	ui.Row(c).Wrap().Gap(8).Children(func() {
-		components.ActionButton(c, "+", locales.MapChangeAdd()).
+		components.ActionButton(c, icons.Lucide.Plus(), locales.MapChangeAdd()).
 			Disabled(disabled || entry.pending()).
 			OnClick(func() {
 				id, err := entry.data.FreeID()
@@ -359,7 +379,7 @@ func (v *Page) changeRows(
 					entry.refresh()
 				}
 			})
-		components.ActionButton(c, "⧉", locales.MapChangeCopy()).
+		components.ActionButton(c, icons.Lucide.Copy(), locales.MapChangeCopy()).
 			Disabled(disabled || entry.pending() || len(rows) == 0).
 			OnClick(func() {
 				id, err := entry.data.FreeID()
@@ -372,7 +392,7 @@ func (v *Page) changeRows(
 					entry.refresh()
 				}
 			})
-		components.ActionButton(c, "−", locales.MapChangeDelete()).
+		components.ActionButton(c, icons.Lucide.Trash(), locales.MapChangeDelete()).
 			Disabled(disabled || entry.pending() || len(rows) == 0).
 			OnClick(func() {
 				state.SetErr(entry.data.Delete(entry.selected))

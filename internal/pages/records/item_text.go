@@ -10,6 +10,7 @@ import (
 	"github.com/woxQAQ/febuildergba-mygo/game/edit"
 	"github.com/woxQAQ/febuildergba-mygo/game/records"
 	"github.com/woxQAQ/febuildergba-mygo/internal/components"
+	"github.com/woxQAQ/febuildergba-mygo/internal/components/icons"
 	"github.com/woxQAQ/febuildergba-mygo/internal/editor"
 	"github.com/woxQAQ/febuildergba-mygo/internal/locales"
 	"github.com/woxQAQ/febuildergba-mygo/rom"
@@ -43,12 +44,9 @@ func (a *form) itemTextAction(
 			OnClick(func() { a.beginItemTextChoice(key) })
 		return
 	}
-	ui.Button(c, "…").
-		Size(26, 26).
-		Padding(0).
+	components.ActionButton(c, icons.Lucide.Ellipsis(), locales.ItemTextActions(label)).
+		Width(26).
 		Bind(action).
-		Label(locales.ItemTextActions(label)).
-		Tooltip(locales.ItemTextActions(label)).
 		Disabled(a.state.Busy).
 		PopoverMenuButton(func(menu *ui.Menu) {
 			if menu.Item(locales.ItemChangeText()).

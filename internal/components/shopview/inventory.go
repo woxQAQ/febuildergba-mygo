@@ -10,6 +10,7 @@ import (
 	"github.com/woxQAQ/febuildergba-mygo/game/records"
 	"github.com/woxQAQ/febuildergba-mygo/game/shop"
 	"github.com/woxQAQ/febuildergba-mygo/internal/components"
+	"github.com/woxQAQ/febuildergba-mygo/internal/components/icons"
 	"github.com/woxQAQ/febuildergba-mygo/internal/editor"
 	"github.com/woxQAQ/febuildergba-mygo/internal/input"
 	"github.com/woxQAQ/febuildergba-mygo/internal/locales"
@@ -101,7 +102,7 @@ func (view *View) Render(
 	// this build. Keep the inspector on the nearest remaining inventory row.
 	view.selected = max(0, min(view.selected, len(items)-1))
 	ui.Row(c).Wrap().Gap(6).Children(func() {
-		components.ActionButton(c, "+", locales.ShopAdd()).
+		components.ActionButton(c, icons.Lucide.Plus(), locales.ShopAdd()).
 			Disabled(disabled || len(items) >= shop.MaxItems).
 			OnClick(func() {
 				if state.SetErr(inventory.Add(1)); state.Err == nil {
@@ -114,7 +115,7 @@ func (view *View) Render(
 					view.list.ScrollTo(view.selected, ui.Center)
 				}
 			})
-		components.ActionButton(c, "−", locales.ShopRemove()).
+		components.ActionButton(c, icons.Lucide.Trash(), locales.ShopRemove()).
 			Disabled(disabled || len(items) == 0).
 			OnClick(func() {
 				if state.SetErr(inventory.Remove(
@@ -133,11 +134,11 @@ func (view *View) Render(
 				}
 			})
 		for _, direction := range []int{-1, 1} {
-			label, caption := "↑", locales.MoveUp()
+			icon, caption := icons.Lucide.ArrowUp(), locales.MoveUp()
 			if direction > 0 {
-				label, caption = "↓", locales.MoveDown()
+				icon, caption = icons.Lucide.ArrowDown(), locales.MoveDown()
 			}
-			ui.Button(c.Key(direction), label).Label(caption).Tooltip(caption).
+			components.ActionButton(c.Key(direction), icon, caption).
 				Disabled(disabled || view.selected+direction < 0 || view.selected+direction >= len(items)).
 				OnClick(func() {
 					from, to := view.selected, view.selected+direction

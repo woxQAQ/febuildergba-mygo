@@ -9,6 +9,7 @@ import (
 
 	"github.com/woxQAQ/febuildergba-mygo/game/event"
 	"github.com/woxQAQ/febuildergba-mygo/internal/components"
+	"github.com/woxQAQ/febuildergba-mygo/internal/components/icons"
 	"github.com/woxQAQ/febuildergba-mygo/internal/input"
 	"github.com/woxQAQ/febuildergba-mygo/internal/locales"
 )
@@ -31,7 +32,7 @@ func (page *Page) commands(c *ui.Context, draft *draftState) {
 			Width(190).
 			Label(locales.ScriptNewCommand()).
 			Disabled(disabled)
-		components.ActionButton(c, "+", locales.ScriptInsert()).
+		components.ActionButton(c, icons.Lucide.Plus(), locales.ScriptInsert()).
 			Disabled(disabled).
 			OnClick(func() {
 				if index := slices.Index(labels, draft.command); index >= 0 {
@@ -44,18 +45,18 @@ func (page *Page) commands(c *ui.Context, draft *draftState) {
 				}
 			})
 		for _, action := range []struct {
-			symbol   string
+			icon     *ui.SVG
 			label    string
 			enabled  bool
 			run      func() error
 			selected int
 		}{
-			{"⧉", locales.ScriptCopy(), true, func() error { return draft.data.Duplicate(draft.selected) }, draft.selected + 1},
-			{"−", locales.ScriptDelete(), true, func() error { return draft.data.Remove(draft.selected) }, max(0, draft.selected-1)},
-			{"↑", locales.MoveUp(), draft.selected > 0, func() error { return draft.data.Move(draft.selected, draft.selected-1) }, draft.selected - 1},
-			{"↓", locales.MoveDown(), draft.selected+1 < len(draft.data.Instructions()), func() error { return draft.data.Move(draft.selected, draft.selected+1) }, draft.selected + 1},
+			{icons.Lucide.Copy(), locales.ScriptCopy(), true, func() error { return draft.data.Duplicate(draft.selected) }, draft.selected + 1},
+			{icons.Lucide.Trash(), locales.ScriptDelete(), true, func() error { return draft.data.Remove(draft.selected) }, max(0, draft.selected-1)},
+			{icons.Lucide.ArrowUp(), locales.MoveUp(), draft.selected > 0, func() error { return draft.data.Move(draft.selected, draft.selected-1) }, draft.selected - 1},
+			{icons.Lucide.ArrowDown(), locales.MoveDown(), draft.selected+1 < len(draft.data.Instructions()), func() error { return draft.data.Move(draft.selected, draft.selected+1) }, draft.selected + 1},
 		} {
-			components.ActionButton(c, action.symbol, action.label).
+			components.ActionButton(c, action.icon, action.label).
 				Disabled(disabled || !action.enabled).
 				OnClick(func() {
 					page.state.SetErr(action.run())

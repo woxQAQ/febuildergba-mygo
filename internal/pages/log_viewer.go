@@ -11,6 +11,7 @@ import (
 
 	"github.com/woxQAQ/febuildergba-mygo/internal/applog"
 	"github.com/woxQAQ/febuildergba-mygo/internal/components"
+	"github.com/woxQAQ/febuildergba-mygo/internal/components/icons"
 	"github.com/woxQAQ/febuildergba-mygo/internal/locales"
 )
 
@@ -147,16 +148,16 @@ func (viewer *LogViewer) View(c *ui.Context) {
 				ui.Select(c.Key("level"), &viewer.level, []string{all, "DEBUG", "INFO", "WARN", "ERROR"}).
 					Width(128).
 					Label(locales.LogMinimumLevel())
-				pause := locales.LogPause()
+				pause, pauseIcon := locales.LogPause(), icons.Lucide.Pause()
 				if viewer.paused {
-					pause = locales.LogResume()
+					pause, pauseIcon = locales.LogResume(), icons.Lucide.Play()
 				}
-				ui.Button(c.Key("pause"), pause).
+				components.ActionButton(c.Key("pause"), pauseIcon, pause).
 					OnClick(func() { viewer.paused = !viewer.paused })
-				ui.Button(c, locales.LogLatest()).
+				components.ActionButton(c, icons.Lucide.ChevronsDown(), locales.LogLatest()).
 					Disabled(len(viewer.rows) == 0).
 					OnClick(func() { viewer.list.ScrollToEnd() })
-				ui.Button(c, locales.LogCopyFiltered()).
+				components.ActionButton(c, icons.Lucide.Copy(), locales.LogCopyFiltered()).
 					Disabled(len(viewer.rows) == 0).
 					OnClick(func() { viewer.copyFiltered(c) })
 				ui.Button(c, locales.LogClearView()).
@@ -254,7 +255,7 @@ func (viewer *LogViewer) details(c *ui.Context) {
 	ui.Column(c.Key("details")).Fill().Padding(12).Gap(8).Children(func() {
 		ui.Row(c).Gap(8).AlignItems(ui.Center).Children(func() {
 			ui.Text(c, locales.LogDetails()).Bold().Grow(1)
-			ui.Button(c, locales.LogCopySelected()).
+			components.ActionButton(c, icons.Lucide.Copy(), locales.LogCopySelected()).
 				Disabled(viewer.selected == nil).
 				OnClick(func() {
 					if viewer.selected != nil {

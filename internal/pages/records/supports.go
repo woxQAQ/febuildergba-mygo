@@ -9,6 +9,7 @@ import (
 	"github.com/woxQAQ/febuildergba-mygo/game/records"
 	"github.com/woxQAQ/febuildergba-mygo/game/support"
 	"github.com/woxQAQ/febuildergba-mygo/internal/components"
+	"github.com/woxQAQ/febuildergba-mygo/internal/components/icons"
 	"github.com/woxQAQ/febuildergba-mygo/internal/input"
 	"github.com/woxQAQ/febuildergba-mygo/internal/locales"
 )
@@ -220,7 +221,7 @@ func (a *form) supportRelations(c *ui.Context, v *supportState, disabled bool) {
 									Height(26).
 									Disabled(a.state.Busy || a.openSupportTalk == nil || v.invalid()).
 									OnClick(func() { a.openSupportTalk(v.draft.Unit().ID, int(relation.Unit)) })
-								components.ActionButton(c, "−", locales.SupportRemove()).
+								components.ActionButton(c, icons.Lucide.Trash(), locales.SupportRemove()).
 									Label(fmt.Sprintf("%s / %02X", locales.SupportRemove(), relation.Unit)).
 									Height(26).
 									Disabled(disabled || v.invalid()).
@@ -248,7 +249,7 @@ func (a *form) supportRelations(c *ui.Context, v *supportState, disabled bool) {
 			break
 		}
 	}
-	components.ActionButton(c, "+", locales.SupportAdd()).
+	components.ActionButton(c, icons.Lucide.Plus(), locales.SupportAdd()).
 		AlignSelf(ui.Start).
 		Disabled(disabled || v.invalid() || len(v.draft.Relationships()) >= v.draft.Capacity() || next == 0).
 		OnClick(func() {

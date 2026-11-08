@@ -8,6 +8,7 @@ import (
 	"github.com/woxQAQ/febuildergba-mygo/game/event"
 	"github.com/woxQAQ/febuildergba-mygo/game/records"
 	"github.com/woxQAQ/febuildergba-mygo/internal/components"
+	"github.com/woxQAQ/febuildergba-mygo/internal/components/icons"
 	"github.com/woxQAQ/febuildergba-mygo/internal/components/mapview"
 	"github.com/woxQAQ/febuildergba-mygo/internal/editor"
 	"github.com/woxQAQ/febuildergba-mygo/internal/locales"
@@ -239,7 +240,8 @@ func (v *Page) triggerActions(
 		ui.Select(c.Key("new-type"), &selection.newType, labels).
 			Label(locales.ChapterTriggerNewType()).
 			Width(210).MaxWidthPercent(100).Disabled(state.Busy)
-		components.ActionButton(c, "+", item.label).Tooltip(item.help).
+		components.ActionButton(c, icons.Lucide.Plus(), item.label).
+			Tooltip(item.help).
 			Disabled(state.Busy || !available).
 			OnClick(func() {
 				var err error
@@ -258,7 +260,7 @@ func (v *Page) triggerActions(
 				}
 			})
 		selected := entries[selection.table]
-		components.ActionButton(c, "−", locales.AreaRemove()).
+		components.ActionButton(c, icons.Lucide.Trash(), locales.AreaRemove()).
 			Disabled(state.Busy || !hasSelection || selected == nil || !selected.data.Current(state.Session.Events)).
 			OnClick(func() {
 				if state.SetErr(selected.removeSelected()); state.Err == nil {

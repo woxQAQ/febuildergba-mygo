@@ -12,6 +12,7 @@ import (
 	"github.com/woxQAQ/febuildergba-mygo/game/quote"
 	"github.com/woxQAQ/febuildergba-mygo/game/records"
 	"github.com/woxQAQ/febuildergba-mygo/internal/components"
+	"github.com/woxQAQ/febuildergba-mygo/internal/components/icons"
 	"github.com/woxQAQ/febuildergba-mygo/internal/editor"
 	"github.com/woxQAQ/febuildergba-mygo/internal/input"
 	"github.com/woxQAQ/febuildergba-mygo/internal/locales"
@@ -353,7 +354,7 @@ func (p *Page) addButton(
 	entry *tableState,
 	disabled bool,
 ) ui.Element {
-	return components.ActionButton(c, "+", locales.QuoteAdd()).
+	return components.ActionButton(c, icons.Lucide.Plus(), locales.QuoteAdd()).
 		Disabled(disabled || len(entry.rows) >= quote.MaxEntries || p.unit == 0 || p.unit > 255).
 		OnClick(func() {
 			p.state.SetErr(p.addRecord(entry))
@@ -376,7 +377,7 @@ func (p *Page) structure(c *ui.Context, entry *tableState, disabled bool) {
 	index := entry.index()
 	ui.Row(c).Wrap().Gap(6).Children(func() {
 		p.addButton(c, entry, disabled)
-		components.ActionButton(c, "⧉", locales.QuoteCopy()).
+		components.ActionButton(c, icons.Lucide.Copy(), locales.QuoteCopy()).
 			Disabled(disabled || index < 0 || entry.invalid() || len(entry.rows) >= quote.MaxEntries).
 			OnClick(func() {
 				p.state.SetErr(entry.draft.Duplicate(index))
@@ -386,7 +387,7 @@ func (p *Page) structure(c *ui.Context, entry *tableState, disabled bool) {
 					p.selectIndex(entry, index+1)
 				}
 			})
-		components.ActionButton(c, "−", locales.QuoteDelete()).
+		components.ActionButton(c, icons.Lucide.Trash(), locales.QuoteDelete()).
 			Disabled(disabled || index < 0).
 			OnClick(func() {
 				p.state.SetErr(entry.draft.Remove(index))
@@ -401,17 +402,16 @@ func (p *Page) structure(c *ui.Context, entry *tableState, disabled bool) {
 			return
 		}
 		for _, direction := range []int{-1, 1} {
-			label, caption := "↑", locales.MoveUp()
+			icon, caption := icons.Lucide.ArrowUp(), locales.MoveUp()
 			if direction > 0 {
-				label, caption = "↓", locales.MoveDown()
+				icon, caption = icons.Lucide.ArrowDown(), locales.MoveDown()
 			}
 			destination := -1
 			if position := entry.selected + direction; position >= 0 &&
 				position < len(entry.filtered) {
 				destination = entry.filtered[position]
 			}
-			ui.Button(c.Key(direction), label).
-				Label(caption).
+			components.ActionButton(c.Key(direction), icon, caption).
 				Tooltip(caption + "\n" + locales.QuoteOrderHelp()).
 				Disabled(disabled || index < 0 || destination < 0).
 				OnClick(func() {

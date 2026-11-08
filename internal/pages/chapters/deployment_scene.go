@@ -9,6 +9,7 @@ import (
 	"github.com/woxQAQ/febuildergba-mygo/game/deployment"
 	"github.com/woxQAQ/febuildergba-mygo/game/records"
 	"github.com/woxQAQ/febuildergba-mygo/internal/components"
+	"github.com/woxQAQ/febuildergba-mygo/internal/components/icons"
 	"github.com/woxQAQ/febuildergba-mygo/internal/components/mapview"
 	"github.com/woxQAQ/febuildergba-mygo/internal/editor"
 	"github.com/woxQAQ/febuildergba-mygo/internal/locales"
@@ -194,7 +195,7 @@ func (v *Page) unitActions(
 ) {
 	disabled := state.Busy || !entry.data.Current(state.Session.Deployments)
 	ui.Row(c).Wrap().Gap(8).Children(func() {
-		components.ActionButton(c, "+", locales.DeployAdd()).
+		components.ActionButton(c, icons.Lucide.Plus(), locales.DeployAdd()).
 			Disabled(disabled).
 			OnClick(func() {
 				state.SetErr(entry.data.Add())
@@ -202,7 +203,7 @@ func (v *Page) unitActions(
 				entry.paths = nil
 				entry.preview, entry.inputs = nil, nil
 			})
-		components.ActionButton(c, "⧉", locales.DeployDuplicate()).
+		components.ActionButton(c, icons.Lucide.Copy(), locales.DeployDuplicate()).
 			Disabled(disabled || entry.data.Count() == 0).
 			OnClick(func() {
 				state.SetErr(entry.data.Duplicate(entry.selected))
@@ -210,7 +211,7 @@ func (v *Page) unitActions(
 				entry.paths = nil
 				entry.preview, entry.inputs = nil, nil
 			})
-		components.ActionButton(c, "−", locales.DeployRemove()).
+		components.ActionButton(c, icons.Lucide.Trash(), locales.DeployRemove()).
 			Disabled(disabled || entry.data.Count() == 0).
 			OnClick(func() {
 				state.SetErr(entry.data.Remove(entry.selected))

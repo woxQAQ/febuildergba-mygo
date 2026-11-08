@@ -8,21 +8,21 @@ importers:
 
   .:
     devDependencies:
-      '@iconify-json/feather':
-        specifier: 1.2.1
-        version: 1.2.1
+      '@iconify-json/lucide':
+        specifier: 1.2.151
+        version: 1.2.151
 
 packages:
 
-  '@iconify-json/feather@1.2.1':
-    resolution: {integrity: sha512-gURNg2TJYuO1U7DoOGCylm9TwkMfzjOH2BHdWsE0IXLXj/MNkFIJu56Wu1xRws27M8hzDzUDt/biGUa/LfAjdg==}
+  '@iconify-json/lucide@1.2.151':
+    resolution: {integrity: sha512-OCp+cNzynOlOI7zHq8bFGhBBzmSSWFICvOSTxZrajhFJC4YizvlLiBJMbaLzzlpMaGRidmZmAA8GpovoDKiy/w==}
 
   '@iconify/types@2.0.0':
     resolution: {integrity: sha512-+wluvCrRhXrhyOmRDJ3q8mux9JkKy5SJ/v8ol2tu4FVjyYvtEzkc/3pK15ET6RKg4b4w4BmTk1+gsCUhf21Ykg==}
 
 snapshots:
 
-  '@iconify-json/feather@1.2.1':
+  '@iconify-json/lucide@1.2.151':
     dependencies:
       '@iconify/types': 2.0.0
 
