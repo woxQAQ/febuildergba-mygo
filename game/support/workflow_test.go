@@ -157,7 +157,7 @@ func TestSupportWorkflow(t *testing.T) {
 				saved.Talks()[0].Texts[0] != 2 {
 				t.Fatal("save/reopen")
 			}
-			uses := reopened.Texts.Uses(2)
+			uses, _ := reopened.Texts.Uses(2)
 			found := false
 			for _, use := range uses {
 				if use.Kind == support.TalkUse && use.ID == 0 &&

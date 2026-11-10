@@ -13,6 +13,7 @@ import (
 	"github.com/woxQAQ/febuildergba-mygo/internal/components"
 	"github.com/woxQAQ/febuildergba-mygo/internal/editor"
 	"github.com/woxQAQ/febuildergba-mygo/internal/locales"
+	"github.com/woxQAQ/febuildergba-mygo/rom"
 )
 
 type (
@@ -189,6 +190,38 @@ func (page *Page) Open(chapter, site int) {
 	if page.selected >= 0 {
 		page.list.ScrollTo(page.selected, ui.Center)
 	}
+}
+
+// OpenInstruction selects a committed text operand without replacing an existing
+// draft. Entry roles distinguish aliases in independent scene directories.
+func (page *Page) OpenInstruction(chapter, site, address int, source string) {
+	page.Open(chapter, site)
+	for index, entry := range page.rows {
+		if entry.Pointer != site || entry.Source != source {
+			continue
+		}
+		page.selected = index
+		page.list.ScrollTo(index, ui.Center)
+		draft, err := page.draft(entry)
+		if err != nil {
+			page.state.SetErr(err)
+			return
+		}
+		if !draft.data.Current(page.state.Session.Events) {
+			page.state.SetErr(rom.ErrStale)
+			return
+		}
+		for row, instruction := range draft.data.Instructions() {
+			if instruction.Address == address {
+				draft.selected = row
+				draft.list.ScrollTo(row, ui.Center)
+				return
+			}
+		}
+		page.state.SetErr(event.ErrScriptStructure)
+		return
+	}
+	page.state.SetErr(event.ErrScript)
 }
 
 func (page *Page) View(c *ui.Context) {

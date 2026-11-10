@@ -127,12 +127,13 @@ func fileBody(raw string) string {
 // FileEntry is a review row. Err blocks the entire import; Changed refers to
 // normalized game content, rather than alternate spellings of control codes.
 type FileEntry struct {
-	ID            uint16
-	Line          int
-	Before, After string
-	Changed       bool
-	Err           error
-	Uses          []Use
+	ID             uint16
+	Line           int
+	Before, After  string
+	Changed        bool
+	Err            error
+	Uses           []Use
+	UsesIncomplete bool
 }
 
 type Import struct {
@@ -486,6 +487,7 @@ func (s *Editor) PlanImport(draft *Import) (*ImportPlan, error) {
 		item := &replacements[i]
 		item.references = s.references(s.image.Data, item.id)
 		entries[rows[item.id]].Uses = slices.Clone(item.references.Uses)
+		entries[rows[item.id]].UsesIncomplete = item.references.Incomplete
 	}
 	plan, err := s.format.planReplacements(s.image.Data, replacements)
 	if err != nil {

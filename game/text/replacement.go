@@ -124,12 +124,13 @@ func (g Format) planReplacements(
 // Plan is an immutable replacement preview bound to the document and parsing
 // settings used during planning.
 type Plan struct {
-	commit      *edit.Commit
-	textID      uint16
-	fieldID     string
-	content     string
-	uses        []Use
-	destination romwrite.Range
+	commit         *edit.Commit
+	textID         uint16
+	fieldID        string
+	content        string
+	uses           []Use
+	usesIncomplete bool
+	destination    romwrite.Range
 }
 
 func (e *Plan) TextID() uint16 { return e.textID }
@@ -145,6 +146,14 @@ func (e *Plan) Length() int { return e.destination.End - e.destination.Start }
 func (e *Plan) Size() int { return e.commit.Size() }
 
 func (e *Plan) Uses() []Use { return slices.Clone(e.uses) }
+
+func (e *Plan) UsesComplete() bool { return !e.usesIncomplete }
+
+func (e *Plan) Current(
+	s *Editor,
+) bool {
+	return e != nil && e.commit.Current(s.context)
+}
 
 func (s *Editor) Plan(
 	id uint16,
@@ -182,9 +191,15 @@ func (s *Editor) Plan(
 		return nil, err
 	}
 	return &Plan{
-		commit: edit.NewCommit(s.stamp, "text."+fieldID, plan.Edit),
-		textID: id, fieldID: fieldID, content: content,
-		uses: slices.Clone(references.Uses), destination: plan.Destination,
+		commit:  edit.NewCommit(s.stamp, "text."+fieldID, plan.Edit),
+		textID:  id,
+		fieldID: fieldID,
+		content: content,
+		uses: slices.Clone(
+			references.Uses,
+		),
+		usesIncomplete: references.Incomplete,
+		destination:    plan.Destination,
 	}, nil
 }
 

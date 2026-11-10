@@ -9,7 +9,6 @@ import (
 	"github.com/egoist/mygo/ui/editor"
 
 	"github.com/woxQAQ/febuildergba-mygo/game/edit"
-	"github.com/woxQAQ/febuildergba-mygo/game/records"
 	"github.com/woxQAQ/febuildergba-mygo/game/text"
 	"github.com/woxQAQ/febuildergba-mygo/internal/components"
 	"github.com/woxQAQ/febuildergba-mygo/internal/locales"
@@ -318,13 +317,14 @@ func (p *Page) fileReview(c *ui.Context) {
 					if p.filePlan != nil && row.Changed {
 						ui.Text(c, locales.TextEditSummary(fmt.Sprintf("0x%04X", row.ID), len(row.Uses))).
 							FontSize(components.FontCaption)
-						ui.Row(c.Key("uses")).Wrap().Gap(8).Children(func() {
-							for _, use := range row.Uses {
-								ui.Button(c.Key(use), fmt.Sprintf("%s %02X · %s", locales.Label(use.Kind), use.ID, locales.Label(use.Field))).
-									Disabled(p.state.Busy || !current || p.openRecord == nil).
-									OnClick(func() { p.openRecord(records.Kind(use.Kind), use.ID) })
-							}
-						})
+						components.TextUses(
+							c.Key("file-uses"),
+							p.state,
+							row.Uses,
+							!row.UsesIncomplete,
+							!current,
+							p.openUse,
+						)
 					}
 				})
 			})

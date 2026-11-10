@@ -106,3 +106,96 @@ func NewScriptFixture(version string) *FixtureBuilder {
 	f.MarkPosition("script_end", at)
 	return f
 }
+
+// NewScriptTextFixture isolates shared chapter entries and direct text operands.
+// Independent world-map directories are valid and empty, so incomplete results
+// must arise from the specific script or resource damaged by a workflow.
+func NewScriptTextFixture(version string) *FixtureBuilder {
+	f := NewScriptFixture(version)
+	header := f.GetPosition("deploy_header")
+	f.WriteAt(header, make([]byte, 80))
+	ending := 76
+	roots := []int{0xBA3D0, 0xBA41C}
+	endings := []int{0x9EC0, 0x9ED8}
+	switch version {
+	case versionFE8J:
+		roots, endings = []int{0xBF264, 0xBF2B0}, []int{0x9E20, 0x9E38}
+	case versionFE7U:
+		ending, roots, endings = 60, []int{0xB561C}, []int{0x12A94, 0x12ADC}
+	case versionFE7J:
+		ending, roots, endings = 60, []int{0xB643C}, []int{0x1314C, 0x13194}
+	case versionFE6:
+		ending, roots, endings = 24, []int{0x9310C}, nil
+	}
+	for i, site := range roots {
+		base := 0x289000 + i*0x400
+		f.WritePointer(site, base)
+		f.WriteAt(base, make([]byte, 256*4))
+	}
+	for _, site := range endings {
+		f.WriteU32(site, 0)
+	}
+	root, child, conditions := f.GetPosition(
+		"script_root",
+	), f.GetPosition(
+		"script_child",
+	), f.GetPosition(
+		"objective_table",
+	)
+	f.WritePointer(header+ending, root)
+	f.WritePointer(header+12, conditions)
+	f.WriteAt(conditions, make([]byte, 24))
+	f.WriteU32(conditions, 1)
+	f.WritePointer(conditions+4, root)
+	f.WriteU32(conditions+8, 2)
+	f.MarkPosition("text_entry", header+ending)
+	f.MarkPosition("text_alias", conditions+4)
+	f.MarkPosition("text_first", root)
+	if version == versionFE8U || version == versionFE8J {
+		f.WriteAt(root, []byte{
+			0x20, 0x1B, 1, 0,
+			0x21, 0x1B, 1, 0,
+			0x40, 0x0A, 0, 0, 0, 0, 0, 0,
+			0x20, 1, 0, 0,
+		})
+		f.WritePointer(root+12, child)
+		f.WriteAt(child, []byte{0x20, 0x1B, 2, 0, 0x20, 1, 0, 0})
+		f.MarkPosition("text_second", root+4)
+		f.MarkPosition("text_call", root+8)
+	} else {
+		words := []uint32{7, 1, 8, 1, 0x25, PointerWord(child)}
+		if version != versionFE6 {
+			call := uint32(0xCB)
+			if version == versionFE7J {
+				call = 0xCC
+			}
+			words = []uint32{
+				0x0D,
+				1,
+				0x0F,
+				1,
+				2,
+				call,
+				PointerWord(child),
+				0x0A,
+				0,
+			}
+		}
+		for i, word := range words {
+			f.WriteU32(root+i*4, word)
+		}
+		for i, word := range []uint32{7, 2, 6, 0} {
+			if version != versionFE6 {
+				word = []uint32{0x0D, 2, 0x0A, 0}[i]
+			}
+			f.WriteU32(child+i*4, word)
+		}
+		f.MarkPosition("text_second", root+8)
+		callAt := root + 16
+		if version != versionFE6 {
+			callAt = root + 20
+		}
+		f.MarkPosition("text_call", callAt)
+	}
+	return f
+}

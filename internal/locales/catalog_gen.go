@@ -13364,13 +13364,33 @@ func (msgs Messages) NameEditScope() string {
 	return Catalog.Format(msgs.locale, "name_edit_scope", nil)
 }
 
-// TextEditSummary says "Text ID {textID}: all uses of this ID will change. Known text fields: {count}."
+// TextKnownUses says "Known uses: {count}"
+// in the language the app shows.
+func TextKnownUses(count int) string { return In(i18n.Locale()).TextKnownUses(count) }
+
+// TextKnownUses says "Known uses: {count}"
+// in the language of msgs.
+func (msgs Messages) TextKnownUses(count int) string {
+	return Catalog.Format(msgs.locale, "text_known_uses", map[string]any{"count": count})
+}
+
+// TextUsesIncomplete says "Some event-script references could not be confirmed. This list may omit uses."
+// in the language the app shows.
+func TextUsesIncomplete() string { return In(i18n.Locale()).TextUsesIncomplete() }
+
+// TextUsesIncomplete says "Some event-script references could not be confirmed. This list may omit uses."
+// in the language of msgs.
+func (msgs Messages) TextUsesIncomplete() string {
+	return Catalog.Format(msgs.locale, "text_uses_incomplete", nil)
+}
+
+// TextEditSummary says "Text ID {textID}: all uses of this ID will change. Known uses: {count}."
 // in the language the app shows.
 func TextEditSummary(textID string, count int) string {
 	return In(i18n.Locale()).TextEditSummary(textID, count)
 }
 
-// TextEditSummary says "Text ID {textID}: all uses of this ID will change. Known text fields: {count}."
+// TextEditSummary says "Text ID {textID}: all uses of this ID will change. Known uses: {count}."
 // in the language of msgs.
 func (msgs Messages) TextEditSummary(textID string, count int) string {
 	return Catalog.Format(msgs.locale, "text_edit_summary", map[string]any{"textID": textID, "count": count})

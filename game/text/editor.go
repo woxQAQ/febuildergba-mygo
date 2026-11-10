@@ -11,22 +11,25 @@ import (
 
 const Resource = "text"
 
-// Use identifies a known record field sharing a text ID. Table names are
-// stable record identifiers; the text codec does not interpret record schemas.
+// Use identifies a confirmed text operand. Script uses retain their entry
+// pointer, instruction address and source role for precise navigation.
 type Use struct {
-	Kind  string
-	ID    int
-	Field string
+	Kind             string
+	ID               int
+	Field            string
+	Pointer, Address int
+	Source           string
 }
 
 // References contains confirmed protection and usage facts supplied by the
 // resource coordinator for the same ROM snapshot as the text operation.
 type References struct {
-	Uses    []Use
-	Ranges  []romwrite.Range
-	Sites   []int
-	Manual  []romwrite.Range
-	Aliases map[byte]string
+	Uses       []Use
+	Incomplete bool
+	Ranges     []romwrite.Range
+	Sites      []int
+	Manual     []romwrite.Range
+	Aliases    map[byte]string
 }
 
 // Editor owns text browsing, encoding and replacement plans. The reference
@@ -59,11 +62,14 @@ func (s *Editor) refresh() error {
 
 func (s *Editor) Commands() []string { return s.format.Commands() }
 
-func (s *Editor) Uses(id uint16) []Use {
+// Uses returns confirmed operands and whether every declared script entry was
+// understood. A complete search still excludes undeclared custom consumers.
+func (s *Editor) Uses(id uint16) ([]Use, bool) {
 	if s.refresh() != nil {
-		return nil
+		return nil, false
 	}
-	return slices.Clone(s.references(s.image.Data, id).Uses)
+	references := s.references(s.image.Data, id)
+	return slices.Clone(references.Uses), !references.Incomplete
 }
 
 // Value reads a field's text reference, including the native empty ID zero.

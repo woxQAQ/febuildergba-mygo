@@ -80,6 +80,9 @@ func Open(path string) (session *Session, err error) {
 				references.Uses = append(
 					references.Uses,
 					format.worldmap.TextUses(data, id)...)
+				uses, complete := s.Events.TextUses(id)
+				references.Uses = append(references.Uses, uses...)
+				references.Incomplete = !complete
 				// A text entry lives inside the text table, so the table's own
 				// claim cannot guard its entries against other domains.
 				var external []romwrite.Range

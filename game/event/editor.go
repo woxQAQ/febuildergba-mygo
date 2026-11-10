@@ -26,15 +26,17 @@ type Source struct {
 }
 
 type Editor struct {
-	context       *edit.Context
-	format        Format
-	text          text.Format
-	records       *records.Editor
-	deployments   *deployment.Editor
-	source        Source
-	image         edit.Input
-	binding       edit.Stamp
-	scriptIndexes map[int]scriptIndex
+	context          *edit.Context
+	format           Format
+	text             text.Format
+	records          *records.Editor
+	deployments      *deployment.Editor
+	source           Source
+	image            edit.Input
+	binding          edit.Stamp
+	scriptIndexes    map[int]scriptIndex
+	textUses         map[uint16][]text.Use
+	textUsesComplete bool
 }
 
 func New(
@@ -60,6 +62,7 @@ func (s *Editor) Refresh() {
 		s.image = s.context.Capture()
 		s.binding = s.image.Stamp()
 		s.scriptIndexes = nil
+		s.textUses = nil
 	}
 	s.records.Refresh()
 }

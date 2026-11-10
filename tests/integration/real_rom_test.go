@@ -51,6 +51,7 @@ func TestROMWorkflows(t *testing.T) {
 				{"relocation", relocateRecords},
 				{"text", editText},
 				{"text-file", editTextFile},
+				{"text-script-uses", editScriptTextWithUses},
 				{"portraits", editPortrait},
 				{"record-sprites", readRecordSprites},
 				{"png", replacePNG},

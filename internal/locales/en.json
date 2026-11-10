@@ -1347,7 +1347,14 @@
   "preview_name": "Preview name",
   "apply_name": "Apply name",
   "name_edit_scope": "English ROMs use ASCII; Japanese ROMs use Shift-JIS. Characters must be supported by this ROM.",
-  "text_edit_summary": "Text ID {textID}: all uses of this ID will change. Known text fields: {count}.",
+  "text_known_uses": "Known uses: {count}",
+  "@text_known_uses": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+  "text_uses_incomplete": "Some event-script references could not be confirmed. This list may omit uses.",
+  "text_edit_summary": "Text ID {textID}: all uses of this ID will change. Known uses: {count}.",
   "@text_edit_summary": {
     "placeholders": {
       "textID": { "type": "String" },

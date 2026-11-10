@@ -94,7 +94,18 @@ func New() *Workspace {
 	w := &Workspace{Editor: editor.New(), zoomLevel: 1}
 	w.texts = texteditor.New(
 		w.Editor,
-		func(kind records.Kind, id int) {
+		func(use text.Use) {
+			kind, id := records.Kind(use.Kind), use.ID
+			if use.Kind == event.TextUse {
+				w.tab = len(records.Kinds) + scriptsTab
+				w.scripts.OpenInstruction(
+					id,
+					use.Pointer,
+					use.Address,
+					use.Source,
+				)
+				return
+			}
 			if string(kind) == worldmap.Resource {
 				w.openWorldMap(id)
 				return

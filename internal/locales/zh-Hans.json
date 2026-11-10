@@ -1346,7 +1346,14 @@
   "preview_name": "预览名称",
   "apply_name": "应用名称",
   "name_edit_scope": "英文版使用 ASCII，日文版使用 Shift-JIS；字符须由此 ROM 支持。",
-  "text_edit_summary": "文本 ID {textID}：所有使用此 ID 的位置都会变化。已知文本字段共 {count} 处。",
+  "text_known_uses": "已知使用处：{count}",
+  "@text_known_uses": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+  "text_uses_incomplete": "部分事件脚本的文本引用无法确认，列表可能遗漏使用处。",
+  "text_edit_summary": "文本 ID {textID}：所有使用此 ID 的位置都会变化。已知使用处共 {count} 处。",
   "@text_edit_summary": {
     "placeholders": {
       "textID": { "type": "String" },

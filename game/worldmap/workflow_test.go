@@ -110,13 +110,15 @@ func TestNativeNodeEditingAndHistory(t *testing.T) {
 			if err != nil || saved.Node().Value(worldmap.X) != -32768 {
 				t.Fatal("reopened node", err)
 			}
-			for _, use := range reopened.Texts.Uses(1) {
+			uses, _ := reopened.Texts.Uses(1)
+			for _, use := range uses {
 				if use.Kind == worldmap.Resource && use.ID == 0 {
 					t.Fatal("stale text usage")
 				}
 			}
 			found := false
-			for _, use := range s.Texts.Uses(0) {
+			uses, _ = s.Texts.Uses(0)
+			for _, use := range uses {
 				found = found || use.Kind == worldmap.Resource && use.ID == 0
 			}
 			if !found {

@@ -193,13 +193,16 @@ func (s *Editor) scriptIndex(chapter int) (scriptIndex, error) {
 		return scriptIndex{}, err
 	}
 	var entries []ScriptEntry
+	partial := false
 	if s.WorldMapEventsAvailable() {
 		_, chapterRow, eventField, resolveErr := s.records.Resolve(
 			records.Chapters,
 			chapter,
 			WorldMapEventField,
 		)
-		if resolveErr == nil {
+		if resolveErr != nil {
+			partial = true
+		} else {
 			id := int(eventField.Value(s.image.Data, chapterRow.Address))
 			for _, entry := range format.worldMapEntries(s.image.Data, s.records.Table(records.Chapters)) {
 				if entry.WorldMap && entry.EventID == id {
@@ -228,8 +231,11 @@ func (s *Editor) scriptIndex(chapter int) (scriptIndex, error) {
 		)
 	}
 	add := func(site int, source string) {
-		if !gba.Within(s.image.Data, site, 4) ||
-			gba.Uint32(s.image.Data, site) == 1 {
+		if !gba.Within(s.image.Data, site, 4) {
+			partial = true
+			return
+		}
+		if gba.Uint32(s.image.Data, site) == 1 {
 			return
 		}
 		entries = append(
@@ -249,9 +255,12 @@ func (s *Editor) scriptIndex(chapter int) (scriptIndex, error) {
 				table,
 			)
 			if readErr != nil {
-				continue
+				partial = true
 			}
 			for _, condition := range conditions.Events {
+				if condition.OperandKind == UnknownTarget {
+					partial = true
+				}
 				if condition.OperandKind == ConditionScript {
 					add(condition.Address+4, condition.source(table))
 				}
@@ -259,6 +268,7 @@ func (s *Editor) scriptIndex(chapter int) (scriptIndex, error) {
 		}
 	}
 	result := format.indexScripts(s.image.Data, entries)
+	result.partial = result.partial || partial
 	result.binding = s.image.Stamp()
 	if s.scriptIndexes == nil {
 		s.scriptIndexes = make(map[int]scriptIndex)

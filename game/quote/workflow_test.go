@@ -284,7 +284,7 @@ func TestQuoteReferencesAndFields(t *testing.T) {
 					t.Fatal("FE8 defeat layout")
 				}
 			}
-			uses := s.Texts.Uses(2)
+			uses, _ := s.Texts.Uses(2)
 			if !slices.Contains(
 				uses,
 				text.Use{Kind: string(quote.Death), ID: 0, Field: quote.Text},

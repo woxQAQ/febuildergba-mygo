@@ -74,6 +74,25 @@ func (page *Page) operands(
 	row event.ScriptInstruction,
 ) {
 	fields := draft.data.Fields(draft.selected)
+	if !draft.data.Complete() {
+		for _, operand := range draft.data.TextOperands(draft.selected) {
+			ui.Column(c.Key(operand.Field)).Gap(4).Children(func() {
+				ui.Text(c, locales.Label(operand.Field))
+				components.ReferenceLink(
+					c,
+					locales.QuoteOpenText()+fmt.Sprintf(" %04X", operand.ID),
+					page.state.Busy || !draft.data.Current(page.state.Session.Events) ||
+						page.openText == nil,
+					func() { page.openText(operand.ID) },
+				)
+				components.TextPreview(
+					c,
+					page.state.Session.Texts,
+					uint32(operand.ID),
+				)
+			})
+		}
+	}
 	if row.Help != "" {
 		ui.Text(c, locales.Label(row.Help)).
 			FontSize(components.FontCaption).

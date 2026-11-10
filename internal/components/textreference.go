@@ -7,6 +7,7 @@ import (
 
 	"github.com/egoist/mygo/ui"
 
+	"github.com/woxQAQ/febuildergba-mygo/game/event"
 	"github.com/woxQAQ/febuildergba-mygo/game/text"
 	"github.com/woxQAQ/febuildergba-mygo/internal/editor"
 	"github.com/woxQAQ/febuildergba-mygo/internal/locales"
@@ -142,6 +143,74 @@ func TextReferences(
 		id := ids[max(0, slices.Index(labels, *selected))]
 		TextPreview(c, state.Session.Texts, uint32(id))
 	})
+}
+
+// TextUses renders the same confirmed usage scope in browsing and write reviews.
+func TextUses(
+	c *ui.Context,
+	state *editor.State,
+	uses []text.Use,
+	complete, disabled bool,
+	open func(text.Use),
+) {
+	ui.Text(c, locales.TextKnownUses(len(uses))).
+		FontSize(FontCaption)
+	if !complete {
+		ui.Text(c, locales.TextUsesIncomplete()).
+			FontSize(FontCaption).
+			TextColor(c.Theme().Warning)
+	}
+	if len(uses) == 0 {
+		return
+	}
+	ui.List(c.Key("uses"), nil, len(uses)).
+		Label(locales.TextKnownUses(len(uses))).
+		Height(min(140, c.Theme().Space(9)*float32(len(uses)))).
+		ItemKey(func(index int) any { return uses[index] }).
+		Rows(func(row ui.ListRow) {
+			use := uses[row.Index]
+			c := row.Context
+			caption := fmt.Sprintf(
+				"%s %02X · %s",
+				locales.Label(use.Kind),
+				use.ID,
+				locales.Label(use.Field),
+			)
+			if use.Kind == event.TextUse {
+				scope := fmt.Sprintf(
+					"%s %02X",
+					locales.Label("chapters"),
+					use.ID,
+				)
+				if use.ID == event.WorldMapScripts {
+					scope = locales.ScriptWorldmapDirectory()
+				}
+				caption = fmt.Sprintf(
+					"%s · %s · %s · %08X",
+					scope,
+					locales.Label(use.Source),
+					locales.Label(use.Field),
+					use.Address,
+				)
+			}
+			if open == nil {
+				ui.Text(c.Key(use), caption).Selectable()
+				return
+			}
+			tooltip := caption
+			if use.Pointer != 0 {
+				tooltip += fmt.Sprintf(
+					" · %s %08X",
+					locales.Address(),
+					use.Pointer,
+				)
+			}
+			ui.Button(c.Key(use), caption).
+				FillWidth().MinWidth(0).
+				Tooltip(tooltip).
+				Disabled(state.Busy || disabled).
+				OnClick(func() { open(use) })
+		})
 }
 
 // TextPreview uses the decoded reading view without truncation. Long content

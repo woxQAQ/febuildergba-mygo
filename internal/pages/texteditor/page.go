@@ -8,7 +8,6 @@ import (
 
 	"github.com/egoist/mygo/ui"
 
-	"github.com/woxQAQ/febuildergba-mygo/game/records"
 	"github.com/woxQAQ/febuildergba-mygo/game/text"
 	"github.com/woxQAQ/febuildergba-mygo/internal/components"
 	"github.com/woxQAQ/febuildergba-mygo/internal/editor"
@@ -24,7 +23,7 @@ type draft struct {
 
 type Page struct {
 	state          *editor.State
-	openRecord     func(records.Kind, int)
+	openUse        func(text.Use)
 	sidebar        components.Sidebar
 	query          string
 	lastQuery      string
@@ -52,19 +51,19 @@ type Page struct {
 	reviewFocus    ui.Handle
 }
 
-func New(state *editor.State, openRecord func(records.Kind, int)) *Page {
+func New(state *editor.State, openUse func(text.Use)) *Page {
 	return &Page{
-		state:      state,
-		openRecord: openRecord,
-		drafts:     make(map[uint16]*draft),
+		state:   state,
+		openUse: openUse,
+		drafts:  make(map[uint16]*draft),
 	}
 }
 
 func (p *Page) Reset() {
-	state, openRecord, sidebar := p.state, p.openRecord, p.sidebar
+	state, openUse, sidebar := p.state, p.openUse, p.sidebar
 	importFile, exportFile := p.importFile, p.exportFile
 	epoch := p.fileEpoch + 1
-	*p = *New(state, openRecord)
+	*p = *New(state, openUse)
 	p.sidebar = sidebar
 	p.importFile, p.exportFile, p.fileEpoch = importFile, exportFile, epoch
 }
@@ -271,6 +270,17 @@ func (p *Page) editor(c *ui.Context) {
 		if d.err != nil {
 			ui.Text(c, components.ErrorText(d.err)).TextColor(c.Theme().Danger)
 		}
+		if d.preview == nil {
+			uses, complete := p.state.Session.Texts.Uses(id)
+			components.TextUses(
+				c.Key("current-uses"),
+				p.state,
+				uses,
+				complete,
+				false,
+				p.openUse,
+			)
+		}
 		p.preview(c, id, d, unavailable)
 	})
 }
@@ -280,15 +290,20 @@ func (p *Page) preview(c *ui.Context, id uint16, d *draft, unavailable bool) {
 		return
 	}
 	edit := d.preview
+	if !edit.Current(p.state.Session.Texts) {
+		unavailable = true
+		ui.Text(c, locales.DeployStale()).TextColor(c.Theme().Danger)
+	}
 	ui.Text(c, locales.TextEditSummary(fmt.Sprintf("0x%04X", id), len(edit.Uses()))).
 		FontSize(components.FontCaption)
-	ui.Scroll(c.Key("text-uses")).MaxHeight(140).Gap(4).Children(func() {
-		for _, use := range edit.Uses() {
-			ui.Button(c.Key(use), fmt.Sprintf("%s %02X · %s", locales.Label(use.Kind), use.ID, locales.Label(use.Field))).
-				Disabled(p.state.Busy).
-				OnClick(func() { p.openRecord(records.Kind(use.Kind), use.ID) })
-		}
-	})
+	components.TextUses(
+		c.Key("preview-uses"),
+		p.state,
+		edit.Uses(),
+		edit.UsesComplete(),
+		unavailable,
+		p.openUse,
+	)
 	ui.Button(c, locales.ApplyText()).Disabled(unavailable).OnClick(func() {
 		if err := p.state.Edit(
 			func() error { return p.state.Session.Texts.Apply(edit) },

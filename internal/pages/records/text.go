@@ -119,23 +119,14 @@ func (a *form) textPreview(
 			len(uses),
 		),
 	)
-	for _, kind := range records.Kinds {
-		var fields []string
-		for _, use := range uses {
-			if use.Kind == string(kind) {
-				fields = append(
-					fields,
-					fmt.Sprintf("%02X (%s)", use.ID, locales.Label(use.Field)),
-				)
-			}
-		}
-		if len(fields) > 0 {
-			ui.Text(
-				c,
-				locales.Label(string(kind))+": "+strings.Join(fields, ", "),
-			)
-		}
-	}
+	components.TextUses(
+		c.Key("text-uses"),
+		a.state,
+		uses,
+		edit.UsesComplete(),
+		unavailable,
+		nil,
+	)
 	ui.Button(c, label).Disabled(a.state.Busy || unavailable).OnClick(func() {
 		if err := a.state.Edit(func() error {
 			if err := a.checkTextDraft(key, draft); err != nil {
