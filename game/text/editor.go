@@ -19,6 +19,7 @@ type Use struct {
 	Field            string
 	Pointer, Address int
 	Source           string
+	Record           int // Physical quote-table index for independent script roots.
 }
 
 // References contains confirmed protection and usage facts supplied by the

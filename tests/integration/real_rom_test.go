@@ -91,6 +91,7 @@ func TestROMWorkflows(t *testing.T) {
 				{"worldmap-fe7-markers", editFE7WorldMapMarkers},
 				{"worldmap-fe6-scenes", editFE6WorldMapScene},
 				{"quotes", editQuotes},
+				{"quote-scripts", browseQuoteScripts},
 				{"supports", editSupports},
 				{"terrain", editTerrain},
 				{"arena", editArena},

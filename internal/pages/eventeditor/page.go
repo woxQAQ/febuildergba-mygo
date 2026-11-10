@@ -31,7 +31,12 @@ type (
 		instruction uint64
 		field       string
 	}
+	scriptKey struct {
+		chapter, site int
+		source        string
+	}
 	draftState struct {
+		key        scriptKey
 		data       *event.ScriptDraft
 		selected   int
 		list       ui.ListState
@@ -91,6 +96,7 @@ type Page struct {
 	openMapChange  func(int, int)
 	openWorldMap   func(event.ScriptTarget, int)
 	openPortrait   func(int)
+	openQuote      func(string, int, int)
 	portrait       portraitPreview
 	chapter        int
 	chapterChoice  string
@@ -101,7 +107,7 @@ type Page struct {
 	list           ui.ListState
 	entries, rows  []event.ScriptEntry
 	err            error
-	drafts         map[int]*draftState
+	drafts         map[scriptKey]*draftState
 }
 
 func New(
@@ -115,7 +121,7 @@ func New(
 		openHex:        openHex,
 		openText:       openText,
 		openDeployment: openDeployment,
-		drafts:         make(map[int]*draftState),
+		drafts:         make(map[scriptKey]*draftState),
 	}
 }
 
@@ -133,14 +139,21 @@ func (page *Page) SetWorldMapOpener(
 
 func (page *Page) SetPortraitOpener(open func(int)) { page.openPortrait = open }
 
+func (page *Page) SetQuoteOpener(
+	open func(string, int, int),
+) {
+	page.openQuote = open
+}
+
 func (page *Page) Reset() {
-	mapChange, worldMap, face := page.openMapChange, page.openWorldMap, page.openPortrait
+	mapChange, worldMap, face, quote := page.openMapChange, page.openWorldMap, page.openPortrait, page.openQuote
 	state, hex, text, units, sidebar := page.state, page.openHex, page.openText, page.openDeployment, page.sidebar
 	*page = *New(state, hex, text, units)
 	page.sidebar = sidebar
 	page.openMapChange = mapChange
 	page.openWorldMap = worldMap
 	page.openPortrait = face
+	page.openQuote = quote
 }
 
 func (page *Page) refresh() {
@@ -262,6 +275,10 @@ func (page *Page) navigation(c *ui.Context) {
 					locales.Label("script_worldmap_directory"),
 				)
 			}
+			if state.Session.Events.QuoteScriptsAvailable() {
+				chapters = append(chapters, event.QuoteScripts)
+				captions = append(captions, locales.ScriptQuoteDirectory())
+			}
 			selected := slices.Index(chapters, page.chapter)
 			if selected >= 0 &&
 				!slices.Contains(captions, page.chapterChoice) {
@@ -321,7 +338,11 @@ func (page *Page) navigation(c *ui.Context) {
 					ui.Row(c).Grow(1).Gap(4).AlignItems(ui.Center).
 						Tooltip(fmt.Sprintf("%s · 0x%08X → 0x%08X", entryCaption(entry), entry.Pointer, entry.Address)).
 						Children(func() {
-							ui.Text(c, locales.Label(entry.Source)).
+							caption := locales.Label(entry.Source)
+							if entry.Chapter == event.QuoteScripts {
+								caption = entryCaption(entry)
+							}
+							ui.Text(c, caption).
 								SingleLine().
 								Width(0).
 								Grow(1).
@@ -349,12 +370,17 @@ func (page *Page) navigation(c *ui.Context) {
 		})
 }
 
+func draftKey(entry event.ScriptEntry) scriptKey {
+	return scriptKey{entry.Chapter, entry.Pointer, entry.Source}
+}
+
 func (page *Page) draft(entry event.ScriptEntry) (*draftState, error) {
-	draft := page.drafts[entry.Pointer]
+	key := draftKey(entry)
+	draft := page.drafts[key]
 	if draft != nil && !draft.data.Current(page.state.Session.Events) &&
 		!draft.data.Modified() &&
 		!draft.invalid() {
-		delete(page.drafts, entry.Pointer)
+		delete(page.drafts, key)
 		draft = nil
 	}
 	if draft == nil {
@@ -366,11 +392,12 @@ func (page *Page) draft(entry event.ScriptEntry) (*draftState, error) {
 			return nil, err
 		}
 		draft = &draftState{
+			key:        key,
 			data:       data,
 			inputs:     make(map[operandKey]*numberDraft),
 			references: make(map[operandKey]*referenceDraft),
 		}
-		page.drafts[entry.Pointer] = draft
+		page.drafts[key] = draft
 	}
 	return draft, nil
 }
@@ -406,9 +433,19 @@ func (page *Page) editor(c *ui.Context) {
 			if !draft.data.Current(page.state.Session.Events) {
 				ui.Text(c, locales.DeployStale()).TextColor(c.Theme().Danger)
 			}
+			if draft.data.ReadOnly() {
+				ui.Text(c, locales.ScriptQuoteReadonly()).
+					FontSize(components.FontCaption).
+					TextColor(c.Theme().TextMuted)
+				if entry.Record >= 0 && page.openQuote != nil {
+					ui.Button(c, locales.ScriptOpenQuote()).
+						Disabled(page.state.Busy || !draft.data.Current(page.state.Session.Events)).
+						OnClick(func() { page.openQuote(entry.Source, entry.Record, entry.Pointer) })
+				}
+			}
 			if !draft.data.Complete() {
 				ui.Text(c, locales.ScriptPartial()).TextColor(c.Theme().Warning)
-			} else if !draft.data.Relocatable() {
+			} else if !draft.data.ReadOnly() && !draft.data.Relocatable() {
 				ui.Text(c, locales.ScriptOpaque()).
 					FontSize(components.FontCaption).
 					TextColor(c.Theme().TextMuted)
@@ -429,9 +466,11 @@ func (page *Page) editor(c *ui.Context) {
 					})
 			} else {
 				page.instructionTable(c, draft, rows)
-				ui.Row(c.Key("script-structure")).Children(func() {
-					page.commands(c, draft)
-				})
+				if !draft.data.ReadOnly() {
+					ui.Row(c.Key("script-structure")).Children(func() {
+						page.commands(c, draft)
+					})
+				}
 				ui.Column(c.Key("script-operands")).Gap(8).Children(func() {
 					ui.Text(c, locales.Label(string(rows[draft.selected].Op))).
 						Bold()

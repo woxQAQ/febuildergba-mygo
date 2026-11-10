@@ -73,6 +73,10 @@ func (page *Page) operands(
 	draft *draftState,
 	row event.ScriptInstruction,
 ) {
+	if draft.data.ReadOnly() {
+		page.readOnlyOperands(c, draft, row)
+		return
+	}
 	fields := draft.data.Fields(draft.selected)
 	if !draft.data.Complete() {
 		for _, operand := range draft.data.TextOperands(draft.selected) {
@@ -447,7 +451,7 @@ func (page *Page) actions(c *ui.Context, draft *draftState) {
 			})
 		ui.Button(c, locales.ScriptReload()).
 			Disabled(page.state.Busy).
-			OnClick(func() { delete(page.drafts, draft.data.Entry().Pointer) })
+			OnClick(func() { delete(page.drafts, draft.key) })
 	})
 	if draft.preview == nil {
 		return
@@ -493,7 +497,7 @@ func (page *Page) actions(c *ui.Context, draft *draftState) {
 				),
 			)
 			if page.state.Err == nil {
-				delete(page.drafts, draft.data.Entry().Pointer)
+				delete(page.drafts, draft.key)
 				page.state.HistoryEpoch++
 			}
 		})

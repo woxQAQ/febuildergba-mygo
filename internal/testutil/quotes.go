@@ -6,6 +6,11 @@ import "bytes"
 // Padding and terminator tails deliberately contain nonzero opaque bytes.
 func NewQuoteFixture(version string) *FixtureBuilder {
 	f := NewNativeShopFixture(version)
+	f.quoteTables(version)
+	return f
+}
+
+func (f *FixtureBuilder) quoteTables(version string) {
 	type table struct {
 		name     string
 		pointers []int
@@ -130,5 +135,4 @@ func NewQuoteFixture(version string) *FixtureBuilder {
 		}
 		f.WriteAt(at+len(second)*2, terminator)
 	}
-	return f
 }

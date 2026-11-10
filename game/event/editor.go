@@ -23,6 +23,7 @@ type Source struct {
 	ProtectRange   func(data []byte, owner romwrite.Owner, region romwrite.Range) error
 	DefaultShop    func([]byte) (*shop.Draft, error)
 	InventoryUses  func([]byte, int) []shop.Reference
+	QuoteScripts   func([]byte) ([]ScriptEntry, bool)
 }
 
 type Editor struct {

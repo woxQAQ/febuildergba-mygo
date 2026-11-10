@@ -59,6 +59,8 @@ func (d *ScriptDraft) Instructions() []ScriptInstruction { return scriptRows(d.r
 
 func (d *ScriptDraft) Complete() bool { return d.original.Complete }
 
+func (d *ScriptDraft) ReadOnly() bool { return d.original.ReadOnly }
+
 func (d *ScriptDraft) Modified() bool {
 	for _, row := range d.rows {
 		if len(row.movements) > 0 {
@@ -97,7 +99,7 @@ func (d *ScriptDraft) structural() bool {
 }
 
 func (d *ScriptDraft) Relocatable() bool {
-	if !d.original.Complete {
+	if !d.original.Complete || d.ReadOnly() {
 		return false
 	}
 	for _, row := range d.rows {
@@ -187,6 +189,9 @@ func (d *ScriptDraft) Set(index int, id string, value int64) (err error) {
 		Value:    new(value),
 	}
 	defer func() { err = fault.Wrap(err, "game.change_script_draft", context) }()
+	if d.ReadOnly() {
+		return ErrScriptStructure
+	}
 	for _, field := range d.Fields(index) {
 		if field.ID != id {
 			continue

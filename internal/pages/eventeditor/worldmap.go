@@ -15,6 +15,9 @@ func entryCaption(entry event.ScriptEntry) string {
 	if entry.WorldMap && entry.EventID >= 0 {
 		caption += fmt.Sprintf(" %02X", entry.EventID)
 	}
+	if entry.Chapter == event.QuoteScripts && entry.Record >= 0 {
+		caption += fmt.Sprintf(" · %04X", entry.Record)
+	}
 	return caption
 }
 

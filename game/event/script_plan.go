@@ -57,6 +57,9 @@ func (s *Editor) PlanScriptEdit(
 	if err = draft.binding.Check(s.context); err != nil {
 		return nil, err
 	}
+	if draft.ReadOnly() {
+		return nil, ErrScriptStructure
+	}
 	if !draft.Modified() {
 		return nil, edit.ErrValue
 	}

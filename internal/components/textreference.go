@@ -182,8 +182,14 @@ func TextUses(
 					locales.Label("chapters"),
 					use.ID,
 				)
-				if use.ID == event.WorldMapScripts {
+				switch use.ID {
+				case event.WorldMapScripts:
 					scope = locales.ScriptWorldmapDirectory()
+				case event.QuoteScripts:
+					scope = locales.ScriptQuoteDirectory()
+					if use.Record >= 0 {
+						scope += fmt.Sprintf(" · %04X", use.Record)
+					}
 				}
 				caption = fmt.Sprintf(
 					"%s · %s · %s · %08X",

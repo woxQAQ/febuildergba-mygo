@@ -4174,11 +4174,11 @@ func (msgs Messages) ScriptEditor() string {
 	return Catalog.Format(msgs.locale, "script_editor", nil)
 }
 
-// ScriptChapter says "Script chapter"
+// ScriptChapter says "Script scope"
 // in the language the app shows.
 func ScriptChapter() string { return In(i18n.Locale()).ScriptChapter() }
 
-// ScriptChapter says "Script chapter"
+// ScriptChapter says "Script scope"
 // in the language of msgs.
 func (msgs Messages) ScriptChapter() string {
 	return Catalog.Format(msgs.locale, "script_chapter", nil)
@@ -18098,11 +18098,11 @@ func (msgs Messages) QuoteRecords() string {
 	return Catalog.Format(msgs.locale, "quote_records", nil)
 }
 
-// QuoteSearch says "Character name, character/text ID or row (hex)"
+// QuoteSearch says "Character name, ID or text ID"
 // in the language the app shows.
 func QuoteSearch() string { return In(i18n.Locale()).QuoteSearch() }
 
-// QuoteSearch says "Character name, character/text ID or row (hex)"
+// QuoteSearch says "Character name, ID or text ID"
 // in the language of msgs.
 func (msgs Messages) QuoteSearch() string {
 	return Catalog.Format(msgs.locale, "quote_search", nil)
@@ -18428,14 +18428,104 @@ func (msgs Messages) QuoteOpenText() string {
 	return Catalog.Format(msgs.locale, "quote_open_text", nil)
 }
 
-// QuoteScriptBytes says "View script bytes"
+// QuoteEditText says "Edit dialogue"
 // in the language the app shows.
-func QuoteScriptBytes() string { return In(i18n.Locale()).QuoteScriptBytes() }
+func QuoteEditText() string { return In(i18n.Locale()).QuoteEditText() }
 
-// QuoteScriptBytes says "View script bytes"
+// QuoteEditText says "Edit dialogue"
 // in the language of msgs.
-func (msgs Messages) QuoteScriptBytes() string {
-	return Catalog.Format(msgs.locale, "quote_script_bytes", nil)
+func (msgs Messages) QuoteEditText() string {
+	return Catalog.Format(msgs.locale, "quote_edit_text", nil)
+}
+
+// QuoteChangeText says "Change dialogue"
+// in the language the app shows.
+func QuoteChangeText() string { return In(i18n.Locale()).QuoteChangeText() }
+
+// QuoteChangeText says "Change dialogue"
+// in the language of msgs.
+func (msgs Messages) QuoteChangeText() string {
+	return Catalog.Format(msgs.locale, "quote_change_text", nil)
+}
+
+// QuoteSetText says "Set dialogue"
+// in the language the app shows.
+func QuoteSetText() string { return In(i18n.Locale()).QuoteSetText() }
+
+// QuoteSetText says "Set dialogue"
+// in the language of msgs.
+func (msgs Messages) QuoteSetText() string {
+	return Catalog.Format(msgs.locale, "quote_set_text", nil)
+}
+
+// QuoteContentActions says "Dialogue content actions"
+// in the language the app shows.
+func QuoteContentActions() string { return In(i18n.Locale()).QuoteContentActions() }
+
+// QuoteContentActions says "Dialogue content actions"
+// in the language of msgs.
+func (msgs Messages) QuoteContentActions() string {
+	return Catalog.Format(msgs.locale, "quote_content_actions", nil)
+}
+
+// QuoteLinkScript says "Link event script…"
+// in the language the app shows.
+func QuoteLinkScript() string { return In(i18n.Locale()).QuoteLinkScript() }
+
+// QuoteLinkScript says "Link event script…"
+// in the language of msgs.
+func (msgs Messages) QuoteLinkScript() string {
+	return Catalog.Format(msgs.locale, "quote_link_script", nil)
+}
+
+// QuoteClearText says "Clear text reference"
+// in the language the app shows.
+func QuoteClearText() string { return In(i18n.Locale()).QuoteClearText() }
+
+// QuoteClearText says "Clear text reference"
+// in the language of msgs.
+func (msgs Messages) QuoteClearText() string {
+	return Catalog.Format(msgs.locale, "quote_clear_text", nil)
+}
+
+// QuoteNoContent says "No dialogue set."
+// in the language the app shows.
+func QuoteNoContent() string { return In(i18n.Locale()).QuoteNoContent() }
+
+// QuoteNoContent says "No dialogue set."
+// in the language of msgs.
+func (msgs Messages) QuoteNoContent() string {
+	return Catalog.Format(msgs.locale, "quote_no_content", nil)
+}
+
+// QuoteUsingScript says "This dialogue uses an event script."
+// in the language the app shows.
+func QuoteUsingScript() string { return In(i18n.Locale()).QuoteUsingScript() }
+
+// QuoteUsingScript says "This dialogue uses an event script."
+// in the language of msgs.
+func (msgs Messages) QuoteUsingScript() string {
+	return Catalog.Format(msgs.locale, "quote_using_script", nil)
+}
+
+// QuoteOpenScript says "Browse script"
+// in the language the app shows.
+func QuoteOpenScript() string { return In(i18n.Locale()).QuoteOpenScript() }
+
+// QuoteOpenScript says "Browse script"
+// in the language of msgs.
+func (msgs Messages) QuoteOpenScript() string {
+	return Catalog.Format(msgs.locale, "quote_open_script", nil)
+}
+
+// QuoteScriptApplyFirst says "Apply pending dialogue changes before browsing its script."
+// in the language the app shows.
+func QuoteScriptApplyFirst() string { return In(i18n.Locale()).QuoteScriptApplyFirst() }
+
+// QuoteScriptApplyFirst says "Apply pending dialogue changes before browsing its script."
+// in the language of msgs.
+func (msgs Messages) QuoteScriptApplyFirst() string {
+	return Catalog.Format(msgs.locale, "quote_script_apply_first", nil)
 }
 
 // QuoteOrderHelp says "Moving a record changes its matching order in the full table, including records hidden by the search."
@@ -18448,11 +18538,11 @@ func (msgs Messages) QuoteOrderHelp() string {
 	return Catalog.Format(msgs.locale, "quote_order_help", nil)
 }
 
-// QuoteSearchHelp says "Search only filters this view; it does not change record order."
+// QuoteSearchHelp says "Search by character name, character/text ID or row number. IDs and row numbers use hexadecimal. Search filters the vi…"
 // in the language the app shows.
 func QuoteSearchHelp() string { return In(i18n.Locale()).QuoteSearchHelp() }
 
-// QuoteSearchHelp says "Search only filters this view; it does not change record order."
+// QuoteSearchHelp says "Search by character name, character/text ID or row number. IDs and row numbers use hexadecimal. Search filters the vi…"
 // in the language of msgs.
 func (msgs Messages) QuoteSearchHelp() string {
 	return Catalog.Format(msgs.locale, "quote_search_help", nil)
@@ -19528,6 +19618,36 @@ func ScriptWorldmapDirectory() string { return In(i18n.Locale()).ScriptWorldmapD
 // in the language of msgs.
 func (msgs Messages) ScriptWorldmapDirectory() string {
 	return Catalog.Format(msgs.locale, "script_worldmap_directory", nil)
+}
+
+// ScriptQuoteDirectory says "Battle and defeat scripts"
+// in the language the app shows.
+func ScriptQuoteDirectory() string { return In(i18n.Locale()).ScriptQuoteDirectory() }
+
+// ScriptQuoteDirectory says "Battle and defeat scripts"
+// in the language of msgs.
+func (msgs Messages) ScriptQuoteDirectory() string {
+	return Catalog.Format(msgs.locale, "script_quote_directory", nil)
+}
+
+// ScriptQuoteReadonly says "Script browsing is read-only. Referenced text can be opened and edited."
+// in the language the app shows.
+func ScriptQuoteReadonly() string { return In(i18n.Locale()).ScriptQuoteReadonly() }
+
+// ScriptQuoteReadonly says "Script browsing is read-only. Referenced text can be opened and edited."
+// in the language of msgs.
+func (msgs Messages) ScriptQuoteReadonly() string {
+	return Catalog.Format(msgs.locale, "script_quote_readonly", nil)
+}
+
+// ScriptOpenQuote says "Open dialogue record"
+// in the language the app shows.
+func ScriptOpenQuote() string { return In(i18n.Locale()).ScriptOpenQuote() }
+
+// ScriptOpenQuote says "Open dialogue record"
+// in the language of msgs.
+func (msgs Messages) ScriptOpenQuote() string {
+	return Catalog.Format(msgs.locale, "script_open_quote", nil)
 }
 
 // ScriptWorldmapBeginning says "World-map beginning event"

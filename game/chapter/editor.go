@@ -29,6 +29,7 @@ type Config struct {
 	ProtectPointer func(data []byte, owner romwrite.Owner, site int) error
 	ProtectRange   func(data []byte, owner romwrite.Owner, region romwrite.Range) error
 	InventoryUses  func([]byte, int) []shop.Reference
+	QuoteScripts   func([]byte) ([]event.ScriptEntry, bool)
 }
 
 // Editor coordinates shared chapter resources. The native editors retain their
@@ -63,6 +64,7 @@ func New(
 			Portraits:     config.Portraits,
 			DefaultShop:   config.Shops.Default,
 			InventoryUses: config.InventoryUses,
+			QuoteScripts:  config.QuoteScripts,
 			ResolveMap:    s.Maps.ResolveTarget,
 			ProtectRange:  config.ProtectRange,
 			ProtectPointer: func(data []byte, owner romwrite.Owner, site int) error {

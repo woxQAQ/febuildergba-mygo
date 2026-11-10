@@ -197,5 +197,6 @@ func NewScriptTextFixture(version string) *FixtureBuilder {
 		}
 		f.MarkPosition("text_call", callAt)
 	}
+	f.quoteTables(version)
 	return f
 }

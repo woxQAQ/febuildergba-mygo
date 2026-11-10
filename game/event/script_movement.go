@@ -178,6 +178,9 @@ func (d *ScriptDraft) SetMovement(
 	id string,
 	steps []ScriptMovementStep,
 ) error {
+	if d.ReadOnly() {
+		return ErrScriptStructure
+	}
 	for _, field := range d.Fields(index) {
 		if field.ID != id || field.Target != ScriptMovementTarget {
 			continue

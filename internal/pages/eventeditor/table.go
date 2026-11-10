@@ -45,7 +45,7 @@ func (page *Page) instructionTable(
 				SingleLine().
 				Tooltip(locales.Label(string(row.Op)))
 		case 2:
-			if !row.Editable {
+			if row.Op == event.ScriptUnknown || row.Op == event.ScriptASM {
 				ui.Textf(c, "% X", row.Raw).
 					SingleLine().
 					Font("monospace")

@@ -9,6 +9,7 @@ import (
 	"github.com/woxQAQ/febuildergba-mygo/game/quote"
 	"github.com/woxQAQ/febuildergba-mygo/game/records"
 	"github.com/woxQAQ/febuildergba-mygo/internal/components"
+	"github.com/woxQAQ/febuildergba-mygo/internal/components/icons"
 	"github.com/woxQAQ/febuildergba-mygo/internal/locales"
 )
 
@@ -100,7 +101,7 @@ func (p *Page) listRow(c *ui.Context, entry *tableState, index int) {
 				index,
 				quote.Opponent,
 			); err == nil {
-				ui.Text(c, "↔")
+				ui.Icon(c, icons.Lucide.Swords()).Size(14, 14).Shrink(0)
 				p.person(c.Key("opponent"), other)
 			}
 		})
@@ -119,16 +120,14 @@ func (p *Page) person(c *ui.Context, id uint32) {
 		MinWidth(0).
 		AlignItems(ui.Center).
 		Children(func() {
+			if id != 0 && id <= 255 {
+				portrait := p.thumbnails.Portrait(p.state.Session, int(id))
+				portrait.Inline(c, 24, name)
+			}
 			ui.Text(c, name).
 				SingleLine().
 				Grow(1).
 				MinWidth(0).
 				Tooltip(name)
-			if id != 0 && id <= 255 {
-				portrait := p.thumbnails.Portrait(p.state.Session, int(id))
-				if portrait.Available() {
-					portrait.View(c, 32, name)
-				}
-			}
 		})
 }

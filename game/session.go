@@ -124,6 +124,9 @@ func Open(path string) (session *Session, err error) {
 		chapterConfig.WorldMap = s.WorldMap
 		chapterConfig.Portraits = s.Portraits
 		chapterConfig.InventoryUses = s.inventoryUses
+		if format.quotes.HasScripts() {
+			chapterConfig.QuoteScripts = s.quoteScriptEntries
+		}
 		chapterConfig.ProtectPointer = s.protectPointer
 		chapterConfig.ProtectRange = s.protectRange
 		s.Chapters = chapter.New(context, chapterConfig, s.Records)

@@ -11,7 +11,7 @@ import (
 const TextUse = "event_script"
 
 // TextUses indexes confirmed direct text operands from chapter entries, static
-// calls and the independent world-map directory. Aliases retain their entry
+// calls, the independent world-map directory and native quote scripts. Aliases retain their entry
 // context; repeated visits to the same operand within that context collapse.
 // Dynamic operands, opaque instructions, damaged entries and scan limits leave
 // useful partial results. No script or ASM callback is executed.
@@ -83,6 +83,9 @@ func (s *Editor) indexTextUses() {
 	if s.WorldMapEventsAvailable() {
 		scopes = append(scopes, WorldMapScripts)
 	}
+	if s.QuoteScriptsAvailable() {
+		scopes = append(scopes, QuoteScripts)
+	}
 	seen := make(map[text.Use]bool)
 	// Bound the combined query as well as each existing script graph walk.
 	remaining := 131072
@@ -131,6 +134,9 @@ func (s *Editor) indexTextUses() {
 						Pointer: entry.Pointer,
 						Address: row.instruction.Address,
 						Source:  entry.Source,
+					}
+					if chapter == QuoteScripts {
+						use.Record = entry.Record
 					}
 					if !seen[use] {
 						seen[use] = true

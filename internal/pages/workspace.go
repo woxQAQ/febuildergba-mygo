@@ -205,7 +205,12 @@ func New() *Workspace {
 		},
 	)
 	w.arenas = arenas.New(w.Editor, w.records.Open)
-	w.quotes = quotes.New(w.Editor, w.records.Open, w.openText, w.openHex)
+	w.quotes = quotes.New(
+		w.Editor,
+		w.records.Open,
+		w.openText,
+		w.openQuoteScript,
+	)
 	w.defeats = make(map[int]*quotes.Page)
 	w.records.SetDefeatView(
 		func(c *ui.Context, id int, available float32) { w.defeat(id).ViewDefeat(c, available) },
@@ -259,6 +264,7 @@ func New() *Workspace {
 	})
 	w.scripts.SetMapChangeOpener(w.openMapChange)
 	w.scripts.SetPortraitOpener(w.OpenPortrait)
+	w.scripts.SetQuoteOpener(w.openScriptQuote)
 	w.records.SetScriptOpener(w.OpenScript)
 	return w
 }
@@ -281,7 +287,12 @@ func (w *Workspace) SetSession(session *game.Session) {
 func (w *Workspace) defeat(id int) *quotes.Page {
 	page := w.defeats[id]
 	if page == nil {
-		page = quotes.New(w.Editor, w.records.Open, w.openText, w.openHex)
+		page = quotes.New(
+			w.Editor,
+			w.records.Open,
+			w.openText,
+			w.openQuoteScript,
+		)
 		page.ForUnit(id)
 		w.defeats[id] = page
 	}
@@ -328,10 +339,40 @@ func (w *Workspace) openText(id uint16) {
 	w.texts.Open(id)
 }
 
-// OpenScript navigates to a chapter's physical script entry pointer.
+// OpenScript navigates to a physical entry in a chapter or independent directory.
 func (w *Workspace) OpenScript(chapter, site int) {
 	w.tab = len(records.Kinds) + scriptsTab
 	w.scripts.Open(chapter, site)
+}
+
+func (w *Workspace) openQuoteScript(kind quote.Kind, index, site int) {
+	w.tab = len(records.Kinds) + scriptsTab
+	w.scripts.OpenQuote(string(kind), index, site)
+}
+
+// Return navigation verifies the native record identity again. Split consumers
+// may be browsed independently but cannot select a different canonical table.
+func (w *Workspace) openScriptQuote(source string, index, site int) {
+	kind := quote.Kind(source)
+	for _, table := range w.Editor.Session.Quotes.Tables() {
+		if table.Kind != kind || table.Err != nil || index < 0 ||
+			index >= len(table.Entries) {
+			continue
+		}
+		draft, err := w.Editor.Session.Quotes.NewDraft(kind)
+		if err != nil {
+			w.Editor.SetErr(err)
+			return
+		}
+		for _, field := range draft.Fields() {
+			if field.ID == quote.Script &&
+				table.Entries[index].Address+field.Offset == site {
+				w.OpenQuote(kind, index)
+				return
+			}
+		}
+	}
+	w.Editor.SetErr(quote.ErrReferences)
 }
 
 // OpenPortrait navigates to the resource table referenced by a record.

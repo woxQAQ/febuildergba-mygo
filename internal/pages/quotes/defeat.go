@@ -261,9 +261,7 @@ func (p *Page) defeatBody(
 					}
 				})
 		} else if script != 0 {
-			ui.Button(c, locales.QuoteScriptBytes()).
-				Disabled(disabled || p.openHex == nil || script < 0x080000C0 || script >= 0x0A000000).
-				OnClick(func() { p.openHex(int(script)-0x08000000, 16) })
+			p.scriptLink(c, entry, index, disabled)
 		}
 		if textErr == nil {
 			label := locales.DefeatChangeText()

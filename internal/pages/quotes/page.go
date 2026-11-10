@@ -37,6 +37,8 @@ type (
 		filtered []int
 		selected int
 		list     ui.ListState
+		content  map[uint64]*battleContent
+		editText uint16
 	}
 )
 
@@ -62,7 +64,7 @@ type Page struct {
 	state          *editor.State
 	openRecord     func(records.Kind, int)
 	openText       func(uint16)
-	openHex        func(int, int)
+	openScript     func(quote.Kind, int, int)
 	sidebar        components.Sidebar
 	category       int
 	categoryChoice string
@@ -76,27 +78,29 @@ type Page struct {
 	thumbnails     components.Thumbnails
 	battleScope    int
 	scopeChoice    string
+	textEdit       *battleTextEdit
+	textAction     ui.Handle
 }
 
 func New(
 	state *editor.State,
 	openRecord func(records.Kind, int),
 	openText func(uint16),
-	openHex func(int, int),
+	openScript func(quote.Kind, int, int),
 ) *Page {
 	return &Page{
 		state:      state,
 		unit:       -1,
 		openRecord: openRecord,
 		openText:   openText,
-		openHex:    openHex,
+		openScript: openScript,
 		drafts:     make(map[quote.Kind]*tableState),
 	}
 }
 
 func (p *Page) Reset() {
-	state, record, text, hex, sidebar, unit := p.state, p.openRecord, p.openText, p.openHex, p.sidebar, p.unit
-	*p = *New(state, record, text, hex)
+	state, record, text, script, sidebar, unit := p.state, p.openRecord, p.openText, p.openScript, p.sidebar, p.unit
+	*p = *New(state, record, text, script)
 	p.sidebar, p.unit = sidebar, unit
 }
 
@@ -142,7 +146,11 @@ func (p *Page) draft(table quote.Table) *tableState {
 		entry = nil
 	}
 	if entry == nil || entry.draft == nil && table.Err == nil {
-		entry = &tableState{selected: 0, inputs: make(map[fieldKey]*valueInput)}
+		entry = &tableState{
+			selected: 0,
+			inputs:   make(map[fieldKey]*valueInput),
+			content:  make(map[uint64]*battleContent),
+		}
 		entry.draft, entry.err = p.state.Session.Quotes.NewDraft(table.Kind)
 		p.drafts[table.Kind] = entry
 		if selected != 0 && entry.draft != nil {
@@ -248,6 +256,7 @@ func (p *Page) View(c *ui.Context) {
 		func() { p.navigation(c, entry) },
 		func() { p.detail(c, table, entry) },
 	)
+	p.battleTextTask(c)
 }
 
 func (p *Page) navigation(c *ui.Context, entry *tableState) {
@@ -276,7 +285,7 @@ func (p *Page) navigation(c *ui.Context, entry *tableState) {
 		p.battleFilter(c, entry)
 		components.TextDraft(
 			p.state,
-			ui.TextInput(c, &p.query).
+			ui.SearchField(c.Key("quote-search"), &p.query).
 				Label(locales.QuoteSearch()).
 				Placeholder(locales.QuoteSearch()).
 				Tooltip(locales.QuoteSearchHelp()).
@@ -292,6 +301,24 @@ func (p *Page) navigation(c *ui.Context, entry *tableState) {
 		list.Grow(1)
 		// Keyed lists can clear selection when a deleted row disappears.
 		entry.selected = min(max(0, entry.selected), len(entry.filtered)-1)
+		if entry.draft != nil && !defeatTable(entry.draft.Kind()) {
+			ui.Row(c.Key("list-actions")).
+				Wrap().
+				Gap(8).
+				AlignItems(ui.Center).
+				Children(func() {
+					p.structure(
+						c,
+						entry,
+						p.state.Busy ||
+							!entry.draft.Current(p.state.Session.Quotes),
+					)
+					ui.Box(c).Grow(1)
+					ui.Text(c, locales.RecordSummary(len(entry.filtered))).
+						FontSize(components.FontCaption).
+						TextColor(c.Theme().TextMuted)
+				})
+		}
 		if len(entry.filtered) == 0 {
 			ui.Text(c, locales.QuoteNoMatches()).
 				FontSize(components.FontCaption).
@@ -301,6 +328,10 @@ func (p *Page) navigation(c *ui.Context, entry *tableState) {
 }
 
 func (p *Page) detail(c *ui.Context, table quote.Table, entry *tableState) {
+	if !defeatTable(table.Kind) {
+		p.battleDetail(c, table, entry)
+		return
+	}
 	state, s := p.state, p.state.Session
 	stale := entry.draft == nil || !entry.draft.Current(s.Quotes)
 	ui.Scroll(c.Key(entry)).Fill().Children(func() {
@@ -340,6 +371,7 @@ func (p *Page) detail(c *ui.Context, table quote.Table, entry *tableState) {
 							field,
 							stale || state.Busy,
 							360,
+							true,
 						)
 					}
 				})
@@ -550,6 +582,7 @@ func (p *Page) field(
 	field quote.Field,
 	disabled bool,
 	width float32,
+	showLabel bool,
 ) {
 	value, _ := entry.draft.Value(index, field.ID)
 	extended := !field.Editable(entry.rows[index].Raw)
@@ -563,10 +596,12 @@ func (p *Page) field(
 		}
 		label := fieldLabel(entry.draft.Kind(), field.ID)
 		ui.Column(c).Gap(4).Children(func() {
-			ui.Text(c, label).
-				FontSize(components.FontCaption).
-				Bold().
-				Tooltip(p.fieldHelp(entry.draft.Kind(), field.ID))
+			if showLabel {
+				ui.Text(c, label).
+					FontSize(components.FontCaption).
+					Bold().
+					Tooltip(p.fieldHelp(entry.draft.Kind(), field.ID))
+			}
 			components.TextReference(
 				c,
 				p.state,
@@ -598,18 +633,27 @@ func (p *Page) field(
 	label := fieldLabel(entry.draft.Kind(), field.ID)
 	help := p.fieldHelp(entry.draft.Kind(), field.ID)
 	ui.Column(c).Gap(4).Children(func() {
-		ui.Text(c, label).FontSize(components.FontCaption).Bold().Tooltip(help)
+		if showLabel {
+			ui.Text(c, label).
+				FontSize(components.FontCaption).
+				Bold().
+				Tooltip(help)
+		}
 		if extended {
 			ui.Text(c, locales.QuoteExtendedUnit()).
 				FontSize(components.FontCaption).
 				TextColor(c.Theme().TextMuted)
 		}
-		ui.Row(c).Wrap().Gap(8).Children(func() {
+		fieldRow := ui.Row(c).Gap(0).AlignItems(ui.Center)
+		if len(labels) == 0 {
+			fieldRow.Wrap().Gap(8)
+		}
+		fieldRow.Children(func() {
 			if len(labels) > 0 {
 				components.TextDraft(
 					p.state,
 					ui.Combobox(c, &current.text, labels).
-						Width(max(100, width)).
+						Width(max(100, width)).Grow(1).MinWidth(0).
 						MaxWidthPercent(100).
 						Label(locales.QuoteEditor()+" / "+label).
 						Tooltip(help).
@@ -710,9 +754,7 @@ func (p *Page) field(
 					func() { p.openRecord(records.Chapters, int(value)) },
 				)
 			case quote.Script:
-				ui.Button(c, locales.QuoteScriptBytes()).
-					Disabled(p.state.Busy || value < 0x080000C0 || value >= 0x0A000000).
-					OnClick(func() { p.openHex(int(value)-0x08000000, 16) })
+				p.scriptLink(c, entry, index, p.state.Busy)
 			}
 		})
 		if current.invalid {
@@ -780,6 +822,7 @@ func (p *Page) actions(c *ui.Context, entry *tableState, stale bool) {
 				Disabled(p.state.Busy || stale || !modified || invalid).
 				OnClick(func() {
 					p.defeat.openText = 0
+					entry.editText = 0
 					preview, err := p.state.Session.Quotes.Plan(entry.draft)
 					entry.preview, entry.err = preview, err
 					p.state.SetErr(err)
@@ -827,7 +870,8 @@ func (p *Page) actions(c *ui.Context, entry *tableState, stale bool) {
 			}
 			ui.Row(c).Children(func() {
 				label := locales.QuoteApply()
-				if p.unit >= 0 && p.defeat.openText != 0 {
+				if entry.editText != 0 ||
+					p.unit >= 0 && p.defeat.openText != 0 {
 					label = locales.DefeatApplyAndEdit()
 				}
 				ui.PrimaryButton(c, label).
@@ -841,11 +885,12 @@ func (p *Page) actions(c *ui.Context, entry *tableState, stale bool) {
 						if p.state.Err == nil {
 							selected := entry.index()
 							delete(p.drafts, entry.draft.Kind())
-							if p.unit >= 0 {
-								fresh := p.draft(p.tables[p.category])
-								p.selectIndex(fresh, selected)
-							}
+							fresh := p.draft(p.tables[p.category])
+							p.selectIndex(fresh, selected)
 							p.state.HistoryEpoch++
+							if entry.editText != 0 && p.openText != nil {
+								p.openText(entry.editText)
+							}
 							if id := p.defeat.openText; p.unit >= 0 &&
 								id != 0 &&
 								p.openText != nil {

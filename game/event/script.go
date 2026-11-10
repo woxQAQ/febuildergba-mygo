@@ -33,6 +33,8 @@ type ScriptEntry struct {
 	Err                       error
 	WorldMap                  bool
 	EventID                   int
+	// Record is the physical quote-table index; -1 denotes a call or invalid root.
+	Record int
 }
 
 type ScriptInstruction struct {
@@ -57,6 +59,7 @@ type scriptRow struct {
 type Script struct {
 	Entry        ScriptEntry
 	Complete     bool
+	ReadOnly     bool
 	Instructions []ScriptInstruction
 	rows         []scriptRow
 	format       Format
@@ -79,7 +82,11 @@ func scriptRows(rows []scriptRow) []ScriptInstruction {
 }
 
 func (f Format) readScript(data []byte, entry ScriptEntry) Script {
-	result := Script{Entry: entry, format: f}
+	result := Script{
+		Entry:    entry,
+		format:   f,
+		ReadOnly: entry.Chapter == QuoteScripts,
+	}
 	if entry.Address == 0 {
 		result.Complete = true
 		return result
@@ -128,6 +135,7 @@ func (f Format) readScript(data []byte, entry ScriptEntry) Script {
 			row.instruction.Op = ScriptASM
 		}
 		row.describe(definitions, at)
+		row.instruction.Editable = row.instruction.Editable && !result.ReadOnly
 		result.rows = append(result.rows, row)
 		if row.label >= 0 {
 			labels[row.label] = true
@@ -165,6 +173,18 @@ func (s *Editor) scriptIndex(chapter int) (scriptIndex, error) {
 	if cached, ok := s.scriptIndexes[chapter]; ok &&
 		cached.binding.Current(s.context) {
 		return cached, nil
+	}
+	if chapter == QuoteScripts {
+		result, err := s.quoteScriptIndex(format)
+		if err != nil {
+			return scriptIndex{}, err
+		}
+		result.binding = s.image.Stamp()
+		if s.scriptIndexes == nil {
+			s.scriptIndexes = make(map[int]scriptIndex)
+		}
+		s.scriptIndexes[chapter] = result
+		return result, nil
 	}
 	if chapter == WorldMapScripts {
 		if !s.WorldMapEventsAvailable() {
@@ -278,7 +298,12 @@ func (s *Editor) scriptIndex(chapter int) (scriptIndex, error) {
 }
 
 func scriptEntry(data []byte, chapter, site int, source string) ScriptEntry {
-	entry := ScriptEntry{Chapter: chapter, Pointer: site, Source: source}
+	entry := ScriptEntry{
+		Chapter: chapter,
+		Pointer: site,
+		Source:  source,
+		Record:  -1,
+	}
 	if site < 0xC0 || site%4 != 0 || !gba.Within(data, site, 4) {
 		entry.Err = ErrScript
 		return entry
